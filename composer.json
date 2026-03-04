@@ -10,7 +10,6 @@
         "doctrine/dbal": "^4.4",
         "google/apiclient": "^2.19",
         "laravel/ai": "@beta",
-        "laravel/breeze": "^2.3",
         "laravel/framework": "^12.0",
         "laravel/legacy-factories": "^1.4",
         "laravel/sanctum": "^4.3",
@@ -22,6 +21,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "laravel/breeze": "^2.3",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
