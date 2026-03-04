@@ -7,9 +7,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "doctrine/dbal": "^4.4",
+        "google/apiclient": "^2.19",
         "laravel/ai": "@beta",
         "laravel/breeze": "^2.3",
         "laravel/framework": "^12.0",
+        "laravel/legacy-factories": "^1.4",
         "laravel/sanctum": "^4.3",
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
