@@ -11,7 +11,7 @@
         <img 
             src="{{ asset('images/cover.jpg') }}" 
             alt="City Hall Background"
-            class="w-full h-full object-cover opacity-30"
+            class="w-full h-full object-cover"
         >
     </div>
 
@@ -23,12 +23,12 @@
     <!-- Center Menu - perfectly centered -->
     <ul class="flex gap-8 text-sm font-medium text-gray-700">
         <li>
-            <a href="#home" class="px-4 py-1 rounded-full border border-blue-500 text-blue-600">
+            <a href="#home" class="px-4 py-1 rounded-full border #1F363D text-blue-600">
                 Home
             </a>
         </li>
         <li>
-            <a href="#courses" class="hover:text-blue-600 transition">Courses</a>
+            <a href="#services" class="hover:text-blue-600 transition">Services</a>
         </li>
         <li>
             <a href="#community" class="hover:text-blue-600 transition">Community</a>
@@ -129,8 +129,8 @@
     </div>
 </section>
 
-<!-- Courses Section -->
-<section id="courses" class="bg-gray-50 py-16 px-6 md:px-20">
+<!-- Services Section -->
+<section id="services" class="bg-gray-50 py-16 px-6 md:px-20">
     <div class="max-w-7xl mx-auto text-center mb-12">
         <h2 class="text-2xl md:text-3xl font-bold mb-3">Services Offered</h2>
         <p class="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
@@ -138,9 +138,9 @@
         </p>
     </div>
 
-    <!-- Course Cards -->
+    <!-- CCards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        <!-- Course 1 -->
+
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
             <img src="{{ asset('images/course1.jpg') }}"
                 alt="Child Protection & Rights" 
@@ -151,7 +151,6 @@
             </div>
         </div>
 
-        <!-- Course 2 -->
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
             <img src="{{ asset('images/course22.jpg') }}"
                 alt="Disaster Preparedness" 
@@ -162,7 +161,6 @@
             </div>
         </div>
 
-       <!-- Course 2 -->
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
             <img src="{{ asset('images/course22.jpg') }}"
                 alt="Disaster Preparedness" 
