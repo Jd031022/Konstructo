@@ -1,11 +1,14 @@
-@extends('layouts.guest')
+@extends('layouts.app')
 
 @section('title', 'Verify Email - Konstructo')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center p-4">
-    <!-- Card Container -->
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+<div class="min-h-screen flex items-center justify-center p-4 relative">
+    <!-- Dark Background Overlay with 30% opacity -->
+    <div class="fixed inset-0 bg-black opacity-30 z-0"></div>
+    
+    <!-- Card Container - 60% width and height -->
+    <div class="relative z-10 bg-white rounded-2xl shadow-xl w-full max-w-[60%] h-[60vh] p-8 flex flex-col justify-center">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold text-gray-900 mb-2">Verify your Email</h1>
@@ -142,6 +145,13 @@
     input[type="text"]::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
+    }
+    
+    /* Ensure the card content is properly centered vertically */
+    .flex-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 </style>
 @endpush

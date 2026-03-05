@@ -286,11 +286,19 @@
                                 <button type="submit" id="submit-btn"
                                     class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold 
                                            hover:bg-green-700 transition-all duration-200
-                                           shadow-lg hover:shadow-xl flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Create Account
+                                           shadow-lg hover:shadow-xl flex items-center justify-center gap-2 min-w-[180px]">
+                                    <span class="inline-flex items-center gap-2" id="button-text">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Create Account
+                                    </span>
+                                    <span class="hidden" id="button-spinner">
+                                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -308,60 +316,99 @@
 </div>
 
 <!-- Verification Modal -->
-<div id="verification-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">Verify Your Email</h3>
-            <div class="mt-2 px-7 py-3">
-                <p class="text-sm text-gray-500">
-                    We've sent a 6-digit verification code to <span id="modal-email" class="font-semibold"></span>
+<div id="verification-modal" class="fixed inset-0 bg-white overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center">
+                <!-- Close button -->
+                <button onclick="closeVerificationModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Mail Icon -->
+                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-100 mb-4">
+                    <svg class="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h3>
+                <p class="text-gray-600 mb-2">
+                    We've sent a 6-digit verification code to
                 </p>
+                <p class="text-sm font-semibold text-blue-600 mb-6" id="modal-email"></p>
                 
                 <!-- Verification Code Input -->
-                <div class="mt-4">
-                    <div class="flex justify-center gap-2 mb-4">
-                        <input type="text" id="code1" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code2')">
-                        <input type="text" id="code2" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code3')">
-                        <input type="text" id="code3" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code4')">
-                        <input type="text" id="code4" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code5')">
-                        <input type="text" id="code5" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code6')">
-                        <input type="text" id="code6" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Enter the 6-digit code
+                    </label>
+                    <div class="flex gap-2 justify-center">
+                        <input type="text" id="code1" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeyup="moveToNext(this, 'code2')">
+                        <input type="text" id="code2" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeyup="moveToNext(this, 'code3')">
+                        <input type="text" id="code3" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeyup="moveToNext(this, 'code4')">
+                        <input type="text" id="code4" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeyup="moveToNext(this, 'code5')">
+                        <input type="text" id="code5" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeyup="moveToNext(this, 'code6')">
+                        <input type="text" id="code6" maxlength="1" 
+                            class="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     
-                    <div id="verification-error" class="text-sm text-red-600 mb-2 hidden"></div>
-                    <div id="verification-success" class="text-sm text-green-600 mb-2 hidden"></div>
-                    
-                    <button onclick="verifyEmail()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-                        Verify Email
-                    </button>
-                    
-                    <div class="mt-3">
-                        <button onclick="resendCode()" class="text-sm text-blue-600 hover:underline">
+                    <div id="verification-error" class="text-sm text-red-600 mt-2 hidden"></div>
+                    <div id="verification-success" class="text-sm text-green-600 mt-2 hidden"></div>
+                </div>
+                
+                <!-- Verify Button -->
+                <button onclick="verifyEmail()" id="verify-btn"
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold 
+                           hover:bg-blue-700 transition-all duration-200
+                           shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mb-4">
+                    <span id="verify-btn-text">Verify Email</span>
+                    <span id="verify-btn-spinner" class="hidden">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+                
+                <!-- Resend Code -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Didn't receive the code? 
+                        <button onclick="resendCode()" class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
                             Resend Code
                         </button>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-800">
-                            ← Back to Login
-                        </a>
-                    </div>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Loading Spinner -->
-<div id="loading-spinner" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+<!-- Global Loading Overlay (for major operations) -->
+<div id="global-loading" class="fixed inset-0 bg-black bg-opacity-30 overflow-y-auto h-full w-full hidden z-[100]">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-40">
-        <div class="flex justify-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+            <p class="text-white text-sm font-medium" id="global-loading-text">Processing...</p>
         </div>
     </div>
 </div>
@@ -601,6 +648,70 @@ function showValidationErrors(errors) {
     }, 5000);
 }
 
+// Show loading on submit button
+function showButtonLoading() {
+    const buttonText = document.getElementById('button-text');
+    const buttonSpinner = document.getElementById('button-spinner');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    buttonText.classList.add('hidden');
+    buttonSpinner.classList.remove('hidden');
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+}
+
+// Hide loading on submit button
+function hideButtonLoading() {
+    const buttonText = document.getElementById('button-text');
+    const buttonSpinner = document.getElementById('button-spinner');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    buttonText.classList.remove('hidden');
+    buttonSpinner.classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+}
+
+// Show global loading overlay
+function showGlobalLoading(message = 'Processing...') {
+    document.getElementById('global-loading-text').textContent = message;
+    document.getElementById('global-loading').classList.remove('hidden');
+}
+
+// Hide global loading overlay
+function hideGlobalLoading() {
+    document.getElementById('global-loading').classList.add('hidden');
+}
+
+// Show verify button loading
+function showVerifyButtonLoading() {
+    const btnText = document.getElementById('verify-btn-text');
+    const btnSpinner = document.getElementById('verify-btn-spinner');
+    const verifyBtn = document.getElementById('verify-btn');
+    
+    btnText.classList.add('hidden');
+    btnSpinner.classList.remove('hidden');
+    verifyBtn.disabled = true;
+    verifyBtn.classList.add('opacity-75', 'cursor-not-allowed');
+}
+
+// Hide verify button loading
+function hideVerifyButtonLoading() {
+    const btnText = document.getElementById('verify-btn-text');
+    const btnSpinner = document.getElementById('verify-btn-spinner');
+    const verifyBtn = document.getElementById('verify-btn');
+    
+    btnText.classList.remove('hidden');
+    btnSpinner.classList.add('hidden');
+    verifyBtn.disabled = false;
+    verifyBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+}
+
+// Close verification modal
+function closeVerificationModal() {
+    document.getElementById('verification-modal').classList.add('hidden');
+}
+
 // Handle form submission
 document.getElementById('registration-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -610,8 +721,8 @@ document.getElementById('registration-form').addEventListener('submit', async fu
         return;
     }
     
-    // Show loading spinner
-    document.getElementById('loading-spinner').classList.remove('hidden');
+    // Show loading on button
+    showButtonLoading();
     
     // Collect form data
     const formData = new FormData(this);
@@ -633,22 +744,24 @@ document.getElementById('registration-form').addEventListener('submit', async fu
             registeredEmail = data.email;
             registeredUserId = data.user.id;
             
-            // Show verification modal
+            // Hide button loading
+            hideButtonLoading();
+            
+            // Set email in verification modal
             document.getElementById('modal-email').textContent = registeredEmail;
-            document.getElementById('verification-modal').classList.remove('hidden');
             
             // Clear any previous verification inputs
             for (let i = 1; i <= 6; i++) {
                 document.getElementById(`code${i}`).value = '';
             }
             
+            // Show verification modal directly
+            document.getElementById('verification-modal').classList.remove('hidden');
+            
             showSuccess('Registration successful! Please check your email for verification code.');
             
-            // Reset form and hide spinner
-            document.getElementById('loading-spinner').classList.add('hidden');
-            
         } else {
-            document.getElementById('loading-spinner').classList.add('hidden');
+            hideButtonLoading();
             
             if (data.errors) {
                 showValidationErrors(data.errors);
@@ -657,7 +770,7 @@ document.getElementById('registration-form').addEventListener('submit', async fu
             }
         }
     } catch (error) {
-        document.getElementById('loading-spinner').classList.add('hidden');
+        hideButtonLoading();
         showError('An error occurred. Please try again.');
         console.error('Error:', error);
     }
@@ -673,7 +786,7 @@ function moveToNext(current, nextId) {
 // Verify email
 async function verifyEmail() {
     // Collect code
-    const code = '';
+    let code = '';
     for (let i = 1; i <= 6; i++) {
         code += document.getElementById(`code${i}`).value;
     }
@@ -688,8 +801,8 @@ async function verifyEmail() {
     document.getElementById('verification-error').classList.add('hidden');
     document.getElementById('verification-success').classList.add('hidden');
     
-    // Show loading spinner
-    document.getElementById('loading-spinner').classList.remove('hidden');
+    // Show verify button loading
+    showVerifyButtonLoading();
     
     try {
         const response = await fetch('/verify-email', {
@@ -711,20 +824,23 @@ async function verifyEmail() {
             document.getElementById('verification-success').textContent = 'Email verified successfully! Redirecting to login...';
             document.getElementById('verification-success').classList.remove('hidden');
             
+            // Show global loading before redirect
+            showGlobalLoading('Verification successful! Redirecting...');
+            
             // Redirect to login after 2 seconds
             setTimeout(() => {
                 window.location.href = '/login';
             }, 2000);
         } else {
+            hideVerifyButtonLoading();
             document.getElementById('verification-error').textContent = data.message || 'Invalid verification code';
             document.getElementById('verification-error').classList.remove('hidden');
         }
     } catch (error) {
+        hideVerifyButtonLoading();
         document.getElementById('verification-error').textContent = 'An error occurred. Please try again.';
         document.getElementById('verification-error').classList.remove('hidden');
         console.error('Error:', error);
-    } finally {
-        document.getElementById('loading-spinner').classList.add('hidden');
     }
 }
 
@@ -732,7 +848,6 @@ async function verifyEmail() {
 async function resendCode() {
     document.getElementById('verification-error').classList.add('hidden');
     document.getElementById('verification-success').classList.add('hidden');
-    document.getElementById('loading-spinner').classList.remove('hidden');
     
     try {
         const response = await fetch('/resend-verification', {
@@ -766,16 +881,15 @@ async function resendCode() {
         document.getElementById('verification-error').textContent = 'An error occurred. Please try again.';
         document.getElementById('verification-error').classList.remove('hidden');
         console.error('Error:', error);
-    } finally {
-        document.getElementById('loading-spinner').classList.add('hidden');
     }
 }
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('verification-modal');
-    if (event.target === modal) {
-        modal.classList.add('hidden');
+    const verificationModal = document.getElementById('verification-modal');
+    
+    if (event.target === verificationModal) {
+        verificationModal.classList.add('hidden');
     }
 }
 
@@ -798,7 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* Modal animation */
-#verification-modal, #loading-spinner {
+#verification-modal, #global-loading {
     transition: opacity 0.3s ease;
 }
 
@@ -810,6 +924,21 @@ input[type="text"].text-center::-webkit-outer-spin-button,
 input[type="text"].text-center::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+/* Disabled button styling */
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Animation for spinner */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }
 </style>
 @endsection

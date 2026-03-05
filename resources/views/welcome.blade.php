@@ -22,26 +22,24 @@
 
     <!-- Center Menu - perfectly centered -->
     <ul class="flex gap-8 text-sm font-medium text-gray-700">
-        <li>
-            <a href="#home" class="px-4 py-1 rounded-full border #1F363D text-blue-600">
-                Home
-            </a>
+         <li>
+            <a href="#home" class="hover:text-[#9EC1A3] transition">Home</a>
         </li>
         <li>
-            <a href="#services" class="hover:text-blue-600 transition">Services</a>
+            <a href="#services" class="hover:text-[#9EC1A3] transition">Services</a>
         </li>
         <li>
-            <a href="#community" class="hover:text-blue-600 transition">Community</a>
+            <a href="#community" class="hover:text-[#9EC1A3] transition">Community</a>
         </li>
         <li>
-            <a href="#about" class="hover:text-blue-600 transition">About</a>
+            <a href="#about" class="hover:text-[#9EC1A3] transition">About</a>
         </li>
     </ul>
 
     <!-- Right Buttons - fixed width to match left spacer -->
     <div class="flex items-center gap-3 w-[180px] justify-end">
         <a href="{{ route('login') }}" 
-           class="px-4 py-1.5 text-sm rounded-full bg-gray-200 hover:bg-gray-300 transition">
+           class="px-4 py-1.5 text-sm rounded-full bg-white-200 hover:bg-gray-300 transition shadow-sm">
             Log in
         </a>
         <a href="{{ route('register') }}" 
@@ -114,21 +112,6 @@
     </div>
 </section>
 
-<!-- Section: Learning Path with Image Overlay -->
-<section class="relative">
-    <img src="{{ asset('images/cover2.jpg') }}"
-        class="w-full h-[420px] object-cover" 
-        alt="Learning Group">
-    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center px-6 md:px-20 text-white">
-        <h2 class="text-2xl md:text-3xl font-semibold mb-2">Our Community</h2>
-        <p class="max-w-2xl text-sm md:text-base leading-relaxed">
-            Konsctructo thrives on collaboration between engineers, city planners, and decision-makers. The platform encourages shared knowledge and accountability: 
-        </p>
-        <p class="max-w-2xl text-sm md:text-base leading-relaxed">
-           Connect with project engineers and departments. Share updates, progress photos, and reports. Collaborate on approvals and validations
-    </div>
-</section>
-
 <!-- Services Section -->
 <section id="services" class="bg-gray-50 py-16 px-6 md:px-20">
     <div class="max-w-7xl mx-auto text-center mb-12">
@@ -172,6 +155,23 @@
         </div>
 
 </section>
+
+<!-- Section: Learning Path with Image Overlay -->
+<section class="relative">
+    <img src="{{ asset('images/cover2.jpg') }}"
+        class="w-full h-[420px] object-cover" 
+        alt="Learning Group">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center px-6 md:px-20 text-white">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-2">Our Community</h2>
+        <p class="max-w-2xl text-sm md:text-base leading-relaxed">
+            Konsctructo thrives on collaboration between engineers, city planners, and decision-makers. The platform encourages shared knowledge and accountability: 
+        </p>
+        <p class="max-w-2xl text-sm md:text-base leading-relaxed">
+           Connect with project engineers and departments. Share updates, progress photos, and reports. Collaborate on approvals and validations
+    </div>
+</section>
+
+
 
 <section id="community" class="bg-white py-16 px-6 md:px-20"> 
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
