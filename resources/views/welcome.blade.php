@@ -173,7 +173,6 @@
 
 </section>
 
-<!-- Community Section -->
 <section id="community" class="bg-white py-16 px-6 md:px-20"> 
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <!-- Image -->
@@ -181,17 +180,17 @@
             alt="Community Collaboration" 
             class="rounded-2xl shadow-md w-full h-[350px] object-cover">
         
-        <!-- Text -->
+        <!-- Text - CHANGED from "Our Community" to "Stakeholder Network" -->
         <div class="flex flex-col justify-center items-center text-center">
-            <h2 class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Our Community</h2>
+            <h2 class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Stakeholder Network</h2>
             <p class="text-gray-600 text-base md:text-lg mb-4 max-w-xl">
-                Turo Moko thrives through the collective efforts of learners, teachers, and advocates. 
-                Our community fosters collaboration, shared knowledge, and support to drive meaningful change. 
+                Konstructo connects all key players in infrastructure development—from city planners and engineers to barangay officials and community representatives—creating a unified platform for collaborative governance.
             </p>
             <ul class="list-disc list-inside text-gray-600 space-y-2 text-left">
-                <li>Connect with like-minded advocates</li>
-                <li>Share resources and experiences</li>
-                <li>Collaborate on local and national initiatives</li>
+                <li>Connect with project engineers and department heads</li>
+                <li>Share real-time progress updates and documentation</li>
+                <li>Collaborate on approvals and quality validation</li>
+                <li>Engage with community stakeholders for feedback</li>
             </ul>
         </div>
     </div>
@@ -200,27 +199,26 @@
 <!-- About Section -->
 <section id="about" class="bg-gray-50 py-16 px-6 md:px-20">
     <div class="max-w-5xl mx-auto text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">About Turo Moko</h2>
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">About <b>Konstructo</b></h2>
         <p class="text-gray-600 text-base md:text-lg max-w-3xl mx-auto mb-8">
-            Turo Moko is a capstone project developed as a prototype e-learning platform to support 
-            civil society organizations and communities in Albay. The platform is designed to make 
-            learning more accessible, collaborative, and inclusive by offering free online courses, 
-            community spaces, and resources for local advocacies.  
+            Konstructo for local government units. The system supports transparency, accountability, and efficient project tracking through real-time dashboards, automated DSS-AI progress assessment, and secure document management.
         </p>
 
-        <!-- Stats or Values -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-10">
-            <div class="bg-white shadow-md rounded-xl p-6">
-                <h3 class="text-2xl font-bold text-orange-500 mb-2">0</h3>
-                <p class="text-gray-600 text-sm">Prototype Users</p>
+         <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-10">
+            <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <p class="text-gray-600 text-sm font-semibold">Infrastructure Projects</p>
+                <p class="text-gray-500 text-xs mt-1">Tracked & Monitored</p>
             </div>
-            <div class="bg-white shadow-md rounded-xl p-6">
-                <h3 class="text-2xl font-bold text-orange-500 mb-2">0</h3>
-                <p class="text-gray-600 text-sm">Test Communities</p>
+            <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <p class="text-gray-600 text-sm font-semibold">Partner LGUs</p>
+                <p class="text-gray-500 text-xs mt-1">Across Bicol Region</p>
             </div>
-            <div class="bg-white shadow-md rounded-xl p-6">
-                <h3 class="text-2xl font-bold text-orange-500 mb-2">0</h3>
-                <p class="text-gray-600 text-sm">Pilot Courses</p>
+            <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <p class="text-gray-600 text-sm font-semibold">Faster Reporting</p>
+                <p class="text-gray-500 text-xs mt-1">Compared to Manual Systems</p>
             </div>
         </div>
     </div>

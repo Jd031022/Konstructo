@@ -317,7 +317,7 @@ function updateProgress() {
             text.className = 'mt-3 text-sm font-semibold text-green-600 bg-white px-3 py-1 rounded-full shadow-sm';
         } else if (i === currentStep) {
             // Current step - #40798C
-            circle.className = 'w-14 h-14 rounded-full bg-[#40798C] text-[#40798C] flex items-center justify-center font-bold text-xl shadow-xl transform scale-110';
+            circle.className = 'w-14 h-14 rounded-full bg-[#40798C] text-white flex items-center justify-center font-bold text-xl shadow-xl transform scale-110';
             circle.innerHTML = i;
             text.className = 'mt-3 text-sm font-semibold text-[#40798C] bg-white px-3 py-1 rounded-full shadow-md';
         } else {
