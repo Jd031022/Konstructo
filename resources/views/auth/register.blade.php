@@ -28,47 +28,54 @@
 
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <!-- Progress Bar inside white container -->
-<div class="p-6 border-b border-gray-100">
-    <div class="flex items-center justify-between relative">
-        <!-- Step 1 -->
-        <div class="flex flex-col items-center relative z-10" id="step1-indicator">
-            <div class="w-14 h-14 rounded-full bg-[#40798C] text-black flex items-center justify-center font-bold text-xl shadow-xl transform transition-all duration-300 hover:scale-110" id="step1-circle" style="padding: 0.5rem;">
-                1
-            </div>
-            <span class="mt-3 text-sm font-semibold text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step1-text">Personal Info</span>
-            <div class="w-1 h-8 bg-[#40798C] mt-1 rounded-full" id="step1-line" style="display: none;"></div>
-        </div>
-        
-        <!-- Line 1 -->
-        <div class="flex-1 h-1.5 mx-2 bg-gradient-to-r from-[#1F363D] to-[#CFE0C3] rounded-full relative top-[-12px]" id="line-1">
-            <div class="h-1.5 bg-[#1F363D] rounded-full" id="progress-line-1" style="width: 0%"></div>
-        </div>
-        
-        <!-- Step 2 -->
-        <div class="flex flex-col items-center relative z-10" id="step2-indicator">
-            <div class="w-14 h-14 rounded-full bg-[#CFE0C3] text-[#1F363D] flex items-center justify-center font-bold text-xl shadow-md transform transition-all duration-300 hover:scale-110" id="step2-circle" style="padding: 0.5rem;">
-                2
-            </div>
-            <span class="mt-3 text-sm font-medium text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step2-text">Account Details</span>
-            <div class="w-1 h-8 bg-[#CFE0C3] mt-1 rounded-full" id="step2-line" style="display: none;"></div>
-        </div>
-        
-        <!-- Line 2 -->
-        <div class="flex-1 h-1.5 mx-2 bg-[#CFE0C3] rounded-full relative top-[-12px]"></div>
-        
-        <!-- Step 3 -->
-        <div class="flex flex-col items-center relative z-10" id="step3-indicator">
-            <div class="w-14 h-14 rounded-full bg-[#CFE0C3] text-[#1F363D] flex items-center justify-center font-bold text-xl shadow-md transform transition-all duration-300 hover:scale-110" id="step3-circle" style="padding: 0.5rem;">
-                3
-            </div>
-            <span class="mt-3 text-sm font-medium text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step3-text">Review & Submit</span>
-            <div class="w-1 h-8 bg-[#CFE0C3] mt-1 rounded-full" id="step3-line" style="display: none;"></div>
-        </div>
-    </div>
-</div>
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center justify-between relative">
+                        <!-- Step 1 -->
+                        <div class="flex flex-col items-center relative z-10" id="step1-indicator">
+                            <div class="w-14 h-14 rounded-full bg-[#40798C] text-black flex items-center justify-center font-bold text-xl shadow-xl transform transition-all duration-300 hover:scale-110" id="step1-circle" style="padding: 0.5rem;">
+                                1
+                            </div>
+                            <span class="mt-3 text-sm font-semibold text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step1-text">Personal Info</span>
+                            <div class="w-1 h-8 bg-[#40798C] mt-1 rounded-full" id="step1-line" style="display: none;"></div>
+                        </div>
+                        
+                        <!-- Line 1 -->
+                        <div class="flex-1 h-1.5 mx-2 bg-gradient-to-r from-[#1F363D] to-[#CFE0C3] rounded-full relative top-[-12px]" id="line-1">
+                            <div class="h-1.5 bg-[#1F363D] rounded-full" id="progress-line-1" style="width: 0%"></div>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="flex flex-col items-center relative z-10" id="step2-indicator">
+                            <div class="w-14 h-14 rounded-full bg-[#CFE0C3] text-[#1F363D] flex items-center justify-center font-bold text-xl shadow-md transform transition-all duration-300 hover:scale-110" id="step2-circle" style="padding: 0.5rem;">
+                                2
+                            </div>
+                            <span class="mt-3 text-sm font-medium text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step2-text">Account Details</span>
+                            <div class="w-1 h-8 bg-[#CFE0C3] mt-1 rounded-full" id="step2-line" style="display: none;"></div>
+                        </div>
+                        
+                        <!-- Line 2 -->
+                        <div class="flex-1 h-1.5 mx-2 bg-[#CFE0C3] rounded-full relative top-[-12px]"></div>
+                        
+                        <!-- Step 3 -->
+                        <div class="flex flex-col items-center relative z-10" id="step3-indicator">
+                            <div class="w-14 h-14 rounded-full bg-[#CFE0C3] text-[#1F363D] flex items-center justify-center font-bold text-xl shadow-md transform transition-all duration-300 hover:scale-110" id="step3-circle" style="padding: 0.5rem;">
+                                3
+                            </div>
+                            <span class="mt-3 text-sm font-medium text-[#40798C] bg-white px-3 py-1 rounded-full shadow-sm" id="step3-text">Review & Submit</span>
+                            <div class="w-1 h-8 bg-[#CFE0C3] mt-1 rounded-full" id="step3-line" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Form inside white container -->
                 <div class="p-8">
+                    <!-- Success/Error Messages -->
+                    <div id="success-message" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"></div>
+                    <div id="error-message" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"></div>
+                    <div id="validation-errors" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <ul id="error-list" class="list-disc list-inside"></ul>
+                    </div>
+
                     <form method="POST" action="{{ route('register') }}" id="registration-form">
                         @csrf
 
@@ -116,10 +123,10 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
                                     <div class="flex">
                                         <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+63</span>
-                                        <input type="tel" id="phone" name="phone" placeholder="9123456789" value="{{ old('phone') }}" required
+                                        <input type="tel" id="phone_number" name="phone_number" placeholder="9123456789" value="{{ old('phone_number') }}" required
                                             class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-1">Format: 9123456789 (10 digits)</p>
+                                    <p class="text-xs text-gray-500 mt-1">Format: 9123456789 (must start with 09 and be 11 digits)</p>
                                 </div>
 
                                 <!-- Address Row -->
@@ -168,6 +175,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Username <span class="text-red-500">*</span></label>
                                     <input type="text" id="username" placeholder="Username" name="username" value="{{ old('username') }}" required
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
                                 </div>
 
                                 <!-- Password Row -->
@@ -188,11 +196,10 @@
                                 <div class="p-4 bg-blue-50 rounded-lg">
                                     <p class="text-sm text-gray-600">
                                         <span class="font-medium text-blue-700">Password requirements:</span><br>
-                                        • Minimum 8 characters<br>
-                                        • Maximum 16 characters<br>
-                                        • At least 1 capital letter<br>
+                                        • 8-16 characters<br>
+                                        • At least 1 uppercase letter<br>
                                         • At least 1 number<br>
-                                        • At least 1 special character
+                                        • At least 1 special character (@$!%*?&)
                                     </p>
                                 </div>
                             </div>
@@ -222,71 +229,71 @@
 
                         <!-- STEP 3: REVIEW & SUBMIT -->
                         <div id="step-3" class="step hidden">
-    <h2 class="text-xl font-semibold text-gray-800 mb-6">Review Your Information</h2>
-    
-    <div class="space-y-6">
-        <!-- Personal Info Summary -->
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <h3 class="font-medium text-gray-700 mb-3 flex items-center">
-                <svg class="w-4 h-4 text-[#40798C] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-                Personal Information
-            </h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div><span class="text-gray-500">Name:</span> <span id="review-name" class="font-medium"></span></div>
-                <div><span class="text-gray-500">Phone:</span> <span id="review-phone" class="font-medium"></span></div>
-                <div class="col-span-2"><span class="text-gray-500">Address:</span> <span id="review-address" class="font-medium"></span></div>
-            </div>
-        </div>
+                            <h2 class="text-xl font-semibold text-gray-800 mb-6">Review Your Information</h2>
+                            
+                            <div class="space-y-6">
+                                <!-- Personal Info Summary -->
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                                        <svg class="w-4 h-4 text-[#40798C] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        Personal Information
+                                    </h3>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div><span class="text-gray-500">Name:</span> <span id="review-name" class="font-medium"></span></div>
+                                        <div><span class="text-gray-500">Phone:</span> <span id="review-phone" class="font-medium"></span></div>
+                                        <div class="col-span-2"><span class="text-gray-500">Address:</span> <span id="review-address" class="font-medium"></span></div>
+                                    </div>
+                                </div>
 
-        <!-- Account Info Summary -->
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <h3 class="font-medium text-gray-700 mb-3 flex items-center">
-                <svg class="w-4 h-4 text-[#40798C] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                </svg>
-                Account Information
-            </h3>
-            <div class="grid grid-cols-1 gap-2 text-sm">
-                <div><span class="text-gray-500">Email:</span> <span id="review-email" class="font-medium"></span></div>
-                <div><span class="text-gray-500">Username:</span> <span id="review-username" class="font-medium"></span></div>
-            </div>
-        </div>
+                                <!-- Account Info Summary -->
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                                        <svg class="w-4 h-4 text-[#40798C] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                        Account Information
+                                    </h3>
+                                    <div class="grid grid-cols-1 gap-2 text-sm">
+                                        <div><span class="text-gray-500">Email:</span> <span id="review-email" class="font-medium"></span></div>
+                                        <div><span class="text-gray-500">Username:</span> <span id="review-username" class="font-medium"></span></div>
+                                    </div>
+                                </div>
 
-        <!-- Terms & Conditions -->
-        <div class="flex items-start">
-            <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-[#40798C] rounded border-gray-300 focus:ring-[#40798C]">
-            <label for="terms" class="ml-2 text-sm text-gray-600">
-                By continuing, you agree to our 
-                <a href="#" class="text-[#40798C] hover:underline">Terms of Service</a> and 
-                <a href="#" class="text-[#40798C] hover:underline">Privacy Policy</a>.
-            </label>
-        </div>
-    </div>
+                                <!-- Terms & Conditions -->
+                                <div class="flex items-start">
+                                    <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-[#40798C] rounded border-gray-300 focus:ring-[#40798C]">
+                                    <label for="terms" class="ml-2 text-sm text-gray-600">
+                                        By continuing, you agree to our 
+                                        <a href="#" class="text-[#40798C] hover:underline">Terms of Service</a> and 
+                                        <a href="#" class="text-[#40798C] hover:underline">Privacy Policy</a>.
+                                    </label>
+                                </div>
+                            </div>
 
-    <!-- Navigation Buttons -->
-    <div class="mt-8 flex justify-between">
-        <button type="button" onclick="prevStep()" 
-            class="px-6 py-3 border border-gray-300 rounded-lg font-semibold 
-                   text-gray-700 hover:bg-gray-50 transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Back
-        </button>
-        
-        <button type="submit" 
-            class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold 
-                   hover:bg-green-700 transition-all duration-200
-                   shadow-lg hover:shadow-xl flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            Create Account
-        </button>
-    </div>
-</div>
+                            <!-- Navigation Buttons -->
+                            <div class="mt-8 flex justify-between">
+                                <button type="button" onclick="prevStep()" 
+                                    class="px-6 py-3 border border-gray-300 rounded-lg font-semibold 
+                                           text-gray-700 hover:bg-gray-50 transition flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                    Back
+                                </button>
+                                
+                                <button type="submit" id="submit-btn"
+                                    class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold 
+                                           hover:bg-green-700 transition-all duration-200
+                                           shadow-lg hover:shadow-xl flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Create Account
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -300,9 +307,70 @@
     </div>
 </div>
 
-<!-- JavaScript for Multi-Step Form -->
+<!-- Verification Modal -->
+<div id="verification-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">Verify Your Email</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    We've sent a 6-digit verification code to <span id="modal-email" class="font-semibold"></span>
+                </p>
+                
+                <!-- Verification Code Input -->
+                <div class="mt-4">
+                    <div class="flex justify-center gap-2 mb-4">
+                        <input type="text" id="code1" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code2')">
+                        <input type="text" id="code2" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code3')">
+                        <input type="text" id="code3" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code4')">
+                        <input type="text" id="code4" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code5')">
+                        <input type="text" id="code5" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="moveToNext(this, 'code6')">
+                        <input type="text" id="code6" maxlength="1" class="w-12 h-12 text-center text-xl border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div id="verification-error" class="text-sm text-red-600 mb-2 hidden"></div>
+                    <div id="verification-success" class="text-sm text-green-600 mb-2 hidden"></div>
+                    
+                    <button onclick="verifyEmail()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        Verify Email
+                    </button>
+                    
+                    <div class="mt-3">
+                        <button onclick="resendCode()" class="text-sm text-blue-600 hover:underline">
+                            Resend Code
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-800">
+                            ← Back to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div id="loading-spinner" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-40">
+        <div class="flex justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Multi-Step Form and Verification -->
 <script>
 let currentStep = 1;
+let registeredEmail = '';
+let registeredUserId = '';
 
 function updateProgress() {
     // Update circles
@@ -367,7 +435,7 @@ function updateReviewSummary() {
     
     document.getElementById('review-name').textContent = fullName;
     
-    const phone = document.getElementById('phone').value;
+    const phone = document.getElementById('phone_number').value;
     document.getElementById('review-phone').textContent = '+63 ' + phone;
     
     const address = document.getElementById('address').value + ', ' + document.getElementById('zip_code').value;
@@ -381,37 +449,82 @@ function updateReviewSummary() {
 function nextStep() {
     // Validate current step before proceeding
     if (currentStep === 1) {
-        const required = ['first_name', 'last_name', 'phone', 'zip_code', 'address'];
+        const required = ['first_name', 'last_name', 'phone_number', 'zip_code', 'address'];
         for (let field of required) {
             const input = document.getElementById(field);
             if (!input.value) {
-                alert('Please fill in all required fields in Personal Information');
-                input.focus();
-                return;
-            }
-        }
-    }
-    
-    if (currentStep === 2) {
-        const required = ['email', 'username', 'password'];
-        for (let field of required) {
-            const input = document.getElementById(field);
-            if (!input.value) {
-                alert('Please fill in all required fields in Account Details');
+                showError('Please fill in all required fields in Personal Information');
                 input.focus();
                 return;
             }
         }
         
-        // Validate password match
-        const password = document.getElementById('password').value;
-        const confirm = document.getElementById('password_confirmation').value;
-        if (password !== confirm) {
-            alert('Passwords do not match!');
+        // Validate phone number format
+        const phone = document.getElementById('phone_number').value;
+        if (!phone.match(/^09\d{9}$/)) {
+            showError('Phone number must start with 09 and be 11 digits');
+            return;
+        }
+    }
+   if (currentStep === 2) {
+    const required = ['email', 'username', 'password'];
+    for (let field of required) {
+        const input = document.getElementById(field);
+        if (!input.value) {
+            showError('Please fill in all required fields in Account Details');
+            input.focus();
             return;
         }
     }
     
+    // Validate email format
+    const email = document.getElementById('email').value;
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+    
+    // Validate username format
+    const username = document.getElementById('username').value;
+    if (!username.match(/^[a-zA-Z0-9_-]+$/)) {
+        showError('Username may only contain letters, numbers, dashes and underscores');
+        return;
+    }
+    
+    // Validate password with exact backend requirements
+    const password = document.getElementById('password').value;
+    
+    // Check length first
+    if (password.length < 8 || password.length > 16) {
+        showError('Password must be between 8 and 16 characters');
+        return;
+    }
+    
+    // Check for uppercase
+    if (!/[A-Z]/.test(password)) {
+        showError('Password must contain at least one uppercase letter');
+        return;
+    }
+    
+    // Check for number
+    if (!/[0-9]/.test(password)) {
+        showError('Password must contain at least one number');
+        return;
+    }
+    
+    // Check for special character - IMPORTANT: Make sure this regex matches exactly
+    if (!/[@$!%*?&]/.test(password)) {
+        showError('Password must contain at least one special character (@$!%*?&)');
+        return;
+    }
+    
+    // Validate password match
+    const confirm = document.getElementById('password_confirmation').value;
+    if (password !== confirm) {
+        showError('Passwords do not match!');
+        return;
+    }
+}
     if (currentStep < 3) {
         // Hide current step
         document.getElementById(`step-${currentStep}`).classList.add('hidden');
@@ -448,6 +561,224 @@ function prevStep() {
     }
 }
 
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    
+    setTimeout(() => {
+        errorDiv.classList.add('hidden');
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('success-message');
+    successDiv.textContent = message;
+    successDiv.classList.remove('hidden');
+    
+    setTimeout(() => {
+        successDiv.classList.add('hidden');
+    }, 5000);
+}
+
+function showValidationErrors(errors) {
+    const errorList = document.getElementById('error-list');
+    const errorDiv = document.getElementById('validation-errors');
+    
+    errorList.innerHTML = '';
+    for (let field in errors) {
+        errors[field].forEach(error => {
+            const li = document.createElement('li');
+            li.textContent = error;
+            errorList.appendChild(li);
+        });
+    }
+    
+    errorDiv.classList.remove('hidden');
+    
+    setTimeout(() => {
+        errorDiv.classList.add('hidden');
+    }, 5000);
+}
+
+// Handle form submission
+document.getElementById('registration-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!document.getElementById('terms').checked) {
+        showError('Please agree to the Terms of Service and Privacy Policy');
+        return;
+    }
+    
+    // Show loading spinner
+    document.getElementById('loading-spinner').classList.remove('hidden');
+    
+    // Collect form data
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Registration successful
+            registeredEmail = data.email;
+            registeredUserId = data.user.id;
+            
+            // Show verification modal
+            document.getElementById('modal-email').textContent = registeredEmail;
+            document.getElementById('verification-modal').classList.remove('hidden');
+            
+            // Clear any previous verification inputs
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`code${i}`).value = '';
+            }
+            
+            showSuccess('Registration successful! Please check your email for verification code.');
+            
+            // Reset form and hide spinner
+            document.getElementById('loading-spinner').classList.add('hidden');
+            
+        } else {
+            document.getElementById('loading-spinner').classList.add('hidden');
+            
+            if (data.errors) {
+                showValidationErrors(data.errors);
+            } else {
+                showError(data.message || 'Registration failed. Please try again.');
+            }
+        }
+    } catch (error) {
+        document.getElementById('loading-spinner').classList.add('hidden');
+        showError('An error occurred. Please try again.');
+        console.error('Error:', error);
+    }
+});
+
+// Move to next input field
+function moveToNext(current, nextId) {
+    if (current.value.length === 1) {
+        document.getElementById(nextId)?.focus();
+    }
+}
+
+// Verify email
+async function verifyEmail() {
+    // Collect code
+    const code = '';
+    for (let i = 1; i <= 6; i++) {
+        code += document.getElementById(`code${i}`).value;
+    }
+    
+    if (code.length !== 6) {
+        document.getElementById('verification-error').textContent = 'Please enter the 6-digit code';
+        document.getElementById('verification-error').classList.remove('hidden');
+        return;
+    }
+    
+    // Hide any previous messages
+    document.getElementById('verification-error').classList.add('hidden');
+    document.getElementById('verification-success').classList.add('hidden');
+    
+    // Show loading spinner
+    document.getElementById('loading-spinner').classList.remove('hidden');
+    
+    try {
+        const response = await fetch('/verify-email', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: registeredEmail,
+                code: code
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('verification-success').textContent = 'Email verified successfully! Redirecting to login...';
+            document.getElementById('verification-success').classList.remove('hidden');
+            
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        } else {
+            document.getElementById('verification-error').textContent = data.message || 'Invalid verification code';
+            document.getElementById('verification-error').classList.remove('hidden');
+        }
+    } catch (error) {
+        document.getElementById('verification-error').textContent = 'An error occurred. Please try again.';
+        document.getElementById('verification-error').classList.remove('hidden');
+        console.error('Error:', error);
+    } finally {
+        document.getElementById('loading-spinner').classList.add('hidden');
+    }
+}
+
+// Resend verification code
+async function resendCode() {
+    document.getElementById('verification-error').classList.add('hidden');
+    document.getElementById('verification-success').classList.add('hidden');
+    document.getElementById('loading-spinner').classList.remove('hidden');
+    
+    try {
+        const response = await fetch('/resend-verification', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: registeredEmail
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('verification-success').textContent = 'New verification code sent!';
+            document.getElementById('verification-success').classList.remove('hidden');
+            
+            // Clear code inputs
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`code${i}`).value = '';
+            }
+            document.getElementById('code1').focus();
+        } else {
+            document.getElementById('verification-error').textContent = data.message || 'Failed to resend code';
+            document.getElementById('verification-error').classList.remove('hidden');
+        }
+    } catch (error) {
+        document.getElementById('verification-error').textContent = 'An error occurred. Please try again.';
+        document.getElementById('verification-error').classList.remove('hidden');
+        console.error('Error:', error);
+    } finally {
+        document.getElementById('loading-spinner').classList.add('hidden');
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('verification-modal');
+    if (event.target === modal) {
+        modal.classList.add('hidden');
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     updateProgress();
@@ -460,10 +791,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Styles for multi-step form -->
+<!-- Styles for multi-step form and modal -->
 <style>
 .step {
     transition: all 0.3s ease;
+}
+
+/* Modal animation */
+#verification-modal, #loading-spinner {
+    transition: opacity 0.3s ease;
+}
+
+/* Code input styling */
+input[type="text"].text-center {
+    -moz-appearance: textfield;
+}
+input[type="text"].text-center::-webkit-outer-spin-button,
+input[type="text"].text-center::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>
 @endsection
