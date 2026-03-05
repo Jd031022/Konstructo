@@ -43,7 +43,7 @@
             Log in
         </a>
         <a href="{{ route('register') }}" 
-           class="px-5 py-1.5 text-sm rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow">
+           class="px-5 py-1.5 text-sm rounded-full bg-[#40798C] text-white hover:bg-[#1F363D] shadow-sm">
             Sign up
         </a>
     </div>
@@ -69,42 +69,42 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 justify-items-center text-center">
             <!-- Feature 1 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/conference.png" alt="Community Driven" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/conference.png" alt="Community Driven" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">Collaborative Project Oversight</h3>
                 <p class="text-sm text-gray-600">Konsctructo ensures that city engineers, project teams, and LGU leaders collaborate seamlessly to track project progress, budget utilization, and timelines.</p>
             </div>
 
             <!-- Feature 2 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/door-opened.png" alt="Accessible" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/door-opened.png" alt="Accessible" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">Accessible</h3>
                 <p class="text-sm text-gray-600">Open to city officials, engineers, planners, and authorized stakeholders — everyone involved in infrastructure management has the information they need.</p>
             </div>
 
             <!-- Feature 3 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/gift.png" alt="Free for All" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/gift.png" alt="Free for All" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">Free for All</h3>
                 <p class="text-sm text-gray-600">The platform is built to support LGU operations without licensing costs, helping cities manage resources efficiently.</p>
             </div>
 
             <!-- Feature 4 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/smartphone.png" alt="User-Friendly" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/smartphone.png" alt="User-Friendly" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">User-Friendly</h3>
                 <p class="text-sm text-gray-600">Intuitive dashboard design with easy-to-read metrics, clear status indicators, and interactive project timelines.</p>
             </div>
 
             <!-- Feature 5 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/synchronize.png" alt="Adaptive" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/synchronize.png" alt="Adaptive" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">Adaptive</h3>
                 <p class="text-sm text-gray-600">Accessible on desktop, tablet, or mobile devices — so users can monitor projects from the office or on-site.</p>
             </div>
 
             <!-- Feature 6 -->
             <div class="flex flex-col items-center text-center max-w-xs">
-                <img src="https://img.icons8.com/ios-filled/50/ff7f50/expand.png" alt="Scalable" class="w-12 h-12 mb-4">
+                <img src="https://img.icons8.com/ios-filled/50/40798C/expand.png" alt="Scalable" class="w-12 h-12 mb-4">
                 <h3 class="font-semibold text-lg mb-1">Scalable</h3>
                 <p class="text-sm text-gray-600">Built to grow with your city’s infrastructure portfolio, from local barangay projects to large-scale city initiatives.</p>
             </div>
@@ -125,31 +125,31 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
 
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
-            <img src="{{ asset('images/course1.jpg') }}"
+            <img src="{{ asset('images/bp.jpg') }}"
                 alt="Child Protection & Rights" 
                 class="w-full h-40 object-cover">
             <div class="p-5 text-left">
-                <h3 class="font-semibold text-lg mb-2 text-orange-500">Building Permit</h3>
+                <h3 class="font-semibold text-lg mb-2 text-[#40798C]">Building Permit</h3>
                 <p class="text-sm text-gray-600">Apply for building permit. Manage and track your application in one place.</p>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
-            <img src="{{ asset('images/course22.jpg') }}"
+            <img src="{{ asset('images/cm.jpg') }}"
                 alt="Disaster Preparedness" 
                 class="w-full h-40 object-cover">
             <div class="p-5 text-left">
-                <h3 class="font-semibold text-lg mb-2 text-orange-500">Coming soon.</h3>
+                <h3 class="font-semibold text-lg mb-2 text-[#40798C]">Coming soon.</h3>
                 <p class="text-sm text-gray-600">Exciting new services coming soon. Stay tuned for updates!</p>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
-            <img src="{{ asset('images/course22.jpg') }}"
+            <img src="{{ asset('images/cm.jpg') }}"
                 alt="Disaster Preparedness" 
                 class="w-full h-40 object-cover">
             <div class="p-5 text-left">
-                <h3 class="font-semibold text-lg mb-2 text-orange-500">Coming soon.</h3>
+                <h3 class="font-semibold text-lg mb-2 text-[#40798C]">Coming soon.</h3>
                 <p class="text-sm text-gray-600">Exciting new services coming soon. Stay tuned for updates!</p>
             </div>
         </div>
@@ -176,7 +176,7 @@
 <section id="community" class="bg-white py-16 px-6 md:px-20"> 
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <!-- Image -->
-        <img src="{{ asset('images/cover6.jpg') }}"
+        <img src="{{ asset('images/cover2.jpg') }}"
             alt="Community Collaboration" 
             class="rounded-2xl shadow-md w-full h-[350px] object-cover">
         
@@ -206,17 +206,17 @@
 
          <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-10">
             <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
-                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <h3 class="text-3xl font-bold text-[#40798C] mb-2">0</h3>
                 <p class="text-gray-600 text-sm font-semibold">Infrastructure Projects</p>
                 <p class="text-gray-500 text-xs mt-1">Tracked & Monitored</p>
             </div>
             <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
-                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <h3 class="text-3xl font-bold text-[#40798C] mb-2">0</h3>
                 <p class="text-gray-600 text-sm font-semibold">Partner LGUs</p>
                 <p class="text-gray-500 text-xs mt-1">Across Bicol Region</p>
             </div>
             <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
-                <h3 class="text-3xl font-bold text-orange-500 mb-2">0</h3>
+                <h3 class="text-3xl font-bold text-[#40798C] mb-2">0</h3>
                 <p class="text-gray-600 text-sm font-semibold">Faster Reporting</p>
                 <p class="text-gray-500 text-xs mt-1">Compared to Manual Systems</p>
             </div>
@@ -232,19 +232,19 @@
             <h3 class="text-white font-semibold mb-4">Contact Us</h3>
             <ul class="space-y-3 text-sm">
                 <li class="flex items-center gap-2">
-                    <span class="text-orange-500">📞</span>
+                    <span class="text-[#40798C]">📞</span>
                     <span>(+63) 912-345-6789</span>
                 </li>
                 <li class="flex items-center gap-2">
-                    <span class="text-orange-500">📍</span>
+                    <span class="text-[#40798C]">📍</span>
                     <span>123 Albay Road, Legazpi City, Philippines</span>
                 </li>
                 <li class="flex items-center gap-2">
-                    <span class="text-orange-500">✉️</span>
+                    <span class="text-[#40798C]">✉️</span>
                     <span>support@turomoko.org</span>
                 </li>
                 <li class="flex items-center gap-2">
-                    <span class="text-orange-500">💬</span>
+                    <span class="text-[#40798C]">💬</span>
                     <span>Chat with Us</span>
                 </li>
             </ul>
@@ -255,28 +255,28 @@
             <h3 class="text-white font-semibold mb-4">Follow Us</h3>
             <div class="flex gap-4 mb-6">
                 <!-- Facebook -->
-                <a href="#" class="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-full text-white hover:bg-orange-600">
+                <a href="#" class="w-9 h-9 flex items-center justify-center bg-[#40798C] rounded-full text-white hover:bg-orange-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 5 3.66 9.13 8.44 9.88v-6.99h-2.54v-2.89h2.54V9.41c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.89h-2.34v6.99C18.34 21.13 22 17 22 12z"/>
                     </svg>
                 </a>
 
                 <!-- Twitter (X) -->
-                <a href="#" class="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-full text-white hover:bg-orange-600">
+                <a href="#" class="w-9 h-9 flex items-center justify-center bg-[#40798C] rounded-full text-white hover:bg-orange-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.31l-5.214-6.82-5.97 6.82H1.816l7.73-8.836L1.308 2.25h6.972l4.713 6.231 5.251-6.231z"/>
                     </svg>
                 </a>
 
                 <!-- LinkedIn -->
-                <a href="#" class="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-full text-white hover:bg-orange-600">
+                <a href="#" class="w-9 h-9 flex items-center justify-center bg-[#40798C] rounded-full text-white hover:bg-orange-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M8.34 17V10.67H6V17H8.34M7.17 9.67A1.17 1.17 0 1 0 7.17 7.33 1.17 1.17 0 0 0 7.17 9.67M18 17V13.22C18 11.09 16.66 10.5 15.27 10.5C14.25 10.5 13.65 11 13.41 11.46H13.36V10.67H11V17H13.34V13.47C13.34 12.79 13.73 12.33 14.39 12.33C15.05 12.33 15.34 12.79 15.34 13.47V17H18Z"/>
                     </svg>
                 </a>
 
                 <!-- Instagram -->
-                <a href="#" class="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-full text-white hover:bg-orange-600">
+                <a href="#" class="w-9 h-9 flex items-center justify-center bg-[#40798C] rounded-full text-white hover:bg-orange-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm5 2.5A5.507 5.507 0 0 0 6.5 12 5.507 5.507 0 0 0 12 17.5 5.507 5.507 0 0 0 17.5 12 5.507 5.507 0 0 0 12 6.5zm0 2A3.505 3.505 0 0 1 15.5 12 3.505 3.505 0 0 1 12 15.5 3.505 3.505 0 0 1 8.5 12 3.505 3.505 0 0 1 12 8.5zm4.75-2.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5z"/>
                     </svg>
@@ -295,7 +295,7 @@
                 </label>
                 <div class="flex">
                     <input type="email" placeholder="Email Address" class="w-full px-3 py-2 rounded-l-md text-black text-sm focus:outline-none">
-                    <button class="bg-orange-500 hover:bg-orange-600 px-4 rounded-r-md text-white">Subscribe</button>
+                    <button class="bg-[#40798C] hover:bg-[#2c4b47] px-4 rounded-r-md text-white">Subscribe</button>
                 </div>
             </form>
         </div>

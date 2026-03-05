@@ -320,12 +320,6 @@
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <div class="text-center">
-                <!-- Close button -->
-                <button onclick="closeVerificationModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
                 
                 <!-- Mail Icon -->
                 <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-100 mb-4">
@@ -881,15 +875,6 @@ async function resendCode() {
         document.getElementById('verification-error').textContent = 'An error occurred. Please try again.';
         document.getElementById('verification-error').classList.remove('hidden');
         console.error('Error:', error);
-    }
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const verificationModal = document.getElementById('verification-modal');
-    
-    if (event.target === verificationModal) {
-        verificationModal.classList.add('hidden');
     }
 }
 
