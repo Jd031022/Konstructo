@@ -42,7 +42,7 @@
             <img src="{{ asset('images/cm.jpg') }}"
                  class="rounded-lg mb-4 w-full h-40 object-cover shadow-lg">
 
-            <h3 class="text-blue-600 font-semibold text-lg">
+            <h3 class="text-[#155386] font-semibold text-lg">
                 Coming soon
             </h3>
 
@@ -58,7 +58,7 @@
             <img src="{{ asset('images/cm.jpg') }}"
                  class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
 
-            <h3 class="text-blue-600 font-semibold text-lg">
+            <h3 class="text-[#155386] font-semibold text-lg">
                 Coming soon
             </h3>
 

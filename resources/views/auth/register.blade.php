@@ -306,7 +306,7 @@
                 </div>
             </div>
 
-            <!-- Login Link (outside white container) -->
+            <!-- Login Link -->
             <p class="text-center mt-6 text-sm text-gray-600 bg-white/80 backdrop-blur-sm rounded-lg p-3">
                 Already have an account? 
                 <a href="{{ route('login') }}" class="text-blue-600 hover:underline font-medium">Log in here</a>
