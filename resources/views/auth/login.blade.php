@@ -83,7 +83,7 @@
                 </a>
             </div>
 
-            <!-- Login Button -->
+            <!-- Login -->
             <button type="submit"
                 id="login-button"
                 class="w-full bg-[#155386] text-white py-2 rounded-md text-sm font-medium transition flex items-center justify-center gap-2">
