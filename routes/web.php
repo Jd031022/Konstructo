@@ -23,16 +23,14 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 // Public routes
-Route::post('/register', [RegisterController::class, 'register']);
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/register', [RegisterController::class, 'register'])->name('register');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 
 // Protected routes
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout']);
-    
-
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout'); // Added name here
 });
 
-Route::post('/send-verification', [VerificationController::class, 'sendCode']);
-Route::post('/verify-email', [RegisterController::class, 'verifyEmail']);
-Route::post('/resend-verification', [RegisterController::class, 'resendVerificationCode']);
+Route::post('/send-verification', [VerificationController::class, 'sendCode'])->name('verification.send');
+Route::post('/verify-email', [RegisterController::class, 'verifyEmail'])->name('verification.verify');
+Route::post('/resend-verification', [RegisterController::class, 'resendVerificationCode'])->name('verification.resend');

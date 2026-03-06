@@ -29,7 +29,7 @@
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <!-- Progress Bar inside white container -->
                 <div class="p-6 border-b border-gray-100">
-                    <div class="flex items-center justify-between relative">
+                    <div class="flex items-center justify-between relative text-center">
                         <!-- Step 1 -->
                         <div class="flex flex-col items-center relative z-10" id="step1-indicator">
                             <div class="w-14 h-14 rounded-full bg-[#40798C] text-black flex items-center justify-center font-bold text-xl shadow-xl transform transition-all duration-300 hover:scale-110" id="step1-circle" style="padding: 0.5rem;">

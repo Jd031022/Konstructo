@@ -15,8 +15,8 @@
         >
     </div>
 
-   <!-- NAVBAR -->
-<nav class="relative z-10 flex items-center justify-between px-10 py-4 bg-white/70 backdrop-blur-md shadow-sm">
+   <!-- NAVBAR - Fixed position with auto-hide on scroll -->
+<nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4 bg-white/70 backdrop-blur-md shadow-sm transition-transform duration-300 w-full">
     <!-- Left Spacer (empty div with same width as right buttons to balance) -->
     <div class="w-[180px]"></div>
 
@@ -50,11 +50,13 @@
 </nav>
 
     <!-- HERO CONTENT -->
-    <div id="home" class="relative z-10 flex items-center justify-center min-h-[40vh]">
+<div id="home" class="relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)]">
     <div class="flex flex-col items-center text-center">
-        <img src="{{ asset('images/ligao-seal.png') }}" alt="City Seal" class="w-20 md:w-28 drop-shadow-lg">
+        <img src="{{ asset('images/ligao-seal.png') }}" alt="City Seal" class="w-[30%] drop-shadow-lg shadow-sm animate-float-glow">
     </div>
 </div>
+
+
 </section>
 
 <!-- Features Section -->
@@ -291,7 +293,7 @@
             <form class="space-y-3">
                 <label class="flex items-center text-sm gap-2">
                     <input type="checkbox" class="accent-orange-500">
-                    <span>Send me updates about Turo Moko via email.</span>
+                    <span>Send me updates about Konsctructo via email.</span>
                 </label>
                 <div class="flex">
                     <input type="email" placeholder="Email Address" class="w-full px-3 py-2 rounded-l-md text-black text-sm focus:outline-none">
@@ -306,12 +308,57 @@
 
     <!-- Bottom Bar -->
     <div class="max-w-7xl mx-auto px-6 md:px-20 py-6 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-        <p>© 2025 Turo Moko. All Rights Reserved.</p>
+        <p>© 2025 Konsctructo. All Rights Reserved.</p>
         <div class="space-x-4">
             <a href="#" class="hover:underline">Privacy Policy</a>
             <a href="#" class="hover:underline">Terms of Use</a>
         </div>
     </div>
 </footer>
+
+<!-- JavaScript for navbar hide/show on scroll -->
+<script>
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('main-navbar');
+    const scrollThreshold = 10; // Minimum scroll amount before hiding
+
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Only trigger if scroll difference is more than threshold
+        if (Math.abs(lastScrollTop - scrollTop) <= scrollThreshold) return;
+        
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // Scrolling down - hide navbar
+            navbar.style.transform = 'translateY(-100%)';
+        } else {
+            // Scrolling up - show navbar
+            navbar.style.transform = 'translateY(0)';
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+</script>
+
+<style>
+    @keyframes floatGlow {
+        0% {
+            transform: translateY(0px);
+            filter: drop-shadow(0 0 5px rgba(64, 121, 140, 0.3));
+        }
+        50% {
+            transform: translateY(-15px);
+            filter: drop-shadow(0 0 20px rgba(64, 121, 140, 0.6));
+        }
+        100% {
+            transform: translateY(0px);
+            filter: drop-shadow(0 0 5px rgba(64, 121, 140, 0.3));
+        }
+    }
+    
+    .animate-float-glow {
+        animation: floatGlow 4s ease-in-out infinite;
+    }
+</style>
 
 @endsection

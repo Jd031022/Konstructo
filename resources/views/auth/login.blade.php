@@ -8,12 +8,12 @@
     <!-- Background Illustration -->
     <div class="absolute inset-0">
         <img src="{{ asset('images/cover.jpg') }}" 
-             class="w-full h-full object-cover opacity-90" 
+             class="w-full h-full object-cover opacity-90 brightness-75" 
              alt="background">
     </div>
 
     <!-- Login Card -->
-    <div class="relative bg-white rounded-xl shadow-lg p-8" style="width: 800px; height: 600px; padding-top: 80px; padding-left: 160px; padding-right: 160px;">
+    <div class="relative bg-white rounded-xl shadow-lg p-8" style="width: 700px; height: 600px; padding-top: 80px; padding-left: 160px; padding-right: 160px;">
 
         <!-- Logo -->
         <div class="flex flex-col items-center mb-6">
@@ -44,17 +44,32 @@
                     required>
             </div>
 
-            <!-- Password -->
-            <div class="mb-4">
-                <label class="block text-sm text-gray-600 mb-1">Password</label>
-                <input type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password here"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-                    required>
-            </div>
-
+<!-- Password -->
+<div class="mb-4">
+    <label class="block text-sm text-gray-600 mb-1">Password</label>
+    <div class="relative">
+        <input type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password here"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 pr-10"
+            required>
+        <button type="button" 
+            onclick="togglePasswordVisibility()" 
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800 focus:outline-none"
+            tabindex="-1">
+            <!-- Eye icon (visible) -->
+            <svg id="eye-open" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <!-- Eye off icon (hidden) -->
+            <svg id="eye-closed" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+        </button>
+    </div>
+</div>
             <!-- Remember + Forgot -->
             <div class="flex items-center justify-between text-sm mb-4">
                 <label class="flex items-center gap-2 text-gray-600">
@@ -280,6 +295,22 @@ async function sendResetLink() {
         resetMessage.textContent = 'An error occurred. Please try again.';
         resetMessage.className = 'text-sm text-red-600 mb-4';
         resetMessage.classList.remove('hidden');
+    }
+}
+
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const eyeOpen = document.getElementById('eye-open');
+    const eyeClosed = document.getElementById('eye-closed');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeOpen.classList.add('hidden');
+        eyeClosed.classList.remove('hidden');
+    } else {
+        passwordInput.type = 'password';
+        eyeOpen.classList.remove('hidden');
+        eyeClosed.classList.add('hidden');
     }
 }
 </script>
