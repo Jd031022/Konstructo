@@ -10,8 +10,13 @@
                 </div>
                 <!-- Name and Role - smaller text -->
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ $name }}!</h1>
-                    <p class="text-white-500 text-sm">{{ $role }}</p>
+                    @auth
+                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name }}!</h1>
+                        <p class="text-white-500 text-sm">{{ $role ?? 'User' }}</p>
+                    @else
+                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, Guest!</h1>
+                        <p class="text-white-500 text-sm">Visitor</p>
+                    @endauth
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -65,3 +70,10 @@ updateDateTime();
 // Update every second for real-time seconds
 setInterval(updateDateTime, 1000);
 </script>
+
+<style>
+/* Optional: Add any additional styling if needed */
+.text-white-500 {
+    color: rgba(255, 255, 255, 0.7);
+}
+</style>
