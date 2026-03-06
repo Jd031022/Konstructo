@@ -16,11 +16,14 @@
     <div class="relative bg-white rounded-xl shadow-lg p-8" style="width: 700px; min-height: 600px; padding: 80px 160px;">
 
         <!-- Logo -->
-        <div class="flex flex-col items-center mb-6">
-            <img src="{{ asset('images/logo.png') }}" class="w-12 mb-2">
-            <h1 class="text-xl font-semibold text-gray-700">Konstructo</h1>
-            <p class="text-sm text-gray-500">Login to continue</p>
-        </div>
+       <div class="flex flex-col items-center mb-6">
+    <img src="{{ asset('images/logo.png') }}" class="w-12 mb-2">
+    <div class="flex">
+        <h1 class="text-xl font-semibold text-[#155386]">Konstr</h1>
+        <h1 class="text-xl font-semibold text-[#40798C]">ucto</h1>
+    </div>
+    <p class="text-sm text-gray-500">Login to continue</p>
+</div>
 
         <!-- Error Message Display -->
         <div id="error-message" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
@@ -684,7 +687,7 @@ button:disabled {
 }
 
 /* Code input styling */
-.code-input {
+.code-input {   
     -moz-appearance: textfield;
 }
 .code-input::-webkit-outer-spin-button,

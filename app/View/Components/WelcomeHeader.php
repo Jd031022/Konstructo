@@ -8,16 +8,18 @@ use Illuminate\View\Component;
 
 class WelcomeHeader extends Component
 {
-    public $name;
-    public $role;
-
-    public function __construct($name, $role)
+    /**
+     * Create a new component instance.
+     */
+    public function __construct()
     {
-        $this->name = $name;
-        $this->role = $role;
+        //
     }
 
-    public function render()
+    /**
+     * Get the view / contents that represent the component.
+     */
+    public function render(): View|Closure|string
     {
         return view('components.welcome-header');
     }

@@ -20,7 +20,7 @@
         <div class="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition">
 
             <img src="{{ asset('images/bp.jpg') }}"
-                 class="rounded-lg mb-4 w-full h-40 object-cover">
+                 class="rounded-lg mb-4 w-full h-40 object-cover shadow-lg">
 
             <h3 class="text-[#155386] font-semibold text-lg">
                 Building Permit
@@ -56,7 +56,7 @@
         <div class="bg-white rounded-xl shadow-md p-4">
 
             <img src="{{ asset('images/cm.jpg') }}"
-                 class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
+                 class="rounded-lg mb-4 w-full h-40 object-cover shadow-lg">
 
             <h3 class="text-[#155386] font-semibold text-lg">
                 Coming soon
