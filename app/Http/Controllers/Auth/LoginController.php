@@ -15,7 +15,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -23,22 +23,21 @@ class LoginController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // ALWAYS LOG THE ATTEMPT FIRST
+        // Log the attempt
         $attempt = LoginAttempt::create([
-            'username_attempted' => $request->username,
+            'username_attempted' => $request->email,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'was_successful' => false, // Default to false, will update if successful
+            'was_successful' => false,
         ]);
 
-        // Check for too many failed attempts from this IP
+        // Check for too many failed attempts
         $failedAttempts = LoginAttempt::where('ip_address', $request->ip())
             ->where('was_successful', false)
             ->where('created_at', '>=', now()->subHour())
             ->count();
         
-        if ($failedAttempts > 5) { // Changed from >=5 to >5 to allow this attempt
-            // Update the attempt with failure reason
+        if ($failedAttempts > 5) {
             $attempt->update([
                 'failure_reason' => 'too_many_attempts'
             ]);
@@ -49,10 +48,10 @@ class LoginController extends Controller
         }
 
         // Attempt login
-        if (Auth::attempt($request->only('username', 'password'))) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             
-            // UPDATE the attempt as successful
+            // Update attempt as successful
             $attempt->update([
                 'user_id' => $user->id,
                 'was_successful' => true,
@@ -66,16 +65,17 @@ class LoginController extends Controller
                 $request->userAgent()
             ));
             
-          
             $request->session()->regenerate();
             
             return response()->json([
                 'message' => 'Logged in successfully',
-                'user' => $user
+                'user' => $user,
+                'redirect' => route('dashboard')
             ], 200);
         }
 
-        $user = User::where('username', $request->username)->first();
+        // Find user for better error message
+        $user = User::where('email', $request->email)->first();
         $attempt->update([
             'user_id' => $user->id ?? null,
             'failure_reason' => $user ? 'invalid_password' : 'user_not_found',
@@ -103,6 +103,15 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out successfully']);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Logged out successfully']);
+        }
+        
+        return redirect()->route('login');
+    }
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
     }
 }
