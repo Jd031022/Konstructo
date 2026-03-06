@@ -80,7 +80,7 @@
                 </a>
             </div>
 
-            <!-- Login Button -->
+            <!-- Login -->
             <button type="submit"
                 id="login-button"
                 class="w-full bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-md text-sm font-medium transition flex items-center justify-center gap-2">
