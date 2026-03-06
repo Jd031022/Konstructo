@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,3 +35,9 @@ Route::middleware('auth')->group(function () {
 Route::post('/send-verification', [VerificationController::class, 'sendCode'])->name('verification.send');
 Route::post('/verify-email', [RegisterController::class, 'verifyEmail'])->name('verification.verify');
 Route::post('/resend-verification', [RegisterController::class, 'resendVerificationCode'])->name('verification.resend');
+
+// Add these routes to your web.php
+Route::post('/forgot-password/send-code', [PasswordResetController::class, 'sendCode']);
+Route::post('/forgot-password/verify-code', [PasswordResetController::class, 'verifyCode']);
+Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword']);
+Route::post('/forgot-password/resend-code', [PasswordResetController::class, 'resendCode']);
