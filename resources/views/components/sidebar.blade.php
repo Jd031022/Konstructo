@@ -22,15 +22,6 @@
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Home</span>
         </a>
 
-        <!-- Services -->
-        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4-3-9s1.34-9 3-9"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Services</span>
-        </a>
-
         <!-- Projects -->
         <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
@@ -39,8 +30,17 @@
             </svg>
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Projects</span>
         </a>
+        
+        <!-- Services 
+        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4-3-9s1.34-9 3-9"/>
+            </svg>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Services</span>
+        </a>
 
-        <!-- Documents -->
+        Documents
         <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,7 +48,7 @@
             </svg>
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Documents</span>
         </a>
-
+        -->
         <!-- Settings -->
         <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">

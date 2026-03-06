@@ -83,7 +83,7 @@
             <!-- Login -->
             <button type="submit"
                 id="login-button"
-                class="w-full bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-md text-sm font-medium transition flex items-center justify-center gap-2">
+                class="w-full bg-[#155386] text-white py-2 rounded-md text-sm font-medium transition flex items-center justify-center gap-2">
                 <span id="button-text">Login</span>
                 <span id="button-spinner" class="hidden">
                     <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
             <!-- Register -->
             <p class="text-center text-sm text-gray-500 mt-6">
                 Don't have an account?
-                <a href="{{ route('register') }}" class="text-blue-600 font-medium hover:underline">
+                <a href="{{ route('register') }}" class="text-[#155386] font-medium hover:underline">
                     Sign up here.
                 </a>
             </p>
