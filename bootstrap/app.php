@@ -16,9 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
          $middleware->append(SecurityHeaders::class);
            $middleware->alias([
             'log.activity' => \App\Http\Middleware\LogUserActivity::class,
+            'role' => \App\Http\Middleware\CheckRole::class, 
         ]);
+        
     
     })
+    
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

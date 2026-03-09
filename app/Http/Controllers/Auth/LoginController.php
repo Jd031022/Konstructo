@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Auth/LoginController.php
 
 namespace App\Http\Controllers\Auth;
 
@@ -67,10 +68,17 @@ class LoginController extends Controller
             
             $request->session()->regenerate();
             
+            // Determine redirect based on role
+            $redirect = match($user->role) {
+                'admin' => route('admin.users'),
+                'engineer' => route('staff.dashboard'),
+                default => route('user.dashboard'),
+            };
+            
             return response()->json([
                 'message' => 'Logged in successfully',
                 'user' => $user,
-                'redirect' => route('dashboard')
+                'redirect' => $redirect
             ], 200);
         }
 
@@ -90,7 +98,7 @@ class LoginController extends Controller
             /** @var \App\Models\User $user */
             $user = Auth::user();
         
-            $user->endSession(session()->getId());
+            $user->sessions()->where('session_id', session()->getId())->update(['is_active' => false]);
         
             $user->logActivity(
                 'logout',

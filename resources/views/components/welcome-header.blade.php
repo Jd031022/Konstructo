@@ -11,8 +11,8 @@
                 <!-- Name and Role - smaller text -->
                 <div>
                     @auth
-                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name ?? Auth::user()->name }}!</h1>
-                        <p class="text-white-500 text-sm">{{ $role ?? 'User' }}</p>
+                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name }}!</h1>
+                       <p class="text-white-500 text-sm capitalize">{{ Auth::user()->role }}</p>
                     @else
                         <h1 class="text-xl sm:text-2xl font-bold">Welcome, Guest!</h1>
                         <p class="text-white-500 text-sm">Visitor</p>
