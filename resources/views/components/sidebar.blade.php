@@ -13,8 +13,8 @@
     <!-- Navigation -->
     <nav class="flex flex-col items-start gap-6 flex-1 w-full px-4">
 
-        <!-- Home (Active) -->
-        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl bg-[#155386] text-white shadow hover:bg-[#40798C] transition">
+         <!-- Home (Active) -->
+        <a href="dashboard" class="w-full flex items-center gap-4 p-2 rounded-xl bg-[#155386] text-white shadow hover:bg-[#40798C] transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -22,13 +22,22 @@
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Home</span>
         </a>
 
-        <!-- Projects -->
-        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
+        <!-- Applications -->
+        <a href="applications" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Projects</span>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
+        </a>
+        
+        <!-- User Management -->
+        <a href="/staff/users" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Users</span>
         </a>
         
         <!-- Services 
@@ -49,6 +58,7 @@
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Documents</span>
         </a>
         -->
+        
         <!-- Settings -->
         <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">

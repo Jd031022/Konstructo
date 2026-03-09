@@ -13,7 +13,7 @@
     </div>
 
     <!-- Login Card -->
-    <div class="relative bg-white rounded-xl shadow-lg p-8" style="width: 700px; min-height: 600px; padding: 80px 160px;">
+<div class="relative bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-8" style="width: 500px; min-height: auto; padding: 90px 70px;">
 
         <!-- Logo -->
        <div class="flex flex-col items-center mb-6">
@@ -72,15 +72,11 @@
                 </div>
             </div>
             
-            <!-- Remember + Forgot -->
             <div class="flex items-center justify-between text-sm mb-4">
                 <label class="flex items-center gap-2 text-gray-600">
                     <input type="checkbox" name="remember" class="rounded">
                     Remember me
                 </label>
-                <a href="#" class="text-gray-400 hover:text-gray-600 text-xs" onclick="showForgotPassword()">
-                    Forgot Password?
-                </a>
             </div>
 
             <!-- Login -->
@@ -95,6 +91,12 @@
                     </svg>
                 </span>
             </button>
+
+             <div class="mt-3 text-right">
+            <a href="#" class="text-sm text-gray-500 hover:text-[#155386] transition" onclick="showForgotPassword()">
+                Forgot Password?
+            </a>
+             </div>
 
             <!-- Register -->
             <p class="text-center text-sm text-gray-500 mt-6">

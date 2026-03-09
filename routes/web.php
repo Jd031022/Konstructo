@@ -41,3 +41,21 @@ Route::post('/forgot-password/send-code', [PasswordResetController::class, 'send
 Route::post('/forgot-password/verify-code', [PasswordResetController::class, 'verifyCode']);
 Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword']);
 Route::post('/forgot-password/resend-code', [PasswordResetController::class, 'resendCode']);
+
+// Staff UI routes
+Route::get('/staff/dashboard', function () {
+    return view('staff.dashboard');
+});
+Route::get('/staff/users', function () {
+    return view('staff.users');
+});
+
+Route::get('/staff/applications', function () {
+    return view('staff.applications');
+});
+
+// User Routes for UI 
+Route::get('/applications', function () {
+    return view('applications');
+});
+

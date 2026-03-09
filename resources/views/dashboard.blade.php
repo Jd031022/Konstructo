@@ -9,7 +9,7 @@
     <div class="text-center mb-10">
         <h1 class="text-2xl font-semibold">Services offered</h1>
         <p class="text-gray-500 max-w-2xl mx-auto mt-2">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Explore our range of municipal services available online. Apply, track, and manage your applications with ease.
         </p>
     </div>
 
