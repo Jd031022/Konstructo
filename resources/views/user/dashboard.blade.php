@@ -29,10 +29,11 @@
             <p class="text-gray-500 text-sm mt-2">
                 Apply for building permit. Manage and track your application.
             </p>
-
-            <button class="mt-4 w-full bg-[#155386] text-white py-2 rounded-full hover:bg-[#1F363D]">
-                Apply
-            </button>
+<a href="/user/application/step1">
+    <button class="mt-4 w-full bg-[#155386] text-white py-2 rounded-full hover:bg-[#1F363D]">
+        Apply
+    </button>
+</a>
 
         </div>
 

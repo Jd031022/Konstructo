@@ -11,7 +11,7 @@
                 <!-- Name and Role - smaller text -->
                 <div>
                     @auth
-                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name }}!</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name ?? Auth::user()->name }}!</h1>
                         <p class="text-white-500 text-sm">{{ $role ?? 'User' }}</p>
                     @else
                         <h1 class="text-xl sm:text-2xl font-bold">Welcome, Guest!</h1>
@@ -20,15 +20,14 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
+                <!-- Date and Time Display - Now visible on all screens -->
                 <div class="text-right">
                     <div class="text-base sm:text-lg font-semibold" id="current-time"></div>
                     <div class="text-xs sm:text-sm" id="current-date"></div>
                 </div>
-                <div class="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                    </svg>
-                </div>
+                
+                <!-- Notification Component -->
+                <x-notification-dropdown :notifications="getSampleNotifications()" />
             </div>
         </div>
     </div>
@@ -60,6 +59,19 @@ function updateDateTime() {
         day: 'numeric'
     });
     
+    // For mobile (optional - shorter format if you want)
+    const mobileTimeString = now.toLocaleTimeString('en-US', {
+        ...options,
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const mobileDateString = now.toLocaleDateString('en-US', {
+        ...options,
+        month: 'short',
+        day: 'numeric'
+    });
+    
     document.getElementById('current-time').textContent = timeString;
     document.getElementById('current-date').textContent = dateString;
 }
@@ -76,4 +88,85 @@ setInterval(updateDateTime, 1000);
 .text-white-500 {
     color: rgba(255, 255, 255, 0.7);
 }
+
+/* Custom scrollbar for notification dropdown */
+.max-h-96::-webkit-scrollbar {
+    width: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+    background: #155386;
+    border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+    background: #40798C;
+}
+
+/* For smaller screens, you can make the date/time more compact */
+@media (max-width: 640px) {
+    #current-time {
+        font-size: 0.875rem;
+    }
+    #current-date {
+        font-size: 0.75rem;
+    }
+}
 </style>
+
+<!-- Helper function to provide sample notifications -->
+@php
+function getSampleNotifications() {
+    return [
+        [
+            'type' => 'application',
+            'actor' => 'Building Official',
+            'action' => 'updated your application status',
+            'details' => 'Your building permit application is now under review',
+            'time' => '5 minutes ago',
+            'read' => false,
+            'priority' => 'high'
+        ],
+        [
+            'type' => 'success',
+            'actor' => 'System',
+            'action' => 'approved your application',
+            'details' => 'Building permit APP-2025-001 has been approved',
+            'time' => '2 hours ago',
+            'read' => false,
+            'priority' => 'high'
+        ],
+        [
+            'type' => 'message',
+            'actor' => 'Support Team',
+            'action' => 'sent you a message',
+            'details' => 'Regarding your document requirements',
+            'time' => '1 day ago',
+            'read' => true,
+            'priority' => 'medium'
+        ],
+        [
+            'type' => 'reminder',
+            'actor' => 'System',
+            'action' => 'reminder: Submit requirements',
+            'details' => 'Please submit your structural plans within 3 days',
+            'time' => '2 days ago',
+            'read' => true,
+            'priority' => 'medium'
+        ],
+        [
+            'type' => 'application',
+            'actor' => 'Reviewer',
+            'action' => 'requested changes',
+            'details' => 'Please update your architectural plans',
+            'time' => '3 days ago',
+            'read' => true,
+            'priority' => 'low'
+        ],
+    ];
+}
+@endphp

@@ -50,12 +50,49 @@ Route::get('/staff/users', function () {
     return view('staff.users');
 });
 
+Route::get('/staff/application.details', function () {
+    return view('staff.application-details');
+});
+
 Route::get('/staff/applications', function () {
     return view('staff.applications');
 });
 
-// User Routes for UI 
-Route::get('/applications', function () {
-    return view('applications');
+Route::get('/staff/settings', function () {
+    return view('staff.settings');
 });
 
+
+// User Routes for UI 
+Route::get('/user/applications', function () {
+    return view('user.applications');
+});
+
+Route::get('/user/dashboard', function () {
+    return view('user.dashboard');
+});
+
+Route::get('/user/application-details', function () {
+    return view('user.application-details');
+});
+
+Route::get('/user/application/step1', function () {
+    return view('user.application.step1');
+});
+
+Route::get('/user/application/step2', function () {
+    return view('user.application.step2');
+});
+
+Route::get('/user/application/step3', function () {
+    return view('user.application.step3');
+});
+
+// Routes for admin UI
+Route::get('/admin/settings', function () {
+    return view('admin.settings');
+});
+
+Route::get('/admin/users', function () {
+    return view('admin.users');
+});
