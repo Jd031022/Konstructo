@@ -2,13 +2,13 @@
 
 @section('content')
 
-<!-- Main Container - Add this to center and constrain width -->
+<!-- Main Container -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Services Title -->
     <div class="text-center mb-10">
         <h1 class="text-2xl font-semibold">Services offered</h1>
-        <p class="text-gray-500 max-w-2xl mx-auto mt-2  ">
+        <p class="text-gray-500 max-w-2xl mx-auto mt-2">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         </p>
     </div>
@@ -70,6 +70,9 @@
 
     </div>
     
-</div> <!-- End of container -->
+</div>
+
+<!-- Chatbot (Floating Bottom Right) -->
+<x-chatbot />
 
 @endsection
