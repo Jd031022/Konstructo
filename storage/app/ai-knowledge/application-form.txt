@@ -1,0 +1,48 @@
+BUILDING PERMIT APPLICATION FORM PROCESS:
+
+1. DOWNLOAD THE FORM:
+   - After logging in, users can download the Building Permit Application Form (PDF format)
+   - Download link is available on the user dashboard
+   - Click the "Download Application Form" button to save the PDF
+
+2. FILL OUT THE FORM - TWO OPTIONS:
+
+   OPTION A - DIGITAL FILLING:
+   - Open the downloaded PDF in any PDF reader (Adobe Acrobat Reader, browser PDF viewer, etc.)
+   - Click directly on form fields and type the required information
+   - Required information includes:
+     * Application Number
+     * Owner/Applicant Full Name
+     * Form of Ownership
+     * For Construction Owned by an Enterprise
+     * Address
+     * Cellphone Number
+     * Location of Construction
+     * Scope of Work
+     * Use/Character of Occupancy
+   - After filling all fields, save the PDF to your computer 
+
+   OPTION B - HANDWRITTEN FILLING:
+   - Print the downloaded PDF form
+   - Fill out all information manually using black or blue ink
+   - Write clearly using capital letters for better legibility
+   - After completing, scan the form or take a clear photo
+   - Save as PDF, JPG, or PNG file on your computer
+
+3. UPLOAD THE COMPLETED FORM:
+   - Go back to your Konstructo dashboard
+   - Navigate to "My Applications" or "Application Forms" section
+   - Click the "Upload Completed Form" button
+   - Select your file (PDF, JPG, JPEG, or PNG)
+   - Ensure file size is within the 1 MB limit
+   - Click "Submit" or "Upload" to send your form
+
+4. ACCEPTED FILE FORMATS:
+   - PDF files (.pdf) - Best for digitally filled forms
+   - Images (.jpg, .jpeg, .png) - For scanned handwritten forms
+   - Maximum file size: 1 MB
+
+5. IMPORTANT REMINDERS:
+   - Complete all required fields before submitting
+   - You still need to visit the City Engineering Office for Box 2 for the wet signature of the Architect or Civil Engineer
+   - Keep a copy of your completed form for personal records

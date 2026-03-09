@@ -22,3 +22,9 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+
+Add-Content .gitignore "`n# Allow AI knowledge base files"
+Add-Content .gitignore "!storage/app/"
+Add-Content .gitignore "!storage/app/ai-knowledge/"
+Add-Content .gitignore "!storage/app/ai-knowledge/*.txt"

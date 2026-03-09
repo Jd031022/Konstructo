@@ -1,0 +1,36 @@
+KONSTRUCTO REGISTRATION PROCESS:
+
+1. VISIT THE REGISTRATION PAGE:
+   - Fill in the multi-step registration form
+
+2. STEP 1 - PERSONAL INFORMATION:
+   - First Name (required)
+   - Last Name (required)  
+   - Middle Name (optional)
+   - Suffix (optional)
+   - Phone Number (required - must be 11 digits starting with 09)
+   - Zip Code (required)
+   - Address (required)
+
+3. STEP 2 - ACCOUNT DETAILS:
+   - Email Address (required - must be unique)
+   - Username (required - letters, numbers, dashes, underscores only)
+   - Password (required - 8-16 characters, must contain:)
+     * At least 1 uppercase letter
+     * At least 1 number
+     * At least 1 special character (@$!%*?&)
+   - Confirm Password (must match)
+
+4. STEP 3 - EMAIL VERIFICATION:
+   - After submitting registration, a 6-digit verification code is sent to the email
+   - Code expires in 10 minutes
+   - User must enter the code to verify their email
+   - Options available:
+     * Resend code if not received
+     * Go back if wrong email address
+
+5. AFTER VERIFICATION:
+   - Email is marked as verified
+   - User can access their dashboard
+   - Account is fully activated
+
