@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -18,6 +19,8 @@ class UserSeeder extends Seeder
         User::create([
             'first_name' => 'Admin',
             'last_name' => 'User',
+            'middle_name' => null,
+            'suffix' => null,
             'email' => 'admin@konstructo.com',
             'username' => 'admin',
             'password' => Hash::make('Admin123!@#'),
@@ -26,9 +29,12 @@ class UserSeeder extends Seeder
             'address' => 'Admin Office, Main Street',
             'zip_code' => '1000',
             'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        // Create Staff (formerly Engineers)
+        // Create Staff
         $staff = [
             [
                 'first_name' => 'John',
@@ -36,7 +42,6 @@ class UserSeeder extends Seeder
                 'email' => 'john.santos@konstructo.com',
                 'username' => 'john.santos',
                 'phone_number' => '09234567890',
-                'department' => 'Engineering', // Added department for staff
             ],
             [
                 'first_name' => 'Maria',
@@ -44,7 +49,6 @@ class UserSeeder extends Seeder
                 'email' => 'maria.reyes@konstructo.com',
                 'username' => 'maria.reyes',
                 'phone_number' => '09345678901',
-                'department' => 'Engineering',
             ],
             [
                 'first_name' => 'Robert',
@@ -52,7 +56,6 @@ class UserSeeder extends Seeder
                 'email' => 'robert.lim@konstructo.com',
                 'username' => 'robert.lim',
                 'phone_number' => '09456789012',
-                'department' => 'Engineering',
             ],
             [
                 'first_name' => 'Patricia',
@@ -60,16 +63,13 @@ class UserSeeder extends Seeder
                 'email' => 'patricia.v@konstructo.com',
                 'username' => 'patricia.v',
                 'phone_number' => '09567890123',
-                'department' => 'Engineering',
             ],
-            // Additional staff from other departments
             [
                 'first_name' => 'Michael',
                 'last_name' => 'Tan',
                 'email' => 'michael.tan@konstructo.com',
                 'username' => 'michael.tan',
                 'phone_number' => '09678901234',
-                'department' => 'Customer Support',
             ],
             [
                 'first_name' => 'Sarah',
@@ -77,7 +77,6 @@ class UserSeeder extends Seeder
                 'email' => 'sarah.gonzales@konstructo.com',
                 'username' => 'sarah.gonzales',
                 'phone_number' => '09789012345',
-                'department' => 'Administration',
             ],
         ];
 
@@ -85,14 +84,19 @@ class UserSeeder extends Seeder
             User::create([
                 'first_name' => $staffMember['first_name'],
                 'last_name' => $staffMember['last_name'],
+                'middle_name' => null,
+                'suffix' => null,
                 'email' => $staffMember['email'],
                 'username' => $staffMember['username'],
                 'password' => Hash::make('Staff123!@#'),
-                'role' => 'staff',
+                'role' => 'staff', // Make sure this is 'staff' not 'engineer'
                 'phone_number' => $staffMember['phone_number'],
-                'address' => $staffMember['department'] . ' Department', // Dynamic address based on department
+                'address' => 'Staff Address',
                 'zip_code' => '1000',
                 'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
@@ -132,6 +136,8 @@ class UserSeeder extends Seeder
             User::create([
                 'first_name' => $applicant['first_name'],
                 'last_name' => $applicant['last_name'],
+                'middle_name' => null,
+                'suffix' => null,
                 'email' => $applicant['email'],
                 'username' => $applicant['username'],
                 'password' => Hash::make('Applicant123!@#'),
@@ -140,10 +146,21 @@ class UserSeeder extends Seeder
                 'address' => 'Applicant Address',
                 'zip_code' => '1000',
                 'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
         $this->command->info('Users seeded successfully!');
         $this->command->info('Created: 1 Admin, ' . count($staff) . ' Staff, and ' . count($applicants) . ' Applicants');
+        
+        // Display login credentials for testing
+        $this->command->info('=====================================');
+        $this->command->info('LOGIN CREDENTIALS:');
+        $this->command->info('Admin - Email: admin@konstructo.com | Password: Admin123!@#');
+        $this->command->info('Staff - Email: john.santos@konstructo.com | Password: Staff123!@#');
+        $this->command->info('Applicant - Email: anna.lopez@email.com | Password: Applicant123!@#');
+        $this->command->info('=====================================');
     }
 }

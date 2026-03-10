@@ -70,9 +70,9 @@ class LoginController extends Controller
             
             // Determine redirect based on role
             $redirect = match($user->role) {
-                'admin' => route('admin.users'),
-                'engineer' => route('staff.dashboard'),
-                default => route('user.dashboard'),
+                'admin' => route('admin.dashboard'),
+                'staff' => route('staff.dashboard'),
+                default => route('applicant.dashboard'),
             };
             
             return response()->json([

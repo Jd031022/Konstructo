@@ -378,7 +378,7 @@
         // All good, proceed to next step
         showSuccessModal('Documents link saved! Proceeding to review...');
         setTimeout(() => {
-            window.location.href = '/user/application/step3';
+            window.location.href = '/applicant/application/step3';
         }, 1500);
     }
 

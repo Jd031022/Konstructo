@@ -8,7 +8,7 @@
     
     <!-- Back Button -->
     <div class="mb-8">
-        <a href="/user/applications" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+        <a href="/applicant/applications" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -288,7 +288,7 @@
 
         <!-- Next Step Button -->
         <div class="p-8 pt-0 flex justify-end">
-            <a href="/user/application/step2" 
+            <a href="/applicant/application/step2" 
                class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md">
                 Next Step: Upload Documents
                 <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
