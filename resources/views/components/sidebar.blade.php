@@ -92,23 +92,6 @@
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application</span>
             </a>
 
-            <!-- Application Status -->
-            <a href="/applicant/status" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/status*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application Status</span>
-            </a>
-
-            <!-- Required Documents -->
-            <a href="/applicant/documents" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/documents*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Required Documents</span>
-            </a>
 
             <!-- My Profile -->
             <a href="/applicant/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
@@ -200,7 +183,7 @@
             if (!isExpanded) {
                 // Expand sidebar
                 sidebar.classList.remove('w-20');
-                sidebar.classList.add('w-48');
+                sidebar.classList.add('w-64');
                 
                 // Show all text labels with animation
                 const labels = sidebar.querySelectorAll('span');
@@ -212,7 +195,7 @@
                 isExpanded = true;
             } else {
                 // Collapse sidebar
-                sidebar.classList.remove('w-48');
+                sidebar.classList.remove('w-64'); 
                 sidebar.classList.add('w-20');
                 
                 // Hide all text labels
@@ -230,7 +213,7 @@
         document.addEventListener('click', function(e) {
             if (isExpanded && !sidebar.contains(e.target)) {
                 // Collapse sidebar
-                sidebar.classList.remove('w-48');
+                sidebar.classList.remove('w-64'); 
                 sidebar.classList.add('w-20');
                 
                 const labels = sidebar.querySelectorAll('span');

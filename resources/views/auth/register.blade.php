@@ -11,10 +11,10 @@
         <img 
             src="{{ asset('images/cover.jpg') }}" 
             alt="Background" 
-            class="w-full h-full object-cover opacity-20"
+            class="w-full h-full object-cover"
         >
         <!-- Optional overlay for better contrast -->
-        <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+        <div class="absolute inset-0 backdrop-blur-[2px]"></div>
     </div>
 
     <!-- Content Container (scrollable) -->
