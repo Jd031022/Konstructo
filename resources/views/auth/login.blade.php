@@ -6,11 +6,12 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
 
     <!-- Background Illustration -->
-    <div class="absolute inset-0">
-        <img src="{{ asset('images/cover.jpg') }}" 
-             class="w-full h-full object-cover opacity-90 brightness-75" 
-             alt="background">
-    </div>
+<div class="absolute inset-0">
+    <img src="{{ asset('images/cover.jpg') }}" 
+         class="w-full h-full object-cover" 
+         alt="background">
+    <div class="absolute inset-0 backdrop-blur-[2px] bg-white/10"></div>
+</div>
 
     <!-- Login Card -->
 <div class="relative bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-8" style="width: 500px; min-height: auto; padding: 90px 70px;">
@@ -37,7 +38,7 @@
 
             <!-- Email -->
             <div class="mb-4">
-                <label class="block text-sm text-gray-600 mb-1">Email</label>
+                <label class="block text-sm  text-black mb-1">Email</label>
                 <input type="email"
                     id="email"
                     name="email"
@@ -49,7 +50,7 @@
 
             <!-- Password -->
             <div class="mb-4">
-                <label class="block text-sm text-gray-600 mb-1">Password</label>
+                <label class="block text-sm text-black mb-1">Password</label>
                 <div class="relative">
                     <input type="password"
                         id="password"
