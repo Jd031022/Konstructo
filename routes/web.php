@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 
 Route::get('/', function () {
-    return view('user.welcome');
+    return view('applicant.welcome');
 });
 
 Route::middleware('auth')->group(function () {
@@ -43,10 +43,6 @@ Route::get('/staff/dashboard', function () {
     return view('staff.dashboard');
 })->name('staff.dashboard');
 
-Route::get('/staff/users', function () {
-    return view('staff.users');
-})->name('staff.users');
-
 Route::get('/staff/application-details', function () {
     return view('staff.application-details');
 })->name('staff.application.details');
@@ -55,50 +51,52 @@ Route::get('/staff/applications', function () {
     return view('staff.applications');
 })->name('staff.applications');
 
-Route::get('/staff/settings', function () {
-    return view('staff.settings');
-})->name('staff.settings');
-
 // User Routes for UI
-Route::get('/user/applications', function () {
-    return view('user.applications');
-})->name('user.applications');
+Route::get('/applicant/applications', function () {
+    return view('applicant.applications');
+})->name('applicant.applications');
 
-Route::get('/user/dashboard', function () {
-    return view('user.dashboard');
-})->name('user.dashboard');
+Route::get('/applicant/dashboard', function () {
+    return view('applicant.dashboard');
+})->name('applicant.dashboard');
 
-Route::get('/user/application-details', function () {
-    return view('user.application-details');
-})->name('user.application.details');
+Route::get('/applicant/application-details', function () {
+    return view('applicant.application-details');
+})->name('applicant.application.details');
 
-Route::get('/user/application/step1', function () {
-    return view('user.application.step1');
-})->name('user.application.step1');
+Route::get('/applicant/application/step1', function () {
+    return view('applicant.application.step1');
+})->name('applicant.application.step1');
 
-Route::get('/user/application/step2', function () {
-    return view('user.application.step2');
-})->name('user.application.step2');
+Route::get('/applicant/application/step2', function () {
+    return view('applicant.application.step2');
+})->name('applicant.application.step2');
 
-Route::get('/user/application/step3', function () {
-    return view('user.application.step3');
-})->name('user.application.step3');
+Route::get('/applicant/application/step3', function () {
+    return view('applicant.application.step3');
+})->name('applicant.application.step3');
 
-// Dashboard route with role-based redirect
+// Dashboard route with role-based redirect - FIXED VERSION
 Route::get('/dashboard', function () {
     /** @var \App\Models\User $user */
-      $typedUser = $user;
+    $user = auth()->user(); // Get the authenticated user
     
     if ($user) {
         return match($user->role) {
-            'admin' => redirect()->route('admin.users'),
-            'engineer' => redirect()->route('staff.dashboard'),
-            default => redirect()->route('user.dashboard'),
+            'admin' => redirect()->route('admin.dashboard'),
+            'staff' => redirect()->route('staff.dashboard'),
+            'applicant' => redirect()->route('applicant.dashboard'),
+            default => redirect()->route('login'),
         };
     }
     
     return redirect()->route('login');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Add admin dashboard route
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('admin.dashboard');
 
 Route::get('/admin/settings', function () {
     return view('admin.settings');
@@ -114,4 +112,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.delete');
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('admin.users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('admin.users.reset-password');
+});
+
+Route::get('/profile/profile', function () {
+    return view('profile.profile');
 });

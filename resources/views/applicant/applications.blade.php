@@ -13,13 +13,13 @@
         </div>
         
         <!-- New Application Button -->
-        <button onclick="openNewApplicationModal()" 
+        <a href="/user/application/step1" 
             class="inline-flex items-center px-4 py-2.5 bg-[#155386] text-white rounded-xl hover:bg-[#40798C] transition shadow-md hover:shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             New Application
-        </button>
+        </a>
     </div>
 
 
@@ -63,7 +63,7 @@
 
     <!-- Applications List -->
     <div class="space-y-4">
-        <!-- Application Card 1 -->
+        <!-- Application Card 1 - Pending -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
             <div class="p-6">
                 <!-- Header with ID and Status -->
@@ -74,7 +74,10 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-800">Building Permit Application</h3>
-                            <p class="text-sm text-gray-500">APP-2025-001 • Submitted May 5, 2025</p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-sm text-gray-500 font-mono">APP-2025-001</p>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">Application #</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -99,7 +102,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-400">Documents</p>
-                        <p class="text-sm font-medium text-gray-800">4/6 Uploaded</p>
+                        <p class="text-sm font-medium text-gray-800">13/13 in Google Drive</p>
                     </div>
                 </div>
                 
@@ -112,6 +115,12 @@
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div class="bg-gradient-to-r from-[#155386] to-[#40798C] h-2 rounded-full" style="width: 65%"></div>
                     </div>
+                </div>
+                
+                <!-- Hard Copy Status -->
+                <div class="mb-3 flex items-center gap-2">
+                    <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Hard Copy: Pending</span>
+                    <span class="text-xs text-gray-400">Submit originals to OBO</span>
                 </div>
                 
                 <!-- Action Buttons -->
@@ -127,7 +136,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Download
+                        Download Summary
                     </button>
                     <button class="inline-flex items-center px-3 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +159,10 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-800">Building Permit Application</h3>
-                            <p class="text-sm text-gray-500">APP-2025-002 • Submitted April 28, 2025</p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-sm text-gray-500 font-mono">APP-2025-002</p>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">Application #</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -175,7 +187,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-400">Documents</p>
-                        <p class="text-sm font-medium text-gray-800">6/6 Uploaded</p>
+                        <p class="text-sm font-medium text-gray-800">13/13 in Google Drive</p>
                     </div>
                 </div>
                 
@@ -188,6 +200,12 @@
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
                     </div>
+                </div>
+                
+                <!-- Hard Copy Status -->
+                <div class="mb-3 flex items-center gap-2">
+                    <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">Hard Copy: Received</span>
+                    <span class="text-xs text-gray-400">Verified by OBO</span>
                 </div>
                 
                 <!-- Action Buttons -->
@@ -220,7 +238,10 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-800">Building Permit Application</h3>
-                            <p class="text-sm text-gray-500">APP-2025-003 • Submitted April 15, 2025</p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-sm text-gray-500 font-mono">APP-2025-003</p>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">Application #</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -245,7 +266,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-400">Documents</p>
-                        <p class="text-sm font-medium text-gray-800">3/6 Uploaded</p>
+                        <p class="text-sm font-medium text-gray-800">10/13 in Google Drive</p>
                     </div>
                 </div>
                 
@@ -253,6 +274,11 @@
                 <div class="mb-4 p-3 bg-red-50 rounded-lg">
                     <p class="text-xs text-red-600 font-medium">Rejection Reason:</p>
                     <p class="text-sm text-gray-600">Incomplete documents and incorrect zoning classification.</p>
+                </div>
+                
+                <!-- Hard Copy Status -->
+                <div class="mb-3 flex items-center gap-2">
+                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Hard Copy: N/A</span>
                 </div>
                 
                 <!-- Action Buttons -->
@@ -273,11 +299,78 @@
                 </div>
             </div>
         </div>
+
+        <!-- Application Card 4 - Draft (New - shows application number before submission) -->
+        <div class="bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-300 overflow-hidden hover:shadow-md transition opacity-75">
+            <div class="p-6">
+                <!-- Header with ID and Status -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-r from-gray-400 to-gray-500 rounded-xl flex items-center justify-center text-white font-bold">
+                            BP
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-600">Building Permit Application (Draft)</h3>
+                            <div class="flex items-center gap-2">
+                                <p class="text-sm text-gray-400 font-mono">APP-2025-004</p>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">Application # Assigned</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">Draft</span>
+                        <span class="text-sm text-gray-400">Not submitted</span>
+                    </div>
+                </div>
+                
+                <!-- Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-400">Project Name</p>
+                        <p class="text-sm font-medium text-gray-500">Not yet specified</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Location</p>
+                        <p class="text-sm font-medium text-gray-500">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Project Type</p>
+                        <p class="text-sm font-medium text-gray-500">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Documents</p>
+                        <p class="text-sm font-medium text-gray-500">Not uploaded</p>
+                    </div>
+                </div>
+                
+                <!-- Info Message -->
+                <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-xs text-blue-600 font-medium">Application Number Generated:</p>
+                    <p class="text-sm text-gray-600">Your application number is APP-2025-004. Use this when submitting requirements.</p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+                    <a href="/user/application/step2" class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Continue Application
+                    </a>
+                    <button class="inline-flex items-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete Draft
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between">
-        <p class="text-sm text-gray-500">Showing 1 to 3 of 8 applications</p>
+        <p class="text-sm text-gray-500">Showing 1 to 4 of 8 applications</p>
         <div class="flex items-center gap-2">
             <button class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition disabled:opacity-50" disabled>
                 Previous
@@ -301,15 +394,12 @@
             </div>
             <div>
                 <h4 class="font-semibold text-gray-800 mb-1">Application Tips</h4>
-                <p class="text-sm text-gray-600">Make sure to upload all required documents to avoid delays. You can track the status of your application in real-time. For assistance, contact our support team.</p>
+                <p class="text-sm text-gray-600">Your application number is generated when you download the Application Letter. Keep it for reference. Upload all 13 required documents to Google Drive and submit hard copies to OBO for final processing.</p>
             </div>
         </div>
     </div>
 
 </div>
-
-<!-- New Application Modal (reuse your existing modal) -->
-<!-- Include your existing new application modal here -->
 
 <script>
 function openNewApplicationModal() {

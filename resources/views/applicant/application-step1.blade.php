@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'New Application - Step 1 - Konstructo')
+@section('title', 'New Application - Step 1')
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

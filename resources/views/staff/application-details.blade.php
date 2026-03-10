@@ -31,6 +31,24 @@
         </div>
     </div>
 
+    <!-- Hard Copy Status Banner -->
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-semibold text-gray-800">Hard Copy Submission Status</h4>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium">Pending</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">Applicant has confirmed submission of hard copies. Awaiting physical documents at OBO.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Header -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -158,328 +176,140 @@
                 </div>
             </div>
 
-            <!-- Uploaded Documents Card -->
+            <!-- Google Drive Documents Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Uploaded Documents</h2>
-                    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">13/14 Uploaded</span>
+                    <h2 class="text-lg font-semibold text-gray-800">Google Drive Documents</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">13/13 Uploaded</span>
+                    </div>
                 </div>
                 
-                <!-- Document Checklist -->
-                <div class="space-y-4">
-                    <!-- Application Letter -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                <!-- Google Drive Link Section -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Application Letter</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <p class="text-sm font-medium text-gray-800">Google Drive Folder</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <a href="#" class="text-[#155386] hover:underline text-sm flex items-center gap-1" onclick="window.open('https://drive.google.com/drive/folders/1a2b3c4d5e6f7g8h9i0j', '_blank')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    View Folder
+                                </a>
+                                <span class="text-gray-300">|</span>
+                                <button class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1" onclick="copyToClipboard('https://drive.google.com/drive/folders/1a2b3c4d5e6f7g8h9i0j')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    Copy Link
+                                </button>
                             </div>
-                            <p class="text-xs text-gray-500">application_letter.pdf (2.4 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 5, 2025</p>
+                            <p class="text-xs text-gray-500 mt-2">Folder Name: <span class="font-mono">APP-Dela Cruz-001</span></p>
                         </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
                     </div>
+                </div>
 
-                    <!-- Building Permit Forms -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                <!-- Document Checklist (Collapsible) -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 flex items-center justify-between cursor-pointer" onclick="toggleDocuments()">
+                        <h4 class="font-medium text-gray-700 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Building Permit Forms</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
-                            </div>
-                            <p class="text-xs text-gray-500">permit_forms_complete.pdf (5.2 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 5, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
+                            View Document Checklist (13 items)
+                        </h4>
+                        <svg id="chevron-icon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
                     </div>
-
-                    <!-- Architectural Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Architectural Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                    <div id="document-checklist" class="hidden p-4 bg-white border-t border-gray-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Application Letter</span>
                             </div>
-                            <p class="text-xs text-gray-500">arch_plan_1.pdf, arch_plan_2.pdf, arch_plan_3.pdf, +2 more</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Structural Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Structural Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Building Permit Forms</span>
                             </div>
-                            <p class="text-xs text-gray-500">struct_plan_1.pdf, struct_plan_2.pdf, +3 more</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Electrical Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Electrical Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Architectural Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">electrical_plan.pdf (3.1 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Sanitary/Plumbing Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Sanitary/Plumbing Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Civil/Structural Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">plumbing_plan.pdf (2.8 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Mechanical Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Mechanical Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Electrical Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">mechanical_plan.pdf (2.2 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Fencing Plans -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Fencing Plans (5 sets)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Sanitary/Plumbing Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">fencing_plan.pdf (1.8 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Proof of Ownership -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Proof of Ownership (2 copies)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Mechanical Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">tct_123456.pdf, tax_dec_789.pdf (3.5 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 5, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Bill of Materials -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Bill of Materials (5 copies)</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Fencing Plans (5 sets)</span>
                             </div>
-                            <p class="text-xs text-gray-500">bom_complete.pdf (1.2 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Structural Design Analysis -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Structural Design Analysis</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Proof of Ownership (2 copies)</span>
                             </div>
-                            <p class="text-xs text-gray-500">structural_analysis.pdf (4.7 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 6, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Barangay Clearance -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Barangay Clearance</p>
-                                <span class="text-xs text-green-600 font-medium">Verified</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Bill of Materials (5 copies)</span>
                             </div>
-                            <p class="text-xs text-gray-500">barangay_clearance.pdf (1.1 MB)</p>
-                            <p class="text-xs text-gray-400 mt-1">Uploaded: May 5, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Locational/Zoning Clearance (Hard Copy) -->
-                    <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-800">Locational/Zoning Clearance</p>
-                                <span class="text-xs text-blue-600 font-medium">Pending (Hard Copy)</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Structural Design Analysis</span>
                             </div>
-                            <p class="text-xs text-gray-600">Awaiting hard copy submission to OBO</p>
-                            <p class="text-xs text-gray-400 mt-1">Applicant confirmed submission on May 10, 2025</p>
-                        </div>
-                        <button class="text-[#155386] hover:text-[#40798C]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- CSHP (Optional) -->
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg opacity-75">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-gray-500">CSHP from DOLE</p>
-                                <span class="text-xs text-gray-400 font-medium">Not Required</span>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Barangay Clearance</span>
                             </div>
-                            <p class="text-xs text-gray-400">For contractors with PCAB only</p>
+                            <div class="flex items-center gap-2 text-sm">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Valid ID</span>
+                            </div>
                         </div>
+                        <p class="text-xs text-gray-500 mt-4 italic">*Optional: CSHP from DOLE (for contractors with PCAB)</p>
                     </div>
                 </div>
 
@@ -489,7 +319,7 @@
                         Request Missing Documents
                     </button>
                     <button class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-                        Mark All as Verified
+                        Verify All Documents
                     </button>
                 </div>
             </div>
@@ -508,6 +338,24 @@
                         <p class="text-xs text-gray-500 mb-1">Current Status</p>
                         <p class="text-lg font-semibold text-yellow-600">Pending Review</p>
                         <p class="text-xs text-gray-500 mt-2">Queue Position: #24 of 156</p>
+                    </div>
+
+                    <!-- Hard Copy Status Toggle -->
+                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <label class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
+                            <input type="checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Mark when applicant submits physical documents</p>
+                    </div>
+
+                    <!-- Google Drive Access Status -->
+                    <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Google Drive Access</span>
+                            <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Working</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Last accessed: May 10, 2025</p>
                     </div>
 
                     <!-- Status Options -->
@@ -595,7 +443,7 @@
                     
                     <div class="flex gap-3">
                         <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span class="text-xs text-gray-500">3</span>
+                            <span class="text-xs text-gray-500">4</span>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-400">Document Verification</p>
@@ -605,7 +453,7 @@
                     
                     <div class="flex gap-3">
                         <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span class="text-xs text-gray-500">4</span>
+                            <span class="text-xs text-gray-500">5</span>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-400">Approval</p>
@@ -615,7 +463,7 @@
                     
                     <div class="flex gap-3">
                         <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span class="text-xs text-gray-500">5</span>
+                            <span class="text-xs text-gray-500">6</span>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-400">For Release</p>
@@ -636,13 +484,13 @@
                 <div class="space-y-4">
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <p class="text-xs text-gray-400 mb-1">May 7, 2025 • 10:30 AM</p>
-                        <p class="text-sm text-gray-700">Initial review completed. All documents present except zoning clearance.</p>
+                        <p class="text-sm text-gray-700">Initial review completed. All documents present in Google Drive.</p>
                         <p class="text-xs text-gray-500 mt-1">— Maria Santos, Evaluator</p>
                     </div>
                     
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <p class="text-xs text-gray-400 mb-1">May 6, 2025 • 3:45 PM</p>
-                        <p class="text-sm text-gray-700">Requested additional information for structural plans.</p>
+                        <p class="text-sm text-gray-700">Verified Google Drive access. All 13 documents uploaded.</p>
                         <p class="text-xs text-gray-500 mt-1">— John Doe, Engineer</p>
                     </div>
                 </div>
@@ -711,11 +559,41 @@
             <div>
                 <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
                 <p class="text-sm text-gray-600">
-                    Verify all documents carefully before updating status. For incomplete applications, use "Request Missing Documents" to notify the applicant.
+                    Access the Google Drive folder to review documents. Verify all 13 required items before updating status. Track hard copy submission separately.
                 </p>
             </div>
         </div>
     </div>
 
 </div>
+
+<!-- Copy to Clipboard Function -->
+<script>
+    function toggleDocuments() {
+        const checklist = document.getElementById('document-checklist');
+        const chevron = document.getElementById('chevron-icon');
+        
+        if (checklist.classList.contains('hidden')) {
+            checklist.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+        } else {
+            checklist.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Link copied to clipboard!');
+        }, function() {
+            alert('Failed to copy link.');
+        });
+    }
+</script>
+
+<style>
+.rotate-180 {
+    transform: rotate(180deg);
+}
+</style>
 @endsection

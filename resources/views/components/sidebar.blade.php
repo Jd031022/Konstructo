@@ -1,73 +1,138 @@
 <aside id="sidebar" class="w-20 bg-white min-h-screen h-full shadow-md fixed top-0 left-0 flex flex-col items-start py-6 overflow-y-auto transition-all duration-300 rounded-tr-2xl rounded-br-2xl scrollbar-hide">
 
     <!-- Burger Menu Logo with Konstructo Name -->
-<div id="burger-menu" class="mb-10 cursor-pointer px-6 w-full flex items-center gap-3">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#155386] hover:text-[#40798C] transition min-w-8" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-    <span class="text-lg font-bold whitespace-nowrap opacity-0 transition-opacity duration-300">
-        <span class="text-[#155386]">Konstr</span><span class="text-[rgb(64,121,140)]">ucto</span>
-    </span>
-</div>
+    <div id="burger-menu" class="mb-10 cursor-pointer px-6 w-full flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#155386] hover:text-[#40798C] transition min-w-8" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <span class="text-lg font-bold whitespace-nowrap opacity-0 transition-opacity duration-300">
+            <span class="text-[#155386]">Konstr</span><span class="text-[rgb(64,121,140)]">ucto</span>
+        </span>
+    </div>
 
-    <!-- Navigation -->
+    <!-- Navigation - Role-based routes -->
     <nav class="flex flex-col items-start gap-6 flex-1 w-full px-4">
-
-         <!-- Home (Active) -->
-        <a href="/user/dashboard" class="w-full flex items-center gap-4 p-2 rounded-xl bg-[#155386] text-white shadow hover:bg-[#40798C] transition">
+        
+        <!-- Home/Dashboard - Common for all roles -->
+        <a href="/{{ auth()->user()->role }}/dashboard" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('*/dashboard') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Home</span>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Dashboard</span>
         </a>
 
-        <!-- Applications -->
-        <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
-        </a>
-        
-        <!-- User Management -->
-        <a href="/staff/users" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Users</span>
-        </a>
-        
-        <!-- Services 
-        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4-3-9s1.34-9 3-9"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Services</span>
-        </a>
+        <!-- ADMIN ROUTES -->
+        @if(auth()->user()->role === 'admin')
+            <!-- User Management -->
+            <a href="/admin/users" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/users*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">User Management</span>
+            </a>
 
-        Documents
-        <a href="#" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Documents</span>
-        </a>
-        -->
-        
-        <!-- Settings -->
-        <a href="/staff/settings" class="w-full flex items-center gap-4 p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Settings</span>
-        </a>
+            <!-- All Applications -->
+            <a href="/admin/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">All Applications</span>
+            </a>
+
+            <!-- System Settings -->
+            <a href="/admin/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">System Settings</span>
+            </a>
+
+        <!-- STAFF ROUTES (formerly ENGINEER) -->
+        @elseif(auth()->user()->role === 'staff')
+            <!-- Assigned Applications -->
+            <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
+            </a>
+
+            <!-- My Documents -->
+            <a href="/staff/documents" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/documents*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Documents</span>
+            </a>
+
+            <!-- My Profile -->
+            <a href="/staff/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
+            </a>
+
+        <!-- APPLICANT ROUTES -->
+        @elseif(auth()->user()->role === 'applicant')
+            <!-- My Application -->
+            <a href="/applicant/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application</span>
+            </a>
+
+            <!-- Application Status -->
+            <a href="/applicant/status" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/status*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application Status</span>
+            </a>
+
+            <!-- Required Documents -->
+            <a href="/applicant/documents" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/documents*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Required Documents</span>
+            </a>
+
+            <!-- My Profile -->
+            <a href="/applicant/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
+            </a>
+        @endif
+
+        <!-- Settings - Different for each role -->
+        @if(auth()->user()->role === 'admin')
+            <!-- Settings already included in admin routes -->
+        @else
+            <a href="/{{ auth()->user()->role }}/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('*/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Settings</span>
+            </a>
+        @endif
 
     </nav>
 
