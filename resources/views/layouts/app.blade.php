@@ -89,13 +89,96 @@
         @yield('content')
     </main>
     
-    <!-- Initialize Lucide Icons -->
+    <!-- Initialize Lucide Icons and Storage Management -->
     <script>
+        // Clear all application storage
+        function clearApplicationStorage() {
+            // Session storage items
+            sessionStorage.removeItem('konstructo_current_app_number');
+            sessionStorage.removeItem('konstructo_just_generated');
+            
+            // Local storage items
+            localStorage.removeItem('konstructo_app_number');
+            localStorage.removeItem('konstructo_last_app_number');
+            localStorage.removeItem('konstructo_last_app_timestamp');
+            
+            console.log('Application storage cleared');
+        }
+
+        // Check for logout flag from server
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
+            
+            // Check for clear_storage flag from server - using Laravel's json directive
+            let shouldClearStorage = {{ session('clear_storage') ? 'true' : 'false' }};
+            
+            if (shouldClearStorage) {
+                clearApplicationStorage();
+                console.log('Storage cleared on logout (session flash)');
+            }
+            
+            // Check for clear_storage in URL parameter (optional)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('clear_storage') === 'true') {
+                clearApplicationStorage();
+                // Remove the parameter from URL without refreshing
+                const url = new URL(window.location);
+                url.searchParams.delete('clear_storage');
+                window.history.replaceState({}, '', url);
+            }
         });
+
+        // Listen for logout events from AJAX requests
+        window.addEventListener('user-logout', function() {
+            clearApplicationStorage();
+        });
+
+        // Optional: Listen for storage events to sync logout across tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'konstructo_logout') {
+                clearApplicationStorage();
+                window.location.href = '/login';
+            }
+        });
+
+        // Function to handle logout with storage clearing (for AJAX logout)
+        window.handleLogout = async function() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getContent(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Clear storage
+                    clearApplicationStorage();
+                    
+                    // Dispatch custom event for other listeners
+                    window.dispatchEvent(new Event('user-logout'));
+                    
+                    // Set a flag in localStorage to notify other tabs
+                    localStorage.setItem('konstructo_logout', Date.now().toString());
+                    
+                    // Redirect to login page
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Fallback redirect
+                window.location.href = '/login';
+            }
+        };
     </script>
     
     @stack('scripts')

@@ -112,7 +112,7 @@
     <!-- Main Content Area - Flex column with header and scrollable content -->
     <div id="main-content-wrapper" class="flex-1 flex flex-col overflow-hidden sidebar-collapsed">
         <!-- Welcome Header Component -->
-        <x-welcome-header :name="Auth::user()->name ?? 'Guest'" :role="Auth::user()->role ?? 'User'" />
+        <x-welcome-header :name="Auth::user()->first_name ?? 'Guest'" :role="Auth::user()->role ?? 'User'" />
         
         <!-- Scrollable Content Area -->
         <main class="flex-1 overflow-y-auto main-content p-6">
@@ -120,17 +120,78 @@
         </main>
     </div>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- Logout Modal -->
+    <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+        <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="text-center">
+                    <!-- Logout Icon -->
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Logout Confirmation</h3>
+                    <p class="text-sm text-gray-600 mb-6">Are you sure you want to logout?</p>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeLogoutModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                            Cancel
+                        </button>
+                        <button onclick="logout()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Logout Form -->
+    <form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
+        @csrf
+    </form>
+
+    <!-- Initialize Lucide Icons and Storage Management -->
     <script>
+        // Clear all application storage
+        function clearApplicationStorage() {
+            // Session storage items
+            sessionStorage.removeItem('konstructo_current_app_number');
+            sessionStorage.removeItem('konstructo_just_generated');
+            
+            // Local storage items
+            localStorage.removeItem('konstructo_app_number');
+            localStorage.removeItem('konstructo_last_app_number');
+            localStorage.removeItem('konstructo_last_app_timestamp');
+            
+            console.log('Application storage cleared');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
-        });
-    </script>
+            
+            // Check for clear_storage flag from server - using Laravel's json directive
+            let shouldClearStorage = {{ session('clear_storage') ? 'true' : 'false' }};
+            
+            if (shouldClearStorage) {
+                clearApplicationStorage();
+                console.log('Storage cleared on logout (session flash)');
+            }
+            
+            // Check for clear_storage in URL parameter (optional)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('clear_storage') === 'true') {
+                clearApplicationStorage();
+                // Remove the parameter from URL without refreshing
+                const url = new URL(window.location);
+                url.searchParams.delete('clear_storage');
+                window.history.replaceState({}, '', url);
+            }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const burgerMenu = document.getElementById('burger-menu');
             const mainContent = document.getElementById('main-content-wrapper');
@@ -255,11 +316,58 @@
                 </div>
             `;
             
+            // Clear storage before submitting logout form
+            clearApplicationStorage();
+            
+            // Set a flag in localStorage to notify other tabs
+            localStorage.setItem('konstructo_logout', Date.now().toString());
+            
             // Submit the logout form
             setTimeout(() => {
                 document.getElementById('logout-form').submit();
             }, 500);
         }
+
+        // Listen for storage events to sync logout across tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'konstructo_logout') {
+                clearApplicationStorage();
+                window.location.href = '/login';
+            }
+        });
+
+        // Function to handle AJAX logout with storage clearing (alternative method)
+        window.handleAjaxLogout = async function() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getContent(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Clear storage
+                    clearApplicationStorage();
+                    
+                    // Set a flag in localStorage to notify other tabs
+                    localStorage.setItem('konstructo_logout', Date.now().toString());
+                    
+                    // Redirect to login page
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Fallback redirect
+                window.location.href = '/login';
+            }
+        };
     </script>
 
     @stack('scripts')

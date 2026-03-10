@@ -98,13 +98,19 @@ class LoginController extends Controller
             /** @var \App\Models\User $user */
             $user = Auth::user();
         
-            $user->sessions()->where('session_id', session()->getId())->update(['is_active' => false]);
+            // Check if sessions relationship exists before using it
+            if (method_exists($user, 'sessions')) {
+                $user->sessions()->where('session_id', session()->getId())->update(['is_active' => false]);
+            }
         
-            $user->logActivity(
-                'logout',
-                'User logged out',
-                ['method' => $request->method()]
-            );
+            // Check if logActivity method exists
+            if (method_exists($user, 'logActivity')) {
+                $user->logActivity(
+                    'logout',
+                    'User logged out',
+                    ['method' => $request->method()]
+                );
+            }
         }
 
         Auth::logout();
@@ -112,10 +118,14 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         if ($request->wantsJson()) {
-            return response()->json(['message' => 'Logged out successfully']);
+            return response()->json([
+                'message' => 'Logged out successfully',
+                'clear_storage' => true // Add flag to clear client-side storage
+            ]);
         }
         
-        return redirect()->route('login');
+        // Add flash data to clear storage on next page load
+        return redirect()->route('login')->with('clear_storage', true);
     }
 
     public function showLoginForm()
