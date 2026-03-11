@@ -85,6 +85,16 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
         ->name('applications.export');
+    
+    // NEW: Staff review activities routes
+    Route::post('/applications/{id}/note', [App\Http\Controllers\Staff\ApplicationController::class, 'addNote'])
+        ->name('applications.note');
+    
+    Route::post('/applications/{id}/verify-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'verifyDocuments'])
+        ->name('applications.verify-documents');
+    
+    Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Staff\ApplicationController::class, 'getReviewActivities'])
+        ->name('applications.review-activities');
 });
 
 // Applicant UI Routes
@@ -98,8 +108,9 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.dashboard');
     })->name('dashboard');
     
-    Route::get('/application-details', function () {
-        return view('applicant.application-details');
+    // FIXED: Added ID parameter to application details route
+    Route::get('/application-details/{id}', function ($id) {
+        return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
     Route::get('/application/step1', function () {
@@ -148,6 +159,13 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     
     Route::get('/applications/stats', [App\Http\Controllers\Applicant\ApplicationController::class, 'getStats'])
         ->name('applications.stats');
+    
+    // NEW: Applicant view review activities route
+    Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Applicant\ApplicationController::class, 'getReviewActivities'])
+        ->name('applications.review-activities');
+        // Add this inside your applicant routes group
+Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
+    ->name('applications.debug-review');
 });
 
 // Dashboard route with role-based redirect
@@ -192,6 +210,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
+
 
 // Test JSON route
 Route::get('/test-json', function() {

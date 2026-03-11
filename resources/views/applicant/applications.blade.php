@@ -13,7 +13,7 @@
         </div>
         
         <!-- New Application Button -->
-        <a href="/applicant/application/step1" 
+        <a href="/applicant/application/step1?new=true" 
             id="new-application-btn"
             class="inline-flex items-center px-4 py-2.5 bg-[#155386] text-white rounded-xl hover:bg-[#40798C] transition shadow-md hover:shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,11 @@
                 <option value="">All Status</option>
                 <option value="draft">Draft</option>
                 <option value="pending">Pending Review</option>
-                <option value="verified">Approved</option>
+                <option value="under-review">Under Review</option>
+                <option value="document-verification">Document Verification</option>
+                <option value="approved">Approved</option>
+                <option value="for-release">For Release</option>
+                <option value="verified">Completed</option>
                 <option value="rejected">Rejected</option>
             </select>
             
@@ -115,7 +119,7 @@
         </svg>
         <h3 class="text-lg font-medium text-gray-900 mt-4">No applications yet</h3>
         <p class="text-gray-500 mt-2">Start your first building permit application today.</p>
-        <a href="/applicant/application/step1" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+        <a href="/applicant/application/step1?new=true" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -419,30 +423,42 @@
         updatePagination();
     }
 
-    // Create application card HTML
-    function createApplicationCard(app) {
-        const statusColors = {
-            'draft': 'bg-gray-100 text-gray-600',
-            'pending': 'bg-yellow-100 text-yellow-600',
-            'verified': 'bg-green-100 text-green-600',
-            'rejected': 'bg-red-100 text-red-600'
+    // Get status text and color
+    function getStatusConfig(status) {
+        const statusConfig = {
+            'draft': { color: 'bg-gray-100 text-gray-600', text: 'Draft', progress: 25 },
+            'pending': { color: 'bg-yellow-100 text-yellow-600', text: 'Submitted', progress: 40 },
+            'under-review': { color: 'bg-purple-100 text-purple-600', text: 'Under Review', progress: 55 },
+            'document-verification': { color: 'bg-indigo-100 text-indigo-600', text: 'Document Verification', progress: 70 },
+            'approved': { color: 'bg-green-100 text-green-600', text: 'Approved', progress: 85 },
+            'for-release': { color: 'bg-blue-100 text-blue-600', text: 'For Release', progress: 95 },
+            'verified': { color: 'bg-emerald-100 text-emerald-600', text: 'Completed', progress: 100 },
+            'rejected': { color: 'bg-red-100 text-red-600', text: 'Rejected', progress: 100 }
         };
         
-        const statusText = {
-            'draft': 'Draft',
-            'pending': 'Pending Review',
-            'verified': 'Approved',
-            'rejected': 'Rejected'
-        };
-        
-        const progressColors = {
+        return statusConfig[status] || { color: 'bg-gray-100 text-gray-600', text: status, progress: 0 };
+    }
+
+    // Get progress bar color
+    function getProgressColor(status) {
+        const colorMap = {
             'draft': 'from-gray-400 to-gray-500',
             'pending': 'from-[#155386] to-[#40798C]',
-            'verified': 'from-green-500 to-green-600',
+            'under-review': 'from-purple-500 to-purple-600',
+            'document-verification': 'from-indigo-500 to-indigo-600',
+            'approved': 'from-green-500 to-green-600',
+            'for-release': 'from-blue-500 to-blue-600',
+            'verified': 'from-emerald-500 to-emerald-600',
             'rejected': 'from-red-500 to-red-600'
         };
         
-        const progress = app.status === 'draft' ? 25 : (app.status === 'pending' ? 65 : 100);
+        return colorMap[status] || 'from-gray-400 to-gray-500';
+    }
+
+    // Create application card HTML
+    function createApplicationCard(app) {
+        const statusConfig = getStatusConfig(app.status);
+        const progressColor = getProgressColor(app.status);
         
         const date = new Date(app.created_at);
         const formattedDate = date.toLocaleDateString('en-US', { 
@@ -481,7 +497,7 @@
             </button>
             ` : ''}
             ${app.status === 'rejected' ? `
-            <a href="/applicant/application/step1" class="inline-flex items-center px-3 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+            <a href="/applicant/application/step1?new=true" class="inline-flex items-center px-3 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -490,13 +506,25 @@
             ` : ''}
         `;
         
+        // Get hard copy status text
+        let hardCopyStatus = 'Not Submitted';
+        let hardCopyColor = 'bg-gray-100 text-gray-600';
+        
+        if (app.hard_copy_received) {
+            hardCopyStatus = 'Received';
+            hardCopyColor = 'bg-green-100 text-green-600';
+        } else if (app.status !== 'draft' && app.status !== 'rejected') {
+            hardCopyStatus = 'Pending';
+            hardCopyColor = 'bg-yellow-100 text-yellow-600';
+        }
+        
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
                 <div class="p-6">
                     <!-- Header with ID and Status -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-r ${progressColors[app.status]} rounded-xl flex items-center justify-center text-white font-bold">
+                            <div class="w-12 h-12 bg-gradient-to-r ${progressColor} rounded-xl flex items-center justify-center text-white font-bold">
                                 BP
                             </div>
                             <div>
@@ -508,49 +536,51 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="px-3 py-1 ${statusColors[app.status]} rounded-full text-xs font-medium">${statusText[app.status]}</span>
+                            <span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs font-medium">${statusConfig.text}</span>
                             <span class="text-sm text-gray-400">Updated ${formattedDate}</span>
                         </div>
                     </div>
                     
-                    <!-- Details Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <p class="text-xs text-gray-400">Project Name</p>
-                            <p class="text-sm font-medium text-gray-800">${app.project_name || 'Not specified'}</p>
+                    <!-- Google Drive Link -->
+                    <div class="mb-4">
+                        <p class="text-xs text-gray-400 mb-1">Google Drive Documents</p>
+                        ${app.google_drive_link ? `
+                        <div class="flex items-center gap-2">
+                            <a href="${app.google_drive_link}" target="_blank" class="text-sm text-[#155386] hover:underline flex items-center gap-1 break-all">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                ${app.google_drive_link.length > 50 ? app.google_drive_link.substring(0, 50) + '...' : app.google_drive_link}
+                            </a>
+                            <button onclick="copyToClipboard('${app.google_drive_link}')" class="text-gray-500 hover:text-gray-700" title="Copy link">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </button>
                         </div>
-                        <div>
-                            <p class="text-xs text-gray-400">Location</p>
-                            <p class="text-sm font-medium text-gray-800">${app.location || 'Not specified'}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-400">Project Type</p>
-                            <p class="text-sm font-medium text-gray-800">${app.project_type || 'Not specified'}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-400">Documents</p>
-                            <p class="text-sm font-medium text-gray-800">${app.google_drive_link ? '13/13' : '0/13'} in Google Drive</p>
-                        </div>
+                        ` : `
+                        <p class="text-sm text-gray-500">No Google Drive link provided</p>
+                        `}
                     </div>
                     
                     <!-- Progress Bar -->
                     <div class="mb-4">
                         <div class="flex items-center justify-between text-xs mb-1">
                             <span class="text-gray-600">Application Progress</span>
-                            <span class="${app.status === 'verified' ? 'text-green-600' : (app.status === 'rejected' ? 'text-red-600' : 'text-[#155386]')} font-medium">${progress}%</span>
+                            <span class="${app.status === 'verified' ? 'text-green-600' : (app.status === 'rejected' ? 'text-red-600' : 'text-[#155386]')} font-medium">${statusConfig.progress}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-gradient-to-r ${progressColors[app.status]} h-2 rounded-full" style="width: ${progress}%"></div>
+                            <div class="bg-gradient-to-r ${progressColor} h-2 rounded-full" style="width: ${statusConfig.progress}%"></div>
                         </div>
                     </div>
                     
                     <!-- Hard Copy Status -->
                     <div class="mb-3 flex items-center gap-2">
-                        <span class="text-xs ${app.status === 'verified' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} px-2 py-1 rounded-full">
-                            Hard Copy: ${app.status === 'verified' ? 'Received' : (app.status === 'pending' ? 'Pending' : 'Not Submitted')}
+                        <span class="text-xs ${hardCopyColor} px-2 py-1 rounded-full">
+                            Hard Copy: ${hardCopyStatus}
                         </span>
                         <span class="text-xs text-gray-400">
-                            ${app.status === 'verified' ? 'Verified by OBO' : (app.status === 'pending' ? 'Awaiting verification' : 'Submit originals to OBO')}
+                            ${app.hard_copy_received ? 'Received by OBO' : (app.status === 'verified' ? 'Verified' : 'Submit originals to OBO')}
                         </span>
                     </div>
                     
@@ -577,6 +607,15 @@
                 </div>
             </div>
         `;
+    }
+
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showSuccessModal('Link copied to clipboard!');
+        }).catch(() => {
+            showErrorModal('Failed to copy link.');
+        });
     }
 
     // Update pagination
@@ -806,6 +845,11 @@
     /* Progress bar animation */
     #application-progress-bar {
         transition: width 0.5s ease-in-out;
+    }
+
+    /* Link break styling */
+    .break-all {
+        word-break: break-all;
     }
 </style>
 @endsection

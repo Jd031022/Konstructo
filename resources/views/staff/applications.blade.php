@@ -363,31 +363,66 @@
         setupModals();
     });
 
-    // Load applications from API
-    async function loadApplications() {
-        try {
-            const response = await fetch('/staff/applications/data', {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                applications = data.applications;
-                applyFilters();
-            } else {
-                showErrorModal('Failed to load applications');
+  // Load applications from API
+async function loadApplications() {
+    try {
+        console.log('Fetching applications from /staff/applications/data');
+        
+        const response = await fetch('/staff/applications/data', {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
             }
-        } catch (error) {
-            console.error('Error loading applications:', error);
-            showErrorModal('Failed to load applications');
-        } finally {
-            document.getElementById('loading-state').classList.add('hidden');
+        });
+        
+        console.log('Response status:', response.status);
+        
+        // Check if response is OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText.substring(0, 200));
+            throw new Error(`HTTP error ${response.status}`);
         }
+        
+        // Check content type
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text.substring(0, 200));
+            throw new Error('Server returned non-JSON response');
+        }
+        
+        const data = await response.json();
+        console.log('Applications data:', data);
+        
+        if (data.success) {
+            applications = data.applications || [];
+            applyFilters();
+        } else {
+            showErrorModal(data.message || 'Failed to load applications');
+        }
+    } catch (error) {
+        console.error('Error loading applications:', error);
+        showErrorModal('Failed to load applications: ' + error.message);
+        
+        // Show empty state with error message
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        document.getElementById('empty-state').innerHTML = `
+            <svg class="w-16 h-16 mx-auto text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Failed to Load Applications</h3>
+            <p class="text-gray-500 mt-2">${error.message}</p>
+            <button onclick="loadApplications()" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+                Try Again
+            </button>
+        `;
+    } finally {
+        document.getElementById('loading-state').classList.add('hidden');
     }
+}
 
     // Apply filters
     function applyFilters() {

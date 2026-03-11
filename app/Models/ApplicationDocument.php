@@ -18,7 +18,8 @@ class ApplicationDocument extends Model
         'verified_at',
         'verified_by',
         'rejection_reason',
-        'hard_copy_received'
+        'hard_copy_received',
+        'last_updated_by'
     ];
 
     protected $casts = [
@@ -172,5 +173,20 @@ class ApplicationDocument extends Model
         $this->update([
             'status' => 'draft'
         ]);
+    }
+    // In App\Models\ApplicationDocument.php
+
+public function reviewActivities()
+{
+    return $this->hasMany(ApplicationReviewActivity::class, 'application_id')->orderBy('created_at', 'desc');
+}
+
+public function latestReviewActivity()
+{
+    return $this->hasOne(ApplicationReviewActivity::class, 'application_id')->latestOfMany();
+}
+public function lastUpdatedBy()
+    {
+        return $this->belongsTo(User::class, 'last_updated_by');
     }
 }

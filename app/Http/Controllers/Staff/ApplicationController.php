@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\User;
+use App\Models\ApplicationReviewActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema; // Add this import
+use Illuminate\Support\Facades\Schema;
 
 class ApplicationController extends Controller
 {
@@ -18,41 +19,49 @@ class ApplicationController extends Controller
     public function index()
     {
         try {
+            Log::info('Fetching all staff applications');
+            
             // Get all applications EXCLUDING drafts
-            $applications = ApplicationDocument::with('user')
+            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
                 ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($app) {
-                    return [
-                        'id' => $app->id,
-                        'application_number' => $app->application_number,
-                        'applicant_name' => $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'Unknown',
-                        'email' => $app->user ? $app->user->email : null,
-                        'phone' => $app->user ? $app->user->phone_number : null,
-                        'address' => $app->user ? $app->user->address : null,
-                        'google_drive_link' => $app->google_drive_link,
-                        'status' => $app->status,
-                        'rejection_reason' => $app->rejection_reason,
-                        'admin_notes' => $app->admin_notes,
-                        'created_at' => $app->created_at,
-                        'updated_at' => $app->updated_at,
-                        'hard_copy_received' => $app->hard_copy_received ?? false
-                    ];
-                });
+                ->get();
+
+            $formattedApplications = [];
+            foreach ($applications as $app) {
+                $formattedApplications[] = [
+                    'id' => $app->id,
+                    'application_number' => $app->application_number,
+                    'applicant_name' => $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'Unknown',
+                    'email' => $app->user ? $app->user->email : null,
+                    'phone' => $app->user ? $app->user->phone_number : null,
+                    'address' => $app->user ? $app->user->address : null,
+                    'google_drive_link' => $app->google_drive_link,
+                    'status' => $app->status,
+                    'rejection_reason' => $app->rejection_reason,
+                    'admin_notes' => $app->admin_notes,
+                    'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
+                    'hard_copy_received' => $app->hard_copy_received ?? false,
+                    'last_updated_by' => $app->last_updated_by,
+                    'last_updated_by_name' => $app->lastUpdatedBy ? $app->lastUpdatedBy->first_name . ' ' . $app->lastUpdatedBy->last_name : null,
+                    'last_updated_by_role' => $app->lastUpdatedBy ? $app->lastUpdatedBy->role : null
+                ];
+            }
             
             return response()->json([
                 'success' => true,
-                'applications' => $applications,
-                'total' => $applications->count()
+                'applications' => $formattedApplications,
+                'total' => count($formattedApplications)
             ]);
             
         } catch (\Exception $e) {
             Log::error('Error loading staff applications: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading applications',
+                'message' => 'Error loading applications: ' . $e->getMessage(),
                 'applications' => []
             ], 500);
         }
@@ -64,15 +73,24 @@ class ApplicationController extends Controller
     public function show($id)
     {
         try {
-            $application = ApplicationDocument::with('user')
+            Log::info('Fetching application details for ID: ' . $id);
+            
+            $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
                 ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
                 ->find($id);
             
             if (!$application) {
+                Log::error('Application not found for ID: ' . $id);
                 return response()->json([
                     'success' => false,
                     'message' => 'Application not found'
                 ], 404);
+            }
+            
+            // Get last updated by user if exists
+            $lastUpdatedBy = null;
+            if ($application->last_updated_by) {
+                $lastUpdatedBy = User::find($application->last_updated_by);
             }
             
             return response()->json([
@@ -88,18 +106,25 @@ class ApplicationController extends Controller
                     'status' => $application->status,
                     'rejection_reason' => $application->rejection_reason,
                     'admin_notes' => $application->admin_notes,
-                    'created_at' => $application->created_at,
-                    'updated_at' => $application->updated_at,
-                    'hard_copy_received' => $application->hard_copy_received ?? false
+                    'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
+                    'hard_copy_received' => $application->hard_copy_received ?? false,
+                    'last_updated_by' => $application->last_updated_by,
+                    'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
+                    'last_updated_by_role' => $lastUpdatedBy ? $lastUpdatedBy->role : null,
+                    'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
+                    'last_updated_by_initials' => $lastUpdatedBy ? 
+                        strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST'
                 ]
             ]);
             
         } catch (\Exception $e) {
             Log::error('Error loading application details: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading application details'
+                'message' => 'Error loading application details: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -158,6 +183,18 @@ class ApplicationController extends Controller
                 'hard_copy_received' => false
             ]);
             
+            // Log the creation
+            $this->logReviewActivity(
+                $application->id,
+                auth()->id(),
+                'application_created',
+                null,
+                'pending',
+                "Application #{$applicationNumber} created for {$user->first_name} {$user->last_name}",
+                $request->ip(),
+                $request->userAgent()
+            );
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Application created successfully',
@@ -213,6 +250,12 @@ class ApplicationController extends Controller
                 ], 404);
             }
             
+            // Get the current staff user
+            $staff = auth()->user();
+            
+            // Store old status for logging
+            $oldStatus = $application->status;
+            
             // Update status - make sure it's a string
             $application->status = $request->status;
             
@@ -226,10 +269,13 @@ class ApplicationController extends Controller
                 $application->hard_copy_received = $request->hardcopy_received;
             }
             
+            // Track who updated the application
+            $application->last_updated_by = $staff->id;
+            
             // If status is verified, set verified_at and verified_by
             if ($request->status === 'verified') {
                 $application->verified_at = now();
-                $application->verified_by = auth()->id();
+                $application->verified_by = $staff->id;
             }
             
             // If status is rejected, store rejection reason
@@ -240,10 +286,25 @@ class ApplicationController extends Controller
             // Save the application
             $application->save();
             
+            // Create activity log entry
+            $description = $request->remarks ?: "Status changed from {$oldStatus} to {$request->status}";
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'status_updated',
+                $oldStatus,
+                $request->status,
+                $description,
+                $request->ip(),
+                $request->userAgent()
+            );
+            
             Log::info('Application status updated successfully', [
                 'application_id' => $application->id,
                 'application_number' => $application->application_number,
-                'new_status' => $application->status
+                'new_status' => $application->status,
+                'updated_by' => $staff->id,
+                'updated_by_name' => $staff->first_name . ' ' . $staff->last_name
             ]);
             
             return response()->json([
@@ -253,7 +314,14 @@ class ApplicationController extends Controller
                     'id' => $application->id,
                     'status' => $application->status,
                     'hard_copy_received' => $application->hard_copy_received ?? false,
-                    'updated_at' => $application->updated_at
+                    'updated_at' => $application->updated_at,
+                    'updated_by' => [
+                        'id' => $staff->id,
+                        'name' => $staff->first_name . ' ' . $staff->last_name,
+                        'role' => $staff->role,
+                        'email' => $staff->email,
+                        'initials' => strtoupper(substr($staff->first_name, 0, 1) . substr($staff->last_name, 0, 1))
+                    ]
                 ]
             ]);
             
@@ -271,7 +339,7 @@ class ApplicationController extends Controller
     /**
      * Delete an application
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
             $application = ApplicationDocument::find($id);
@@ -282,6 +350,20 @@ class ApplicationController extends Controller
                     'message' => 'Application not found'
                 ], 404);
             }
+            
+            $staff = auth()->user();
+            
+            // Log before deleting
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'application_deleted',
+                $application->status,
+                null,
+                'Application deleted',
+                $request->ip(),
+                $request->userAgent()
+            );
             
             $application->delete();
             
@@ -306,7 +388,7 @@ class ApplicationController extends Controller
     public function export()
     {
         try {
-            $applications = ApplicationDocument::with('user')
+            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
                 ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
                 ->get();
             
@@ -328,6 +410,7 @@ class ApplicationController extends Controller
                     'Status',
                     'Hard Copy Received',
                     'Date Submitted',
+                    'Last Updated By',
                     'Google Drive Link'
                 ]);
                 
@@ -340,7 +423,8 @@ class ApplicationController extends Controller
                         $app->user ? $app->user->phone_number : '',
                         ucfirst(str_replace('-', ' ', $app->status)),
                         $app->hard_copy_received ? 'Yes' : 'No',
-                        $app->created_at->format('Y-m-d'),
+                        $app->created_at ? $app->created_at->format('Y-m-d') : '',
+                        $app->lastUpdatedBy ? $app->lastUpdatedBy->first_name . ' ' . $app->lastUpdatedBy->last_name : 'N/A',
                         $app->google_drive_link
                     ]);
                 }
@@ -357,6 +441,34 @@ class ApplicationController extends Controller
                 'success' => false,
                 'message' => 'Error exporting applications'
             ], 500);
+        }
+    }
+
+    /**
+     * Log review activity for an application
+     */
+    private function logReviewActivity($applicationId, $reviewerId, $action, $oldStatus = null, $newStatus = null, $remarks = null, $ipAddress = null, $userAgent = null)
+    {
+        try {
+            // Check if ApplicationReviewActivity table exists
+            if (!Schema::hasTable('application_review_activities')) {
+                Log::warning('Application review activities table does not exist');
+                return null;
+            }
+            
+            return ApplicationReviewActivity::create([
+                'application_id' => $applicationId,
+                'reviewer_id' => $reviewerId,
+                'action' => $action,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'remarks' => $remarks,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error logging review activity: ' . $e->getMessage());
+            return null;
         }
     }
 
