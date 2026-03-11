@@ -45,7 +45,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.dashboard');
     })->name('dashboard');
     
-    // IMPORTANT: This route must come BEFORE the API route with {id}
     // View route for application details - returns HTML
     Route::get('/application-details/{id}', function ($id) {
         return view('staff.application-details', ['applicationId' => $id]);
@@ -55,11 +54,23 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.applications');
     })->name('applications');
     
+    // Staff Dashboard API Routes (return JSON)
+    Route::get('/applications/stats', [App\Http\Controllers\Staff\DashboardController::class, 'getStats'])
+        ->name('applications.stats');
+    
+    Route::get('/applications/weekly-trend', [App\Http\Controllers\Staff\DashboardController::class, 'getWeeklyTrend'])
+        ->name('applications.weekly-trend');
+    
+    Route::get('/applications/recent-activities', [App\Http\Controllers\Staff\DashboardController::class, 'getRecentActivities'])
+        ->name('applications.recent-activities');
+    
+    Route::get('/applications/upcoming-deadlines', [App\Http\Controllers\Staff\DashboardController::class, 'getUpcomingDeadlines'])
+        ->name('applications.upcoming-deadlines');
+    
     // Staff Applications API Routes (return JSON)
     Route::get('/applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'index'])
         ->name('applications.data');
     
-    // This is the API endpoint for getting application data as JSON
     Route::get('/applications/{id}', [App\Http\Controllers\Staff\ApplicationController::class, 'show'])
         ->name('applications.show');
     
@@ -74,7 +85,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
         ->name('applications.export');
-
 });
 
 // Applicant UI Routes
