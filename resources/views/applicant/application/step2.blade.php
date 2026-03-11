@@ -335,11 +335,20 @@ async function storeGoogleDriveLink() {
     proceedBtn.disabled = true;
 
     try {
+        // Get application ID from URL if continuing a draft
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+        
         // Prepare the request data
         const requestData = {
             google_drive_link: link,
             hardcopy_confirmed: hardcopyConfirmed ? 1 : 0
         };
+        
+        // If we have an application ID, include it
+        if (applicationId) {
+            requestData.application_id = applicationId;
+        }
         
         console.log('Sending data:', requestData);
 
@@ -456,89 +465,109 @@ async function storeGoogleDriveLink() {
 
     // Load existing application data on page load
     document.addEventListener('DOMContentLoaded', async function() {
-        // Check if user already has submitted documents
-        try {
-            const response = await fetch('{{ route("applicant.application.details") }}', {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
+        // Get application ID from URL if continuing a draft
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+        
+        console.log('Application ID from URL:', applicationId);
+        
+        // If we have an application ID, load that specific application
+        if (applicationId) {
+            // Use the details route with the ID in the path
+            const endpoint = `/applicant/application-details/${applicationId}`;
             
-            const data = await response.json();
-            
-            if (data.success && data.data) {
-                // Pre-fill the form with existing data
-                document.getElementById('gdrive-link').value = data.data.google_drive_link || '';
+            console.log('Fetching from endpoint:', endpoint);
+
+            try {
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
                 
-                // Show application number if exists
-                if (data.data.application_number) {
-                    const appNumberDisplay = document.getElementById('application-number-display');
-                    document.getElementById('display-application-number').textContent = data.data.application_number;
-                    appNumberDisplay.classList.remove('hidden');
+                const data = await response.json();
+                console.log('Loaded application data:', data);
+                
+                if (data.success && data.data) {
+                    // Pre-fill the form with existing data
+                    if (data.data.google_drive_link) {
+                        document.getElementById('gdrive-link').value = data.data.google_drive_link;
+                    }
                     
-                    // Also update localStorage
-                    localStorage.setItem('konstructo_app_number', data.data.application_number);
+                    // Show application number if exists
+                    if (data.data.application_number) {
+                        const appNumberDisplay = document.getElementById('application-number-display');
+                        document.getElementById('display-application-number').textContent = data.data.application_number;
+                        appNumberDisplay.classList.remove('hidden');
+                        
+                        // Also update localStorage
+                        localStorage.setItem('konstructo_app_number', data.data.application_number);
+                    }
+                    
+                    // Show status based on application status
+                    const statusDiv = document.getElementById('link-status');
+                    
+                    if (data.data.status === 'pending') {
+                        statusDiv.className = 'mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200';
+                        statusDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">Documents under review</p>
+                                    <p class="text-xs text-gray-600 mt-1">Application Number: <span class="font-mono font-bold">${data.data.application_number}</span></p>
+                                    <p class="text-xs text-gray-600">Submitted on: ${data.data.submitted_at || 'N/A'}</p>
+                                </div>
+                            </div>
+                        `;
+                        statusDiv.classList.remove('hidden');
+                        
+                        // Disable the proceed button if already submitted
+                        document.getElementById('proceed-btn').disabled = true;
+                        document.getElementById('proceed-btn').classList.add('opacity-50', 'cursor-not-allowed');
+                        
+                    } else if (data.data.status === 'verified') {
+                        statusDiv.className = 'mt-4 p-4 bg-green-50 rounded-lg border border-green-200';
+                        statusDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">Documents verified!</p>
+                                    <p class="text-xs text-gray-600 mt-1">Application Number: <span class="font-mono font-bold">${data.data.application_number}</span></p>
+                                    <p class="text-xs text-gray-600">You may now proceed to the next step.</p>
+                                </div>
+                            </div>
+                        `;
+                        statusDiv.classList.remove('hidden');
+                        
+                    } else if (data.data.status === 'rejected') {
+                        statusDiv.className = 'mt-4 p-4 bg-red-50 rounded-lg border border-red-200';
+                        statusDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">Documents rejected</p>
+                                    <p class="text-xs text-gray-600 mt-1">Reason: ${data.data.rejection_reason || 'Not specified'}</p>
+                                    <p class="text-xs text-gray-600 mt-1">Please upload correct documents and resubmit.</p>
+                                </div>
+                            </div>
+                        `;
+                        statusDiv.classList.remove('hidden');
+                    }
                 }
-                
-                // Show status based on application status
-                const statusDiv = document.getElementById('link-status');
-                
-                if (data.data.status === 'pending') {
-                    statusDiv.className = 'mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200';
-                    statusDiv.innerHTML = `
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Documents under review</p>
-                                <p class="text-xs text-gray-600 mt-1">Application Number: <span class="font-mono font-bold">${data.data.application_number}</span></p>
-                                <p class="text-xs text-gray-600">Submitted on: ${data.data.submitted_at}</p>
-                            </div>
-                        </div>
-                    `;
-                    statusDiv.classList.remove('hidden');
-                    
-                    // Disable the proceed button if already submitted
-                    document.getElementById('proceed-btn').disabled = true;
-                    document.getElementById('proceed-btn').classList.add('opacity-50', 'cursor-not-allowed');
-                    
-                } else if (data.data.status === 'verified') {
-                    statusDiv.className = 'mt-4 p-4 bg-green-50 rounded-lg border border-green-200';
-                    statusDiv.innerHTML = `
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Documents verified!</p>
-                                <p class="text-xs text-gray-600 mt-1">Application Number: <span class="font-mono font-bold">${data.data.application_number}</span></p>
-                                <p class="text-xs text-gray-600">You may now proceed to the next step.</p>
-                            </div>
-                        </div>
-                    `;
-                    statusDiv.classList.remove('hidden');
-                    
-                } else if (data.data.status === 'rejected') {
-                    statusDiv.className = 'mt-4 p-4 bg-red-50 rounded-lg border border-red-200';
-                    statusDiv.innerHTML = `
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Documents rejected</p>
-                                <p class="text-xs text-gray-600 mt-1">Reason: ${data.data.rejection_reason || 'Not specified'}</p>
-                                <p class="text-xs text-gray-600 mt-1">Please upload correct documents and resubmit.</p>
-                            </div>
-                        </div>
-                    `;
-                    statusDiv.classList.remove('hidden');
-                }
+            } catch (error) {
+                console.error('Error loading application data:', error);
             }
-        } catch (error) {
-            console.error('Error loading application data:', error);
+        } else {
+            // No application ID in URL - this is a new application
+            console.log('No application ID found - this is a new application');
+            // You might want to check if there's a draft in session or just start fresh
         }
     });
 
