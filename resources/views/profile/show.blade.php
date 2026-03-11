@@ -5,6 +5,35 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
+    <!-- Success Message -->
+    @if(session('success'))
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-lg" role="alert">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <p>{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
+    <!-- Error Messages -->
+    @if($errors->any())
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg" role="alert">
+        <div class="flex items-center mb-2">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <p class="font-bold">Please fix the following errors:</p>
+        </div>
+        <ul class="list-disc list-inside text-sm">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -14,7 +43,8 @@
         
         <!-- Last Login Info -->
         <div class="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
-            <span class="font-medium">Last login:</span> {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('M d, Y • h:i A') : 'First login' }}
+            <span class="font-medium">Last login:</span> 
+            {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('M d, Y • h:i A') : 'First login' }}
         </div>
     </div>
 
@@ -24,31 +54,66 @@
         <!-- Left Sidebar - Profile Summary -->
         <div class="lg:col-span-1 space-y-6">
             <!-- Profile Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-                <!-- Profile Avatar -->
-                <div class="relative inline-block">
-                    <div class="w-24 h-24 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto">
-                        {{ substr(auth()->user()->first_name, 0, 1) }}{{ substr(auth()->user()->last_name, 0, 1) }}
-                    </div>
-                    <button onclick="openEditModal('avatar')" class="absolute bottom-0 right-0 w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center hover:bg-[#40798C] transition shadow-lg">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </button>
-                </div>
-                
-                <h2 class="text-xl font-bold text-gray-800 mt-4">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</h2>
-                <p class="text-gray-500 text-sm capitalize">{{ auth()->user()->role }}</p>
-                
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <div class="flex items-center justify-center gap-2 text-sm">
-                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span class="text-gray-600">Active Account</span>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-2">Member since {{ auth()->user()->created_at->format('F Y') }}</p>
-                </div>
-            </div>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+    <!-- Profile Avatar -->
+<div class="relative inline-block">
+    @php
+        // Get the avatar path from user
+        $avatarPath = auth()->user()->avatar;
+        
+        // Check if avatar exists and is not empty
+        if (!empty($avatarPath)) {
+            // Build the full URL to the storage
+            $avatarUrl = asset('storage/' . $avatarPath);
+            
+            // Optional: Add a cache busting parameter
+            $avatarUrl .= '?v=' . time();
+        } else {
+            // Use UI Avatars service for default avatars
+            $fullName = urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name);
+            $avatarUrl = "https://ui-avatars.com/api/?name={$fullName}&size=96&background=155386&color=fff&bold=true";
+        }
+    @endphp
+    
+    <!-- Avatar Display -->
+    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
+        <img src="{{ $avatarUrl }}" 
+             alt="{{ auth()->user()->full_name ?? auth()->user()->first_name . ' ' . auth()->user()->last_name }}" 
+             class="w-full h-full object-cover"
+             id="avatar-image"
+             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}&size=96&background=155386&color=fff&bold=true';">
+    </div>
+    
+    <!-- Avatar Upload Form -->
+    <form id="avatar-form" action="{{ route('profile.avatar') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="avatar" id="avatar-input" accept="image/*" class="hidden" onchange="previewAndUploadAvatar(this)">
+    </form>
+    
+    <!-- Upload Button -->
+    <button type="button" onclick="document.getElementById('avatar-input').click()" 
+            class="absolute bottom-0 right-0 w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center hover:bg-[#40798C] transition shadow-lg hover:scale-110 transform duration-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </button>
+</div>
+    
+    <!-- User Name and Role -->
+    <h2 class="text-xl font-bold text-gray-800 mt-4">{{ auth()->user()->full_name ?? auth()->user()->first_name . ' ' . auth()->user()->last_name }}</h2>
+    <p class="text-gray-500 text-sm capitalize">{{ auth()->user()->role }}</p>
+    
+    <!-- Account Status -->
+    <div class="mt-4 pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-center gap-2 text-sm">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+            <span class="text-gray-600">Active Account</span>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Member since {{ auth()->user()->created_at->format('F Y') }}</p>
+    </div>
+</div>
+
 
             <!-- Account Stats Card - Role-based stats -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -129,7 +194,7 @@
                     </button>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-6" id="personal-info-display">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">First Name</label>
@@ -175,6 +240,40 @@
                 </div>
             </div>
 
+            <!-- Account Information Card -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white flex justify-between items-center">
+        <h2 class="text-xl font-bold">Account Information</h2>
+        <button onclick="openEditModal('account')" class="text-white hover:text-gray-200 transition flex items-center gap-1 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Edit
+        </button>
+    </div>
+    
+    <div class="p-6" id="account-info-display">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Username</label>
+                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->username }}</p>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Role</label>
+                <p class="text-sm font-medium text-gray-800 capitalize">{{ auth()->user()->role }}</p>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Account Created</label>
+                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->created_at->format('F d, Y') }}</p>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Last Updated</label>
+                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->updated_at->format('F d, Y') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
             <!-- Contact Information Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-[#40798C] to-[#1F363D] text-white flex justify-between items-center">
@@ -187,7 +286,7 @@
                     </button>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-6" id="contact-info-display">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Email Address</label>
@@ -228,7 +327,7 @@
                     </button>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-6" id="address-info-display">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">House/Unit No.</label>
@@ -320,7 +419,7 @@
                 </div>
             </div>
 
-            <!-- Danger Zone Card - Admin only or optional -->
+            <!-- Danger Zone Card - Admin only -->
             @if(auth()->user()->role === 'admin')
             <div class="bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
                 <div class="px-6 py-4 bg-red-500 text-white">
@@ -386,62 +485,87 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                    <input type="text" name="first_name" value="{{ auth()->user()->first_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="first_name" value="{{ old('first_name', auth()->user()->first_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('first_name') border-red-500 @enderror">
+                                    @error('first_name')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                                    <input type="text" name="middle_name" value="{{ auth()->user()->middle_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="middle_name" value="{{ old('middle_name', auth()->user()->middle_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                    <input type="text" name="last_name" value="{{ auth()->user()->last_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="last_name" value="{{ old('last_name', auth()->user()->last_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('last_name') border-red-500 @enderror">
+                                    @error('last_name')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
                                     <select name="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">None</option>
-                                        <option value="Jr." {{ auth()->user()->suffix == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                        <option value="Sr." {{ auth()->user()->suffix == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                        <option value="II" {{ auth()->user()->suffix == 'II' ? 'selected' : '' }}>II</option>
-                                        <option value="III" {{ auth()->user()->suffix == 'III' ? 'selected' : '' }}>III</option>
-                                        <option value="IV" {{ auth()->user()->suffix == 'IV' ? 'selected' : '' }}>IV</option>
+                                        <option value="Jr." {{ old('suffix', auth()->user()->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                        <option value="Sr." {{ old('suffix', auth()->user()->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                        <option value="II" {{ old('suffix', auth()->user()->suffix) == 'II' ? 'selected' : '' }}>II</option>
+                                        <option value="III" {{ old('suffix', auth()->user()->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                        <option value="IV" {{ old('suffix', auth()->user()->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                                    <input type="date" name="date_of_birth" value="{{ auth()->user()->date_of_birth ? auth()->user()->date_of_birth->format('Y-m-d') : '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', auth()->user()->date_of_birth ? auth()->user()->date_of_birth->format('Y-m-d') : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Place of Birth</label>
-                                    <input type="text" name="place_of_birth" value="{{ auth()->user()->place_of_birth }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="place_of_birth" value="{{ old('place_of_birth', auth()->user()->place_of_birth) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
                                     <select name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">Select Gender</option>
-                                        <option value="male" {{ auth()->user()->gender == 'male' ? 'selected' : '' }}>Male</option>
-                                        <option value="female" {{ auth()->user()->gender == 'female' ? 'selected' : '' }}>Female</option>
-                                        <option value="other" {{ auth()->user()->gender == 'other' ? 'selected' : '' }}>Other</option>
+                                        <option value="male" {{ old('gender', auth()->user()->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                        <option value="female" {{ old('gender', auth()->user()->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                        <option value="other" {{ old('gender', auth()->user()->gender) == 'other' ? 'selected' : '' }}>Other</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Civil Status</label>
                                     <select name="civil_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">Select Status</option>
-                                        <option value="single" {{ auth()->user()->civil_status == 'single' ? 'selected' : '' }}>Single</option>
-                                        <option value="married" {{ auth()->user()->civil_status == 'married' ? 'selected' : '' }}>Married</option>
-                                        <option value="widowed" {{ auth()->user()->civil_status == 'widowed' ? 'selected' : '' }}>Widowed</option>
-                                        <option value="separated" {{ auth()->user()->civil_status == 'separated' ? 'selected' : '' }}>Separated</option>
-                                        <option value="divorced" {{ auth()->user()->civil_status == 'divorced' ? 'selected' : '' }}>Divorced</option>
+                                        <option value="single" {{ old('civil_status', auth()->user()->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                        <option value="married" {{ old('civil_status', auth()->user()->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                        <option value="widowed" {{ old('civil_status', auth()->user()->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                        <option value="separated" {{ old('civil_status', auth()->user()->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                        <option value="divorced" {{ old('civil_status', auth()->user()->civil_status) == 'divorced' ? 'selected' : '' }}>Divorced</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Citizenship</label>
-                                    <input type="text" name="citizenship" value="{{ auth()->user()->citizenship }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="citizenship" value="{{ old('citizenship', auth()->user()->citizenship) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">TIN</label>
-                                    <input type="text" name="tin" value="{{ auth()->user()->tin }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="tin" value="{{ old('tin', auth()->user()->tin) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Information Fields (NEW) -->
+                        <div id="account-fields" class="space-y-4 hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                                    <input type="text" name="username" value="{{ old('username', auth()->user()->username) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('username') border-red-500 @enderror">
+                                    @error('username')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                    <p class="text-xs text-gray-500 mt-1">Your unique username for login</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-sm text-blue-700">
+                                        <span class="font-medium">Note:</span> Changing your username will affect how you log in.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -451,22 +575,25 @@
                             <div class="grid grid-cols-1 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                    <input type="email" name="email" value="{{ auth()->user()->email }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('email') border-red-500 @enderror">
+                                    @error('email')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
                                     <div class="flex">
                                         <span class="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600">+63</span>
-                                        <input type="tel" name="phone_number" value="{{ str_replace('+63', '', auth()->user()->phone_number) }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386]">
+                                        <input type="tel" name="phone_number" value="{{ old('phone_number', str_replace('+63', '', auth()->user()->phone_number ?? '')) }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386]">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Telephone Number</label>
-                                    <input type="tel" name="telephone" value="{{ auth()->user()->telephone }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="tel" name="telephone" value="{{ old('telephone', auth()->user()->telephone) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Alternative Email</label>
-                                    <input type="email" name="alternative_email" value="{{ auth()->user()->alternative_email }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="email" name="alternative_email" value="{{ old('alternative_email', auth()->user()->alternative_email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                             </div>
                         </div>
@@ -476,27 +603,27 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">House/Unit No.</label>
-                                    <input type="text" name="house_number" value="{{ auth()->user()->house_number }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="house_number" value="{{ old('house_number', auth()->user()->house_number) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Street</label>
-                                    <input type="text" name="street" value="{{ auth()->user()->street }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="street" value="{{ old('street', auth()->user()->street) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
-                                    <input type="text" name="barangay" value="{{ auth()->user()->barangay }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="barangay" value="{{ old('barangay', auth()->user()->barangay) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">City/Municipality</label>
-                                    <input type="text" name="city" value="{{ auth()->user()->city }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="city" value="{{ old('city', auth()->user()->city) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Province</label>
-                                    <input type="text" name="province" value="{{ auth()->user()->province }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="province" value="{{ old('province', auth()->user()->province) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
-                                    <input type="text" name="zip_code" value="{{ auth()->user()->zip_code }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="zip_code" value="{{ old('zip_code', auth()->user()->zip_code) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                             </div>
                         </div>
@@ -506,11 +633,17 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                                    <input type="password" name="current_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="password" name="current_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('current_password') border-red-500 @enderror">
+                                    @error('current_password')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                                    <input type="password" name="new_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="password" name="new_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('new_password') border-red-500 @enderror">
+                                    @error('new_password')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
@@ -540,41 +673,58 @@
 
 <!-- JavaScript -->
 <script>
+    let currentEditType = null;
+
     function openEditModal(type) {
-        const modal = document.getElementById('edit-modal');
-        const modalTitle = document.getElementById('modal-title');
-        
-        // Hide all field sections
-        document.getElementById('personal-fields')?.classList.add('hidden');
-        document.getElementById('contact-fields')?.classList.add('hidden');
-        document.getElementById('address-fields')?.classList.add('hidden');
-        document.getElementById('password-fields')?.classList.add('hidden');
-        
-        // Show the selected section
-        if (type === 'personal') {
-            document.getElementById('personal-fields').classList.remove('hidden');
-            modalTitle.textContent = 'Edit Personal Information';
-        } else if (type === 'contact') {
-            document.getElementById('contact-fields').classList.remove('hidden');
-            modalTitle.textContent = 'Edit Contact Information';
-        } else if (type === 'address') {
-            document.getElementById('address-fields').classList.remove('hidden');
-            modalTitle.textContent = 'Edit Address Information';
-        } else if (type === 'password') {
-            document.getElementById('password-fields').classList.remove('hidden');
-            modalTitle.textContent = 'Change Password';
-        } else {
-            modalTitle.textContent = 'Edit Information';
-        }
-        
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('edit-modal');
+    const modalTitle = document.getElementById('modal-title');
+    currentEditType = type;
+    
+    // Hide all field sections
+    document.getElementById('personal-fields')?.classList.add('hidden');
+    document.getElementById('account-fields')?.classList.add('hidden');
+    document.getElementById('contact-fields')?.classList.add('hidden');
+    document.getElementById('address-fields')?.classList.add('hidden');
+    document.getElementById('password-fields')?.classList.add('hidden');
+    
+    // Show the selected section
+    if (type === 'personal') {
+        document.getElementById('personal-fields').classList.remove('hidden');
+        modalTitle.textContent = 'Edit Personal Information';
+    } else if (type === 'account') {
+        document.getElementById('account-fields').classList.remove('hidden');
+        modalTitle.textContent = 'Edit Account Information';
+    } else if (type === 'contact') {
+        document.getElementById('contact-fields').classList.remove('hidden');
+        modalTitle.textContent = 'Edit Contact Information';
+    } else if (type === 'address') {
+        document.getElementById('address-fields').classList.remove('hidden');
+        modalTitle.textContent = 'Edit Address Information';
+    } else if (type === 'password') {
+        document.getElementById('password-fields').classList.remove('hidden');
+        modalTitle.textContent = 'Change Password';
+    } else {
+        modalTitle.textContent = 'Edit Information';
     }
+    
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
 
     function closeEditModal() {
         document.getElementById('edit-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+        
+        // Clear any error states if needed
+        const errorMessages = document.querySelectorAll('.text-red-500');
+        errorMessages.forEach(msg => msg.remove());
     }
+
+    // Handle form submission with AJAX for better UX
+    document.getElementById('edit-form')?.addEventListener('submit', function(e) {
+        // You can add AJAX submission here if needed
+        // For now, it will submit normally
+    });
 
     // Close modal when clicking outside
     document.addEventListener('DOMContentLoaded', function() {
@@ -593,6 +743,86 @@
                 closeEditModal();
             }
         });
+
+        // Auto-hide success message after 5 seconds
+        const successMessage = document.querySelector('.bg-green-100');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.transition = 'opacity 0.5s';
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 500);
+            }, 5000);
+        }
     });
+    
+    
+    
+   function previewAndUploadAvatar(input) {
+    if (input.files && input.files[0]) {
+        // Check file size (max 2MB)
+        if (input.files[0].size > 2 * 1024 * 1024) {
+            alert('File is too large. Maximum size is 2MB.');
+            input.value = '';
+            return;
+        }
+        
+        // Check file type
+        if (!input.files[0].type.match('image.*')) {
+            alert('Please select an image file (JPEG, PNG, JPG, GIF)');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Update the image preview
+            const avatarImage = document.getElementById('avatar-image');
+            if (avatarImage) {
+                avatarImage.src = e.target.result;
+            }
+            
+            // Show loading state
+            const button = document.querySelector('button[onclick*="avatar-input"]');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            button.disabled = true;
+            
+            // Submit the form
+            input.form.submit();
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Clear cache on page load to show new image
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+};
+
+// Add cache busting parameter to image
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarImage = document.getElementById('avatar-image');
+    if (avatarImage && !avatarImage.src.includes('ui-avatars')) {
+        // Add timestamp to force reload
+        let src = avatarImage.src.split('?')[0];
+        avatarImage.src = src + '?v=' + new Date().getTime();
+    }
+});
 </script>
+<!-- Add this CSS for loading animation -->
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+</style>
 @endsection

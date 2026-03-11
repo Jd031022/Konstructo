@@ -6,7 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Routing\Controller; // Make sure this is imported
+use Illuminate\Routing\Controller; 
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller // Extend the correct base Controller
 {
@@ -70,23 +71,37 @@ class ProfileController extends Controller // Extend the correct base Controller
     }
 
     /**
-     * Update the user's avatar/profile picture.
-     */
-    public function updateAvatar(Request $request)
-    {
-        $request->validate([
-            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-        ]);
+ * Update the user's avatar.
+ */
+public function updateAvatar(Request $request)
+{
+    $request->validate([
+        'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $user = auth()->user();
-        
-        if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
-            $user->save();
-        }
+    $user = auth()->user();
 
-        return redirect()->route('profile.show')
-            ->with('success', 'Avatar updated successfully!');
+    // Delete old avatar if exists
+    if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+        Storage::disk('public')->delete($user->avatar);
     }
+
+    // Store new avatar
+    $path = $request->file('avatar')->store('avatars', 'public');
+    
+    $user->update([
+        'avatar' => $path
+    ]);
+
+    // Debug: Check if file exists
+    if (Storage::disk('public')->exists($path)) {
+        \Log::info('Avatar uploaded successfully: ' . $path);
+        \Log::info('Full URL: ' . asset('storage/' . $path));
+    } else {
+        \Log::error('Avatar upload failed: ' . $path);
+    }
+
+    return redirect()->route('profile.show')
+        ->with('success', 'Profile picture updated successfully!');
+}
 }
