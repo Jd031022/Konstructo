@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,7 @@ class UserController extends Controller
         $stats = [
             'total' => User::count(),
             'admins' => User::where('role', 'admin')->count(),
-            'engineers' => User::where('role', 'engineer')->count(),
+            'staff' => User::where('role', 'staff')->count(),
             'applicants' => User::where('role', 'applicant')->count(),
             'active' => User::whereNotNull('email_verified_at')->count(),
         ];
@@ -36,14 +37,27 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_-]+$/',
             'password' => 'required|string|min:8|max:16|confirmed',
-            'role' => 'required|in:admin,engineer,applicant',
-            'phone_number' => 'required|string|regex:/^09[0-9]{9}$/',
+            'role' => 'required|in:admin,staff,applicant',
+            'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'], // Fixed: Added delimiters
             'address' => 'required|string',
             'zip_code' => 'required|string|max:10',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Format phone number to ensure it's 11 digits starting with 09
+        $phoneNumber = $request->phone_number;
+        
+        // If it's 10 digits, add 09 prefix
+        if (preg_match('/^[0-9]{10}$/', $phoneNumber)) {
+            $phoneNumber = '09' . $phoneNumber;
+        }
+        
+        // Ensure it's exactly 11 digits and starts with 09
+        if (!preg_match('/^09[0-9]{9}$/', $phoneNumber)) {
+            return response()->json(['errors' => ['phone_number' => ['Phone number must be 11 digits starting with 09']]], 422);
         }
 
         $user = User::create([
@@ -55,10 +69,10 @@ class UserController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'phone_number' => $request->phone_number,
+            'phone_number' => $phoneNumber,
             'address' => $request->address,
             'zip_code' => $request->zip_code,
-            'email_verified_at' => now(), // Auto-verify admin-created accounts
+            'email_verified_at' => now(),
         ]);
 
         return response()->json([
@@ -76,8 +90,8 @@ class UserController extends Controller
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email,' . $id,
             'username' => 'required|string|regex:/^[a-zA-Z0-9_-]+$/|unique:users,username,' . $id,
-            'role' => 'required|in:admin,engineer,applicant',
-            'phone_number' => 'required|string|regex:/^09[0-9]{9}$/',
+            'role' => 'required|in:admin,staff,applicant',
+            'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'], // Fixed: Added delimiters
             'address' => 'required|string',
             'zip_code' => 'required|string|max:10',
         ]);
@@ -86,10 +100,31 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $user->update($request->only([
-            'first_name', 'last_name', 'middle_name', 'suffix',
-            'email', 'username', 'role', 'phone_number', 'address', 'zip_code'
-        ]));
+        // Format phone number to ensure it's 11 digits starting with 09
+        $phoneNumber = $request->phone_number;
+        
+        // If it's 10 digits, add 09 prefix
+        if (preg_match('/^[0-9]{10}$/', $phoneNumber)) {
+            $phoneNumber = '09' . $phoneNumber;
+        }
+        
+        // Ensure it's exactly 11 digits and starts with 09
+        if (!preg_match('/^09[0-9]{9}$/', $phoneNumber)) {
+            return response()->json(['errors' => ['phone_number' => ['Phone number must be 11 digits starting with 09']]], 422);
+        }
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'middle_name' => $request->middle_name,
+            'suffix' => $request->suffix,
+            'email' => $request->email,
+            'username' => $request->username,
+            'role' => $request->role,
+            'phone_number' => $phoneNumber,
+            'address' => $request->address,
+            'zip_code' => $request->zip_code,
+        ]);
 
         return response()->json([
             'message' => 'User updated successfully',
@@ -137,9 +172,6 @@ class UserController extends Controller
         $user->password = Hash::make($newPassword);
         $user->save();
         
-        // Here you would typically send an email with the new password
-        // For now, we'll return it in the response
-        
         return response()->json([
             'message' => 'Password reset successfully',
             'new_password' => $newPassword
@@ -147,18 +179,15 @@ class UserController extends Controller
     }
 
     /**
-     * Get all users with their latest activity for the admin panel
+     * Get all users with their latest activity from activity_logs table
      * 
      * @return \Illuminate\Http\JsonResponse
      */
     public function getUsers()
     {
         try {
-            // Get all users with their latest activity in a single query
+            // Get all users
             $users = User::select('id', 'first_name', 'last_name', 'middle_name', 'suffix', 'email', 'role', 'email_verified_at', 'created_at')
-                ->with(['latestActivity' => function($query) {
-                    $query->select('id', 'user_id', 'created_at');
-                }])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($user) {
@@ -176,22 +205,29 @@ class UserController extends Controller
                         $initials = 'U';
                     }
                     
+                    // Get the latest activity for this user from activity_logs table
+                    $latestActivity = ActivityLog::where('user_id', $user->id)
+                        ->where('status', 'success')
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+                    
+                    // Determine last active time
+                    if ($latestActivity) {
+                        $lastActive = $latestActivity->created_at->diffForHumans();
+                    } else {
+                        $lastActive = 'Never';
+                    }
+                    
                     // Determine badge colors
                     $roleBadge = match($user->role) {
                         'admin' => 'purple',
-                        'engineer' => 'blue',
+                        'staff' => 'blue',
                         'applicant' => 'gray',
                         default => 'gray'
                     };
                     
                     $statusBadge = $user->email_verified_at ? 'green' : 'yellow';
                     $status = $user->email_verified_at ? 'active' : 'inactive';
-                    
-                    // Get last activity from eager loaded relationship
-                    $lastActive = 'Never';
-                    if ($user->latestActivity && $user->latestActivity->created_at) {
-                        $lastActive = $user->latestActivity->created_at->diffForHumans();
-                    }
                     
                     return [
                         'id' => $user->id,
@@ -211,8 +247,9 @@ class UserController extends Controller
             $stats = [
                 'total' => User::count(),
                 'admins' => User::where('role', 'admin')->count(),
-                'engineers' => User::where('role', 'engineer')->count(),
+                'staff' => User::where('role', 'staff')->count(),
                 'applicants' => User::where('role', 'applicant')->count(),
+                'active' => User::whereNotNull('email_verified_at')->count(),
             ];
             
             return response()->json([
@@ -240,6 +277,13 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
             
+            // Format phone number for display (remove 09 prefix if needed)
+            $phoneNumber = $user->phone_number;
+            // If it starts with 09 and is 11 digits, remove the 09 for display
+            if (substr($phoneNumber, 0, 2) === '09' && strlen($phoneNumber) === 11) {
+                $phoneNumber = substr($phoneNumber, 2);
+            }
+            
             return response()->json([
                 'id' => $user->id,
                 'first_name' => $user->first_name,
@@ -249,7 +293,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'username' => $user->username,
                 'role' => $user->role,
-                'phone_number' => $user->phone_number,
+                'phone_number' => $phoneNumber,
                 'address' => $user->address,
                 'zip_code' => $user->zip_code,
             ]);

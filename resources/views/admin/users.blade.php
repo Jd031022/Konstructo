@@ -23,7 +23,7 @@
     </div>
 
     <!-- User Roles Summary Cards - Dynamically Updated -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 py-2" id="stats-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 py-2" id="stats-container">
         <!-- Total Users Card -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
             <div class="flex items-center gap-4">
@@ -52,15 +52,15 @@
             </div>
         </div>
         
-        <!-- Engineers Card -->
+        <!-- Staff Card -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <span class="text-blue-600 font-bold text-lg">E</span>
+                    <span class="text-blue-600 font-bold text-lg">S</span>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Engineers</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-engineers">0</p>
+                    <p class="text-sm text-gray-500">Staff</p>
+                    <p class="text-2xl font-bold text-gray-800" id="total-staff">0</p>
                 </div>
             </div>
         </div>
@@ -74,19 +74,6 @@
                 <div>
                     <p class="text-sm text-gray-500">Applicants</p>
                     <p class="text-2xl font-bold text-gray-800" id="total-applicants">0</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Supervisors Card (New Role) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <span class="text-orange-600 font-bold text-lg">S</span>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Supervisors</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-supervisors">0</p>
                 </div>
             </div>
         </div>
@@ -107,17 +94,6 @@
         </div>
     </div>
 
-    <!-- Add New Role Button -->
-    <div class="flex justify-end">
-        <button onclick="openAddRoleModal()" 
-            class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add New Role
-        </button>
-    </div>
-
     <!-- Filters and Search -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div class="flex flex-col sm:flex-row gap-4">
@@ -132,13 +108,12 @@
                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386]">
             </div>
             
-            <!-- Role Filter - Dynamically Updated -->
+            <!-- Role Filter -->
             <select id="role-filter" class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
-                <option value="engineer">Engineer</option>
+                <option value="staff">Staff</option>
                 <option value="applicant">Applicant</option>
-                <option value="supervisor">Supervisor</option>
             </select>
             
             <!-- Status Filter -->
@@ -205,7 +180,7 @@
     </div>
 </div>
 
-<!-- Add/Edit User Modal - FIXED SIZE AND VISIBILITY -->
+<!-- Add/Edit User Modal -->
 <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4" style="backdrop-filter: blur(4px);">
     <div class="relative min-h-screen flex items-center justify-center py-8">
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-auto my-8 max-h-[90vh] overflow-y-auto">
@@ -296,10 +271,10 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
                             <div class="flex">
                                 <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+63</span>
-                                <input type="tel" id="phone_number" placeholder="9123456789" required
+                                <input type="tel" id="phone_number" placeholder="9123456789 or 09123456789" required
                                     class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Format: 9123456789 (11 digits)</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter 10 digits (9123456789) or 11 digits starting with 09 (09123456789)</p>
                         </div>
                         
                         <!-- Zip Code -->
@@ -322,9 +297,8 @@
                             <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                                 <option value="">Select Role</option>
                                 <option value="admin">Admin</option>
-                                <option value="engineer">Engineer</option>
+                                <option value="staff">Staff</option>
                                 <option value="applicant">Applicant</option>
-                                <option value="supervisor">Supervisor</option>
                             </select>
                         </div>
                     </div>
@@ -339,60 +313,6 @@
                             class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2">
                             <span id="save-btn-text">Save User</span>
                             <span id="save-btn-spinner" class="hidden">
-                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Role Modal -->
-<div id="add-role-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-screen flex items-center justify-center py-8">
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto">
-            <div class="sticky top-0 z-10 px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-t-2xl">
-                <h3 class="text-xl font-bold">Add New Role</h3>
-            </div>
-            <div class="p-6">
-                <div id="role-modal-error" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
-                
-                <form id="add-role-form" onsubmit="addNewRole(event)">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
-                        <input type="text" id="new-role-name" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent"
-                            placeholder="e.g., supervisor, manager, etc.">
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Badge Color</label>
-                        <select id="role-color" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            <option value="purple">Purple</option>
-                            <option value="blue">Blue</option>
-                            <option value="green">Green</option>
-                            <option value="orange">Orange</option>
-                            <option value="red">Red</option>
-                            <option value="yellow">Yellow</option>
-                            <option value="indigo">Indigo</option>
-                            <option value="pink">Pink</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex justify-end gap-3">
-                        <button type="button" onclick="closeAddRoleModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                            Cancel
-                        </button>
-                        <button type="submit" id="add-role-btn"
-                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
-                            <span id="add-role-btn-text">Add Role</span>
-                            <span id="add-role-btn-spinner" class="hidden">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -467,30 +387,24 @@
 let currentUserId = null;
 let users = [];
 let filteredUsers = [];
-let availableRoles = [
-    { name: 'admin', color: 'purple' },
-    { name: 'engineer', color: 'blue' },
-    { name: 'applicant', color: 'gray' },
-    { name: 'supervisor', color: 'orange' }
-];
 
 // Load users on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadUsers();
-    updateRoleDropdowns();
     
     // Setup modal close on outside click
-    const modals = ['user-modal', 'reset-password-modal', 'delete-modal', 'add-role-modal'];
+    const modals = ['user-modal', 'reset-password-modal', 'delete-modal'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                if (modalId === 'user-modal') closeUserModal();
-                if (modalId === 'reset-password-modal') closeResetPasswordModal();
-                if (modalId === 'delete-modal') closeDeleteModal();
-                if (modalId === 'add-role-modal') closeAddRoleModal();
-            }
-        });
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    if (modalId === 'user-modal') closeUserModal();
+                    if (modalId === 'reset-password-modal') closeResetPasswordModal();
+                    if (modalId === 'delete-modal') closeDeleteModal();
+                }
+            });
+        }
     });
 
     // Close with Escape key
@@ -504,9 +418,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (!document.getElementById('delete-modal').classList.contains('hidden')) {
                 closeDeleteModal();
-            }
-            if (!document.getElementById('add-role-modal').classList.contains('hidden')) {
-                closeAddRoleModal();
             }
         }
     });
@@ -523,121 +434,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('status-filter').addEventListener('change', applyFilters);
 });
 
-// Update role dropdowns with available roles
-function updateRoleDropdowns() {
-    const roleFilter = document.getElementById('role-filter');
-    const roleSelect = document.getElementById('role');
-    
-    // Clear existing options except the first one
-    while (roleFilter.options.length > 1) {
-        roleFilter.remove(1);
-    }
-    while (roleSelect.options.length > 1) {
-        roleSelect.remove(1);
-    }
-    
-    // Add roles from availableRoles
-    availableRoles.forEach(role => {
-        // Add to filter dropdown
-        const filterOption = new Option(role.name.charAt(0).toUpperCase() + role.name.slice(1), role.name);
-        roleFilter.add(filterOption);
-        
-        // Add to role select in modal
-        const selectOption = new Option(role.name.charAt(0).toUpperCase() + role.name.slice(1), role.name);
-        roleSelect.add(selectOption);
-    });
-}
-
-// Add new role
-async function addNewRole(event) {
-    event.preventDefault();
-    
-    const roleName = document.getElementById('new-role-name').value.toLowerCase().trim();
-    const roleColor = document.getElementById('role-color').value;
-    
-    if (!roleName) {
-        showRoleModalError('Role name is required');
-        return;
-    }
-    
-    // Check if role already exists
-    if (availableRoles.some(r => r.name === roleName)) {
-        showRoleModalError('Role already exists');
-        return;
-    }
-    
-    // Show loading
-    document.getElementById('add-role-btn-text').classList.add('hidden');
-    document.getElementById('add-role-btn-spinner').classList.remove('hidden');
-    document.getElementById('add-role-btn').disabled = true;
-    
-    // Add new role
-    availableRoles.push({ name: roleName, color: roleColor });
-    
-    // Update dropdowns
-    updateRoleDropdowns();
-    
-    // Add new stats card
-    addRoleStatsCard(roleName, roleColor);
-    
-    // Hide loading and close modal
-    setTimeout(() => {
-        document.getElementById('add-role-btn-text').classList.remove('hidden');
-        document.getElementById('add-role-btn-spinner').classList.add('hidden');
-        document.getElementById('add-role-btn').disabled = false;
-        closeAddRoleModal();
-        
-        // Show success message
-        alert(`Role "${roleName}" added successfully!`);
-    }, 500);
-}
-
-// Add new stats card for role
-function addRoleStatsCard(roleName, color) {
-    const statsContainer = document.getElementById('stats-container');
-    const cardCount = statsContainer.children.length;
-    
-    // Insert before the last card (Active Users card)
-    const activeCard = statsContainer.lastElementChild;
-    
-    const newCard = document.createElement('div');
-    newCard.className = 'bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition';
-    newCard.id = `role-card-${roleName}`;
-    newCard.innerHTML = `
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-${color}-100 rounded-xl flex items-center justify-center">
-                <span class="text-${color}-600 font-bold text-lg">${roleName.charAt(0).toUpperCase()}</span>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">${roleName.charAt(0).toUpperCase() + roleName.slice(1)}s</p>
-                <p class="text-2xl font-bold text-gray-800" id="total-${roleName}">0</p>
-            </div>
-        </div>
-    `;
-    
-    statsContainer.insertBefore(newCard, activeCard);
-    
-    // Update grid layout
-    updateStatsGrid();
-}
-
-// Update stats grid layout
-function updateStatsGrid() {
-    const statsContainer = document.getElementById('stats-container');
-    const cardCount = statsContainer.children.length;
-    
-    // Update grid classes based on number of cards
-    if (cardCount <= 4) {
-        statsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-2';
-    } else if (cardCount <= 5) {
-        statsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 py-2';
-    } else if (cardCount <= 6) {
-        statsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 py-2';
-    } else {
-        statsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 py-2';
-    }
-}
-
 // Load users from API
 async function loadUsers() {
     showLoading();
@@ -651,10 +447,15 @@ async function loadUsers() {
         });
         
         const data = await response.json();
+        console.log('API Response:', data);
         
         if (response.ok) {
             users = data.users;
-            updateStats(data.stats);
+            
+            // Calculate stats from users data if stats not provided separately
+            const stats = data.stats || calculateStats(users);
+            updateStats(stats);
+            
             filteredUsers = [...users];
             renderUsers();
         } else {
@@ -668,29 +469,27 @@ async function loadUsers() {
     }
 }
 
+// Calculate stats from users array (fallback if API doesn't provide stats)
+function calculateStats(users) {
+    const stats = {
+        total: users.length,
+        admins: users.filter(u => u.role === 'admin').length,
+        staff: users.filter(u => u.role === 'staff').length,
+        applicants: users.filter(u => u.role === 'applicant').length,
+        active: users.filter(u => u.status === 'active').length
+    };
+    return stats;
+}
+
 // Update stats cards
 function updateStats(stats) {
+    console.log('Stats received:', stats);
+    
     document.getElementById('total-users').textContent = stats.total || 0;
     document.getElementById('total-admins').textContent = stats.admins || 0;
-    document.getElementById('total-engineers').textContent = stats.engineers || 0;
+    document.getElementById('total-staff').textContent = stats.staff || 0;
     document.getElementById('total-applicants').textContent = stats.applicants || 0;
-    
-    // Update supervisor count if exists
-    if (stats.supervisors !== undefined) {
-        document.getElementById('total-supervisors').textContent = stats.supervisors || 0;
-    }
-    
-    document.getElementById('total-active').textContent = users.filter(u => u.status === 'active').length;
-    
-    // Update counts for dynamic roles
-    availableRoles.forEach(role => {
-        if (role.name !== 'admin' && role.name !== 'engineer' && role.name !== 'applicant') {
-            const countElement = document.getElementById(`total-${role.name}`);
-            if (countElement && stats[`${role.name}s`] !== undefined) {
-                countElement.textContent = stats[`${role.name}s`] || 0;
-            }
-        }
-    });
+    document.getElementById('total-active').textContent = stats.active || 0;
 }
 
 // Apply filters
@@ -727,6 +526,16 @@ function resetFilters() {
     renderUsers();
 }
 
+// Get role badge color
+function getRoleColor(role) {
+    const colors = {
+        'admin': 'purple',
+        'staff': 'blue',
+        'applicant': 'gray'
+    };
+    return colors[role] || 'gray';
+}
+
 // Render users table
 function renderUsers() {
     const tbody = document.getElementById('users-table-body');
@@ -743,9 +552,7 @@ function renderUsers() {
     emptyState.classList.add('hidden');
     
     tbody.innerHTML = filteredUsers.map(user => {
-        // Find role color
-        const roleData = availableRoles.find(r => r.name === user.role) || { color: 'gray' };
-        const roleColor = roleData.color;
+        const roleColor = getRoleColor(user.role);
         
         return `
         <tr class="hover:bg-gray-50 transition">
@@ -833,25 +640,6 @@ function closeUserModal() {
     clearModalMessages();
 }
 
-function openAddRoleModal() {
-    document.getElementById('add-role-modal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    document.getElementById('new-role-name').value = '';
-    document.getElementById('role-color').value = 'purple';
-    document.getElementById('role-modal-error').classList.add('hidden');
-}
-
-function closeAddRoleModal() {
-    document.getElementById('add-role-modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
-
-function showRoleModalError(message) {
-    const errorDiv = document.getElementById('role-modal-error');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('hidden');
-}
-
 function clearModalMessages() {
     document.getElementById('modal-error').classList.add('hidden');
     document.getElementById('modal-error').textContent = '';
@@ -889,10 +677,11 @@ async function saveUser(event) {
         }
     }
     
-    // Phone validation
+    // Phone validation - UPDATED to accept 10 digits OR 11 digits starting with 09
     const phone = document.getElementById('phone_number').value;
-    if (!phone.match(/^09\d{9}$/)) {
-        showModalError('Phone number must start with 09 and be 11 digits');
+    const phoneRegex = /^(09[0-9]{9}|[0-9]{10})$/;
+    if (!phoneRegex.test(phone)) {
+        showModalError('Phone number must be 10 digits (9123456789) or 11 digits starting with 09 (09123456789)');
         return;
     }
     
@@ -920,23 +709,8 @@ async function saveUser(event) {
             return;
         }
         
-        if (password.length < 8 || password.length > 16) {
-            showModalError('Password must be between 8 and 16 characters');
-            return;
-        }
-        
-        if (!/[A-Z]/.test(password)) {
-            showModalError('Password must contain at least one uppercase letter');
-            return;
-        }
-        
-        if (!/[0-9]/.test(password)) {
-            showModalError('Password must contain at least one number');
-            return;
-        }
-        
-        if (!/[@$!%*?&]/.test(password)) {
-            showModalError('Password must contain at least one special character (@$!%*?&)');
+        if (password.length < 8) {
+            showModalError('Password must be at least 8 characters');
             return;
         }
         
@@ -1095,7 +869,8 @@ function closeResetPasswordModal() {
 
 // Toggle user status
 async function toggleUserStatus(userId) {
-    const action = users.find(u => u.id === userId)?.status === 'active' ? 'deactivate' : 'activate';
+    const user = users.find(u => u.id === userId);
+    const action = user?.status === 'active' ? 'deactivate' : 'activate';
     
     if (!confirm(`Are you sure you want to ${action} this user?`)) {
         return;
@@ -1181,11 +956,11 @@ function showError(message) {
 <!-- Add to existing styles -->
 <style>
     /* Modal animations */
-    #user-modal, #reset-password-modal, #delete-modal, #add-role-modal {
+    #user-modal, #reset-password-modal, #delete-modal {
         transition: opacity 0.2s ease-in-out;
     }
     
-    #user-modal .bg-white, #reset-password-modal .bg-white, #delete-modal .bg-white, #add-role-modal .bg-white {
+    #user-modal .bg-white, #reset-password-modal .bg-white, #delete-modal .bg-white {
         animation: modalSlideIn 0.3s ease-out;
     }
     
