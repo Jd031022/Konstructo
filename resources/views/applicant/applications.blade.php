@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'My Applications - Konstructo')
+@section('title', 'Applications')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -8,8 +8,8 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">My Applications</h1>
-            <p class="text-gray-500 text-sm mt-1">Track and manage your building permit applications (Maximum 3 applications)</p>
+            <h1 class="text-3xl font-bold text-gray-800">Applications</h1>
+            <p class="text-gray-500 text-sm mt-1">Track and manage your building permit applications.</p>
         </div>
         
         <!-- New Application Button -->
@@ -95,11 +95,24 @@
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
             </select>
-            
-            <!-- Filter Button -->
-            <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium">
-                Apply Filters
-            </button>
+        </div>
+    </div>
+
+        <!-- Quick Stats Banner -->
+    <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-2xl p-6 text-white">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div>
+                <p class="text-3xl font-bold" id="total-apps">0</p>
+                <p class="text-sm opacity-90">Total Applications</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold" id="pending-apps">0</p>
+                <p class="text-sm opacity-90">Pending Review</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold" id="remaining-apps">3</p>
+                <p class="text-sm opacity-90">Remaining Slots</p>
+            </div>
         </div>
     </div>
 
@@ -143,24 +156,6 @@
             <button id="next-page" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition disabled:opacity-50" disabled>
                 Next
             </button>
-        </div>
-    </div>
-
-    <!-- Quick Stats Banner -->
-    <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-2xl p-6 text-white">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div>
-                <p class="text-3xl font-bold" id="total-apps">0</p>
-                <p class="text-sm opacity-90">Total Applications</p>
-            </div>
-            <div>
-                <p class="text-3xl font-bold" id="pending-apps">0</p>
-                <p class="text-sm opacity-90">Pending Review</p>
-            </div>
-            <div>
-                <p class="text-3xl font-bold" id="remaining-apps">3</p>
-                <p class="text-sm opacity-90">Remaining Slots</p>
-            </div>
         </div>
     </div>
 

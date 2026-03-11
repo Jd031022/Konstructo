@@ -73,6 +73,8 @@ class User extends Authenticatable
         'password' => 'hashed',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'password_changed_at' => 'datetime',
     ];
 
     /**
@@ -100,6 +102,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is staff
+     */
+    public function isStaff(): bool
+    {
+        return $this->role === 'staff';
+    }
+
+    /**
      * Check if user is applicant
      */
     public function isApplicant(): bool
@@ -114,7 +124,7 @@ class User extends Authenticatable
     {
         return match($this->role) {
             'admin' => 'purple',
-            'engineer' => 'blue',
+            'engineer', 'staff' => 'blue',
             'applicant' => 'gray',
             default => 'gray'
         };
@@ -223,6 +233,82 @@ class User extends Authenticatable
             ->where('session_id', session()->getId())
             ->where('is_active', true)
             ->first();
+    }
+
+    // ========== APPLICATION RELATIONSHIPS ==========
+
+    /**
+     * Get all applications for the user (as applicant)
+     */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'user_id');
+    }
+
+    /**
+     * Get applications assigned to the user (as staff/engineer)
+     */
+    public function assignedApplications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'assigned_to');
+    }
+
+    /**
+     * Get pending applications (for applicant)
+     */
+    public function pendingApplications()
+    {
+        return $this->applications()->where('status', 'pending');
+    }
+
+    /**
+     * Get approved applications (for applicant)
+     */
+    public function approvedApplications()
+    {
+        return $this->applications()->where('status', 'approved');
+    }
+
+    /**
+     * Get rejected applications (for applicant)
+     */
+    public function rejectedApplications()
+    {
+        return $this->applications()->where('status', 'rejected');
+    }
+
+    /**
+     * Get pending reviews (for staff)
+     */
+    public function pendingReviews()
+    {
+        return $this->assignedApplications()->where('status', 'pending');
+    }
+
+    /**
+     * Get completed reviews (for staff)
+     */
+    public function completedReviews()
+    {
+        return $this->assignedApplications()->whereIn('status', ['approved', 'rejected']);
+    }
+
+    // ========== ADDITIONAL FIELDS ==========
+
+    /**
+     * Get last login time
+     */
+    public function getLastLoginAtAttribute()
+    {
+        return $this->sessions()->latest()->first()?->last_activity;
+    }
+
+    /**
+     * Check if two-factor authentication is enabled
+     */
+    public function getTwoFactorEnabledAttribute(): bool
+    {
+        return !is_null($this->two_factor_secret);
     }
 
     /**

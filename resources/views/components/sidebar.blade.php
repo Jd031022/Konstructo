@@ -22,6 +22,8 @@
             <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Dashboard</span>
         </a>
 
+        <!-- ROLE-SPECIFIC ROUTES -->
+        
         <!-- ADMIN ROUTES -->
         @if(auth()->user()->role === 'admin')
             <!-- User Management -->
@@ -42,7 +44,7 @@
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">All Applications</span>
             </a>
 
-            <!-- System Settings -->
+            <!-- System Settings (Admin only) -->
             <a href="/admin/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -52,7 +54,7 @@
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">System Settings</span>
             </a>
 
-        <!-- STAFF ROUTES (formerly ENGINEER) -->
+        <!-- STAFF ROUTES -->
         @elseif(auth()->user()->role === 'staff')
             <!-- Assigned Applications -->
             <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
@@ -61,24 +63,6 @@
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
-            </a>
-
-            <!-- My Documents -->
-            <a href="/staff/documents" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/documents*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Documents</span>
-            </a>
-
-            <!-- My Profile -->
-            <a href="/staff/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
             </a>
 
         <!-- APPLICANT ROUTES -->
@@ -91,31 +75,20 @@
                 </svg>
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application</span>
             </a>
-
-
-            <!-- My Profile -->
-            <a href="/applicant/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
-            </a>
         @endif
 
-        <!-- Settings - Different for each role -->
-        @if(auth()->user()->role === 'admin')
-            <!-- Settings already included in admin routes -->
-        @else
-            <a href="/{{ auth()->user()->role }}/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('*/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Settings</span>
-            </a>
-        @endif
+        <!-- DIVIDER - Visible to all roles -->
+        <div class="w-full border-t border-gray-200 my-2"></div>
+
+        <!-- PROFILE - Universal link for ALL ROLES (placed outside all role conditions) -->
+        <a href="/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">My Profile</span>
+        </a>
+
 
     </nav>
 
@@ -132,6 +105,7 @@
     </div>
 
 </aside>
+
 
 <!-- Logout Confirmation Modal -->
 <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
