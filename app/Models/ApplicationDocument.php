@@ -17,13 +17,15 @@ class ApplicationDocument extends Model
         'admin_notes',
         'verified_at',
         'verified_by',
-        'rejection_reason'
+        'rejection_reason',
+        'hard_copy_received'
     ];
 
     protected $casts = [
         'verified_at' => 'datetime',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'hard_copy_received' => 'boolean'
     ];
 
     /**

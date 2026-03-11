@@ -512,48 +512,58 @@
     }
 
     // Update status
-    async function updateStatus() {
-        const selectedRadio = document.querySelector('input[name="status"]:checked');
-        if (!selectedRadio) {
-            showErrorModal('Please select a status');
-            return;
-        }
-
-        const status = selectedRadio.value;
-        const remarks = document.getElementById('status-remarks').value;
-        const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
-
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    status, 
-                    remarks,
-                    hardcopy_received: hardcopyReceived 
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                showSuccessModal('Status updated successfully');
-                updateStatusUI(status);
-                
-                // Clear remarks field
-                document.getElementById('status-remarks').value = '';
-            } else {
-                showErrorModal(data.message || 'Failed to update status');
-            }
-        } catch (error) {
-            console.error('Error updating status:', error);
-            showErrorModal('Failed to update status');
-        }
+async function updateStatus() {
+    const selectedRadio = document.querySelector('input[name="status"]:checked');
+    if (!selectedRadio) {
+        showErrorModal('Please select a status');
+        return;
     }
+
+    const status = selectedRadio.value;
+    const remarks = document.getElementById('status-remarks').value;
+    const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
+
+    // Show loading state on button
+    const updateBtn = event.target;
+    const originalText = updateBtn.innerHTML;
+    updateBtn.innerHTML = 'Updating...';
+    updateBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/staff/applications/${applicationId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                status, 
+                remarks,
+                hardcopy_received: hardcopyReceived 
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccessModal('Status updated successfully');
+            updateStatusUI(status);
+            
+            // Clear remarks field
+            document.getElementById('status-remarks').value = '';
+        } else {
+            showErrorModal(data.message || 'Failed to update status');
+        }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showErrorModal('Failed to update status. Please try again.');
+    } finally {
+        // Restore button
+        updateBtn.innerHTML = originalText;
+        updateBtn.disabled = false;
+    }
+}
 
     // Add note
     async function addNote() {

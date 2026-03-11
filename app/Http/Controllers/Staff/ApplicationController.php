@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema; // Add this import
 
 class ApplicationController extends Controller
 {
@@ -35,7 +36,8 @@ class ApplicationController extends Controller
                         'rejection_reason' => $app->rejection_reason,
                         'admin_notes' => $app->admin_notes,
                         'created_at' => $app->created_at,
-                        'updated_at' => $app->updated_at
+                        'updated_at' => $app->updated_at,
+                        'hard_copy_received' => $app->hard_copy_received ?? false
                     ];
                 });
             
@@ -87,7 +89,8 @@ class ApplicationController extends Controller
                     'rejection_reason' => $application->rejection_reason,
                     'admin_notes' => $application->admin_notes,
                     'created_at' => $application->created_at,
-                    'updated_at' => $application->updated_at
+                    'updated_at' => $application->updated_at,
+                    'hard_copy_received' => $application->hard_copy_received ?? false
                 ]
             ]);
             
@@ -151,7 +154,8 @@ class ApplicationController extends Controller
                 'status' => 'pending',
                 'rejection_reason' => null,
                 'verified_at' => null,
-                'verified_by' => null
+                'verified_by' => null,
+                'hard_copy_received' => false
             ]);
             
             return response()->json([
@@ -178,12 +182,21 @@ class ApplicationController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
+        // Log the incoming request for debugging
+        Log::info('Updating application status', [
+            'application_id' => $id,
+            'request_data' => $request->all()
+        ]);
+
+        // Validate the request including hardcopy_received
         $validator = Validator::make($request->all(), [
             'status' => 'required|string|in:pending,under-review,approved,rejected,for-release,verified',
-            'remarks' => 'nullable|string'
+            'remarks' => 'nullable|string',
+            'hardcopy_received' => 'sometimes|boolean'
         ]);
 
         if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
@@ -200,27 +213,57 @@ class ApplicationController extends Controller
                 ], 404);
             }
             
+            // Update status - make sure it's a string
             $application->status = $request->status;
-            $application->admin_notes = $request->remarks;
             
+            // Update admin notes if provided
+            if ($request->has('remarks')) {
+                $application->admin_notes = $request->remarks;
+            }
+            
+            // Check if hard_copy_received column exists before using it
+            if ($request->has('hardcopy_received') && Schema::hasColumn('application_documents', 'hard_copy_received')) {
+                $application->hard_copy_received = $request->hardcopy_received;
+            }
+            
+            // If status is verified, set verified_at and verified_by
             if ($request->status === 'verified') {
                 $application->verified_at = now();
                 $application->verified_by = auth()->id();
             }
             
+            // If status is rejected, store rejection reason
+            if ($request->status === 'rejected' && $request->has('remarks')) {
+                $application->rejection_reason = $request->remarks;
+            }
+            
+            // Save the application
             $application->save();
+            
+            Log::info('Application status updated successfully', [
+                'application_id' => $application->id,
+                'application_number' => $application->application_number,
+                'new_status' => $application->status
+            ]);
             
             return response()->json([
                 'success' => true,
-                'message' => 'Application status updated successfully'
+                'message' => 'Application status updated successfully',
+                'data' => [
+                    'id' => $application->id,
+                    'status' => $application->status,
+                    'hard_copy_received' => $application->hard_copy_received ?? false,
+                    'updated_at' => $application->updated_at
+                ]
             ]);
             
         } catch (\Exception $e) {
             Log::error('Error updating application status: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating application status'
+                'message' => 'Error updating application status: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -283,6 +326,7 @@ class ApplicationController extends Controller
                     'Email',
                     'Phone',
                     'Status',
+                    'Hard Copy Received',
                     'Date Submitted',
                     'Google Drive Link'
                 ]);
@@ -295,6 +339,7 @@ class ApplicationController extends Controller
                         $app->user ? $app->user->email : '',
                         $app->user ? $app->user->phone_number : '',
                         ucfirst(str_replace('-', ' ', $app->status)),
+                        $app->hard_copy_received ? 'Yes' : 'No',
                         $app->created_at->format('Y-m-d'),
                         $app->google_drive_link
                     ]);
