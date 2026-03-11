@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Settings - Konstructo')
+@section('title', 'Settings')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

@@ -49,19 +49,37 @@ class User extends Authenticatable
     use HasFactory, Notifiable, LogActivity;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'middle_name',
-        'suffix',
-        'phone_number',
-        'email',
-        'zip_code',
-        'address',
-        'username',
-        'password',
-        'email_verified_at',
-        'role',
-    ];
+    'first_name',
+    'last_name',
+    'middle_name',
+    'suffix',
+    'phone_number',
+    'telephone',
+    'email',
+    'alternative_email',
+    'zip_code',
+    'address',
+    'house_number',
+    'street',
+    'barangay',
+    'city',
+    'province',
+    'username',
+    'password',
+    'email_verified_at',
+    'role',
+    'date_of_birth',
+    'place_of_birth',
+    'gender',
+    'civil_status',
+    'citizenship',
+    'tin',
+    'last_login_at',
+    'password_changed_at',
+    'two_factor_secret',
+    'two_factor_enabled',
+    'avatar', 
+];
 
     protected $hidden = [
         'password',
@@ -370,4 +388,17 @@ class User extends Authenticatable
             }
         });
     }
+
+    /**
+ * Get the avatar URL.
+ */
+public function getAvatarUrlAttribute(): string
+{
+    if ($this->avatar && file_exists(public_path('storage/' . $this->avatar))) {
+        return asset('storage/' . $this->avatar);
+    }
+    
+    // Return a default avatar URL or generate initials avatar
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=7F9CF5&background=EBF4FF';
+}
 }
