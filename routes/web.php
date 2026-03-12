@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -16,6 +17,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 });
 
 require __DIR__.'/auth.php';
@@ -212,28 +220,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 });
 
+
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
 
-
-// Test JSON route
-Route::get('/test-json', function() {
-    if (!auth()->check()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Not authenticated'
-        ], 401);
-    }
-    
-    $user = auth()->user();
-    
-    return response()->json([
-        'success' => true,
-        'message' => 'JSON is working',
-        'user' => $user->email,
-        'user_id' => $user->id,
-        'user_role' => $user->role,
-        'authenticated' => true
-    ]);
-})->middleware('auth');

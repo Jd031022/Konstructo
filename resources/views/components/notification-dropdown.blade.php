@@ -60,30 +60,32 @@
             </template>
 
             <template x-for="notification in notifications" :key="notification.id">
-                <div class="flex gap-4 px-5 py-4 hover:bg-gray-50 transition" :class="{ 'bg-blue-50/20': !notification.read }">
-                    <!-- Icon based on type and role -->
+                <div class="flex gap-4 px-5 py-4 hover:bg-gray-50 transition cursor-pointer" 
+                     :class="{ 'bg-blue-50/20': !notification.read }"
+                     @click="markAsRead(notification.id, notification.link)">
+                    <!-- Icon based on type -->
                     <div class="flex-shrink-0">
-                        <div x-show="notification.icon === 'application'" class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <div x-show="notification.icon === 'success'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+                        <div x-show="notification.type === 'application_submitted'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <div x-show="notification.icon === 'message'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        <div x-show="notification.type === 'status_changed'" class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <div x-show="notification.icon === 'reminder'" class="w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <div x-show="notification.type === 'admin_note'" class="w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </div>
-                        <div x-show="notification.icon === 'info'" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
+                        <div x-show="notification.type === 'hard_copy_request'" class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                        </div>
+                        <div x-show="!notification.type || notification.type === 'info'" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -91,15 +93,15 @@
                     </div>
 
                     <!-- Content -->
-                    <div class="flex-1 min-w-0" @click="markAsRead(notification.id)">
+                    <div class="flex-1 min-w-0">
                         <p class="text-sm text-gray-800">
-                            <span class="font-medium" x-text="notification.actor"></span>
-                            <span class="text-gray-600" x-text="' ' + notification.action"></span>
+                            <span class="font-medium" x-text="notification.title"></span>
                         </p>
-                        <p x-show="notification.details" class="text-sm text-gray-500 mt-1" x-text="notification.details"></p>
+                        <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
+                        <p x-show="notification.details" class="text-xs text-gray-500 mt-1" x-text="notification.details"></p>
                         <div class="flex items-center gap-2 mt-1.5">
                             <span class="text-xs text-gray-400" x-text="notification.time"></span>
-                            <span x-show="!notification.read" class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                            <span x-show="!notification.read_at" class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
                         </div>
                     </div>
                 </div>
@@ -138,10 +140,10 @@ function notificationComponent() {
 
         init() {
             this.loadNotifications();
-            // Poll for new notifications every 30 seconds
+            // Poll for new notifications every 15 seconds
             this.pollInterval = setInterval(() => {
                 this.checkForNewNotifications();
-            }, 30000);
+            }, 15000);
         },
 
         destroy() {
@@ -179,7 +181,7 @@ function notificationComponent() {
                 const response = await fetch('/notifications/unread-count');
                 const data = await response.json();
                 
-                if (data.count > this.unreadCount) {
+                if (response.ok && data.count > this.unreadCount) {
                     // New notifications arrived
                     this.unreadCount = data.count;
                     if (this.open) {
@@ -191,21 +193,27 @@ function notificationComponent() {
             }
         },
 
-        async markAsRead(notificationId) {
+        async markAsRead(notificationId, link = null) {
             try {
                 const response = await fetch(`/notifications/${notificationId}/read`, {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 });
                 
                 if (response.ok) {
                     const notification = this.notifications.find(n => n.id === notificationId);
-                    if (notification) {
-                        notification.read = true;
+                    if (notification && !notification.read_at) {
+                        notification.read_at = new Date().toISOString();
                         this.unreadCount = Math.max(0, this.unreadCount - 1);
                     }
+                }
+
+                // Redirect if link exists
+                if (link) {
+                    window.location.href = link;
                 }
             } catch (error) {
                 console.error('Failed to mark notification as read:', error);
@@ -217,12 +225,13 @@ function notificationComponent() {
                 const response = await fetch('/notifications/mark-all-read', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 });
                 
                 if (response.ok) {
-                    this.notifications.forEach(n => n.read = true);
+                    this.notifications.forEach(n => n.read_at = new Date().toISOString());
                     this.unreadCount = 0;
                 }
             } catch (error) {
