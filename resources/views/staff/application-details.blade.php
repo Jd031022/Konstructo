@@ -56,7 +56,7 @@
     <div id="application-content" class="hidden">
 
         <!-- Application Header -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
@@ -179,127 +179,127 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Staff Guidelines Card - Moved here below Staff Notes -->
+                <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
+                            <p class="text-sm text-gray-600">
+                                Access the Google Drive folder to review documents. Update status as you review. Check the "Hard Copy Received" box when physical documents are submitted.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Column - Status & Actions -->
-            <div class="lg:col-span-1 space-y-8">
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-8">
+                    <!-- Status Update Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Current Status -->
+                            <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <p class="text-xs text-gray-500 mb-1">Current Status</p>
+                                <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
+                            </div>
 
-                <!-- Status Update Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
-                    
-                    <div class="space-y-4">
-                        <!-- Current Status -->
-                        <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <p class="text-xs text-gray-500 mb-1">Current Status</p>
-                            <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
+                            <!-- Hard Copy Status Checkbox (for staff to mark when received) -->
+                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
+                                    <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                </label>
+                                <p class="text-xs text-gray-500 mt-1">Check this box when physical documents are received</p>
+                            </div>
+
+                            <!-- Status Options -->
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="under-review" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-gray-700">Under Review</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="approved" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-green-600">Approved</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="rejected" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-red-600">Rejected</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="for-release" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-blue-600">For Release</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="verified" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-purple-600">Completed</span>
+                                </label>
+                            </div>
+
+                            <!-- Remarks -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
+                                <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
+                            </div>
+
+                            <!-- Update Button -->
+                            <button onclick="updateStatus()" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">
+                                Update Status
+                            </button>
                         </div>
+                    </div>
 
-                        <!-- Hard Copy Status Checkbox (for staff to mark when received) -->
-                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <label class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
-                                <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                            </label>
-                            <p class="text-xs text-gray-500 mt-1">Check this box when physical documents are received</p>
-                        </div>
-
-                        <!-- Status Options -->
+                    <!-- Quick Actions Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+                        
                         <div class="space-y-2">
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                                <input type="radio" name="status" value="under-review" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                <span class="ml-3 text-sm font-medium text-gray-700">Under Review</span>
-                            </label>
+                            <button onclick="sendMessage()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span class="text-sm">Send Message to Applicant</span>
+                            </button>
                             
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                                <input type="radio" name="status" value="approved" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                <span class="ml-3 text-sm font-medium text-green-600">Approved</span>
-                            </label>
+                            <button onclick="emailApplicant()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-sm">Email Applicant</span>
+                            </button>
                             
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                                <input type="radio" name="status" value="rejected" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                <span class="ml-3 text-sm font-medium text-red-600">Rejected</span>
-                            </label>
+                            <button onclick="scheduleReview()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm">Schedule Review</span>
+                            </button>
                             
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                                <input type="radio" name="status" value="for-release" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                <span class="ml-3 text-sm font-medium text-blue-600">For Release</span>
-                            </label>
-                            
-                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                                <input type="radio" name="status" value="verified" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                <span class="ml-3 text-sm font-medium text-purple-600">Completed</span>
-                            </label>
+                            <button onclick="deleteApplication()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="text-sm">Delete Application</span>
+                            </button>
                         </div>
-
-                        <!-- Remarks -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
-                            <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
-                        </div>
-
-                        <!-- Update Button -->
-                        <button onclick="updateStatus()" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">
-                            Update Status
-                        </button>
                     </div>
-                </div>
-
-                <!-- Quick Actions Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
-                    
-                    <div class="space-y-2">
-                        <button onclick="sendMessage()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            <span class="text-sm">Send Message to Applicant</span>
-                        </button>
-                        
-                        <button onclick="emailApplicant()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            <span class="text-sm">Email Applicant</span>
-                        </button>
-                        
-                        <button onclick="scheduleReview()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-sm">Schedule Review</span>
-                        </button>
-                        
-                        <button onclick="deleteApplication()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            <span class="text-sm">Delete Application</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Help Card -->
-        <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                    <p class="text-sm text-gray-600">
-                        Access the Google Drive folder to review documents. Update status as you review. Check the "Hard Copy Received" box when physical documents are submitted.
-                    </p>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- Delete Confirmation Modal -->

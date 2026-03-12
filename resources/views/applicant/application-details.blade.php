@@ -40,7 +40,7 @@
     <div id="application-content" class="hidden">
 
         <!-- Hard Copy Notice (if hard copy not yet received) -->
-        <div id="hardcopy-notice" class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 rounded-r-lg hidden">
+        <div id="hardcopy-notice" class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Hard Copy Received Notice -->
-        <div id="hardcopy-received-notice" class="mb-6 p-4 bg-green-100 border-l-4 border-green-600 rounded-r-lg hidden">
+        <div id="hardcopy-received-notice" class="mb-6 p-4 bg-green-100 border-l-4 border-green-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,26 +70,46 @@
         </div>
 
         <!-- Application Header -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
                         BP
                     </div>
                     <div>
-                        <div class="flex items-center gap-3 mb-1">
+                        <div class="flex items-center gap-3 mb-3">
                             <h1 class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
-                            <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium">Pending Review</span>
+                            <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                         </div>
+                        
+                        <!-- Application Meta Information - Inline with stacked dates -->
                         <div class="flex items-center gap-4 text-sm">
-                            <span class="text-gray-500">Application Number: <span id="application-number" class="font-mono font-medium text-[#155386]"></span></span>
+                            <!-- Application Number -->
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Application Number</span>
+                                <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
+                            </div>
+                            
                             <span class="text-gray-300">|</span>
-                            <span class="text-gray-500">Submitted: <span id="submitted-date" class="font-medium text-gray-700"></span></span>
+                            
+                            <!-- Submitted Date -->
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Submitted</span>
+                                <span id="submitted-date" class="font-medium text-gray-700"></span>
+                            </div>
+                            
                             <span class="text-gray-300">|</span>
-                            <span class="text-gray-500">Last Updated: <span id="updated-date" class="font-medium text-gray-700"></span></span>
+                            
+                            <!-- Last Updated Date -->
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Last Updated</span>
+                                <span id="updated-date" class="font-medium text-gray-700"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Action Buttons -->
                 <div class="flex gap-2">
                     <button onclick="downloadApplication()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,17 +128,17 @@
         </div>
 
         <!-- Progress Timeline -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <h2 class="text-lg font-semibold text-gray-800 mb-6">Application Progress</h2>
             
             <!-- Progress Bar -->
             <div class="mb-8">
                 <div class="flex items-center justify-between text-sm mb-2">
                     <span class="text-gray-600">Overall Completion</span>
-                    <span id="progress-percentage" class="font-semibold text-[#155386]">0%</span>
+                    <span id="progress-percentage" class="font-semibold text-[#155386] transition-all duration-500">0%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div id="progress-bar" class="bg-gradient-to-r from-[#155386] to-[#40798C] h-3 rounded-full" style="width: 0%"></div>
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-[#155386] to-[#40798C] h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                 </div>
             </div>
 
@@ -126,64 +146,64 @@
             <div class="relative">
                 <!-- Progress Line -->
                 <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
-                <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386]" style="width: 0%"></div>
+                <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
                 
                 <!-- Steps -->
                 <div class="relative flex justify-between">
                     <!-- Step 1: Submitted -->
-                    <div id="step-submitted" class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="step-submitted" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-400">Submitted</p>
-                        <p id="step-submitted-date" class="text-xs text-gray-400"></p>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
+                        <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     
                     <!-- Step 2: Under Review -->
-                    <div id="step-under-review" class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="step-under-review" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-400">Under Review</p>
-                        <p id="step-under-review-date" class="text-xs text-gray-400"></p>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
+                        <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     
                     <!-- Step 3: Document Verification -->
-                    <div id="step-verification" class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="step-verification" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-400">Document Verification</p>
-                        <p id="step-verification-date" class="text-xs text-gray-400"></p>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
+                        <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     
                     <!-- Step 4: Approval -->
-                    <div id="step-approval" class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="step-approval" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-400">Approval</p>
-                        <p id="step-approval-date" class="text-xs text-gray-400"></p>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
+                        <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     
                     <!-- Step 5: Release -->
-                    <div id="step-release" class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div id="step-release" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-400">For Release</p>
-                        <p id="step-release-date" class="text-xs text-gray-400"></p>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
+                        <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                 </div>
             </div>
@@ -192,11 +212,11 @@
         <!-- Main Content Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <!-- Left Column - Staff Information and Google Drive -->
+            <!-- Left Column - Staff Information, Google Drive, and Important Notes -->
             <div class="lg:col-span-2 space-y-8">
 
                 <!-- Staff/Reviewers List Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Application Reviewers</h2>
                     
                     <div id="reviewers-container" class="space-y-4">
@@ -211,7 +231,7 @@
                 </div>
 
                 <!-- Google Drive Documents Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Google Drive Documents</h2>
                     
                     <!-- Google Drive Link Section -->
@@ -247,114 +267,114 @@
                     <!-- Document Status -->
                     <div class="mt-4 flex items-center justify-between">
                         <span class="text-sm text-gray-600">Document Status:</span>
-                        <span id="document-status" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">Not Available</span>
+                        <span id="document-status" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500">Not Available</span>
+                    </div>
+                </div>
+
+                <!-- Important Notes Card - Moved here below Google Drive -->
+                <div class="bg-yellow-50 rounded-2xl p-6 border border-yellow-100 animate-fade-in">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Important Reminders</h4>
+                            <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                                <li>All uploaded documents require original hard copy submission to the Office of the Building Official (OBO)</li>
+                                <li>You will receive an email notification for every update on your application</li>
+                                <li>Processing time may take 7-10 business days upon complete submission</li>
+                                <li>For urgent concerns, please contact the Building Official's office directly</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Right Column - Status & Updates -->
-            <div class="lg:col-span-1 space-y-8">
-
-                <!-- Current Status Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Status:</span>
-                            <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium">Pending Review</span>
-                        </div>
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-8">
+                    <!-- Current Status Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
                         
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Queue Position:</span>
-                            <span id="queue-position" class="text-sm font-medium text-gray-800">-</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Estimated Review:</span>
-                            <span id="estimated-time" class="text-sm font-medium text-gray-800">3-5 business days</span>
-                        </div>
-                        
-                        <div class="pt-4 border-t border-gray-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-400">Target Release Date</p>
-                                    <p id="target-release" class="text-sm font-semibold text-gray-800">-</p>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Status:</span>
+                                <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Queue Position:</span>
+                                <span id="queue-position" class="text-sm font-medium text-gray-800">-</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Estimated Review:</span>
+                                <span id="estimated-time" class="text-sm font-medium text-gray-800">3-5 business days</span>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400">Target Release Date</p>
+                                        <p id="target-release" class="text-sm font-semibold text-gray-800">-</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Hard Copy Status in Sidebar -->
-                    <div id="hardcopy-status-sidebar" class="mt-4 p-3 bg-blue-50 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
-                            <span class="text-xs font-medium text-gray-700">Hard Copy Status:</span>
-                            <span id="hardcopy-badge" class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
+                        <!-- Hard Copy Status in Sidebar -->
+                        <div id="hardcopy-status-sidebar" class="mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-700">Hard Copy Status:</span>
+                                <span id="hardcopy-badge" class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500">Pending</span>
+                            </div>
+                            <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
                         </div>
-                        <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="mt-6 space-y-2">
-                        <button onclick="sendMessage()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
-                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            Send Message to Reviewer
-                        </button>
-                        <button onclick="requestAssistance()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
-                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            Request for Assistance
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Activity Log Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Activity Log</h2>
-                    
-                    <div id="activity-log" class="space-y-4">
-                        <div class="text-center py-4 text-gray-500">
-                            <p class="text-sm">Loading activities...</p>
+                        <!-- Action Buttons -->
+                        <div class="mt-6 space-y-2">
+                            <button onclick="sendMessage()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Send Message to Reviewer
+                            </button>
+                            <button onclick="requestAssistance()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Request for Assistance
+                            </button>
                         </div>
                     </div>
-                    
-                    <button class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center">
-                        View Full History →
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Important Notes -->
-        <div class="bg-yellow-50 rounded-2xl p-6 border border-yellow-100">
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-800 mb-1">Important Reminders</h4>
-                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
-                        <li>All uploaded documents require original hard copy submission to the Office of the Building Official (OBO)</li>
-                        <li>You will receive an email notification for every update on your application</li>
-                        <li>Processing time may take 7-10 business days upon complete submission</li>
-                        <li>For urgent concerns, please contact the Building Official's office directly</li>
-                    </ul>
+                    <!-- Activity Log Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Activity Log</h2>
+                        
+                        <div id="activity-log" class="space-y-4">
+                            <div class="text-center py-4 text-gray-500">
+                                <p class="text-sm">Loading activities...</p>
+                            </div>
+                        </div>
+                        
+                        <button class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center">
+                            View Full History →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- Error Message Modal -->
@@ -393,6 +413,16 @@
     </div>
 </div>
 
+<!-- Real-time Update Notification -->
+<div id="update-notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 translate-y-[-100px] z-50">
+    <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="notification-message">Application status updated!</span>
+    </div>
+</div>
+
 <!-- JavaScript -->
 <script>
     // Get application ID from URL path
@@ -403,17 +433,100 @@
     
     let applicationId = getApplicationIdFromUrl();
     let currentApplication = null;
+    let previousStatus = null;
+    let updateCheckInterval = null;
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Application ID from URL:', applicationId);
         if (applicationId && applicationId !== 'application-details' && !isNaN(applicationId)) {
             loadApplicationDetails();
+            // Start checking for updates every 30 seconds
+            startRealTimeUpdates();
         } else {
             showError();
         }
         setupModals();
     });
+
+    // Start real-time updates
+    function startRealTimeUpdates() {
+        // Check for updates every 30 seconds
+        updateCheckInterval = setInterval(checkForUpdates, 30000);
+    }
+
+    // Check for updates
+    async function checkForUpdates() {
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const newApplication = data.data;
+                    
+                    // Check if status changed
+                    if (previousStatus && previousStatus !== newApplication.status) {
+                        showUpdateNotification('Application status updated to ' + formatStatus(newApplication.status));
+                        animateStatusChange();
+                    }
+                    
+                    // Update the application data
+                    currentApplication = newApplication;
+                    displayApplicationDetails();
+                    
+                    // Reload review activities if needed
+                    if (previousStatus !== newApplication.status) {
+                        loadReviewActivities();
+                    }
+                    
+                    previousStatus = newApplication.status;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking for updates:', error);
+        }
+    }
+
+    // Show update notification
+    function showUpdateNotification(message) {
+        const notification = document.getElementById('update-notification');
+        document.getElementById('notification-message').textContent = message;
+        notification.style.transform = 'translateY(0)';
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateY(-100px)';
+        }, 5000);
+    }
+
+    // Animate status change
+    function animateStatusChange() {
+        const statusBadge = document.getElementById('status-badge');
+        const currentStatusBadge = document.getElementById('current-status-badge');
+        const progressBar = document.getElementById('progress-bar');
+        const progressLine = document.getElementById('progress-line');
+        
+        // Add pulse animation
+        statusBadge.classList.add('animate-pulse');
+        currentStatusBadge.classList.add('animate-pulse');
+        
+        // Add scale animation to progress elements
+        progressBar.classList.add('scale-animation');
+        progressLine.classList.add('scale-animation');
+        
+        // Remove animations after they complete
+        setTimeout(() => {
+            statusBadge.classList.remove('animate-pulse');
+            currentStatusBadge.classList.remove('animate-pulse');
+            progressBar.classList.remove('scale-animation');
+            progressLine.classList.remove('scale-animation');
+        }, 1000);
+    }
 
     // Load application details from API
     async function loadApplicationDetails() {
@@ -440,6 +553,7 @@
             
             if (data.success) {
                 currentApplication = data.data;
+                previousStatus = currentApplication.status;
                 displayApplicationDetails();
                 
                 // Load review activities
@@ -593,7 +707,7 @@
             const exactDateTime = reviewer.lastActionDate ? formatExactDateTime(reviewer.lastActionDate) : '';
             
             reviewersContainer.innerHTML += `
-                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition animate-fade-in">
                     <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold">
                         <span>${reviewer.initials}</span>
                     </div>
@@ -621,7 +735,7 @@
     function showEmptyReviewers() {
         const reviewersContainer = document.getElementById('reviewers-container');
         reviewersContainer.innerHTML = `
-            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-fade-in">
                 <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold">
                     <span>OB</span>
                 </div>
@@ -640,7 +754,7 @@
     function showEmptyActivities() {
         const activityLog = document.getElementById('activity-log');
         activityLog.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
+            <div class="text-center py-8 text-gray-500 animate-fade-in">
                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -743,7 +857,7 @@
             }
             
             html += `
-                <div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                <div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in">
                     <div class="w-8 h-8 ${iconColor} rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         ${iconSvg}
                     </div>
@@ -882,10 +996,10 @@
 
         const config = statusConfig[status] || { color: 'gray', text: status || 'Unknown' };
         
-        statusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium`;
+        statusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
         statusBadge.textContent = config.text;
         
-        currentStatusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium`;
+        currentStatusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
         currentStatusBadge.textContent = config.text;
     }
 
@@ -903,18 +1017,18 @@
             const dateElement = document.getElementById(`step-${step}-date`);
             
             if (index <= currentStepIndex) {
-                // Completed step
+                // Completed step with animation
                 if (circle) {
-                    circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2 relative z-10';
+                    circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500 transform scale-animation';
                     circle.innerHTML = '<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
                 }
-                if (text) text.className = 'text-sm font-medium text-gray-800';
+                if (text) text.className = 'text-sm font-medium text-gray-800 transition-all duration-500';
                 
                 if (index === currentStepIndex) {
-                    // Current step - show "In Progress"
+                    // Current step - show "In Progress" with pulsing effect
                     if (dateElement) {
                         dateElement.textContent = 'In Progress';
-                        dateElement.className = 'text-xs text-[#155386] font-medium';
+                        dateElement.className = 'text-xs text-[#155386] font-medium animate-pulse';
                     }
                 } else if (currentApplication?.created_at && index === 0) {
                     // Submitted date
@@ -925,7 +1039,7 @@
             }
         });
 
-        // Update progress line width
+        // Update progress line width with animation
         const progressLine = document.getElementById('progress-line');
         if (progressLine) {
             const width = currentStepIndex >= 0 ? ((currentStepIndex + 1) / steps.length) * 100 : 0;
@@ -978,16 +1092,16 @@
             if (hardcopyNotice) hardcopyNotice.classList.add('hidden');
             if (hardcopyReceivedNotice) hardcopyReceivedNotice.classList.remove('hidden');
             hardcopyBadge.textContent = 'Received';
-            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full';
+            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full transition-all duration-500';
             hardcopyMessage.textContent = 'Hard copies received by OBO';
-            hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg';
+            hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg transition-all duration-500';
         } else {
             if (hardcopyNotice) hardcopyNotice.classList.remove('hidden');
             if (hardcopyReceivedNotice) hardcopyReceivedNotice.classList.add('hidden');
             hardcopyBadge.textContent = 'Pending';
-            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full';
+            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500';
             hardcopyMessage.textContent = 'Submit originals to OBO';
-            hardcopySidebar.className = 'mt-4 p-3 bg-blue-50 rounded-lg';
+            hardcopySidebar.className = 'mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500';
         }
     }
 
@@ -1082,6 +1196,13 @@
             }
         });
     }
+
+    // Clean up interval when leaving the page
+    window.addEventListener('beforeunload', function() {
+        if (updateCheckInterval) {
+            clearInterval(updateCheckInterval);
+        }
+    });
 </script>
 
 <style>
@@ -1114,6 +1235,83 @@
         }
     }
 
+    /* Fade in animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Slide down animation */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slide-down {
+        animation: slideDown 0.3s ease-out;
+    }
+
+    /* Scale animation for progress updates */
+    @keyframes scalePulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .scale-animation {
+        animation: scalePulse 0.5s ease-in-out;
+    }
+
+    /* Pulse animation for status badges */
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Bounce animation for notification */
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+
+    .animate-bounce {
+        animation: bounce 1s infinite;
+    }
+
     /* Disable pointer events for disabled links */
     .pointer-events-none {
         pointer-events: none;
@@ -1127,6 +1325,33 @@
     /* Hover effects */
     .hover\:bg-gray-100:hover {
         background-color: #f3f4f6;
+    }
+
+    /* Step item hover effect */
+    .step-item {
+        transition: transform 0.3s ease;
+    }
+
+    .step-item:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Transition for smooth updates */
+    .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .duration-500 {
+        transition-duration: 500ms;
+    }
+
+    .duration-700 {
+        transition-duration: 700ms;
+    }
+
+    .ease-out {
+        transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
 </style>
 @endsection

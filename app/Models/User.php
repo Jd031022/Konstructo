@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\LogActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Notifications\Notifiable as NotifiableTrait;
 
 /**
  * Class User
@@ -496,4 +497,64 @@ class User extends Authenticatable
             }
         });
     }
+
+     use NotifiableTrait; // Laravel's built-in notifications trait
+
+    public function getRoleBasedNotificationsAttribute()
+{
+    return $this->notifications()
+        ->where('data->for_role', $this->role)
+        ->orWhere('data->for_role', 'all')
+        ->limit(20)
+        ->get()
+        ->map(function ($notification) {
+            $data = $notification->data;
+            return [
+                'id' => $notification->id,
+                'type' => $data['type'] ?? 'info',
+                'icon' => $data['icon'] ?? 'info',
+                'actor' => $this->getNotificationActor($data),
+                'action' => $data['action'] ?? 'notification',
+                'details' => $data['details'] ?? $data['message'] ?? null,
+                'time' => $notification->created_at->diffForHumans(),
+                'read' => !is_null($notification->read_at),
+                'application_id' => $data['application_id'] ?? null,
+                'metadata' => $data
+            ];
+        });
+}
+
+/**
+ * Get unread count for role-specific notifications
+ */
+public function getRoleBasedUnreadCountAttribute()
+{
+    return $this->notifications()
+        ->whereNull('read_at')
+        ->where(function($query) {
+            $query->where('data->for_role', $this->role)
+                  ->orWhere('data->for_role', 'all');
+        })
+        ->count();
+}
+
+/**
+ * Determine notification actor based on data
+ */
+private function getNotificationActor($data)
+{
+    if (isset($data['staff_name'])) {
+        return $data['staff_name'];
+    }
+    
+    if (isset($data['applicant_name'])) {
+        return $data['applicant_name'];
+    }
+    
+    if (isset($data['actor_name'])) {
+        return $data['actor_name'];
+    }
+    
+    return 'System';
+}
 }

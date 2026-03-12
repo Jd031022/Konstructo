@@ -195,6 +195,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/settings', function () {
         return view('admin.settings');
     })->name('settings');
+
+    Route::get('/applications', function () {
+        return view('admin.applications');
+    })->name('applications');
     
     // Admin User Management Routes
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
