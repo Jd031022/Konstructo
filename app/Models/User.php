@@ -24,76 +24,158 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $address
  * @property string $username
  * @property string $password
+ * @property string|null $avatar
  * @property string|null $remember_token
  * @property string $role
  * @property \Carbon\Carbon|null $email_verified_at
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * 
+ * @property-read \App\Models\UserProfile $profile
  * @property-read \Illuminate\Database\Eloquent\Collection|ActivityLog[] $activityLogs
  * @property-read \Illuminate\Database\Eloquent\Collection|LoginAttempt[] $loginAttempts
  * @property-read \Illuminate\Database\Eloquent\Collection|UserSession[] $sessions
  * @property-read ActivityLog|null $latestActivity
+ * @property-read \Illuminate\Database\Eloquent\Collection|ApplicationDocument[] $applicationDocuments
+ * @property-read \Illuminate\Database\Eloquent\Collection|Application[] $applications
+ * @property-read \Illuminate\Database\Eloquent\Collection|ApplicationDocument[] $assignedDocuments
  * 
  * @method bool isAdmin()
- * @method bool isEngineer()
+ * @method bool isStaff()
  * @method bool isApplicant()
  * @method bool hasRole(string $role)
  * @method string getFullNameAttribute()
  * @method string getInitialsAttribute()
  * @method string getRoleBadgeColorAttribute()
  * @method string getStatusBadgeColorAttribute()
+ * @method string getAvatarUrlAttribute()
  */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, LogActivity;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-    'first_name',
-    'last_name',
-    'middle_name',
-    'suffix',
-    'phone_number',
-    'telephone',
-    'email',
-    'alternative_email',
-    'zip_code',
-    'address',
-    'house_number',
-    'street',
-    'barangay',
-    'city',
-    'province',
-    'username',
-    'password',
-    'email_verified_at',
-    'role',
-    'date_of_birth',
-    'place_of_birth',
-    'gender',
-    'civil_status',
-    'citizenship',
-    'tin',
-    'last_login_at',
-    'password_changed_at',
-    'two_factor_secret',
-    'two_factor_enabled',
-    'avatar', 
-];
+        'first_name',
+        'last_name',
+        'middle_name',
+        'suffix',
+        'phone_number',
+        'email',
+        'zip_code',
+        'address',
+        'username',
+        'password',
+        'email_verified_at',
+        'role',
+        'avatar',
+        'remember_token',
+    ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'password_changed_at' => 'datetime',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'full_name',
+        'initials',
+        'avatar_url',
+    ];
+
+    // ========== RELATIONSHIPS ==========
+
+    /**
+     * Get the user profile.
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    /**
+     * Get the activity logs for the user.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class, 'user_id');
+    }
+
+    /**
+     * Get the login attempts for the user.
+     */
+    public function loginAttempts(): HasMany
+    {
+        return $this->hasMany(LoginAttempt::class, 'user_id');
+    }
+
+    /**
+     * Get the sessions for the user.
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class, 'user_id');
+    }
+
+    /**
+     * Get the user's latest activity.
+     */
+    public function latestActivity(): HasOne
+    {
+        return $this->hasOne(ActivityLog::class, 'user_id')->latest();
+    }
+
+    /**
+     * Get all applications for the user (from applications table)
+     */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'user_id');
+    }
+
+    /**
+     * Get all application documents for the user (from application_documents table)
+     */
+    public function applicationDocuments(): HasMany
+    {
+        return $this->hasMany(ApplicationDocument::class, 'user_id');
+    }
+
+    /**
+     * Get documents assigned to the user (as staff/engineer)
+     */
+    public function assignedDocuments(): HasMany
+    {
+        return $this->hasMany(ApplicationDocument::class, 'assigned_to');
+    }
+
+    // ========== ROLE CHECK METHODS ==========
 
     /**
      * Check if user has specific role
@@ -112,14 +194,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is engineer
-     */
-    public function isEngineer(): bool
-    {
-        return $this->role === 'engineer';
-    }
-
-    /**
      * Check if user is staff
      */
     public function isStaff(): bool
@@ -135,6 +209,87 @@ class User extends Authenticatable
         return $this->role === 'applicant';
     }
 
+    // ========== APPLICATION DOCUMENT QUERY METHODS ==========
+
+    /**
+     * Get draft documents (for applicant)
+     */
+    public function draftDocuments()
+    {
+        return $this->applicationDocuments()->where('status', 'draft');
+    }
+
+    /**
+     * Get pending documents (for applicant)
+     */
+    public function pendingDocuments()
+    {
+        return $this->applicationDocuments()->where('status', 'pending');
+    }
+
+    /**
+     * Get verified documents (for applicant)
+     */
+    public function verifiedDocuments()
+    {
+        return $this->applicationDocuments()->where('status', 'verified');
+    }
+
+    /**
+     * Get approved documents (for applicant)
+     */
+    public function approvedDocuments()
+    {
+        return $this->applicationDocuments()->where('status', 'approved');
+    }
+
+    /**
+     * Get rejected documents (for applicant)
+     */
+    public function rejectedDocuments()
+    {
+        return $this->applicationDocuments()->where('status', 'rejected');
+    }
+
+    /**
+     * Get pending reviews (for staff)
+     */
+    public function pendingReviews()
+    {
+        return $this->assignedDocuments()->where('status', 'pending');
+    }
+
+    /**
+     * Get completed reviews (for staff)
+     */
+    public function completedReviews()
+    {
+        return $this->assignedDocuments()->whereIn('status', ['approved', 'rejected', 'verified']);
+    }
+
+    // ========== SESSION METHODS ==========
+
+    /**
+     * Check if user has active session
+     */
+    public function hasActiveSession(): bool
+    {
+        return $this->sessions()->where('is_active', true)->exists();
+    }
+
+    /**
+     * Get current session
+     */
+    public function currentSession(): ?UserSession
+    {
+        return $this->sessions()
+            ->where('session_id', session()->getId())
+            ->where('is_active', true)
+            ->first();
+    }
+
+    // ========== ATTRIBUTE ACCESSORS ==========
+
     /**
      * Get role badge color
      */
@@ -142,7 +297,7 @@ class User extends Authenticatable
     {
         return match($this->role) {
             'admin' => 'purple',
-            'engineer', 'staff' => 'blue',
+            'staff' => 'blue',
             'applicant' => 'gray',
             default => 'gray'
         };
@@ -203,140 +358,93 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the activity logs for the user.
+     * Get the avatar URL.
      */
-    public function activityLogs(): HasMany
+    public function getAvatarUrlAttribute(): string
     {
-        return $this->hasMany(ActivityLog::class, 'user_id');
+        if ($this->avatar && file_exists(public_path('storage/' . $this->avatar))) {
+            return asset('storage/' . $this->avatar) . '?v=' . time();
+        }
+        
+        // Return a default avatar URL with user's name
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . 
+               '&size=96&background=155386&color=fff&bold=true';
     }
 
     /**
-     * Get the login attempts for the user.
-     */
-    public function loginAttempts(): HasMany
-    {
-        return $this->hasMany(LoginAttempt::class, 'user_id');
-    }
-
-    /**
-     * Get the sessions for the user.
-     */
-    public function sessions(): HasMany
-    {
-        return $this->hasMany(UserSession::class, 'user_id');
-    }
-
-    /**
-     * Get the user's latest activity.
-     */
-    public function latestActivity(): HasOne
-    {
-        return $this->hasOne(ActivityLog::class, 'user_id')->latest();
-    }
-
-    /**
-     * Check if user has active session
-     */
-    public function hasActiveSession(): bool
-    {
-        return $this->sessions()->where('is_active', true)->exists();
-    }
-
-    /**
-     * Get current session
-     */
-    public function currentSession(): ?UserSession
-    {
-        return $this->sessions()
-            ->where('session_id', session()->getId())
-            ->where('is_active', true)
-            ->first();
-    }
-
-    // ========== APPLICATION RELATIONSHIPS ==========
-
-    /**
-     * Get all applications for the user (as applicant)
-     */
-    public function applications(): HasMany
-    {
-        return $this->hasMany(Application::class, 'user_id');
-    }
-
-    /**
-     * Get applications assigned to the user (as staff/engineer)
-     */
-    public function assignedApplications(): HasMany
-    {
-        return $this->hasMany(Application::class, 'assigned_to');
-    }
-
-    /**
-     * Get pending applications (for applicant)
-     */
-    public function pendingApplications()
-    {
-        return $this->applications()->where('status', 'pending');
-    }
-
-    /**
-     * Get approved applications (for applicant)
-     */
-    public function approvedApplications()
-    {
-        return $this->applications()->where('status', 'approved');
-    }
-
-    /**
-     * Get rejected applications (for applicant)
-     */
-    public function rejectedApplications()
-    {
-        return $this->applications()->where('status', 'rejected');
-    }
-
-    /**
-     * Get pending reviews (for staff)
-     */
-    public function pendingReviews()
-    {
-        return $this->assignedApplications()->where('status', 'pending');
-    }
-
-    /**
-     * Get completed reviews (for staff)
-     */
-    public function completedReviews()
-    {
-        return $this->assignedApplications()->whereIn('status', ['approved', 'rejected']);
-    }
-
-    // ========== ADDITIONAL FIELDS ==========
-
-    /**
-     * Get last login time
+     * Get last login time from profile
      */
     public function getLastLoginAtAttribute()
     {
-        return $this->sessions()->latest()->first()?->last_activity;
+        return $this->profile?->last_login_at;
     }
 
     /**
-     * Check if two-factor authentication is enabled
+     * Get password changed at from profile
+     */
+    public function getPasswordChangedAtAttribute()
+    {
+        return $this->profile?->password_changed_at;
+    }
+
+    /**
+     * Check if two-factor authentication is enabled from profile
      */
     public function getTwoFactorEnabledAttribute(): bool
     {
-        return !is_null($this->two_factor_secret);
+        return $this->profile?->two_factor_enabled ?? false;
     }
+
+    /**
+     * Get two-factor secret from profile
+     */
+    public function getTwoFactorSecretAttribute()
+    {
+        return $this->profile?->two_factor_secret;
+    }
+
+    // ========== PROFILE HELPER METHODS ==========
+
+    /**
+     * Ensure profile exists
+     */
+    public function ensureProfileExists(): void
+    {
+        if (!$this->profile) {
+            $this->profile()->create();
+        }
+    }
+
+    /**
+     * Update last login timestamp
+     */
+    public function updateLastLogin(): void
+    {
+        $this->ensureProfileExists();
+        $this->profile()->update(['last_login_at' => now()]);
+    }
+
+    /**
+     * Update password changed timestamp
+     */
+    public function updatePasswordChanged(): void
+    {
+        $this->ensureProfileExists();
+        $this->profile()->update(['password_changed_at' => now()]);
+    }
+
+    // ========== BOOT METHOD ==========
 
     /**
      * The "booted" method of the model.
      */
     protected static function booted(): void
     {
-        // AUTO-LOG WHEN USER IS CREATED
+        // Create profile for new user
         static::created(function (User $user) {
-            // Prevent recursive logging
+            $user->profile()->create();
+            
+            // AUTO-LOG WHEN USER IS CREATED
             if (!isset($user->logging)) {
                 $user->logging = true;
                 $user->logActivity(
@@ -376,7 +484,7 @@ class User extends Authenticatable
             }
         });
 
-        // AUTO-LOG WHEN USER IS DELETED
+        // AUTO-LOG WHEN USER IS DELETED (profile will auto-delete due to cascade)
         static::deleted(function (User $user) {
             if (!isset($user->logging)) {
                 $user->logging = true;
@@ -388,17 +496,4 @@ class User extends Authenticatable
             }
         });
     }
-
-    /**
- * Get the avatar URL.
- */
-public function getAvatarUrlAttribute(): string
-{
-    if ($this->avatar && file_exists(public_path('storage/' . $this->avatar))) {
-        return asset('storage/' . $this->avatar);
-    }
-    
-    // Return a default avatar URL or generate initials avatar
-    return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=7F9CF5&background=EBF4FF';
-}
 }

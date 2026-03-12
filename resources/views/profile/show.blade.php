@@ -1,3 +1,4 @@
+{{-- resources/views/profile/show.blade.php --}}
 @extends('layouts.dashboard')
 
 @section('title', 'Profile')
@@ -44,7 +45,7 @@
         <!-- Last Login Info -->
         <div class="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
             <span class="font-medium">Last login:</span> 
-            {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('M d, Y • h:i A') : 'First login' }}
+            {{ optional($user->profile)->last_login_at ? optional($user->profile)->last_login_at->format('M d, Y • h:i A') : 'First login' }}
         </div>
     </div>
 
@@ -54,72 +55,60 @@
         <!-- Left Sidebar - Profile Summary -->
         <div class="lg:col-span-1 space-y-6">
             <!-- Profile Card -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-    <!-- Profile Avatar -->
-<div class="relative inline-block">
-    @php
-        // Get the avatar path from user
-        $avatarPath = auth()->user()->avatar;
-        
-        // Check if avatar exists and is not empty
-        if (!empty($avatarPath)) {
-            // Build the full URL to the storage
-            $avatarUrl = asset('storage/' . $avatarPath);
-            
-            // Optional: Add a cache busting parameter
-            $avatarUrl .= '?v=' . time();
-        } else {
-            // Use UI Avatars service for default avatars
-            $fullName = urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name);
-            $avatarUrl = "https://ui-avatars.com/api/?name={$fullName}&size=96&background=155386&color=fff&bold=true";
-        }
-    @endphp
-    
-    <!-- Avatar Display -->
-    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
-        <img src="{{ $avatarUrl }}" 
-             alt="{{ auth()->user()->full_name ?? auth()->user()->first_name . ' ' . auth()->user()->last_name }}" 
-             class="w-full h-full object-cover"
-             id="avatar-image"
-             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}&size=96&background=155386&color=fff&bold=true';">
-    </div>
-    
-    <!-- Avatar Upload Form -->
-    <form id="avatar-form" action="{{ route('profile.avatar') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <input type="file" name="avatar" id="avatar-input" accept="image/*" class="hidden" onchange="previewAndUploadAvatar(this)">
-    </form>
-    
-    <!-- Upload Button -->
-    <button type="button" onclick="document.getElementById('avatar-input').click()" 
-            class="absolute bottom-0 right-0 w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center hover:bg-[#40798C] transition shadow-lg hover:scale-110 transform duration-200">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-    </button>
-</div>
-    
-    <!-- User Name and Role -->
-    <h2 class="text-xl font-bold text-gray-800 mt-4">{{ auth()->user()->full_name ?? auth()->user()->first_name . ' ' . auth()->user()->last_name }}</h2>
-    <p class="text-gray-500 text-sm capitalize">{{ auth()->user()->role }}</p>
-    
-    <!-- Account Status -->
-    <div class="mt-4 pt-4 border-t border-gray-100">
-        <div class="flex items-center justify-center gap-2 text-sm">
-            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span class="text-gray-600">Active Account</span>
-        </div>
-        <p class="text-xs text-gray-400 mt-2">Member since {{ auth()->user()->created_at->format('F Y') }}</p>
-    </div>
-</div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+                <!-- Profile Avatar -->
+                <div class="relative inline-block">
+                    @php
+                        $user = auth()->user();
+                        $avatarPath = $user->avatar;
+                        
+                        if (!empty($avatarPath)) {
+                            $avatarUrl = asset('storage/' . $avatarPath) . '?v=' . time();
+                        } else {
+                            $fullName = urlencode($user->first_name . ' ' . $user->last_name);
+                            $avatarUrl = "https://ui-avatars.com/api/?name={$fullName}&size=96&background=155386&color=fff&bold=true";
+                        }
+                    @endphp
+                    
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
+                        <img src="{{ $avatarUrl }}" 
+                             alt="{{ $user->full_name }}" 
+                             class="w-full h-full object-cover"
+                             id="avatar-image"
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('{{ $user->first_name }} {{ $user->last_name }}') + '&size=96&background=155386&color=fff&bold=true';">
+                    </div>
+                    
+                    <form id="avatar-form" action="{{ route('profile.avatar') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="file" name="avatar" id="avatar-input" accept="image/*" class="hidden" onchange="previewAndUploadAvatar(this)">
+                    </form>
+                    
+                    <button type="button" onclick="document.getElementById('avatar-input').click()" 
+                            class="absolute bottom-0 right-0 w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center hover:bg-[#40798C] transition shadow-lg hover:scale-110 transform duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <h2 class="text-xl font-bold text-gray-800 mt-4">{{ $user->full_name }}</h2>
+                <p class="text-gray-500 text-sm capitalize">{{ $user->role }}</p>
+                
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-center gap-2 text-sm">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span class="text-gray-600">Active Account</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Member since {{ $user->created_at->format('F Y') }}</p>
+                </div>
+            </div>
 
-
-            <!-- Account Stats Card - Role-based stats -->
+            <!-- Account Statistics Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="font-semibold text-gray-800 mb-4">Account Statistics</h3>
                 
-                @if(auth()->user()->role === 'admin')
+                @if($user->role === 'admin')
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Total Users</span>
@@ -127,48 +116,64 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Total Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ \App\Models\Application::count() ?? 0 }}</span>
+                        <span class="text-sm font-bold text-gray-800">{{ \App\Models\ApplicationDocument::count() ?? 0 }}</span>
                     </div>
                 </div>
-                @elseif(auth()->user()->role === 'staff')
+                @elseif($user->role === 'staff' || $user->role === 'engineer')
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Assigned Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ auth()->user()->assignedApplications()->count() ?? 0 }}</span>
+                        <span class="text-sm font-bold text-gray-800">{{ $user->assignedDocuments()->count() }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Pending Review</span>
-                        <span class="text-sm font-bold text-yellow-600">{{ auth()->user()->pendingReviews()->count() ?? 0 }}</span>
+                        <span class="text-sm font-bold text-yellow-600">{{ $user->assignedDocuments()->where('status', 'pending')->count() }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Completed</span>
-                        <span class="text-sm font-bold text-green-600">{{ auth()->user()->completedReviews()->count() ?? 0 }}</span>
-                    </div>
-                </div>
-                @elseif(auth()->user()->role === 'applicant')
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Total Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ auth()->user()->applications()->count() ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Pending Review</span>
-                        <span class="text-sm font-bold text-yellow-600">{{ auth()->user()->pendingApplications()->count() ?? 0 }}</span>
+                        <span class="text-sm text-gray-600">Verified</span>
+                        <span class="text-sm font-bold text-blue-600">{{ $user->assignedDocuments()->where('status', 'verified')->count() }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Approved</span>
-                        <span class="text-sm font-bold text-green-600">{{ auth()->user()->approvedApplications()->count() ?? 0 }}</span>
+                        <span class="text-sm font-bold text-green-600">{{ $user->assignedDocuments()->where('status', 'approved')->count() }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Rejected</span>
-                        <span class="text-sm font-bold text-red-600">{{ auth()->user()->rejectedApplications()->count() ?? 0 }}</span>
+                        <span class="text-sm font-bold text-red-600">{{ $user->assignedDocuments()->where('status', 'rejected')->count() }}</span>
+                    </div>
+                </div>
+                @elseif($user->role === 'applicant')
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Total Applications</span>
+                        <span class="text-sm font-bold text-gray-800">{{ $user->applicationDocuments()->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Draft</span>
+                        <span class="text-sm font-bold text-gray-500">{{ $user->applicationDocuments()->where('status', 'draft')->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Pending Review</span>
+                        <span class="text-sm font-bold text-yellow-600">{{ $user->applicationDocuments()->where('status', 'pending')->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Verified</span>
+                        <span class="text-sm font-bold text-blue-600">{{ $user->applicationDocuments()->where('status', 'verified')->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Approved</span>
+                        <span class="text-sm font-bold text-green-600">{{ $user->applicationDocuments()->where('status', 'approved')->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Rejected</span>
+                        <span class="text-sm font-bold text-red-600">{{ $user->applicationDocuments()->where('status', 'rejected')->count() }}</span>
                     </div>
                 </div>
                 @endif
                 
-                @if(auth()->user()->role !== 'admin')
+                @if($user->role !== 'admin')
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                    <a href="/{{ auth()->user()->role }}/applications" class="text-sm text-[#155386] hover:underline flex items-center justify-between">
+                    <a href="/{{ $user->role }}/applications" class="text-sm text-[#155386] hover:underline flex items-center justify-between">
                         <span>View All Applications</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -194,85 +199,85 @@
                     </button>
                 </div>
                 
-                <div class="p-6" id="personal-info-display">
+                <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">First Name</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->first_name }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->first_name }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Middle Name</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->middle_name ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->middle_name ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Last Name</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->last_name }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->last_name }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Suffix</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->suffix ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->suffix ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Date of Birth</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->date_of_birth ? auth()->user()->date_of_birth->format('F d, Y') : '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->date_of_birth ? optional($user->profile)->date_of_birth->format('F d, Y') : '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Place of Birth</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->place_of_birth ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->place_of_birth ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Gender</label>
-                            <p class="text-sm font-medium text-gray-800">{{ ucfirst(auth()->user()->gender ?? '—') }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ ucfirst(optional($user->profile)->gender ?? '—') }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Civil Status</label>
-                            <p class="text-sm font-medium text-gray-800">{{ ucfirst(auth()->user()->civil_status ?? '—') }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ ucfirst(optional($user->profile)->civil_status ?? '—') }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Citizenship</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->citizenship ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->citizenship ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">TIN</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->tin ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->tin ?? '—' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Account Information Card -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white flex justify-between items-center">
-        <h2 class="text-xl font-bold">Account Information</h2>
-        <button onclick="openEditModal('account')" class="text-white hover:text-gray-200 transition flex items-center gap-1 text-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            Edit
-        </button>
-    </div>
-    
-    <div class="p-6" id="account-info-display">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">Username</label>
-                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->username }}</p>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Account Information</h2>
+                    <button onclick="openEditModal('account')" class="text-white hover:text-gray-200 transition flex items-center gap-1 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        Edit
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Username</label>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->username }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Role</label>
+                            <p class="text-sm font-medium text-gray-800 capitalize">{{ $user->role }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Account Created</label>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->created_at->format('F d, Y') }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Last Updated</label>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->updated_at->format('F d, Y') }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">Role</label>
-                <p class="text-sm font-medium text-gray-800 capitalize">{{ auth()->user()->role }}</p>
-            </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">Account Created</label>
-                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->created_at->format('F d, Y') }}</p>
-            </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">Last Updated</label>
-                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->updated_at->format('F d, Y') }}</p>
-            </div>
-        </div>
-    </div>
-</div>
 
             <!-- Contact Information Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -286,13 +291,13 @@
                     </button>
                 </div>
                 
-                <div class="p-6" id="contact-info-display">
+                <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Email Address</label>
                             <div class="flex items-center gap-2">
-                                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->email }}</p>
-                                @if(auth()->user()->email_verified_at)
+                                <p class="text-sm font-medium text-gray-800">{{ $user->email }}</p>
+                                @if($user->email_verified_at)
                                 <span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>
                                 @else
                                 <span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Unverified</span>
@@ -301,15 +306,15 @@
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Mobile Number</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->phone_number ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->phone_number ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Telephone Number</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->telephone ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->telephone ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Alternative Email</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->alternative_email ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->alternative_email ?? '—' }}</p>
                         </div>
                     </div>
                 </div>
@@ -327,31 +332,31 @@
                     </button>
                 </div>
                 
-                <div class="p-6" id="address-info-display">
+                <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">House/Unit No.</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->house_number ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->house_number ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Street</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->street ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->street ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Barangay</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->barangay ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->barangay ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">City/Municipality</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->city ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->city ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Province</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->province ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ optional($user->profile)->province ?? '—' }}</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Zip Code</label>
-                            <p class="text-sm font-medium text-gray-800">{{ auth()->user()->zip_code ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $user->zip_code ?? '—' }}</p>
                         </div>
                     </div>
                 </div>
@@ -374,7 +379,7 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-800">Password</p>
-                                    <p class="text-xs text-gray-500">Last changed {{ auth()->user()->password_changed_at ? auth()->user()->password_changed_at->diffForHumans() : 'Never' }}</p>
+                                    <p class="text-xs text-gray-500">Last changed {{ optional($user->profile)->password_changed_at ? optional($user->profile)->password_changed_at->diffForHumans() : 'Never' }}</p>
                                 </div>
                             </div>
                             <button onclick="openEditModal('password')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
@@ -391,11 +396,11 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-800">Two-Factor Authentication</p>
-                                    <p class="text-xs text-gray-500">{{ auth()->user()->two_factor_enabled ? 'Enabled' : 'Protect your account with 2FA' }}</p>
+                                    <p class="text-xs text-gray-500">{{ optional($user->profile)->two_factor_enabled ? 'Enabled' : 'Protect your account with 2FA' }}</p>
                                 </div>
                             </div>
-                            <button onclick="openEditModal('2fa')" class="px-4 py-2 {{ auth()->user()->two_factor_enabled ? 'border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-[#155386] text-white hover:bg-[#40798C]' }} rounded-lg transition text-sm">
-                                {{ auth()->user()->two_factor_enabled ? 'Disable' : 'Enable' }}
+                            <button onclick="openEditModal('2fa')" class="px-4 py-2 {{ optional($user->profile)->two_factor_enabled ? 'border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-[#155386] text-white hover:bg-[#40798C]' }} rounded-lg transition text-sm">
+                                {{ optional($user->profile)->two_factor_enabled ? 'Disable' : 'Enable' }}
                             </button>
                         </div>
 
@@ -408,7 +413,7 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-800">Active Sessions</p>
-                                    <p class="text-xs text-gray-500">You're logged in on {{ auth()->user()->sessions()->count() ?? 1 }} device(s)</p>
+                                    <p class="text-xs text-gray-500">You're logged in on {{ $user->sessions()->count() ?? 1 }} device(s)</p>
                                 </div>
                             </div>
                             <button onclick="openEditModal('sessions')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
@@ -420,7 +425,7 @@
             </div>
 
             <!-- Danger Zone Card - Admin only -->
-            @if(auth()->user()->role === 'admin')
+            @if($user->role === 'admin')
             <div class="bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
                 <div class="px-6 py-4 bg-red-500 text-white">
                     <h2 class="text-xl font-bold">Danger Zone</h2>
@@ -455,7 +460,6 @@
             @endif
         </div>
     </div>
-
 </div>
 
 <!-- Edit Profile Modal -->
@@ -485,81 +489,72 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                    <input type="text" name="first_name" value="{{ old('first_name', auth()->user()->first_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('first_name') border-red-500 @enderror">
-                                    @error('first_name')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="text" name="first_name" value="{{ old('first_name', $user->first_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                                    <input type="text" name="middle_name" value="{{ old('middle_name', auth()->user()->middle_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="middle_name" value="{{ old('middle_name', $user->middle_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                    <input type="text" name="last_name" value="{{ old('last_name', auth()->user()->last_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('last_name') border-red-500 @enderror">
-                                    @error('last_name')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
                                     <select name="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">None</option>
-                                        <option value="Jr." {{ old('suffix', auth()->user()->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                        <option value="Sr." {{ old('suffix', auth()->user()->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                        <option value="II" {{ old('suffix', auth()->user()->suffix) == 'II' ? 'selected' : '' }}>II</option>
-                                        <option value="III" {{ old('suffix', auth()->user()->suffix) == 'III' ? 'selected' : '' }}>III</option>
-                                        <option value="IV" {{ old('suffix', auth()->user()->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
+                                        <option value="Jr." {{ old('suffix', $user->suffix) == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                        <option value="Sr." {{ old('suffix', $user->suffix) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                        <option value="II" {{ old('suffix', $user->suffix) == 'II' ? 'selected' : '' }}>II</option>
+                                        <option value="III" {{ old('suffix', $user->suffix) == 'III' ? 'selected' : '' }}>III</option>
+                                        <option value="IV" {{ old('suffix', $user->suffix) == 'IV' ? 'selected' : '' }}>IV</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', auth()->user()->date_of_birth ? auth()->user()->date_of_birth->format('Y-m-d') : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', optional($user->profile)->date_of_birth ? optional($user->profile)->date_of_birth->format('Y-m-d') : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Place of Birth</label>
-                                    <input type="text" name="place_of_birth" value="{{ old('place_of_birth', auth()->user()->place_of_birth) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="place_of_birth" value="{{ old('place_of_birth', optional($user->profile)->place_of_birth) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
                                     <select name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">Select Gender</option>
-                                        <option value="male" {{ old('gender', auth()->user()->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                                        <option value="female" {{ old('gender', auth()->user()->gender) == 'female' ? 'selected' : '' }}>Female</option>
-                                        <option value="other" {{ old('gender', auth()->user()->gender) == 'other' ? 'selected' : '' }}>Other</option>
+                                        <option value="male" {{ old('gender', optional($user->profile)->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                        <option value="female" {{ old('gender', optional($user->profile)->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                        <option value="other" {{ old('gender', optional($user->profile)->gender) == 'other' ? 'selected' : '' }}>Other</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Civil Status</label>
                                     <select name="civil_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                         <option value="">Select Status</option>
-                                        <option value="single" {{ old('civil_status', auth()->user()->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
-                                        <option value="married" {{ old('civil_status', auth()->user()->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
-                                        <option value="widowed" {{ old('civil_status', auth()->user()->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
-                                        <option value="separated" {{ old('civil_status', auth()->user()->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
-                                        <option value="divorced" {{ old('civil_status', auth()->user()->civil_status) == 'divorced' ? 'selected' : '' }}>Divorced</option>
+                                        <option value="single" {{ old('civil_status', optional($user->profile)->civil_status) == 'single' ? 'selected' : '' }}>Single</option>
+                                        <option value="married" {{ old('civil_status', optional($user->profile)->civil_status) == 'married' ? 'selected' : '' }}>Married</option>
+                                        <option value="widowed" {{ old('civil_status', optional($user->profile)->civil_status) == 'widowed' ? 'selected' : '' }}>Widowed</option>
+                                        <option value="separated" {{ old('civil_status', optional($user->profile)->civil_status) == 'separated' ? 'selected' : '' }}>Separated</option>
+                                        <option value="divorced" {{ old('civil_status', optional($user->profile)->civil_status) == 'divorced' ? 'selected' : '' }}>Divorced</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Citizenship</label>
-                                    <input type="text" name="citizenship" value="{{ old('citizenship', auth()->user()->citizenship) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="citizenship" value="{{ old('citizenship', optional($user->profile)->citizenship) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">TIN</label>
-                                    <input type="text" name="tin" value="{{ old('tin', auth()->user()->tin) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="tin" value="{{ old('tin', optional($user->profile)->tin) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Account Information Fields (NEW) -->
+                        <!-- Account Information Fields -->
                         <div id="account-fields" class="space-y-4 hidden">
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                                    <input type="text" name="username" value="{{ old('username', auth()->user()->username) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('username') border-red-500 @enderror">
-                                    @error('username')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="text" name="username" value="{{ old('username', $user->username) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                     <p class="text-xs text-gray-500 mt-1">Your unique username for login</p>
                                 </div>
                                 <div class="bg-blue-50 p-4 rounded-lg">
@@ -575,25 +570,22 @@
                             <div class="grid grid-cols-1 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                    <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('email') border-red-500 @enderror">
-                                    @error('email')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
                                     <div class="flex">
                                         <span class="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600">+63</span>
-                                        <input type="tel" name="phone_number" value="{{ old('phone_number', str_replace('+63', '', auth()->user()->phone_number ?? '')) }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386]">
+                                        <input type="tel" name="phone_number" value="{{ old('phone_number', $user->phone_number ? str_replace('+63', '', $user->phone_number) : '') }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386]">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Telephone Number</label>
-                                    <input type="tel" name="telephone" value="{{ old('telephone', auth()->user()->telephone) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="tel" name="telephone" value="{{ old('telephone', optional($user->profile)->telephone) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Alternative Email</label>
-                                    <input type="email" name="alternative_email" value="{{ old('alternative_email', auth()->user()->alternative_email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="email" name="alternative_email" value="{{ old('alternative_email', optional($user->profile)->alternative_email) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                             </div>
                         </div>
@@ -603,27 +595,27 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">House/Unit No.</label>
-                                    <input type="text" name="house_number" value="{{ old('house_number', auth()->user()->house_number) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="house_number" value="{{ old('house_number', optional($user->profile)->house_number) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Street</label>
-                                    <input type="text" name="street" value="{{ old('street', auth()->user()->street) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="street" value="{{ old('street', optional($user->profile)->street) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
-                                    <input type="text" name="barangay" value="{{ old('barangay', auth()->user()->barangay) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="barangay" value="{{ old('barangay', optional($user->profile)->barangay) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">City/Municipality</label>
-                                    <input type="text" name="city" value="{{ old('city', auth()->user()->city) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="city" value="{{ old('city', optional($user->profile)->city) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Province</label>
-                                    <input type="text" name="province" value="{{ old('province', auth()->user()->province) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="province" value="{{ old('province', optional($user->profile)->province) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
-                                    <input type="text" name="zip_code" value="{{ old('zip_code', auth()->user()->zip_code) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
+                                    <input type="text" name="zip_code" value="{{ old('zip_code', $user->zip_code) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                             </div>
                         </div>
@@ -633,17 +625,11 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                                    <input type="password" name="current_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('current_password') border-red-500 @enderror">
-                                    @error('current_password')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="password" name="current_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                                    <input type="password" name="new_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] @error('new_password') border-red-500 @enderror">
-                                    @error('new_password')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <input type="password" name="new_password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
@@ -676,40 +662,40 @@
     let currentEditType = null;
 
     function openEditModal(type) {
-    const modal = document.getElementById('edit-modal');
-    const modalTitle = document.getElementById('modal-title');
-    currentEditType = type;
-    
-    // Hide all field sections
-    document.getElementById('personal-fields')?.classList.add('hidden');
-    document.getElementById('account-fields')?.classList.add('hidden');
-    document.getElementById('contact-fields')?.classList.add('hidden');
-    document.getElementById('address-fields')?.classList.add('hidden');
-    document.getElementById('password-fields')?.classList.add('hidden');
-    
-    // Show the selected section
-    if (type === 'personal') {
-        document.getElementById('personal-fields').classList.remove('hidden');
-        modalTitle.textContent = 'Edit Personal Information';
-    } else if (type === 'account') {
-        document.getElementById('account-fields').classList.remove('hidden');
-        modalTitle.textContent = 'Edit Account Information';
-    } else if (type === 'contact') {
-        document.getElementById('contact-fields').classList.remove('hidden');
-        modalTitle.textContent = 'Edit Contact Information';
-    } else if (type === 'address') {
-        document.getElementById('address-fields').classList.remove('hidden');
-        modalTitle.textContent = 'Edit Address Information';
-    } else if (type === 'password') {
-        document.getElementById('password-fields').classList.remove('hidden');
-        modalTitle.textContent = 'Change Password';
-    } else {
-        modalTitle.textContent = 'Edit Information';
+        const modal = document.getElementById('edit-modal');
+        const modalTitle = document.getElementById('modal-title');
+        currentEditType = type;
+        
+        // Hide all field sections
+        document.getElementById('personal-fields')?.classList.add('hidden');
+        document.getElementById('account-fields')?.classList.add('hidden');
+        document.getElementById('contact-fields')?.classList.add('hidden');
+        document.getElementById('address-fields')?.classList.add('hidden');
+        document.getElementById('password-fields')?.classList.add('hidden');
+        
+        // Show the selected section
+        if (type === 'personal') {
+            document.getElementById('personal-fields').classList.remove('hidden');
+            modalTitle.textContent = 'Edit Personal Information';
+        } else if (type === 'account') {
+            document.getElementById('account-fields').classList.remove('hidden');
+            modalTitle.textContent = 'Edit Account Information';
+        } else if (type === 'contact') {
+            document.getElementById('contact-fields').classList.remove('hidden');
+            modalTitle.textContent = 'Edit Contact Information';
+        } else if (type === 'address') {
+            document.getElementById('address-fields').classList.remove('hidden');
+            modalTitle.textContent = 'Edit Address Information';
+        } else if (type === 'password') {
+            document.getElementById('password-fields').classList.remove('hidden');
+            modalTitle.textContent = 'Change Password';
+        } else {
+            modalTitle.textContent = 'Edit Information';
+        }
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
-    
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
 
     function closeEditModal() {
         document.getElementById('edit-modal').classList.add('hidden');
@@ -719,12 +705,6 @@
         const errorMessages = document.querySelectorAll('.text-red-500');
         errorMessages.forEach(msg => msg.remove());
     }
-
-    // Handle form submission with AJAX for better UX
-    document.getElementById('edit-form')?.addEventListener('submit', function(e) {
-        // You can add AJAX submission here if needed
-        // For now, it will submit normally
-    });
 
     // Close modal when clicking outside
     document.addEventListener('DOMContentLoaded', function() {
@@ -757,65 +737,63 @@
         }
     });
     
-    
-    
-   function previewAndUploadAvatar(input) {
-    if (input.files && input.files[0]) {
-        // Check file size (max 2MB)
-        if (input.files[0].size > 2 * 1024 * 1024) {
-            alert('File is too large. Maximum size is 2MB.');
-            input.value = '';
-            return;
-        }
-        
-        // Check file type
-        if (!input.files[0].type.match('image.*')) {
-            alert('Please select an image file (JPEG, PNG, JPG, GIF)');
-            input.value = '';
-            return;
-        }
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Update the image preview
-            const avatarImage = document.getElementById('avatar-image');
-            if (avatarImage) {
-                avatarImage.src = e.target.result;
+    function previewAndUploadAvatar(input) {
+        if (input.files && input.files[0]) {
+            // Check file size (max 2MB)
+            if (input.files[0].size > 2 * 1024 * 1024) {
+                alert('File is too large. Maximum size is 2MB.');
+                input.value = '';
+                return;
             }
             
-            // Show loading state
-            const button = document.querySelector('button[onclick*="avatar-input"]');
-            const originalHtml = button.innerHTML;
-            button.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-            button.disabled = true;
+            // Check file type
+            if (!input.files[0].type.match('image.*')) {
+                alert('Please select an image file (JPEG, PNG, JPG, GIF)');
+                input.value = '';
+                return;
+            }
             
-            // Submit the form
-            input.form.submit();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Update the image preview
+                const avatarImage = document.getElementById('avatar-image');
+                if (avatarImage) {
+                    avatarImage.src = e.target.result;
+                }
+                
+                // Show loading state
+                const button = document.querySelector('button[onclick*="avatar-input"]');
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                button.disabled = true;
+                
+                // Submit the form
+                input.form.submit();
+            }
+            
+            reader.readAsDataURL(input.files[0]);
         }
-        
-        reader.readAsDataURL(input.files[0]);
     }
-}
 
-// Clear cache on page load to show new image
-window.onpageshow = function(event) {
-    if (event.persisted) {
-        window.location.reload();
-    }
-};
+    // Clear cache on page load to show new image
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    };
 
-// Add cache busting parameter to image
-document.addEventListener('DOMContentLoaded', function() {
-    const avatarImage = document.getElementById('avatar-image');
-    if (avatarImage && !avatarImage.src.includes('ui-avatars')) {
-        // Add timestamp to force reload
-        let src = avatarImage.src.split('?')[0];
-        avatarImage.src = src + '?v=' + new Date().getTime();
-    }
-});
+    // Add cache busting parameter to image
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarImage = document.getElementById('avatar-image');
+        if (avatarImage && !avatarImage.src.includes('ui-avatars')) {
+            // Add timestamp to force reload
+            let src = avatarImage.src.split('?')[0];
+            avatarImage.src = src + '?v=' + new Date().getTime();
+        }
+    });
 </script>
-<!-- Add this CSS for loading animation -->
+
 <style>
 @keyframes spin {
     from { transform: rotate(0deg); }
