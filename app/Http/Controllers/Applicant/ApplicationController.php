@@ -6,12 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\ApplicationReviewActivity;
 use App\Models\User;
+use App\Services\NotificationService; // ADD THIS IMPORT
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ApplicationController extends Controller
 {
+    /**
+     * The notification service instance.
+     */
+    protected $notificationService;
+
+    /**
+     * Constructor - Inject NotificationService
+     */
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Display a listing of the user's applications (for API)
      */
@@ -65,6 +79,67 @@ class ApplicationController extends Controller
                 'success' => false,
                 'message' => 'Error loading applications: ' . $e->getMessage(),
                 'applications' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Store a newly created application
+     * 
+     * NOTE: You need to add this method if it doesn't exist yet
+     */
+    public function store(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            // Validate request
+            $request->validate([
+                'google_drive_link' => 'required|url',
+                // Add other validation rules as needed
+            ]);
+
+            // Create application
+            $application = ApplicationDocument::create([
+                'user_id' => $user->id,
+                'application_number' => ApplicationDocument::generateApplicationNumber(),
+                'google_drive_link' => $request->google_drive_link,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // TRIGGER NOTIFICATION: Notify staff about new application
+            $this->notificationService->notifyStaffNewApplication($application);
+
+            Log::info('Application created successfully', [
+                'application_id' => $application->id,
+                'application_number' => $application->application_number
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application submitted successfully',
+                'data' => [
+                    'id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'status' => $application->status
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error creating application: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting application: ' . $e->getMessage()
             ], 500);
         }
     }

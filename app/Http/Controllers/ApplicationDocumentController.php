@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ApplicationDocument;
 use App\Models\User;
+use App\Services\NotificationService; // ADD THIS IMPORT
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -11,6 +12,19 @@ use Illuminate\Support\Facades\Log;
 
 class ApplicationDocumentController extends Controller
 {
+    /**
+     * The notification service instance.
+     */
+    protected $notificationService;
+
+    /**
+     * Constructor - Inject NotificationService
+     */
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Store or update Google Drive link
      */
@@ -267,6 +281,7 @@ class ApplicationDocumentController extends Controller
 
     /**
      * Submit application (change status from draft to pending)
+     * THIS IS THE MOST IMPORTANT METHOD FOR NOTIFICATIONS
      */
     public function submitApplication(Request $request)
     {
@@ -299,9 +314,35 @@ class ApplicationDocumentController extends Controller
                 ], 403);
             }
             
+            // Store old status for logging
+            $oldStatus = $application->status;
+            
             // Update status to pending
             $application->status = 'pending';
             $application->save();
+
+            // TRIGGER NOTIFICATION: Notify staff about new application submission
+            $this->notificationService->notifyStaffNewApplication($application);
+
+            // Also log this activity
+            if (class_exists('App\Models\ApplicationReviewActivity')) {
+                \App\Models\ApplicationReviewActivity::create([
+                    'application_id' => $application->id,
+                    'reviewer_id' => $user->id,
+                    'action' => 'application_submitted',
+                    'old_status' => $oldStatus,
+                    'new_status' => 'pending',
+                    'remarks' => 'Application submitted by applicant',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+            }
+            
+            Log::info('Application submitted successfully', [
+                'application_id' => $application->id,
+                'application_number' => $application->application_number,
+                'user_id' => $user->id
+            ]);
             
             return response()->json([
                 'success' => true,
