@@ -39,9 +39,9 @@ class ProfileController extends Controller
         // Load profile relationship
         $user->load('profile');
         
-        // Load application document counts for the user
+        // Load application document counts for the user (their own applications)
         $user->loadCount([
-            'applicationDocuments as total_documents',
+            'applicationDocuments as total_applications',
             'applicationDocuments as draft_count' => function ($query) {
                 $query->where('status', 'draft');
             },
@@ -58,34 +58,6 @@ class ProfileController extends Controller
                 $query->where('status', 'rejected');
             },
         ]);
-        
-        // For staff/engineer roles, also load assigned documents counts
-        if ($user->role === 'staff' || $user->role === 'engineer') {
-            $user->loadCount([
-                'assignedDocuments as assigned_total',
-                'assignedDocuments as assigned_pending_count' => function ($query) {
-                    $query->where('status', 'pending');
-                },
-                'assignedDocuments as assigned_verified_count' => function ($query) {
-                    $query->where('status', 'verified');
-                },
-                'assignedDocuments as assigned_approved_count' => function ($query) {
-                    $query->where('status', 'approved');
-                },
-                'assignedDocuments as assigned_rejected_count' => function ($query) {
-                    $query->where('status', 'rejected');
-                },
-            ]);
-        }
-        
-        // Debug logging - remove after confirming it works
-        Log::info('User ID: ' . $user->id . ' - Role: ' . $user->role);
-        Log::info('Total Documents: ' . ($user->total_documents ?? 0));
-        Log::info('Draft: ' . ($user->draft_count ?? 0) . 
-                 ', Pending: ' . ($user->pending_count ?? 0) . 
-                 ', Verified: ' . ($user->verified_count ?? 0) . 
-                 ', Approved: ' . ($user->approved_count ?? 0) . 
-                 ', Rejected: ' . ($user->rejected_count ?? 0));
         
         return view('profile.show', compact('user'));
     }

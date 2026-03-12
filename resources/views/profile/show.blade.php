@@ -104,84 +104,62 @@
                 </div>
             </div>
 
-            <!-- Account Statistics Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Account Statistics</h3>
-                
-                @if($user->role === 'admin')
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Total Users</span>
-                        <span class="text-sm font-bold text-gray-800">{{ \App\Models\User::count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Total Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ \App\Models\ApplicationDocument::count() ?? 0 }}</span>
-                    </div>
-                </div>
-                @elseif($user->role === 'staff' || $user->role === 'engineer')
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Assigned Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ $user->assignedDocuments()->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Pending Review</span>
-                        <span class="text-sm font-bold text-yellow-600">{{ $user->assignedDocuments()->where('status', 'pending')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Verified</span>
-                        <span class="text-sm font-bold text-blue-600">{{ $user->assignedDocuments()->where('status', 'verified')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Approved</span>
-                        <span class="text-sm font-bold text-green-600">{{ $user->assignedDocuments()->where('status', 'approved')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Rejected</span>
-                        <span class="text-sm font-bold text-red-600">{{ $user->assignedDocuments()->where('status', 'rejected')->count() }}</span>
-                    </div>
-                </div>
-                @elseif($user->role === 'applicant')
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Total Applications</span>
-                        <span class="text-sm font-bold text-gray-800">{{ $user->applicationDocuments()->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Draft</span>
-                        <span class="text-sm font-bold text-gray-500">{{ $user->applicationDocuments()->where('status', 'draft')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Pending Review</span>
-                        <span class="text-sm font-bold text-yellow-600">{{ $user->applicationDocuments()->where('status', 'pending')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Verified</span>
-                        <span class="text-sm font-bold text-blue-600">{{ $user->applicationDocuments()->where('status', 'verified')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Approved</span>
-                        <span class="text-sm font-bold text-green-600">{{ $user->applicationDocuments()->where('status', 'approved')->count() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Rejected</span>
-                        <span class="text-sm font-bold text-red-600">{{ $user->applicationDocuments()->where('status', 'rejected')->count() }}</span>
-                    </div>
-                </div>
-                @endif
-                
-                @if($user->role !== 'admin')
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <a href="/{{ $user->role }}/applications" class="text-sm text-[#155386] hover:underline flex items-center justify-between">
-                        <span>View All Applications</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
-                @endif
-            </div>
+           <!-- Account Statistics Card -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h3 class="font-semibold text-gray-800 mb-4">Account Statistics</h3>
+    
+    @if($user->role === 'admin')
+    <div class="space-y-3">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Total Users</span>
+            <span class="text-sm font-bold text-gray-800">{{ \App\Models\User::count() }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Total Applications</span>
+            <span class="text-sm font-bold text-gray-800">{{ \App\Models\ApplicationDocument::count() ?? 0 }}</span>
+        </div>
+    </div>
+    @else
+    <!-- For all non-admin users (applicant, staff, engineer) - show their own application statistics -->
+    <div class="space-y-3">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Total Applications</span>
+            <span class="text-sm font-bold text-gray-800">{{ $user->total_applications ?? 0 }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Draft</span>
+            <span class="text-sm font-bold text-gray-500">{{ $user->draft_count ?? 0 }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Pending Review</span>
+            <span class="text-sm font-bold text-yellow-600">{{ $user->pending_count ?? 0 }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Verified</span>
+            <span class="text-sm font-bold text-blue-600">{{ $user->verified_count ?? 0 }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Approved</span>
+            <span class="text-sm font-bold text-green-600">{{ $user->approved_count ?? 0 }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Rejected</span>
+            <span class="text-sm font-bold text-red-600">{{ $user->rejected_count ?? 0 }}</span>
+        </div>
+    </div>
+    @endif
+    
+    @if($user->role !== 'admin')
+    <div class="mt-4 pt-4 border-t border-gray-100">
+        <a href="/{{ $user->role }}/applications" class="text-sm text-[#155386] hover:underline flex items-center justify-between">
+            <span>View All Applications</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+    @endif
+</div>
         </div>
 
         <!-- Right Column - Profile Details -->
