@@ -4,17 +4,15 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    <!-- Back Button -->
-    <div class="mb-8">
-        <a href="/applicant/applications" onclick="handleBackNavigation(event)" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group" id="back-button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to My Applications
-        </a>
-    </div>
-
+<!-- Back Button (Simple Version) -->
+<div class="mb-8">
+    <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+    </a>
+</div>
     <!-- Limit Warning Banner (shown dynamically) -->
     <div id="limit-warning-container"></div>
 

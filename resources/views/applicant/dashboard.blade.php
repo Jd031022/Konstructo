@@ -94,10 +94,9 @@
                             <span>Digital copy of permit</span>
                         </li>
                     </ul>
-
                     <!-- Apply Button Container -->
                     <div id="apply-button-container" class="mt-4">
-                        <a href="/applicant/application/step1?new=true" id="apply-button">
+                        <a href="{{ route('applicant.building-permit.preview') }}" id="apply-button">
                             <button class="w-full bg-gray-50 text-[#155386] py-3 rounded-xl hover:bg-[#155386] hover:text-white transition-all duration-300 font-medium border-2 border-[#155386]/20 hover:border-transparent group-hover:shadow-lg">
                                 Start Application
                                 <svg class="w-4 h-4 inline ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +105,6 @@
                             </button>
                         </a>
                     </div>
-
                     <!-- Disabled State -->
                     <div id="disabled-apply-message" class="mt-4 hidden">
                         <div class="bg-red-50 rounded-xl p-4 text-center">

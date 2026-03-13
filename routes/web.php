@@ -117,6 +117,11 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.dashboard');
     })->name('dashboard');
     
+    // Building Permit Preview Page
+    Route::get('/buildingpermit-preview', function () {
+        return view('applicant.buildingpermit-preview');
+    })->name('building-permit.preview');
+    
     // FIXED: Added ID parameter to application details route
     Route::get('/application-details/{id}', function ($id) {
         return view('applicant.application-details', ['applicationId' => $id]);
@@ -172,9 +177,10 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     // NEW: Applicant view review activities route
     Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Applicant\ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
-        // Add this inside your applicant routes group
-Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
-    ->name('applications.debug-review');
+    
+    // Add this inside your applicant routes group
+    Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
+        ->name('applications.debug-review');
 });
 
 // Dashboard route with role-based redirect
@@ -219,9 +225,3 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
 
 });
-
-
-Route::get('/profile/profile', function () {
-    return view('profile.profile');
-});
-
