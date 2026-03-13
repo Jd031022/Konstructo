@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Konstructo')
+@section('title', 'Login')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
