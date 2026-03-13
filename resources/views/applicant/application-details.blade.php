@@ -127,88 +127,117 @@
             </div>
         </div>
 
-        <!-- Progress Timeline -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
-            <h2 class="text-lg font-semibold text-gray-800 mb-6">Application Progress</h2>
-            
-            <!-- Progress Bar -->
-            <div class="mb-8">
-                <div class="flex items-center justify-between text-sm mb-2">
-                    <span class="text-gray-600">Overall Completion</span>
-                    <span id="progress-percentage" class="font-semibold text-[#155386] transition-all duration-500">0%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div id="progress-bar" class="bg-gradient-to-r from-[#155386] to-[#40798C] h-3 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- Timeline Steps -->
-            <div class="relative">
-                <!-- Progress Line -->
-                <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
-                <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
-                
-                <!-- Steps -->
-                <div class="relative flex justify-between">
-                    <!-- Step 1: Submitted -->
-                    <div id="step-submitted" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
-                        <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    
-                    <!-- Step 2: Under Review -->
-                    <div id="step-under-review" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
-                        <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    
-                    <!-- Step 3: Document Verification -->
-                    <div id="step-verification" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
-                        <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    
-                    <!-- Step 4: Approval -->
-                    <div id="step-approval" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
-                        <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    
-                    <!-- Step 5: Release -->
-                    <div id="step-release" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
-                        <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                </div>
+       <!-- Progress Timeline -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+    <h2 class="text-lg font-semibold text-gray-800 mb-6">Application Progress</h2>
+    
+    <!-- Progress Bar with Loading Animation -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-gray-600">Overall Completion</span>
+            <div class="flex items-center gap-2">
+                <span id="progress-percentage" class="font-semibold text-[#155386] transition-all duration-500">0%</span>
+                <span class="flex items-center gap-1 text-xs text-green-600 font-medium">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                    <span class="w-2 h-2 bg-green-500 rounded-full absolute"></span>
+                    <span class="ml-3">Live</span>
+                </span>
             </div>
         </div>
+        
+        <!-- Progress Bar Container -->
+        <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
+            <!-- Static progress bar (actual completion) -->
+            <div id="progress-bar" class="absolute inset-0 bg-gradient-to-r from-[#155386] to-[#40798C] h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+            
+            <!-- Animated loading overlay (continuous animation) -->
+            <div class="absolute inset-0 h-full w-full overflow-hidden">
+                <div id="animated-loading-overlay" class="h-full w-full loading-progress-animation"></div>
+            </div>
+        </div>
+        
+        <!-- Status Message -->
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+            <svg class="w-3 h-3 text-green-500 animate-pulse" fill="currentColor" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3" />
+            </svg>
+            Real-time updates active - Application status is being monitored
+        </p>
+    </div>
 
+    <!-- Timeline Steps -->
+    <div class="relative">
+        <!-- Progress Line (background) -->
+        <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
+        
+        <!-- Active Progress Line -->
+        <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
+        
+        <!-- Animated Progress Line Overlay -->
+        <div class="absolute top-5 left-0 w-full h-0.5 overflow-hidden">
+            <div class="w-full h-full loading-line-animation"></div>
+        </div>
+        
+        <!-- Steps -->
+        <div class="relative flex justify-between">
+            <!-- Step 1: Submitted -->
+            <div id="step-submitted" class="text-center step-item">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                    <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
+                <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            </div>
+            
+            <!-- Step 2: Under Review -->
+            <div id="step-under-review" class="text-center step-item">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                    <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
+                <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            </div>
+            
+            <!-- Step 3: Document Verification -->
+            <div id="step-verification" class="text-center step-item">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                    <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
+                <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            </div>
+            
+            <!-- Step 4: Approval -->
+            <div id="step-approval" class="text-center step-item">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                    <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
+                <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            </div>
+            
+            <!-- Step 5: Release -->
+            <div id="step-release" class="text-center step-item">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                    <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
+                <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            </div>
+        </div>
+    </div>
+</div>
         <!-- Main Content Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -357,21 +386,28 @@
                         </div>
                     </div>
 
-                    <!-- Activity Log Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Activity Log</h2>
-                        
-                        <div id="activity-log" class="space-y-4">
-                            <div class="text-center py-4 text-gray-500">
-                                <p class="text-sm">Loading activities...</p>
-                            </div>
-                        </div>
-                        
-                        <button class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center">
-                            View Full History →
-                        </button>
-                    </div>
-                </div>
+<!-- Activity Log Card -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Activity Log</h2>
+        <span class="text-xs text-gray-400">Last 3 activities</span>
+    </div>
+    
+    <div id="activity-log" class="space-y-4 min-h-[200px]">
+        <!-- Activities will be loaded dynamically -->
+        <div class="text-center py-8 text-gray-500">
+            <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-sm">Loading activities...</p>
+        </div>
+    </div>
+    
+    <a href="/applicant/applications/{{ $applicationId }}/activity-history" 
+       class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
+        View Full History →
+    </a>
+</div>
             </div>
         </div>
     </div>
@@ -770,118 +806,133 @@
     }
 
     // Display review activities
-    function displayReviewActivities(activities) {
-        const activityLog = document.getElementById('activity-log');
+    // Display review activities (only show last 3)
+function displayReviewActivities(activities) {
+    const activityLog = document.getElementById('activity-log');
+    
+    if (!activities || activities.length === 0) {
+        showEmptyActivities();
+        return;
+    }
+    
+    // Sort activities by date (newest first) and take only the first 3
+    const sortedActivities = [...activities].sort((a, b) => 
+        new Date(b.created_at) - new Date(a.created_at)
+    ).slice(0, 3);
+    
+    let html = '';
+    sortedActivities.forEach(activity => {
+        const date = new Date(activity.created_at);
+        const exactDateTime = formatExactDateTime(date);
+        const timeAgo = getTimeAgo(date);
         
-        if (!activities || activities.length === 0) {
-            showEmptyActivities();
-            return;
-        }
+        // Determine icon based on action
+        let iconColor = 'bg-blue-100';
+        let iconTextColor = 'text-blue-600';
+        let iconSvg = `
+            <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+        `;
         
-        let html = '';
-        activities.forEach(activity => {
-            const date = new Date(activity.created_at);
-            const exactDateTime = formatExactDateTime(date);
-            const timeAgo = getTimeAgo(date);
-            
-            // Determine icon based on action
-            let iconColor = 'bg-blue-100';
-            let iconTextColor = 'text-blue-600';
-            let iconSvg = `
+        if (activity.action === 'status_updated') {
+            if (activity.new_status && activity.new_status === 'approved') {
+                iconColor = 'bg-green-100';
+                iconTextColor = 'text-green-600';
+                iconSvg = `
+                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                `;
+            } else if (activity.new_status && activity.new_status === 'rejected') {
+                iconColor = 'bg-red-100';
+                iconTextColor = 'text-red-600';
+                iconSvg = `
+                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                `;
+            } else {
+                iconColor = 'bg-purple-100';
+                iconTextColor = 'text-purple-600';
+            }
+        } else if (activity.action === 'note_added') {
+            iconColor = 'bg-yellow-100';
+            iconTextColor = 'text-yellow-600';
+            iconSvg = `
                 <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
             `;
-            
-            if (activity.action === 'status_updated') {
-                if (activity.new_status && activity.new_status === 'approved') {
-                    iconColor = 'bg-green-100';
-                    iconTextColor = 'text-green-600';
-                    iconSvg = `
-                        <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    `;
-                } else if (activity.new_status && activity.new_status === 'rejected') {
-                    iconColor = 'bg-red-100';
-                    iconTextColor = 'text-red-600';
-                    iconSvg = `
-                        <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    `;
-                } else {
-                    iconColor = 'bg-purple-100';
-                    iconTextColor = 'text-purple-600';
-                }
-            } else if (activity.action === 'note_added') {
-                iconColor = 'bg-yellow-100';
-                iconTextColor = 'text-yellow-600';
-                iconSvg = `
-                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                `;
-            } else if (activity.action === 'hard_copy_received') {
-                iconColor = 'bg-indigo-100';
-                iconTextColor = 'text-indigo-600';
-                iconSvg = `
-                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                `;
-            } else if (activity.action === 'application_created') {
-                iconColor = 'bg-emerald-100';
-                iconTextColor = 'text-emerald-600';
-                iconSvg = `
-                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                `;
-            }
-            
-            const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
-            const reviewerRole = activity.reviewer ? activity.reviewer.role : '';
-            
-            // Format action display
-            let actionDisplay = activity.action_display || activity.action;
-            if (activity.action === 'status_updated') {
-                if (activity.old_status && activity.new_status) {
-                    actionDisplay = `Status changed from ${formatStatus(activity.old_status)} to ${formatStatus(activity.new_status)}`;
-                } else {
-                    actionDisplay = 'Status updated';
-                }
+        } else if (activity.action === 'hard_copy_received') {
+            iconColor = 'bg-indigo-100';
+            iconTextColor = 'text-indigo-600';
+            iconSvg = `
+                <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            `;
+        } else if (activity.action === 'application_created') {
+            iconColor = 'bg-emerald-100';
+            iconTextColor = 'text-emerald-600';
+            iconSvg = `
+                <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            `;
+        }
+        
+        const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
+        const reviewerRole = activity.reviewer ? activity.reviewer.role : '';
+        
+        // Format action display
+        let actionDisplay = activity.action_display || activity.action;
+        if (activity.action === 'status_updated') {
+            if (activity.old_status && activity.new_status) {
+                actionDisplay = `Status changed from ${formatStatus(activity.old_status)} to ${formatStatus(activity.new_status)}`;
             } else {
-                actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                actionDisplay = 'Status updated';
             }
-            
-            html += `
-                <div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in">
-                    <div class="w-8 h-8 ${iconColor} rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        ${iconSvg}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex flex-col">
-                            <div class="flex justify-between items-start">
-                                <p class="text-sm font-medium text-gray-800">${actionDisplay}</p>
-                            </div>
-                            ${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${activity.remarks}</p>` : ''}
-                            <p class="text-xs text-gray-500 mt-1">
-                                <span class="font-medium">${reviewerName}</span>
-                                ${reviewerRole ? `<span class="text-gray-400"> • ${reviewerRole}</span>` : ''}
-                            </p>
-                            <div class="mt-1">
-                                <p class="text-xs text-gray-400" title="${exactDateTime}">${timeAgo}</p>
-                            </div>
+        } else {
+            actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+        
+        html += `
+            <div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in">
+                <div class="w-8 h-8 ${iconColor} rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    ${iconSvg}
+                </div>
+                <div class="flex-1">
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-medium text-gray-800">${actionDisplay}</p>
+                        </div>
+                        ${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${activity.remarks}</p>` : ''}
+                        <p class="text-xs text-gray-500 mt-1">
+                            <span class="font-medium">${reviewerName}</span>
+                            ${reviewerRole ? `<span class="text-gray-400"> • ${reviewerRole}</span>` : ''}
+                        </p>
+                        <div class="mt-1">
+                            <p class="text-xs text-gray-400" title="${exactDateTime}">${timeAgo}</p>
                         </div>
                     </div>
                 </div>
-            `;
-        });
-        
-        activityLog.innerHTML = html;
+            </div>
+        `;
+    });
+    
+    // If there are more than 3 activities, show a message
+    if (activities.length > 3) {
+        html += `
+            <div class="text-center text-xs text-gray-400 pt-2">
+                +${activities.length - 3} more activities
+            </div>
+        `;
     }
+    
+    activityLog.innerHTML = html;
+}
 
     // Display application details
     function displayApplicationDetails() {
@@ -1353,5 +1404,153 @@
     .ease-out {
         transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
+    /* Progress Bar Loading Animation */
+@keyframes progressLoading {
+    0% {
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.1) 75%,
+            transparent 100%
+        );
+    }
+    25% {
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.2) 75%,
+            transparent 100%
+        );
+    }
+    50% {
+        transform: translateX(0%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 25%,
+            rgba(255, 255, 255, 0.8) 50%,
+            rgba(255, 255, 255, 0.3) 75%,
+            transparent 100%
+        );
+    }
+    75% {
+        transform: translateX(50%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.2) 75%,
+            transparent 100%
+        );
+    }
+    100% {
+        transform: translateX(100%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.1) 75%,
+            transparent 100%
+        );
+    }
+}
+
+.loading-progress-animation {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 25%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: progressLoading 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    mix-blend-mode: overlay;
+}
+
+/* Line Loading Animation */
+@keyframes lineLoading {
+    0% {
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.1) 75%,
+            transparent 100%
+        );
+    }
+    50% {
+        transform: translateX(0%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.8) 50%,
+            rgba(255, 255, 255, 0.2) 75%,
+            transparent 100%
+        );
+    }
+    100% {
+        transform: translateX(100%);
+        background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.1) 75%,
+            transparent 100%
+        );
+    }
+}
+
+.loading-line-animation {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 25%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: lineLoading 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    mix-blend-mode: overlay;
+}
+
+/* Ping animation for live indicator */
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.animate-ping {
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Step glow for current step */
+@keyframes stepGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(21, 83, 134, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(64, 121, 140, 0.6);
+        transform: scale(1.05);
+    }
+}
+
+.step-processing .w-10 {
+    animation: stepGlow 2s ease-in-out infinite;
+    border: 2px solid rgba(21, 83, 134, 0.3);
+}
 </style>
 @endsection

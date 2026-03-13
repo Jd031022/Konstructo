@@ -57,7 +57,7 @@
             <a href="{{ route('register') }}" class="px-8 py-3 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 shadow-lg hover:shadow-xl font-medium">
                 Get Started
             </a>
-            <a href="#services" class="px-8 py-3 bg-white/20 backdrop-blur-sm text-black rounded-xl hover:bg-white/30 transition-all duration-300 font-medium border-2 border-white/80 hover:border-white/80">
+            <a href="#services" class="px-8 py-3 bg-white/20 backdrop-blur-sm text-black rounded-xl hover:bg-white/30 transition-all duration-300 font-medium border-2 border-black/80 hover:border-white/80">
                 Learn More
             </a>
         </div>

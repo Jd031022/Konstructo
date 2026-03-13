@@ -38,7 +38,7 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Profile</h1>
             <p class="text-gray-500 text-sm mt-1">Manage your personal information and account settings</p>
         </div>
         
