@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
-use App\Services\NotificationService; // ADD THIS IMPORT
+use App\Services\NotificationService;
+use App\Services\GmailService; // ADD THIS IMPORT
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -20,11 +21,17 @@ class ApplicationController extends Controller
     protected $notificationService;
 
     /**
-     * Constructor - Inject NotificationService
+     * The Gmail service instance.
      */
-    public function __construct(NotificationService $notificationService)
+    protected $gmailService;
+
+    /**
+     * Constructor - Inject NotificationService and GmailService
+     */
+    public function __construct(NotificationService $notificationService, GmailService $gmailService)
     {
         $this->notificationService = $notificationService;
+        $this->gmailService = $gmailService;
     }
 
     /**
@@ -231,176 +238,217 @@ class ApplicationController extends Controller
         }
     }
 
-   public function updateStatus(Request $request, $id)
-{
-    Log::info('========== UPDATE STATUS START ==========');
-    Log::info('updateStatus called', [
-        'application_id' => $id,
-        'status' => $request->status,
-        'hardcopy_received' => $request->hardcopy_received,
-        'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
-        'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
-    ]);
+    /**
+     * Update application status
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        Log::info('========== UPDATE STATUS START ==========');
+        Log::info('updateStatus called', [
+            'application_id' => $id,
+            'status' => $request->status,
+            'hardcopy_received' => $request->hardcopy_received,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
+            'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
+        ]);
 
-    $validator = Validator::make($request->all(), [
-        'status' => 'required|string|in:pending,under-review,approved,rejected,for-release,verified',
-        'remarks' => 'nullable|string',
-        'hardcopy_received' => 'sometimes|boolean'
-    ]);
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string|in:pending,under-review,approved,rejected,for-release,verified',
+            'remarks' => 'nullable|string',
+            'hardcopy_received' => 'sometimes|boolean'
+        ]);
 
-    if ($validator->fails()) {
-        Log::error('Validation failed', ['errors' => $validator->errors()]);
-        return response()->json([
-            'success' => false,
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        $application = ApplicationDocument::with('user')->find($id);
-        
-        if (!$application) {
-            Log::error('Application not found', ['id' => $id]);
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
             return response()->json([
                 'success' => false,
-                'message' => 'Application not found'
-            ], 404);
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        Log::info('Application found', [
-            'id' => $application->id,
-            'application_number' => $application->application_number,
-            'current_status' => $application->status,
-            'current_hardcopy_status' => $application->hard_copy_received,
-            'applicant_id' => $application->user_id,
-            'applicant_email' => $application->user ? $application->user->email : 'no user'
-        ]);
-        
-        $staff = auth()->user();
-        $oldStatus = $application->status;
-        $newStatus = $request->status;
-        $oldHardCopyStatus = $application->hard_copy_received;
-        $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
-        
-        Log::info('Status change', [
-            'old' => $oldStatus,
-            'new' => $newStatus,
-            'changed' => ($oldStatus !== $newStatus) ? 'YES' : 'NO'
-        ]);
-        
-        Log::info('Hard copy status change', [
-            'old' => $oldHardCopyStatus,
-            'new' => $newHardCopyStatus,
-            'changed' => ($oldHardCopyStatus != $newHardCopyStatus) ? 'YES' : 'NO'
-        ]);
-        
-        // Update application
-        $application->status = $newStatus;
-        $application->admin_notes = $request->remarks ?? $application->admin_notes;
-        $application->last_updated_by = $staff->id;
-        
-        // Handle hard copy status
-        if ($request->has('hardcopy_received')) {
-            $application->hard_copy_received = $newHardCopyStatus;
-            
-            // If hard copy is being marked as received for the first time
-            if ($newHardCopyStatus && !$oldHardCopyStatus) {
-                $application->hard_copy_received_at = now();
-                Log::info('Setting hard_copy_received_at to now');
-            }
-        }
-        
-        if ($newStatus === 'verified') {
-            $application->verified_at = now();
-            $application->verified_by = $staff->id;
-            Log::info('Setting verified_at and verified_by');
-        }
-        
-        if ($newStatus === 'rejected' && $request->has('remarks')) {
-            $application->rejection_reason = $request->remarks;
-            Log::info('Setting rejection_reason');
-        }
-        
-        $application->save();
-        
-        Log::info('Application saved to database', [
-            'new_status' => $application->status,
-            'new_hardcopy_status' => $application->hard_copy_received
-        ]);
-
-        // Send status change notification if status changed
-        if ($oldStatus !== $newStatus) {
-            Log::info('ATTEMPTING TO SEND STATUS CHANGE NOTIFICATION');
-            
-            try {
-                $this->notificationService->notifyApplicantStatusChange(
-                    $application,
-                    $oldStatus,
-                    $newStatus,
-                    $staff
-                );
-                Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
-            } catch (\Exception $e) {
-                Log::error('✗✗✗ FAILED TO SEND STATUS NOTIFICATION ✗✗✗');
-                Log::error('Error message: ' . $e->getMessage());
-            }
-        }
-
-        // Send hard copy received notification if hard copy status changed to received
-        if ($newHardCopyStatus && !$oldHardCopyStatus) {
-            Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
-            
-            try {
-                $this->notificationService->notifyHardCopyReceived($application, $staff);
-                Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
-            } catch (\Exception $e) {
-                Log::error('✗✗✗ FAILED TO SEND HARD COPY NOTIFICATION ✗✗✗');
-                Log::error('Error message: ' . $e->getMessage());
-            }
-        }
-
-        // Log activity
         try {
-            Log::info('Creating review activity');
-            $activity = ApplicationReviewActivity::create([
-                'application_id' => $application->id,
-                'reviewer_id' => $staff->id,
-                'action' => 'status_updated',
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-            Log::info('Review activity created with ID: ' . $activity->id);
-        } catch (\Exception $e) {
-            Log::error('Failed to log activity: ' . $e->getMessage());
-        }
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
 
-        Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Application status updated successfully',
-            'data' => [
+            Log::info('Application found', [
                 'id' => $application->id,
-                'status' => $application->status,
-                'hard_copy_received' => $application->hard_copy_received,
-                'hard_copy_received_at' => $application->hard_copy_received_at
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('========== UPDATE STATUS END (ERROR) ==========');
-        Log::error('Error in updateStatus: ' . $e->getMessage());
-        Log::error($e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ], 500);
+                'application_number' => $application->application_number,
+                'current_status' => $application->status,
+                'current_hardcopy_status' => $application->hard_copy_received,
+                'applicant_id' => $application->user_id,
+                'applicant_email' => $application->user ? $application->user->email : 'no user'
+            ]);
+            
+            $staff = auth()->user();
+            $oldStatus = $application->status;
+            $newStatus = $request->status;
+            $oldHardCopyStatus = $application->hard_copy_received;
+            $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
+            
+            Log::info('Status change', [
+                'old' => $oldStatus,
+                'new' => $newStatus,
+                'changed' => ($oldStatus !== $newStatus) ? 'YES' : 'NO'
+            ]);
+            
+            Log::info('Hard copy status change', [
+                'old' => $oldHardCopyStatus,
+                'new' => $newHardCopyStatus,
+                'changed' => ($oldHardCopyStatus != $newHardCopyStatus) ? 'YES' : 'NO'
+            ]);
+            
+            // Update application
+            $application->status = $newStatus;
+            $application->admin_notes = $request->remarks ?? $application->admin_notes;
+            $application->last_updated_by = $staff->id;
+            
+            // Handle hard copy status
+            if ($request->has('hardcopy_received')) {
+                $application->hard_copy_received = $newHardCopyStatus;
+                
+                // If hard copy is being marked as received for the first time
+                if ($newHardCopyStatus && !$oldHardCopyStatus) {
+                    $application->hard_copy_received_at = now();
+                    Log::info('Setting hard_copy_received_at to now');
+                }
+            }
+            
+            if ($newStatus === 'verified') {
+                $application->verified_at = now();
+                $application->verified_by = $staff->id;
+                Log::info('Setting verified_at and verified_by');
+            }
+            
+            if ($newStatus === 'rejected' && $request->has('remarks')) {
+                $application->rejection_reason = $request->remarks;
+                Log::info('Setting rejection_reason');
+            }
+            
+            $application->save();
+            
+            Log::info('Application saved to database', [
+                'new_status' => $application->status,
+                'new_hardcopy_status' => $application->hard_copy_received
+            ]);
+
+            // Send status change notification if status changed
+            if ($oldStatus !== $newStatus) {
+                Log::info('ATTEMPTING TO SEND STATUS CHANGE NOTIFICATION');
+                
+                try {
+                    $this->notificationService->notifyApplicantStatusChange(
+                        $application,
+                        $oldStatus,
+                        $newStatus,
+                        $staff
+                    );
+                    Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
+                    
+                    // SEND EMAIL NOTIFICATIONS FOR SPECIFIC STATUSES USING GMAIL SERVICE
+                    if ($newStatus === 'approved') {
+                        Log::info('📧 SENDING APPROVED EMAIL VIA GMAIL SERVICE');
+                        
+                        $emailSent = $this->gmailService->sendStatusEmail(
+                            $application->user->email,
+                            'approved',
+                            $application->application_number,
+                            $application->user->first_name,
+                            $application->id
+                        );
+                        
+                        if ($emailSent) {
+                            Log::info('✓✓✓ APPROVED EMAIL SENT SUCCESSFULLY ✓✓✓');
+                        } else {
+                            Log::error('✗✗✗ FAILED TO SEND APPROVED EMAIL ✗✗✗');
+                        }
+                    }
+                    
+                    if ($newStatus === 'for-release') {
+                        Log::info('📧 SENDING FOR-RELEASE EMAIL VIA GMAIL SERVICE');
+                        
+                        $emailSent = $this->gmailService->sendStatusEmail(
+                            $application->user->email,
+                            'for-release',
+                            $application->application_number,
+                            $application->user->first_name,
+                            $application->id
+                        );
+                        
+                        if ($emailSent) {
+                            Log::info('✓✓✓ FOR-RELEASE EMAIL SENT SUCCESSFULLY ✓✓✓');
+                        } else {
+                            Log::error('✗✗✗ FAILED TO SEND FOR-RELEASE EMAIL ✗✗✗');
+                        }
+                    }
+                    
+                } catch (\Exception $e) {
+                    Log::error('✗✗✗ FAILED TO SEND STATUS NOTIFICATION ✗✗✗');
+                    Log::error('Error message: ' . $e->getMessage());
+                }
+            }
+
+            // Send hard copy received notification if hard copy status changed to received
+            if ($newHardCopyStatus && !$oldHardCopyStatus) {
+                Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
+                
+                try {
+                    $this->notificationService->notifyHardCopyReceived($application, $staff);
+                    Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
+                } catch (\Exception $e) {
+                    Log::error('✗✗✗ FAILED TO SEND HARD COPY NOTIFICATION ✗✗✗');
+                    Log::error('Error message: ' . $e->getMessage());
+                }
+            }
+
+            // Log activity
+            try {
+                Log::info('Creating review activity');
+                $activity = ApplicationReviewActivity::create([
+                    'application_id' => $application->id,
+                    'reviewer_id' => $staff->id,
+                    'action' => 'status_updated',
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
+                Log::info('Review activity created with ID: ' . $activity->id);
+            } catch (\Exception $e) {
+                Log::error('Failed to log activity: ' . $e->getMessage());
+            }
+
+            Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application status updated successfully',
+                'data' => [
+                    'id' => $application->id,
+                    'status' => $application->status,
+                    'hard_copy_received' => $application->hard_copy_received,
+                    'hard_copy_received_at' => $application->hard_copy_received_at
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('========== UPDATE STATUS END (ERROR) ==========');
+            Log::error('Error in updateStatus: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     /**
      * Add note to application without changing status
@@ -473,109 +521,110 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-/**
- * Mark hard copies as received
- */
-public function markHardCopyReceived(Request $request, $id)
-{
-    Log::info('========== MARK HARD COPY RECEIVED CALLED ==========');
-    Log::info('Parameters:', [
-        'application_id' => $id,
-        'user_id' => auth()->id(),
-        'user_email' => auth()->user()->email ?? 'unknown',
-        'user_name' => auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : 'unknown'
-    ]);
 
-    try {
-        $application = ApplicationDocument::with('user')->find($id);
-        
-        if (!$application) {
-            Log::error('❌ Application not found', ['id' => $id]);
+    /**
+     * Mark hard copies as received
+     */
+    public function markHardCopyReceived(Request $request, $id)
+    {
+        Log::info('========== MARK HARD COPY RECEIVED CALLED ==========');
+        Log::info('Parameters:', [
+            'application_id' => $id,
+            'user_id' => auth()->id(),
+            'user_email' => auth()->user()->email ?? 'unknown',
+            'user_name' => auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : 'unknown'
+        ]);
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                Log::error('❌ Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            Log::info('✅ Application found', [
+                'id' => $application->id,
+                'number' => $application->application_number,
+                'applicant_id' => $application->user_id,
+                'applicant_email' => $application->user->email ?? 'unknown',
+                'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'unknown',
+                'current_hard_copy_status' => $application->hard_copy_received
+            ]);
+
+            $staff = auth()->user();
+
+            // Update hard copy status
+            $application->hard_copy_received = true;
+            $application->hard_copy_received_at = now();
+            $application->last_updated_by = $staff->id;
+            $application->save();
+
+            Log::info('✅ Application updated', [
+                'hard_copy_received' => $application->hard_copy_received,
+                'hard_copy_received_at' => $application->hard_copy_received_at,
+                'last_updated_by' => $application->last_updated_by
+            ]);
+
+            // TRIGGER NOTIFICATION: Hard copy received
+            Log::info('Calling notification service...');
+            
+            try {
+                $this->notificationService->notifyHardCopyReceived($application, $staff);
+                Log::info('✅ Notification service called successfully');
+            } catch (\Exception $e) {
+                Log::error('❌ Error calling notification service: ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
+            }
+
+            // Log the activity
+            try {
+                $activity = $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'hard_copy_received',
+                    null,
+                    null,
+                    'Hard copies marked as received',
+                    $request->ip(),
+                    $request->userAgent()
+                );
+                
+                if ($activity) {
+                    Log::info('✅ Review activity logged with ID: ' . $activity->id);
+                } else {
+                    Log::warning('⚠️ Review activity not logged');
+                }
+            } catch (\Exception $e) {
+                Log::error('❌ Error logging review activity: ' . $e->getMessage());
+            }
+
+            Log::info('========== MARK HARD COPY RECEIVED COMPLETED ==========');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Hard copies marked as received successfully',
+                'data' => [
+                    'hard_copy_received' => true,
+                    'hard_copy_received_at' => now()->toDateTimeString()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('========== MARK HARD COPY RECEIVED ERROR ==========');
+            Log::error('Error: ' . $e->getMessage());
+            Log::error('File: ' . $e->getFile() . ':' . $e->getLine());
+            Log::error($e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Application not found'
-            ], 404);
+                'message' => 'Error marking hard copies: ' . $e->getMessage()
+            ], 500);
         }
-
-        Log::info('✅ Application found', [
-            'id' => $application->id,
-            'number' => $application->application_number,
-            'applicant_id' => $application->user_id,
-            'applicant_email' => $application->user->email ?? 'unknown',
-            'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'unknown',
-            'current_hard_copy_status' => $application->hard_copy_received
-        ]);
-
-        $staff = auth()->user();
-
-        // Update hard copy status
-        $application->hard_copy_received = true;
-        $application->hard_copy_received_at = now();
-        $application->last_updated_by = $staff->id;
-        $application->save();
-
-        Log::info('✅ Application updated', [
-            'hard_copy_received' => $application->hard_copy_received,
-            'hard_copy_received_at' => $application->hard_copy_received_at,
-            'last_updated_by' => $application->last_updated_by
-        ]);
-
-        // TRIGGER NOTIFICATION: Hard copy received
-        Log::info('Calling notification service...');
-        
-        try {
-            $this->notificationService->notifyHardCopyReceived($application, $staff);
-            Log::info('✅ Notification service called successfully');
-        } catch (\Exception $e) {
-            Log::error('❌ Error calling notification service: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-        }
-
-        // Log the activity
-        try {
-            $activity = $this->logReviewActivity(
-                $application->id,
-                $staff->id,
-                'hard_copy_received',
-                null,
-                null,
-                'Hard copies marked as received',
-                $request->ip(),
-                $request->userAgent()
-            );
-            
-            if ($activity) {
-                Log::info('✅ Review activity logged with ID: ' . $activity->id);
-            } else {
-                Log::warning('⚠️ Review activity not logged');
-            }
-        } catch (\Exception $e) {
-            Log::error('❌ Error logging review activity: ' . $e->getMessage());
-        }
-
-        Log::info('========== MARK HARD COPY RECEIVED COMPLETED ==========');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Hard copies marked as received successfully',
-            'data' => [
-                'hard_copy_received' => true,
-                'hard_copy_received_at' => now()->toDateTimeString()
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('========== MARK HARD COPY RECEIVED ERROR ==========');
-        Log::error('Error: ' . $e->getMessage());
-        Log::error('File: ' . $e->getFile() . ':' . $e->getLine());
-        Log::error($e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error marking hard copies: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     /**
      * Delete an application

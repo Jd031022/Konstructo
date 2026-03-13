@@ -305,7 +305,6 @@
                         <tr>
                             <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">ID</th>
                             <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">Applicant</th>
-                            <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">Project</th>
                             <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">Submitted</th>
                             <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">Status</th>
                             <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600">Actions</th>
@@ -320,7 +319,6 @@
                                     <span class="text-sm">Juan Dela Cruz</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-sm">Residential</td>
                             <td class="py-3 px-4 text-sm">2 hours ago</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs">Pending</span>
@@ -342,7 +340,6 @@
                                     <span class="text-sm">Maria Santos</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-sm">Commercial</td>
                             <td class="py-3 px-4 text-sm">5 hours ago</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-full text-xs">Under Review</span>
@@ -364,7 +361,6 @@
                                     <span class="text-sm">Pedro Reyes</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-sm">Industrial</td>
                             <td class="py-3 px-4 text-sm">1 day ago</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">Approved</span>
@@ -386,7 +382,6 @@
                                     <span class="text-sm">Anna Lopez</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-sm">Residential</td>
                             <td class="py-3 px-4 text-sm">2 days ago</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs">For Release</span>

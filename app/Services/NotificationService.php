@@ -15,7 +15,75 @@ use Illuminate\Support\Facades\DB;
 
 class NotificationService
 {
-    
+     protected $gmailService;
+
+    /**
+     * Constructor - Inject GmailService
+     */
+    public function __construct(GmailService $gmailService)
+    {
+        $this->gmailService = $gmailService;
+    }
+
+      /**
+     * Send email notification for approved application
+     */
+    public function sendApprovedEmail(ApplicationDocument $application, User $reviewer)
+    {
+        $applicant = $application->user;
+        
+        Log::info('Sending approved email via GmailService', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'application_id' => $application->id
+        ]);
+        
+        try {
+            $this->gmailService->sendStatusEmail(
+                $applicant->email,
+                'approved',
+                $application->application_number,
+                $applicant->first_name,
+                $application->id
+            );
+            
+            Log::info('✅ Approved email sent successfully via GmailService');
+            return true;
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send approved email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send email notification for for-release application
+     */
+    public function sendForReleaseEmail(ApplicationDocument $application, User $reviewer)
+    {
+        $applicant = $application->user;
+        
+        Log::info('Sending for-release email via GmailService', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'application_id' => $application->id
+        ]);
+        
+        try {
+            $this->gmailService->sendStatusEmail(
+                $applicant->email,
+                'for-release',
+                $application->application_number,
+                $applicant->first_name,
+                $application->id
+            );
+            
+            Log::info('✅ For-release email sent successfully via GmailService');
+            return true;
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send for-release email: ' . $e->getMessage());
+            return false;
+        }
+    }
     /**
  * Send notification to applicant when status changes
  */
