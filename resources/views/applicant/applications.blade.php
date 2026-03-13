@@ -98,7 +98,7 @@
         </div>
     </div>
 
-        <!-- Quick Stats Banner -->
+    <!-- Quick Stats Banner -->
     <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-2xl p-6 text-white">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div>
@@ -269,16 +269,19 @@
             
             if (data.success) {
                 const canApply = data.data.can_apply;
-                const current = data.data.current;
-                const remaining = data.data.remaining;
+                const total = data.data.total || 0;
+                const remaining = APPLICATION_LIMIT - total; // Calculate remaining slots
                 
                 // Update progress bar and count
-                updateProgressBar(current);
-                document.getElementById('application-count').textContent = current;
+                updateProgressBar(total);
+                document.getElementById('application-count').textContent = total;
                 document.getElementById('remaining-slots').textContent = `${remaining} slot${remaining !== 1 ? 's' : ''} left`;
                 
+                // Update the quick stats banner remaining apps
+                document.getElementById('remaining-apps').textContent = remaining;
+                
                 // Show/hide limit container if user has applications
-                if (current > 0) {
+                if (total > 0) {
                     document.getElementById('application-limit-container').classList.remove('hidden');
                 }
                 
@@ -308,8 +311,8 @@
     }
 
     // Update progress bar
-    function updateProgressBar(current) {
-        const percentage = (current / APPLICATION_LIMIT) * 100;
+    function updateProgressBar(total) {
+        const percentage = (total / APPLICATION_LIMIT) * 100;
         const progressBar = document.getElementById('application-progress-bar');
         progressBar.style.width = `${Math.min(percentage, 100)}%`;
         
@@ -363,7 +366,6 @@
             // Update quick stats banner
             document.getElementById('total-apps').textContent = stats.total || 0;
             document.getElementById('pending-apps').textContent = stats.pending || 0;
-            document.getElementById('remaining-apps').textContent = Math.max(0, APPLICATION_LIMIT - (stats.total || 0));
             
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -462,7 +464,6 @@
             day: 'numeric' 
         });
         
-        // FIXED: Updated the Continue button link to include the application ID
         const actionButtons = app.status === 'draft' ? `
             <a href="/applicant/application/step2?id=${app.id}" class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
