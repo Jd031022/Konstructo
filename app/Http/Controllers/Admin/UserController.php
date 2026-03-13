@@ -29,6 +29,39 @@ class UserController extends Controller
         return view('admin.users', compact('users', 'stats'));
     }
 
+    /**
+     * Get user statistics for dashboard
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStats()
+    {
+        try {
+            $adminCount = User::where('role', 'admin')->count();
+            $staffCount = User::where('role', 'staff')->count();
+            $applicantCount = User::where('role', 'applicant')->count();
+            $totalUsers = User::count();
+            $activeUsers = User::whereNotNull('email_verified_at')->count();
+            
+            return response()->json([
+                'success' => true,
+                'admin_count' => $adminCount,
+                'staff_count' => $staffCount,
+                'applicant_count' => $applicantCount,
+                'total_users' => $totalUsers,
+                'active_users' => $activeUsers
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in getStats: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading user stats'
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

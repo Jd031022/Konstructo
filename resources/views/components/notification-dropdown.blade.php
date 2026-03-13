@@ -16,6 +16,64 @@
         </template>
     </button>
 
+    <!-- Announcement Toast -->
+    <div x-show="showToast" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-2"
+         class="fixed bottom-4 right-4 max-w-sm w-full bg-white rounded-xl shadow-2xl border-l-4 z-[9999]"
+         :class="{
+             'border-blue-500': toastColor === 'blue',
+             'border-green-500': toastColor === 'green',
+             'border-yellow-500': toastColor === 'yellow',
+             'border-red-500': toastColor === 'red',
+             'border-purple-500': !['blue','green','yellow','red'].includes(toastColor)
+         }">
+        <div class="p-4">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         :class="{
+                             'bg-blue-100': toastColor === 'blue',
+                             'bg-green-100': toastColor === 'green',
+                             'bg-yellow-100': toastColor === 'yellow',
+                             'bg-red-100': toastColor === 'red',
+                             'bg-purple-100': !['blue','green','yellow','red'].includes(toastColor)
+                         }">
+                        <svg class="w-5 h-5" 
+                             :class="{
+                                 'text-blue-600': toastColor === 'blue',
+                                 'text-green-600': toastColor === 'green',
+                                 'text-yellow-600': toastColor === 'yellow',
+                                 'text-red-600': toastColor === 'red',
+                                 'text-purple-600': !['blue','green','yellow','red'].includes(toastColor)
+                             }" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-900" x-text="toastTitle"></p>
+                    <p class="text-sm text-gray-600 mt-1 line-clamp-2" x-text="toastMessage"></p>
+                    <div class="mt-2 flex justify-end">
+                        <button @click="showToast = false" class="text-xs text-gray-500 hover:text-gray-700 font-medium">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+                <button @click="showToast = false" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Dropdown Menu -->
     <div x-show="open" 
          x-transition:enter="transition ease-out duration-200"
@@ -79,6 +137,21 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4-4m-4 4l4 4" />
                                 </svg>
                             </div>
+                            <!-- New Announcement (Staff/Admin) -->
+                            <div x-show="notification.type === 'new_announcement'" 
+                                 :class="'w-9 h-9 rounded-full flex items-center justify-center ' + 
+                                          (notification.announcement_color === 'blue' ? 'bg-blue-100' : 
+                                           notification.announcement_color === 'green' ? 'bg-green-100' : 
+                                           notification.announcement_color === 'yellow' ? 'bg-yellow-100' : 
+                                           notification.announcement_color === 'red' ? 'bg-red-100' : 'bg-purple-100')">
+                                <svg class="w-5 h-5" :class="notification.announcement_color === 'blue' ? 'text-blue-600' : 
+                                                               notification.announcement_color === 'green' ? 'text-green-600' : 
+                                                               notification.announcement_color === 'yellow' ? 'text-yellow-600' : 
+                                                               notification.announcement_color === 'red' ? 'text-red-600' : 'text-purple-600'" 
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                                </svg>
+                            </div>
                         </div>
                         
                         <!-- Applicant View Icons -->
@@ -99,6 +172,21 @@
                             <div x-show="notification.type === 'hard_copy_received'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
                                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                            </div>
+                            <!-- New Announcement (Applicant) -->
+                            <div x-show="notification.type === 'new_announcement'" 
+                                 :class="'w-9 h-9 rounded-full flex items-center justify-center ' + 
+                                          (notification.announcement_color === 'blue' ? 'bg-blue-100' : 
+                                           notification.announcement_color === 'green' ? 'bg-green-100' : 
+                                           notification.announcement_color === 'yellow' ? 'bg-yellow-100' : 
+                                           notification.announcement_color === 'red' ? 'bg-red-100' : 'bg-purple-100')">
+                                <svg class="w-5 h-5" :class="notification.announcement_color === 'blue' ? 'text-blue-600' : 
+                                                               notification.announcement_color === 'green' ? 'text-green-600' : 
+                                                               notification.announcement_color === 'yellow' ? 'text-yellow-600' : 
+                                                               notification.announcement_color === 'red' ? 'text-red-600' : 'text-purple-600'" 
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                                 </svg>
                             </div>
                         </div>
@@ -156,9 +244,34 @@ function notificationComponent() {
         unreadCount: 0,
         userRole: '{{ auth()->user()->role ?? "guest" }}',
         pollInterval: null,
+        
+        // Toast properties
+        showToast: false,
+        toastMessage: '',
+        toastTitle: '',
+        toastColor: 'blue',
+        toastShownForIds: [], // Track which announcement toasts have been shown
 
         init() {
+            console.log('Notification component initializing for role:', this.userRole);
+            
+            // Load toast history from localStorage
+            const stored = localStorage.getItem('konstructo_toast_shown');
+            if (stored) {
+                try {
+                    this.toastShownForIds = JSON.parse(stored);
+                    console.log('Loaded toast history:', this.toastShownForIds);
+                } catch (e) {
+                    console.error('Failed to parse toast history:', e);
+                    this.toastShownForIds = [];
+                }
+            } else {
+                this.toastShownForIds = [];
+                console.log('No toast history found');
+            }
+
             this.loadNotifications();
+            
             // Poll for new notifications every 15 seconds
             this.pollInterval = setInterval(() => {
                 this.checkForNewNotifications();
@@ -181,12 +294,28 @@ function notificationComponent() {
         async loadNotifications() {
             this.loading = true;
             try {
+                console.log('Loading notifications...');
                 const response = await fetch('/notifications');
                 const data = await response.json();
                 
                 if (data.success) {
                     this.notifications = data.notifications;
                     this.unreadCount = data.unread_count;
+                    console.log('Notifications loaded:', this.notifications.length);
+                    
+                    // Log all notifications for debugging
+                    console.log('All notifications:', this.notifications.map(n => ({
+                        id: n.id,
+                        type: n.type,
+                        title: n.title,
+                        created_at: n.created_at
+                    })));
+                    
+                    // Show toasts for any unread announcements from the last 24 hours
+                    // Add a small delay to ensure component is ready
+                    setTimeout(() => {
+                        this.showRecentAnnouncementToasts();
+                    }, 500);
                 }
             } catch (error) {
                 console.error('Failed to load notifications:', error);
@@ -195,16 +324,124 @@ function notificationComponent() {
             }
         },
 
+        showRecentAnnouncementToasts() {
+            console.log('Checking for recent announcement toasts...');
+            console.log('Current time:', new Date().toISOString());
+            
+            const oneDayAgo = new Date();
+            oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+            
+            console.log('One day ago:', oneDayAgo.toISOString());
+            console.log('Toast history:', this.toastShownForIds);
+            
+            // Log each notification for debugging (with safe date handling)
+            this.notifications.forEach(notif => {
+                if (notif.type === 'new_announcement') {
+                    let dateStr = 'Invalid Date';
+                    let isValid = false;
+                    let notifDate = null;
+                    
+                    if (notif.created_at) {
+                        notifDate = new Date(notif.created_at);
+                        if (!isNaN(notifDate.getTime())) {
+                            dateStr = notifDate.toISOString();
+                            isValid = true;
+                        }
+                    }
+                    
+                    console.log(`Announcement ${notif.id}:`, {
+                        date: dateStr,
+                        isValid: isValid,
+                        isRecent: isValid ? notifDate > oneDayAgo : false,
+                        isUnread: !notif.read_at,
+                        alreadyShown: this.toastShownForIds.includes(notif.id)
+                    });
+                }
+            });
+            
+            // Find unread announcements from the last 24 hours
+            const recentAnnouncements = this.notifications.filter(notif => {
+                if (notif.type !== 'new_announcement') return false;
+                if (notif.read_at) return false; // Already read
+                if (this.toastShownForIds.includes(notif.id)) return false; // Already shown
+                
+                // Check if created_at exists and is valid
+                if (!notif.created_at) return false;
+                
+                const notifDate = new Date(notif.created_at);
+                if (isNaN(notifDate.getTime())) return false; // Invalid date
+                
+                const isRecent = notifDate > oneDayAgo;
+                return isRecent;
+            });
+            
+            console.log('Found recent announcements:', recentAnnouncements.length);
+            
+            if (recentAnnouncements.length === 0) {
+                console.log('No recent announcements to show');
+                
+                // FOR TESTING: Force show the first announcement if any exist
+                const firstAnnouncement = this.notifications.find(n => n.type === 'new_announcement');
+                if (firstAnnouncement && !this.toastShownForIds.includes(firstAnnouncement.id)) {
+                    console.log('FORCE SHOWING FIRST ANNOUNCEMENT FOR TESTING');
+                    setTimeout(() => {
+                        this.showAnnouncementToast(firstAnnouncement);
+                        this.toastShownForIds.push(firstAnnouncement.id);
+                        localStorage.setItem('konstructo_toast_shown', JSON.stringify(this.toastShownForIds));
+                    }, 1000);
+                }
+                return;
+            }
+            
+            // Show each announcement with a delay
+            recentAnnouncements.forEach((notif, index) => {
+                setTimeout(() => {
+                    console.log('Showing toast for announcement:', notif.id);
+                    this.showAnnouncementToast(notif);
+                    this.toastShownForIds.push(notif.id);
+                    localStorage.setItem('konstructo_toast_shown', JSON.stringify(this.toastShownForIds));
+                }, index * 1000); // Show one per second
+            });
+        },
+
         async checkForNewNotifications() {
             try {
                 const response = await fetch('/notifications/unread-count');
                 const data = await response.json();
                 
                 if (response.ok && data.count > this.unreadCount) {
+                    console.log('New notifications detected:', data.count - this.unreadCount);
+                    
                     // New notifications arrived
+                    const newCount = data.count - this.unreadCount;
                     this.unreadCount = data.count;
-                    if (this.open) {
-                        this.loadNotifications();
+                    
+                    // Load new notifications to check for announcements
+                    if (newCount > 0) {
+                        const notifResponse = await fetch('/notifications?limit=' + newCount);
+                        const notifData = await notifResponse.json();
+                        
+                        if (notifData.success) {
+                            // Get only the new notifications (not already in our list)
+                            const existingIds = this.notifications.map(n => n.id);
+                            const newNotifs = notifData.notifications.filter(n => !existingIds.includes(n.id));
+                            
+                            console.log('New notifications:', newNotifs.length);
+                            
+                            newNotifs.forEach(notif => {
+                                if (notif.type === 'new_announcement') {
+                                    console.log('New announcement detected:', notif.id);
+                                    this.showAnnouncementToast(notif);
+                                    this.toastShownForIds.push(notif.id);
+                                    localStorage.setItem('konstructo_toast_shown', JSON.stringify(this.toastShownForIds));
+                                }
+                            });
+                            
+                            // Update notifications list if dropdown is open
+                            if (this.open) {
+                                this.notifications = [...newNotifs, ...this.notifications];
+                            }
+                        }
                     }
                 }
             } catch (error) {
@@ -212,8 +449,32 @@ function notificationComponent() {
             }
         },
 
+        showAnnouncementToast(notification) {
+            console.log('showAnnouncementToast called with:', notification);
+            
+            this.toastTitle = notification.title || 'New Announcement';
+            this.toastMessage = notification.message || '';
+            this.toastColor = notification.announcement_color || 'blue';
+            this.showToast = true;
+            
+            console.log('Toast set to show:', {
+                title: this.toastTitle,
+                message: this.toastMessage,
+                color: this.toastColor,
+                showToast: this.showToast
+            });
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                console.log('Auto-hiding toast');
+                this.showToast = false;
+            }, 5000);
+        },
+
         // Handle notification click with proper redirect based on type and role
         async handleNotificationClick(notification) {
+            console.log('Clicked notification:', notification);
+            
             // Determine the redirect URL based on notification type and user role
             let redirectUrl = null;
             
@@ -223,20 +484,31 @@ function notificationComponent() {
                     notification.type === 'admin_note' || 
                     notification.type === 'hard_copy_received' ||
                     notification.type === 'hard_copy_request') {
-                    // All applicant notifications go to application details
-                    redirectUrl = `/applicant/application-details/${notification.application_id}`;
+                    
+                    if (notification.application_id) {
+                        redirectUrl = `/applicant/application-details/${notification.application_id}`;
+                    }
+                } else if (notification.type === 'new_announcement') {
+                    redirectUrl = '/applicant/dashboard';
                 }
             } 
             else if (this.userRole === 'staff' || this.userRole === 'admin') {
                 // Staff/Admin notifications
                 if (notification.type === 'application_submitted') {
-                    // New application submitted - go to staff applications list
                     redirectUrl = '/staff/applications';
                 } 
                 else if (notification.type === 'staff_status_change') {
-                    // Status change notification for staff - go to application details
-                    redirectUrl = `/staff/application-details/${notification.application_id}`;
+                    if (notification.application_id) {
+                        redirectUrl = `/staff/application-details/${notification.application_id}`;
+                    }
+                } else if (notification.type === 'new_announcement') {
+                    redirectUrl = '/staff/dashboard';
                 }
+            }
+            
+            // If no specific redirect URL, try using notification.link
+            if (!redirectUrl && notification.link) {
+                redirectUrl = notification.link;
             }
             
             // Mark as read and redirect
@@ -283,6 +555,10 @@ function notificationComponent() {
                 if (response.ok) {
                     this.notifications.forEach(n => n.read_at = new Date().toISOString());
                     this.unreadCount = 0;
+                    
+                    // Also clear from localStorage since they're now read
+                    this.toastShownForIds = [];
+                    localStorage.removeItem('konstructo_toast_shown');
                 }
             } catch (error) {
                 console.error('Failed to mark all as read:', error);
@@ -305,3 +581,42 @@ function notificationComponent() {
     }
 }
 </script>
+
+<style>
+/* Toast positioning and z-index */
+.fixed.bottom-4.right-4 {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 9999 !important;
+}
+
+/* Animation for toast */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Line clamp for long messages */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Ensure toast is above everything */
+.z-\[9999\] {
+    z-index: 9999;
+}
+</style>

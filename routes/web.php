@@ -202,6 +202,7 @@ Route::get('/dashboard', function () {
 
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    // View routes (return HTML)
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
@@ -214,7 +215,31 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         return view('admin.applications');
     })->name('applications');
     
-    // Admin User Management Routes
+    // ========== ADMIN DASHBOARD API ROUTES ==========
+    // Dashboard statistics
+    Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])
+        ->name('dashboard.stats');
+    
+    // Trend data for charts
+    Route::get('/dashboard/trend', [App\Http\Controllers\Admin\DashboardController::class, 'getTrend'])
+        ->name('dashboard.trend');
+    
+    // User statistics for dashboard
+    Route::get('/users/stats', [App\Http\Controllers\Admin\UserController::class, 'getStats'])
+        ->name('users.stats');
+    
+    // Staff performance data
+    Route::get('/staff/performance', [App\Http\Controllers\Admin\StaffPerformanceController::class, 'getPerformance'])
+        ->name('staff.performance');
+    
+    // Announcements
+    Route::get('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'index'])
+        ->name('announcements.index');
+    
+    Route::post('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'store'])
+        ->name('announcements.store');
+    
+    // ========== ADMIN USER MANAGEMENT ROUTES ==========
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
     Route::get('/users/list', [App\Http\Controllers\Admin\UserController::class, 'getUsers'])->name('users.list');
     Route::get('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'getUser'])->name('users.get');
@@ -223,5 +248,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.delete');
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
+});
 
+// Profile route (kept for backward compatibility)
+Route::get('/profile/profile', function () {
+    return view('profile.profile');
 });

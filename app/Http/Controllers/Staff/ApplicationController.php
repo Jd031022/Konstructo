@@ -34,59 +34,86 @@ class ApplicationController extends Controller
         $this->gmailService = $gmailService;
     }
 
-    /**
-     * Display a listing of all submitted applications (excluding drafts)
-     */
-    public function index()
-    {
-        try {
-            Log::info('Fetching all staff applications');
-            
-            // Get all applications EXCLUDING drafts
-            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-                ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+   /**
+ * Display a listing of all submitted applications (excluding drafts)
+ */
+public function index()
+{
+    try {
+        Log::info('Fetching all staff applications');
+        
+        // Get all applications EXCLUDING drafts
+        $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            $formattedApplications = [];
-            foreach ($applications as $app) {
-                $formattedApplications[] = [
-                    'id' => $app->id,
-                    'application_number' => $app->application_number,
-                    'applicant_name' => $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'Unknown',
-                    'email' => $app->user ? $app->user->email : null,
-                    'phone' => $app->user ? $app->user->phone_number : null,
-                    'address' => $app->user ? $app->user->address : null,
-                    'google_drive_link' => $app->google_drive_link,
-                    'status' => $app->status,
-                    'rejection_reason' => $app->rejection_reason,
-                    'admin_notes' => $app->admin_notes,
-                    'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
-                    'hard_copy_received' => $app->hard_copy_received ?? false,
-                    'last_updated_by' => $app->last_updated_by,
-                    'last_updated_by_name' => $app->lastUpdatedBy ? $app->lastUpdatedBy->first_name . ' ' . $app->lastUpdatedBy->last_name : null,
-                    'last_updated_by_role' => $app->lastUpdatedBy ? $app->lastUpdatedBy->role : null
-                ];
+        $formattedApplications = [];
+        foreach ($applications as $app) {
+            // Safely get applicant name
+            $applicantName = 'Unknown';
+            if ($app->user) {
+                $firstName = $app->user->first_name ?? '';
+                $lastName = $app->user->last_name ?? '';
+                $applicantName = trim($firstName . ' ' . $lastName);
+                if (empty($applicantName)) {
+                    $applicantName = 'Unknown';
+                }
             }
             
-            return response()->json([
-                'success' => true,
-                'applications' => $formattedApplications,
-                'total' => count($formattedApplications)
-            ]);
+            // Safely format dates
+            $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
+            $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
             
-        } catch (\Exception $e) {
-            Log::error('Error loading staff applications: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            // Safely get last updated by name
+            $lastUpdatedByName = null;
+            if ($app->lastUpdatedBy) {
+                $firstName = $app->lastUpdatedBy->first_name ?? '';
+                $lastName = $app->lastUpdatedBy->last_name ?? '';
+                $lastUpdatedByName = trim($firstName . ' ' . $lastName);
+                if (empty($lastUpdatedByName)) {
+                    $lastUpdatedByName = null;
+                }
+            }
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Error loading applications: ' . $e->getMessage(),
-                'applications' => []
-            ], 500);
+            $formattedApplications[] = [
+                'id' => $app->id,
+                'application_number' => $app->application_number ?? 'N/A',
+                'applicant_name' => $applicantName,
+                'email' => $app->user ? ($app->user->email ?? null) : null,
+                'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
+                'address' => $app->user ? ($app->user->address ?? null) : null,
+                'google_drive_link' => $app->google_drive_link,
+                'status' => $app->status ?? 'unknown',
+                'rejection_reason' => $app->rejection_reason,
+                'admin_notes' => $app->admin_notes,
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
+                'hard_copy_received' => $app->hard_copy_received ?? false,
+                'last_updated_by' => $app->last_updated_by,
+                'last_updated_by_name' => $lastUpdatedByName,
+                'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null
+            ];
         }
+        
+        return response()->json([
+            'success' => true,
+            'applications' => $formattedApplications,
+            'total' => count($formattedApplications)
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error loading staff applications: ' . $e->getMessage());
+        Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading applications: ' . $e->getMessage(),
+            'applications' => []
+        ], 500);
     }
+}
 
     /**
      * Get a single application details
