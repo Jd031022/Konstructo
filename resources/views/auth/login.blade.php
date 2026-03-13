@@ -111,13 +111,22 @@
 </div>
 
 <!-- Forgot Password Modal - Step 1: Request Code -->
+<!-- Forgot Password Modal -->
 <div id="forgot-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="text-center">
-                
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Reset Password</h3>
-                <p class="text-gray-600 mb-6" id="modal-step-description">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header with Close Button -->
+            <div class="bg-gradient-to-r from-[#155386] to-[#40798C] px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Reset Password</h3>
+                <button onclick="closeForgotPasswordModal()" class="text-white hover:text-gray-200 transition p-1 rounded-full hover:bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-gray-600 mb-6 text-center" id="modal-step-description">
                     Enter your email address to receive a verification code.
                 </p>
                 
@@ -127,12 +136,12 @@
                         <input type="email" 
                                id="reset-email" 
                                placeholder="Enter your email"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386]">
                     </div>
                     
                     <button onclick="sendResetCode()" id="send-code-btn"
-                        class="w-full bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold 
-                               hover:bg-teal-800 transition-all duration-200
+                        class="w-full bg-gradient-to-r from-[#155386] to-[#40798C] text-white px-6 py-3 rounded-lg font-semibold 
+                               hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-200
                                shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mb-4">
                         <span id="send-code-text">Send Reset Code</span>
                         <span id="send-code-spinner" class="hidden">
@@ -146,40 +155,40 @@
                 
                 <!-- Step 2: Code Verification -->
                 <div id="step-code" class="step hidden">
-                    <div class="mb-4">
+                    <div class="mb-4 text-center">
                         <p class="text-sm text-gray-600 mb-2">We've sent a 6-digit code to:</p>
-                        <p class="text-sm font-semibold text-teal-700 mb-4" id="code-email-display"></p>
+                        <p class="text-sm font-semibold text-[#155386] mb-4" id="code-email-display"></p>
                         
                         <label class="block text-sm font-medium text-gray-700 mb-2">Enter Code</label>
                         <div class="flex gap-2 justify-center mb-2">
                             <input type="text" id="code1" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="moveToNext(this, 'code2')">
                             <input type="text" id="code2" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="moveToNext(this, 'code3')">
                             <input type="text" id="code3" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="moveToNext(this, 'code4')">
                             <input type="text" id="code4" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="moveToNext(this, 'code5')">
                             <input type="text" id="code5" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="moveToNext(this, 'code6')">
                             <input type="text" id="code6" maxlength="1" 
-                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                                class="code-input w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 onkeyup="if(this.value.length === 1) verifyCode()">
                         </div>
                         
                         <div class="flex justify-between mt-2">
-                            <button onclick="resendCode()" class="text-sm text-teal-600 hover:text-teal-800">
+                            <button onclick="resendCode()" class="text-sm text-[#155386] hover:text-[#40798C]">
                                 Resend Code
                             </button>
                             <button onclick="backToEmail()" class="text-sm text-gray-500 hover:text-gray-700">
@@ -189,8 +198,8 @@
                     </div>
                     
                     <button onclick="verifyCode()" id="verify-code-btn"
-                        class="w-full bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold 
-                               hover:bg-teal-800 transition-all duration-200
+                        class="w-full bg-gradient-to-r from-[#155386] to-[#40798C] text-white px-6 py-3 rounded-lg font-semibold 
+                               hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-200
                                shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mb-4">
                         <span id="verify-code-text">Verify Code</span>
                         <span id="verify-code-spinner" class="hidden">
@@ -211,11 +220,11 @@
                             <input type="password" 
                                    id="new-password" 
                                    placeholder="New Password"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 mb-2">
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] mb-2">
                             <input type="password" 
                                    id="confirm-password" 
                                    placeholder="Confirm New Password"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386]">
                         </div>
                         
                         <div class="text-xs text-left text-gray-500 p-2 bg-gray-50 rounded">
@@ -231,8 +240,8 @@
                     </div>
                     
                     <button onclick="resetPassword()" id="reset-password-btn"
-                        class="w-full bg-teal-700 text-white px-6 py-3 rounded-lg font-semibold 
-                               hover:bg-teal-800 transition-all duration-200
+                        class="w-full bg-gradient-to-r from-[#155386] to-[#40798C] text-white px-6 py-3 rounded-lg font-semibold 
+                               hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-200
                                shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mb-4">
                         <span id="reset-password-text">Reset Password</span>
                         <span id="reset-password-spinner" class="hidden">
@@ -428,7 +437,8 @@ async function sendResetCode() {
             document.getElementById('code1').focus();
             showModalMessage('Code sent! Check your email.', false);
         } else {
-            showModalMessage(data.error || data.message || 'Failed to send code');
+            const errorMsg = data.error || data.message || 'Failed to send code';
+            showModalMessage(errorMsg, true);
         }
     } catch (error) {
         document.getElementById('send-code-text').classList.remove('hidden');
@@ -667,6 +677,44 @@ function setupPasswordValidation() {
     
     password.addEventListener('input', validatePassword);
     confirm.addEventListener('input', validatePassword);
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgot-password-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    
+    // Reset all steps
+    document.getElementById('step-email').classList.remove('hidden');
+    document.getElementById('step-code').classList.add('hidden');
+    document.getElementById('step-password').classList.add('hidden');
+    
+    // Clear inputs
+    document.getElementById('reset-email').value = '';
+    for (let i = 1; i <= 6; i++) {
+        const codeInput = document.getElementById(`code${i}`);
+        if (codeInput) codeInput.value = '';
+    }
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    
+    // Reset message
+    const modalMessage = document.getElementById('modal-message');
+    modalMessage.classList.add('hidden');
+    modalMessage.innerHTML = '';
+}
+
+function showModalMessage(message, isError = true) {
+    const modalMessage = document.getElementById('modal-message');
+    modalMessage.textContent = message;
+    modalMessage.className = `text-sm p-3 rounded-lg text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+    modalMessage.classList.remove('hidden');
+    
+    // Auto-hide after 3 seconds for success messages
+    if (!isError) {
+        setTimeout(() => {
+            modalMessage.classList.add('hidden');
+        }, 3000);
+    }
 }
 
 // Initialize password validation when step 3 loads
