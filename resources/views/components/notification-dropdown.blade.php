@@ -62,29 +62,48 @@
             <template x-for="notification in notifications" :key="notification.id">
                 <div class="flex gap-4 px-5 py-4 hover:bg-gray-50 transition cursor-pointer" 
                      :class="{ 'bg-blue-50/20': !notification.read }"
-                     @click="markAsRead(notification.id, notification.link)">
+                     @click="handleNotificationClick(notification)">
                     <!-- Icon based on type -->
                     <div class="flex-shrink-0">
-                        <div x-show="notification.type === 'application_submitted'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        <!-- Staff View Icons -->
+                        <div x-show="userRole === 'staff' || userRole === 'admin'">
+                            <!-- New Application Submitted (Staff) -->
+                            <div x-show="notification.type === 'application_submitted'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <!-- Staff Status Change Notification -->
+                            <div x-show="notification.type === 'staff_status_change'" class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4-4m-4 4l4 4" />
+                                </svg>
+                            </div>
                         </div>
-                        <div x-show="notification.type === 'status_changed'" class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                        
+                        <!-- Applicant View Icons -->
+                        <div x-show="userRole === 'applicant'">
+                            <!-- Status Changed (Applicant) -->
+                            <div x-show="notification.type === 'status_changed'" class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <!-- Admin Note (Applicant) -->
+                            <div x-show="notification.type === 'admin_note'" class="w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </div>
+                            <!-- Hard Copy Received (Applicant) -->
+                            <div x-show="notification.type === 'hard_copy_received'" class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                            </div>
                         </div>
-                        <div x-show="notification.type === 'admin_note'" class="w-9 h-9 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </div>
-                        <div x-show="notification.type === 'hard_copy_request'" class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                            </svg>
-                        </div>
+                        
+                        <!-- Fallback Icon -->
                         <div x-show="!notification.type || notification.type === 'info'" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -120,7 +139,7 @@
         <!-- Footer -->
         <template x-if="notifications.length > 0">
             <div class="border-t border-gray-100 px-5 py-2.5 text-center">
-                <a :href="`/${userRole}/notifications`" class="text-sm text-[#155386] hover:underline font-medium">
+                <a :href="getNotificationsUrl()" class="text-sm text-[#155386] hover:underline font-medium">
                     View all notifications
                 </a>
             </div>
@@ -193,6 +212,37 @@ function notificationComponent() {
             }
         },
 
+        // Handle notification click with proper redirect based on type and role
+        async handleNotificationClick(notification) {
+            // Determine the redirect URL based on notification type and user role
+            let redirectUrl = null;
+            
+            if (this.userRole === 'applicant') {
+                // Applicant notifications
+                if (notification.type === 'status_changed' || 
+                    notification.type === 'admin_note' || 
+                    notification.type === 'hard_copy_received' ||
+                    notification.type === 'hard_copy_request') {
+                    // All applicant notifications go to application details
+                    redirectUrl = `/applicant/application-details/${notification.application_id}`;
+                }
+            } 
+            else if (this.userRole === 'staff' || this.userRole === 'admin') {
+                // Staff/Admin notifications
+                if (notification.type === 'application_submitted') {
+                    // New application submitted - go to staff applications list
+                    redirectUrl = '/staff/applications';
+                } 
+                else if (notification.type === 'staff_status_change') {
+                    // Status change notification for staff - go to application details
+                    redirectUrl = `/staff/application-details/${notification.application_id}`;
+                }
+            }
+            
+            // Mark as read and redirect
+            await this.markAsRead(notification.id, redirectUrl);
+        },
+
         async markAsRead(notificationId, link = null) {
             try {
                 const response = await fetch(`/notifications/${notificationId}/read`, {
@@ -241,6 +291,16 @@ function notificationComponent() {
 
         refreshNotifications() {
             this.loadNotifications();
+        },
+        
+        // Get the appropriate "View all notifications" URL based on user role
+        getNotificationsUrl() {
+            if (this.userRole === 'applicant') {
+                return '/applicant/notifications';
+            } else if (this.userRole === 'staff' || this.userRole === 'admin') {
+                return '/staff/notifications';
+            }
+            return '/notifications';
         }
     }
 }
