@@ -35,6 +35,7 @@ class NotificationController extends Controller
                     'message' => $data['message'] ?? '',
                     'details' => $data['details'] ?? null,
                     'link' => $data['link'] ?? null,
+                    'application_id' => $data['application_id'] ?? null,
                     'read_at' => $notification->read_at,
                     'time' => $this->formatTime($notification->created_at),
                 ];
