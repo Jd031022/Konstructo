@@ -3,25 +3,23 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
 
-    <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p class="text-gray-500 text-sm mt-1">Manage users, applications, and system settings</p>
+            <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <p class="text-sm text-gray-500 mt-1">Welcome back! Here's your system overview.</p>
         </div>
-        
-        <!-- Quick Actions -->
-        <div class="flex items-center gap-3">
-            <a href="/staff/applications/export" class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mt-4 md:mt-0 flex items-center gap-3">
+            <a href="/admin/applications/export" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export Report
             </a>
-            <button onclick="openAnnouncementModal()" class="inline-flex items-center px-4 py-2.5 bg-[#155386] text-white rounded-xl hover:bg-[#40798C] transition shadow-md">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="openAnnouncementModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 New Announcement
@@ -29,14 +27,14 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- TOP STATS - 4 cards in one row with blue icons -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stats-container">
         <!-- Total Applications -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-orange-500 group">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Total Applications</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2" id="total-applications">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Total Applications</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-applications">0</p>
                     <p class="text-xs text-green-600 mt-2 flex items-center gap-1" id="applications-trend">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -44,20 +42,20 @@
                         <span>Loading...</span>
                     </p>
                 </div>
-                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
         <!-- Pending Applications -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-yellow-500 group">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Pending Review</p>
-                    <p class="text-3xl font-bold text-yellow-600 mt-2" id="pending-applications">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Pending Review</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="pending-applications">0</p>
                     <p class="text-xs text-yellow-600 mt-2 flex items-center gap-1" id="pending-aging">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -65,20 +63,21 @@
                         <span>Loading...</span>
                     </p>
                 </div>
-                <div class="w-14 h-14 bg-yellow-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="12" rx="2"/>
+                        <path d="M2 20h20"/>
                     </svg>
                 </div>
             </div>
         </div>
 
         <!-- Active Users -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-green-500 group">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Active Users</p>
-                    <p class="text-3xl font-bold text-green-600 mt-2" id="active-users">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Active Users</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="active-users">0</p>
                     <p class="text-xs text-green-600 mt-2 flex items-center gap-1" id="users-trend">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -86,20 +85,21 @@
                         <span>Loading...</span>
                     </p>
                 </div>
-                <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
                     </svg>
                 </div>
             </div>
         </div>
 
         <!-- Completion Rate -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-purple-500 group">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Completion Rate</p>
-                    <p class="text-3xl font-bold text-purple-600 mt-2" id="completion-rate">0%</p>
+                    <p class="text-gray-500 text-sm font-medium">Completion Rate</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="completion-rate">0%</p>
                     <p class="text-xs text-purple-600 mt-2 flex items-center gap-1" id="completion-trend">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -107,114 +107,136 @@
                         <span>Loading...</span>
                     </p>
                 </div>
-                <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
                     </svg>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Applications Trend Chart -->
-       <!-- Applications Trend Chart -->
-<div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-semibold text-gray-800">Applications Trend</h2>
-        <select id="trend-period" onchange="loadTrendData()" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#155386]">
-            <option value="7">Last 7 Days</option>
-            <option value="30" selected>Last 30 Days</option>
-            <option value="90">Last 3 Months</option>
-            <option value="365">This Year</option>
-        </select>
-    </div>
-    
-    <!-- Chart Container -->
-    <div id="trend-chart-container" class="relative h-64 w-full overflow-x-auto pb-6">
-        <div id="trend-chart" class="flex items-end justify-start gap-2 min-w-max h-full">
-            <!-- Chart will be dynamically loaded -->
-            <div class="flex-1 flex flex-col items-center justify-end min-w-[40px]">
-                <div class="w-full bg-gray-200 animate-pulse rounded-t-lg" style="height: 200px;"></div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- MAIN GRID - First Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Status Distribution -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-6">Application Status</h2>
-            
-            <!-- Donut Chart -->
-            <div class="relative w-40 h-40 mx-auto mb-6">
-                <canvas id="status-chart" width="160" height="160"></canvas>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="total-apps-display" class="text-2xl font-bold text-gray-800">0</span>
+        <!-- CHART AREA - Applications Trend -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800">Applications Trend</h2>
+                    <p class="text-xs text-gray-500 mt-1">Application volume over time</p>
+                </div>
+
+                <div class="relative">
+                    <select id="trend-period" onchange="loadTrendData()" class="appearance-none border border-gray-200 rounded-lg text-sm px-4 py-2.5 pr-8 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 3 Months</option>
+                        <option value="365">This Year</option>
+                    </select>
+                    <svg class="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </div>
             </div>
-            
-            <!-- Legend -->
-            <div id="status-legend" class="space-y-2">
-                <!-- Will be populated by JavaScript -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">Pending Review</span>
-                    </div>
-                    <span id="pending-count" class="text-sm font-medium">0 (0%)</span>
+
+            <!-- BAR GRAPH with Y-axis -->
+            <div class="relative h-72">
+                <!-- Y-axis lines and labels -->
+                <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2">
+                    <span>80</span>
+                    <span>60</span>
+                    <span>40</span>
+                    <span>20</span>
+                    <span>0</span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">Under Review</span>
-                    </div>
-                    <span id="under-review-count" class="text-sm font-medium">0 (0%)</span>
+                
+                <!-- Grid lines -->
+                <div class="absolute left-8 right-0 top-0 h-full">
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">Approved</span>
-                    </div>
-                    <span id="approved-count" class="text-sm font-medium">0 (0%)</span>
+                
+                <!-- Bars container - will be populated dynamically -->
+                <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10 overflow-x-auto pb-2" style="min-width: 300px;">
+                    <!-- Dynamic bars will be inserted here -->
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">Rejected</span>
-                    </div>
-                    <span id="rejected-count" class="text-sm font-medium">0 (0%)</span>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-4 border-t border-gray-100" id="summary-stats">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Total</p>
+                    <p class="text-lg font-bold text-gray-800" id="total-apps">0</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-purple-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">For Release</span>
-                    </div>
-                    <span id="for-release-count" class="text-sm font-medium">0 (0%)</span>
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Average</p>
+                    <p class="text-lg font-bold text-gray-800" id="avg-apps">0</p>
                 </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
-                        <span class="text-sm text-gray-600">Verified</span>
-                    </div>
-                    <span id="verified-count" class="text-sm font-medium">0 (0%)</span>
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Peak</p>
+                    <p class="text-lg font-bold text-gray-800" id="peak-apps">0</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Growth</p>
+                    <p class="text-lg font-bold" id="growth-rate">0%</p>
                 </div>
             </div>
         </div>
+
+        <!-- DONUT CHART - Application Status -->
+        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center">
+            <div class="flex items-center justify-between w-full mb-6">
+                <h2 class="text-lg font-semibold text-gray-700">Application Status</h2>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
+            </div>
+
+            <!-- Donut Chart Container -->
+            <div class="relative w-48 h-48 mb-6">
+                <!-- Dynamic donut chart using conic-gradient -->
+                <div id="donut-chart" class="w-full h-full rounded-full shadow-inner">
+                </div>
+                
+                <!-- Center hole for donut effect -->
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
+                    <span class="text-xl font-bold text-gray-700" id="completion-percentage">0%</span>
+                    <span class="text-[10px] text-gray-500">complete</span>
+                </div>
+            </div>
+
+            <!-- Legend with progress bars -->
+            <div class="w-full space-y-4 mt-2" id="status-legend">
+                <!-- Dynamic status legend will be inserted here -->
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-gray-100">
+                <div class="text-center bg-orange-50 rounded-lg p-3">
+                    <p class="text-xs text-orange-600 font-medium">Total</p>
+                    <p class="text-lg font-bold text-gray-800" id="total-all-apps">0</p>
+                </div>
+                <div class="text-center bg-blue-50 rounded-lg p-3">
+                    <p class="text-xs text-blue-600 font-medium">This Month</p>
+                    <p class="text-lg font-bold text-gray-800" id="monthly-apps">0</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Second Row - User Management & Recent Activity -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- SECOND ROW - User Management & Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <!-- User Roles Summary -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">User Roles</h2>
-                <a href="/admin/users" class="text-sm text-[#155386] hover:underline">Manage →</a>
+                <a href="/admin/users" class="text-sm text-[#155386] hover:underline font-medium">Manage →</a>
             </div>
             
             <div id="user-roles-container" class="space-y-4">
-                <!-- Will be populated by JavaScript -->
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <span class="text-purple-600 font-bold text-lg">A</span>
@@ -227,10 +249,10 @@
                     <span id="admin-count" class="text-lg font-bold text-gray-800">0</span>
                 </div>
                 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="text-green-600 font-bold text-lg">S</span>
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span class="text-blue-600 font-bold text-lg">S</span>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-800">Staff</p>
@@ -240,7 +262,7 @@
                     <span id="staff-count" class="text-lg font-bold text-gray-800">0</span>
                 </div>
                 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                             <span class="text-gray-600 font-bold text-lg">A</span>
@@ -263,10 +285,10 @@
         </div>
 
         <!-- Recent Applications -->
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Recent Applications</h2>
-                <a href="/staff/applications" class="text-sm text-[#155386] hover:underline">View All →</a>
+                <a href="/staff/applications" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
             </div>
             
             <div class="overflow-x-auto">
@@ -297,13 +319,13 @@
         </div>
     </div>
 
-    <!-- Third Row - Document Verification Queue & Staff Performance -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- THIRD ROW - Document Verification Queue & Staff Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <!-- Document Verification Queue -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Document Verification Queue</h2>
-                <a href="/admin/verification-queue" class="text-sm text-[#155386] hover:underline">View All →</a>
+                <a href="/admin/verification-queue" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
             </div>
             
             <div id="verification-queue" class="space-y-4">
@@ -386,15 +408,14 @@
         </div>
 
         <!-- Staff Performance -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Staff Performance</h2>
-                <a href="/admin/staff" class="text-sm text-[#155386] hover:underline">View All →</a>
+                <a href="/admin/staff" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
             </div>
             
             <!-- Top Performers -->
             <div id="staff-performance" class="space-y-3">
-                <!-- Will be populated by JavaScript -->
                 <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -428,31 +449,31 @@
     </div>
 
     <!-- Announcements & Updates -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">System Announcements</h2>
-        <button onclick="openAnnouncementModal()" class="text-sm text-[#155386] hover:underline font-medium flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Create New
+    <div class="bg-white rounded-xl shadow-sm p-6 mt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">System Announcements</h2>
+            <button onclick="openAnnouncementModal()" class="text-sm text-[#155386] hover:underline font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create New
+            </button>
+        </div>
+        
+        <div id="announcements-container" class="space-y-4 min-h-[200px]">
+            <!-- Announcements will be populated here -->
+            <div class="flex items-center justify-center py-8">
+                <svg class="animate-spin h-6 w-6 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <button onclick="window.location.href='/admin/announcements'" class="mt-4 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
+            View All Announcements
         </button>
     </div>
-    
-    <div id="announcements-container" class="space-y-4 min-h-[200px]">
-        <!-- Announcements will be populated here -->
-        <div class="flex items-center justify-center py-8">
-            <svg class="animate-spin h-6 w-6 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-        </div>
-    </div>
-    
-    <button onclick="window.location.href='/admin/announcements'" class="mt-4 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
-        View All Announcements
-    </button>
-</div>
 </div>
 
 <!-- New Announcement Modal -->
@@ -529,7 +550,6 @@
 </div>
 
 <!-- JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let statusChart = null;
 
@@ -587,149 +607,200 @@
                 `;
                 
                 // Update status distribution
-                updateStatusChart(data.status_counts);
+                updateDonutChart(data.status_counts);
                 
                 // Update verification queue
                 updateVerificationQueue(data.status_counts);
                 
                 // Update processing time
                 document.getElementById('avg-processing-time').textContent = data.avg_processing_time || '0';
+                
+                // Update total all apps
+                document.getElementById('total-all-apps').textContent = data.total_applications || 0;
+                document.getElementById('monthly-apps').textContent = data.this_month_applications || 0;
             }
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         }
     }
 
-    // Load trend data based on selected period
-async function loadTrendData() {
-    const period = document.getElementById('trend-period').value;
-    
-    try {
-        const response = await fetch(`/admin/dashboard/trend?days=${period}`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
+    // Load trend data
+    async function loadTrendData() {
+        try {
+            const period = document.getElementById('trend-period')?.value || 30;
+            const response = await fetch(`/admin/dashboard/trend?days=${period}`);
+            const data = await response.json();
+            
+            const barsContainer = document.getElementById('weekly-bars');
+            const weeks = data.labels || ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            const values = data.values || [45, 62, 58, 71];
+            const colors = [
+                'from-[#155386] to-[#40798C]',
+                'from-[#40798C] to-[#70A9A1]',
+                'from-[#70A9A1] to-[#9EC5CB]',
+                'from-[#0F3B5A] to-[#155386]'
+            ];
+            
+            // Calculate max for scaling (max bar height 160px)
+            const maxValue = Math.max(...values, 1);
+            const scaleFactor = maxValue > 0 ? 160 / maxValue : 1;
+            
+            let barsHtml = '';
+            let total = 0;
+            
+            weeks.forEach((week, index) => {
+                const height = Math.max(20, values[index] * scaleFactor);
+                total += values[index];
+                
+                barsHtml += `
+                    <div class="flex flex-col items-center w-16 group">
+                        <div class="relative">
+                            <div class="w-10 bg-gradient-to-t ${colors[index % colors.length]} rounded-t-lg group-hover:brightness-110 group-hover:scale-105 transition-all" style="height: ${height}px;"></div>
+                            <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">${values[index]} applications</span>
+                        </div>
+                        <p class="mt-3 text-sm font-medium text-gray-600">${week}</p>
+                        <span class="text-sm font-bold text-[#155386]">${values[index]}</span>
+                    </div>
+                `;
+            });
+            
+            barsContainer.innerHTML = barsHtml;
+            
+            // Update summary stats
+            const avg = Math.round(total / weeks.length);
+            const peak = Math.max(...values);
+            
+            document.getElementById('total-apps').textContent = total;
+            document.getElementById('avg-apps').textContent = avg;
+            document.getElementById('peak-apps').textContent = peak;
+            
+            // Calculate growth
+            if (values.length >= 2) {
+                const growth = ((values[values.length-1] - values[0]) / values[0] * 100).toFixed(1);
+                const growthElement = document.getElementById('growth-rate');
+                growthElement.textContent = (growth > 0 ? '+' : '') + growth + '%';
+                growthElement.className = growth >= 0 ? 'text-lg font-bold text-green-600' : 'text-lg font-bold text-red-600';
+            }
+            
+        } catch (error) {
+            console.error('Error loading trend data:', error);
         }
-        
-        const data = await response.json();
-        
-        if (data.success && data.trend_data) {
-            renderTrendChart(data.trend_data);
-        } else {
-            console.error('No trend data received');
-            document.getElementById('trend-chart').innerHTML = 
-                '<div class="w-full text-center text-gray-500 py-12">No trend data available</div>';
-        }
-    } catch (error) {
-        console.error('Error loading trend data:', error);
-        document.getElementById('trend-chart').innerHTML = 
-            '<div class="w-full text-center text-red-500 py-12">Failed to load trend data</div>';
     }
-}
 
-// Render trend chart
-function renderTrendChart(trendData) {
-    const chartContainer = document.getElementById('trend-chart');
-    
-    if (!trendData || trendData.length === 0) {
-        chartContainer.innerHTML = '<div class="w-full text-center text-gray-500 py-12">No data available</div>';
-        return;
-    }
-    
-    let html = '';
-    const maxValue = Math.max(...trendData.map(d => d.count), 1);
-    
-    // Limit the number of bars shown to prevent overflow
-    const displayData = trendData.length > 30 ? trendData.slice(-30) : trendData;
-    
-    displayData.forEach(item => {
-        const height = maxValue > 0 ? (item.count / maxValue) * 180 : 0; // Max height 180px
+    // Update donut chart
+    function updateDonutChart(counts) {
+        const total = counts.pending + counts.under_review + counts.approved + 
+                     counts.rejected + counts.for_release + counts.verified;
         
-        html += `
-            <div class="flex flex-col items-center justify-end min-w-[50px]">
-                <div class="w-8 bg-gradient-to-t from-[#155386] to-[#40798C] rounded-t-lg transition-all duration-300 hover:opacity-80" 
-                     style="height: ${height}px; min-height: 4px;">
+        const pendingPercent = total > 0 ? ((counts.pending || 0) / total * 100).toFixed(1) : 0;
+        const underReviewPercent = total > 0 ? ((counts.under_review || 0) / total * 100).toFixed(1) : 0;
+        const approvedPercent = total > 0 ? ((counts.approved || 0) / total * 100).toFixed(1) : 0;
+        const forReleasePercent = total > 0 ? ((counts.for_release || 0) / total * 100).toFixed(1) : 0;
+        const verifiedPercent = total > 0 ? ((counts.verified || 0) / total * 100).toFixed(1) : 0;
+        const rejectedPercent = total > 0 ? ((counts.rejected || 0) / total * 100).toFixed(1) : 0;
+        
+        // Update completion percentage
+        document.getElementById('completion-percentage').textContent = verifiedPercent + '%';
+        
+        // Create donut chart
+        const pendingAngle = parseFloat(pendingPercent) * 3.6;
+        const underReviewAngle = parseFloat(underReviewPercent) * 3.6;
+        const approvedAngle = parseFloat(approvedPercent) * 3.6;
+        const forReleaseAngle = parseFloat(forReleasePercent) * 3.6;
+        const verifiedAngle = parseFloat(verifiedPercent) * 3.6;
+        const rejectedAngle = parseFloat(rejectedPercent) * 3.6;
+        
+        const donutChart = document.getElementById('donut-chart');
+        donutChart.style.background = `conic-gradient(
+            #F59E0B 0deg ${pendingAngle}deg,
+            #3B82F6 ${pendingAngle}deg ${pendingAngle + underReviewAngle}deg,
+            #10B981 ${pendingAngle + underReviewAngle}deg ${pendingAngle + underReviewAngle + approvedAngle}deg,
+            #8B5CF6 ${pendingAngle + underReviewAngle + approvedAngle}deg ${pendingAngle + underReviewAngle + approvedAngle + forReleaseAngle}deg,
+            #059669 ${pendingAngle + underReviewAngle + approvedAngle + forReleaseAngle}deg ${pendingAngle + underReviewAngle + approvedAngle + forReleaseAngle + verifiedAngle}deg,
+            #EF4444 ${pendingAngle + underReviewAngle + approvedAngle + forReleaseAngle + verifiedAngle}deg 360deg
+        )`;
+        
+        // Update legend
+        const legend = document.getElementById('status-legend');
+        legend.innerHTML = `
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Pending Review</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${pendingPercent}%</span>
                 </div>
-                <span class="text-xs text-gray-500 mt-2 font-medium">${item.label}</span>
-                <span class="text-xs font-semibold text-[#155386]">${item.count}</span>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingPercent}%"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Under Review</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${underReviewPercent}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${underReviewPercent}%"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Approved</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${approvedPercent}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-green-500 h-1.5 rounded-full" style="width: ${approvedPercent}%"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">For Release</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${forReleasePercent}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: ${forReleasePercent}%"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Completed</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${verifiedPercent}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${verifiedPercent}%"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Rejected</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${rejectedPercent}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-red-500 h-1.5 rounded-full" style="width: ${rejectedPercent}%"></div>
+                </div>
             </div>
         `;
-    });
-    
-    chartContainer.innerHTML = html;
-    
-    // Add smooth scroll to the right to show latest data
-    const container = document.getElementById('trend-chart-container');
-    if (container) {
-        container.scrollLeft = container.scrollWidth;
-    }
-}
-
-    // Update status chart
-    function updateStatusChart(counts) {
-        const ctx = document.getElementById('status-chart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (statusChart) {
-            statusChart.destroy();
-        }
-        
-        const data = {
-            labels: ['Pending', 'Under Review', 'Approved', 'Rejected', 'For Release', 'Verified'],
-            datasets: [{
-                data: [
-                    counts.pending || 0,
-                    counts.under_review || 0,
-                    counts.approved || 0,
-                    counts.rejected || 0,
-                    counts.for_release || 0,
-                    counts.verified || 0
-                ],
-                backgroundColor: [
-                    '#F59E0B', // yellow
-                    '#3B82F6', // blue
-                    '#10B981', // green
-                    '#EF4444', // red
-                    '#8B5CF6', // purple
-                    '#059669'  // emerald
-                ],
-                borderWidth: 0
-            }]
-        };
-        
-        statusChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: data,
-            options: {
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Update legend counts
-        const total = Object.values(counts).reduce((a, b) => a + b, 0);
-        document.getElementById('total-apps-display').textContent = total;
-        document.getElementById('pending-count').textContent = `${counts.pending || 0} (${total > 0 ? Math.round((counts.pending || 0) / total * 100) : 0}%)`;
-        document.getElementById('under-review-count').textContent = `${counts.under_review || 0} (${total > 0 ? Math.round((counts.under_review || 0) / total * 100) : 0}%)`;
-        document.getElementById('approved-count').textContent = `${counts.approved || 0} (${total > 0 ? Math.round((counts.approved || 0) / total * 100) : 0}%)`;
-        document.getElementById('rejected-count').textContent = `${counts.rejected || 0} (${total > 0 ? Math.round((counts.rejected || 0) / total * 100) : 0}%)`;
-        document.getElementById('for-release-count').textContent = `${counts.for_release || 0} (${total > 0 ? Math.round((counts.for_release || 0) / total * 100) : 0}%)`;
-        document.getElementById('verified-count').textContent = `${counts.verified || 0} (${total > 0 ? Math.round((counts.verified || 0) / total * 100) : 0}%)`;
     }
 
     // Update verification queue counts
@@ -897,132 +968,134 @@ function renderTrendChart(trendData) {
         }
     }
 
-  // Load announcements
-async function loadAnnouncements() {
-    try {
-        const response = await fetch('/admin/announcements?limit=3');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        const container = document.getElementById('announcements-container');
-        
-        if (data.success && data.announcements && data.announcements.length > 0) {
-            let html = '';
+    // Load announcements
+    async function loadAnnouncements() {
+        try {
+            const response = await fetch('/admin/announcements?limit=3');
             
-            data.announcements.forEach(ann => {
-                html += `
-                    <div class="p-4 ${ann.color_class.split(' ')[0]} rounded-lg border ${ann.color_class.split(' ')[1]} hover:shadow-md transition">
-                        <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 ${ann.color_class.split(' ')[0]} rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 ${ann.color_class.split(' ')[2]}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${ann.icon}" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-sm font-semibold text-gray-800">${ann.title}</p>
-                                    <span class="text-xs text-gray-400">${ann.time_ago}</span>
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            const container = document.getElementById('announcements-container');
+            
+            if (data.success && data.announcements && data.announcements.length > 0) {
+                let html = '';
+                
+                data.announcements.forEach(ann => {
+                    html += `
+                        <div class="p-4 ${ann.color_class.split(' ')[0]} rounded-lg border ${ann.color_class.split(' ')[1]} hover:shadow-md transition">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 ${ann.color_class.split(' ')[0]} rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4 ${ann.color_class.split(' ')[2]}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${ann.icon}" />
+                                    </svg>
                                 </div>
-                                <p class="text-sm text-gray-600 mt-1 line-clamp-2">${ann.content}</p>
-                                <p class="text-xs text-gray-400 mt-2">Posted by ${ann.created_by}</p>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-sm font-semibold text-gray-800">${ann.title}</p>
+                                        <span class="text-xs text-gray-400">${ann.time_ago}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">${ann.content}</p>
+                                    <p class="text-xs text-gray-400 mt-2">Posted by ${ann.created_by}</p>
+                                </div>
                             </div>
                         </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div class="p-8 bg-gray-50 rounded-lg text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                        </svg>
+                        <p class="mt-2">No announcements yet</p>
+                        <button onclick="openAnnouncementModal()" class="mt-3 text-sm text-[#155386] hover:underline">
+                            Create your first announcement
+                        </button>
                     </div>
                 `;
-            });
-            
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = `
-                <div class="p-8 bg-gray-50 rounded-lg text-center text-gray-500">
-                    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                    </svg>
-                    <p class="mt-2">No announcements yet</p>
-                    <button onclick="openAnnouncementModal()" class="mt-3 text-sm text-[#155386] hover:underline">
-                        Create your first announcement
-                    </button>
+            }
+        } catch (error) {
+            console.error('Error loading announcements:', error);
+            document.getElementById('announcements-container').innerHTML = `
+                <div class="p-4 bg-red-50 rounded-lg text-center text-red-600">
+                    <p>Failed to load announcements</p>
+                    <button onclick="loadAnnouncements()" class="mt-2 text-sm underline">Try again</button>
                 </div>
             `;
         }
-    } catch (error) {
-        console.error('Error loading announcements:', error);
-        document.getElementById('announcements-container').innerHTML = `
-            <div class="p-4 bg-red-50 rounded-lg text-center text-red-600">
-                <p>Failed to load announcements</p>
-                <button onclick="loadAnnouncements()" class="mt-2 text-sm underline">Try again</button>
-            </div>0
-        `;
     }
-}
 
     // Create new announcement
-async function createAnnouncement(event) {
-    event.preventDefault();
-    
-    const title = document.getElementById('announcement-title').value;
-    const content = document.getElementById('announcement-content').value;
-    const color = document.getElementById('announcement-color').value;
-    const notifyUsers = document.getElementById('notify-users').checked;
-    
-    // Show loading state on button
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = 'Posting...';
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch('/admin/announcements', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ 
-                title, 
-                content, 
-                color,
-                notify_users: notifyUsers
-            })
-        });
+    async function createAnnouncement(event) {
+        event.preventDefault();
         
-        const data = await response.json();
+        const title = document.getElementById('announcement-title').value;
+        const content = document.getElementById('announcement-content').value;
+        const color = document.getElementById('announcement-color').value;
+        const notifyUsers = document.getElementById('notify-users').checked;
         
-        if (data.success) {
-            closeAnnouncementModal();
-            loadAnnouncements();
-            document.getElementById('announcement-form').reset();
+        // Show loading state on button
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Posting...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/admin/announcements', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    title, 
+                    content, 
+                    color,
+                    notify_users: notifyUsers
+                })
+            });
             
-            // Show success message
-            showSuccessModal('Announcement posted successfully' + 
-                (notifyUsers ? ' and notifications sent to all users!' : '!'));
-        } else {
-            alert('Failed to create announcement: ' + (data.message || 'Unknown error'));
+            const data = await response.json();
+            
+            if (data.success) {
+                closeAnnouncementModal();
+                loadAnnouncements();
+                document.getElementById('announcement-form').reset();
+                
+                // Show success message
+                showSuccessModal('Announcement posted successfully' + 
+                    (notifyUsers ? ' and notifications sent to all users!' : '!'));
+            } else {
+                alert('Failed to create announcement: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error creating announcement:', error);
+            alert('Failed to create announcement');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
-    } catch (error) {
-        console.error('Error creating announcement:', error);
-        alert('Failed to create announcement');
-    } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
     }
-}
-// Success modal function
-function showSuccessModal(message) {
-    // Create a temporary success notification
-    const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-down';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
+
+    // Success modal function
+    function showSuccessModal(message) {
+        // Create a temporary success notification
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-down';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
     // Helper function to get time ago string
     function getTimeAgo(date) {
         const now = new Date();
@@ -1071,35 +1144,36 @@ function showSuccessModal(message) {
 
 <style>
     /* Trend chart scrollbar styling */
-#trend-chart-container {
-    scrollbar-width: thin;
-    scrollbar-color: #155386 #e5e7eb;
-}
+    #weekly-bars {
+        scrollbar-width: thin;
+        scrollbar-color: #155386 #e5e7eb;
+    }
+    
+    #weekly-bars::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    #weekly-bars::-webkit-scrollbar-track {
+        background: #e5e7eb;
+        border-radius: 3px;
+    }
+    
+    #weekly-bars::-webkit-scrollbar-thumb {
+        background: #155386;
+        border-radius: 3px;
+    }
+    
+    #weekly-bars::-webkit-scrollbar-thumb:hover {
+        background: #40798C;
+    }
 
-#trend-chart-container::-webkit-scrollbar {
-    height: 6px;
-}
-
-#trend-chart-container::-webkit-scrollbar-track {
-    background: #e5e7eb;
-    border-radius: 3px;
-}
-
-#trend-chart-container::-webkit-scrollbar-thumb {
-    background: #155386;
-    border-radius: 3px;
-}
-
-#trend-chart-container::-webkit-scrollbar-thumb:hover {
-    background: #40798C;
-}
-
-/* Chart bar hover effect */
-#trend-chart > div:hover .bg-gradient-to-t {
-    filter: brightness(1.1);
-    transform: scaleY(1.02);
-    transition: all 0.2s ease;
-}
+    /* Chart bar hover effect */
+    #weekly-bars > div:hover .bg-gradient-to-t {
+        filter: brightness(1.1);
+        transform: scaleY(1.02);
+        transition: all 0.2s ease;
+    }
+    
     /* Modal animations */
     #announcement-modal {
         transition: opacity 0.2s ease-in-out;
@@ -1119,19 +1193,42 @@ function showSuccessModal(message) {
             opacity: 1;
         }
     }
+    
     @keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    .animate-fade-in-down {
+        animation: fadeInDown 0.3s ease-out;
     }
-}
-
-.animate-fade-in-down {
-    animation: fadeInDown 0.3s ease-out;
-}
+    
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .5;
+        }
+    }
 </style>
 @endsection

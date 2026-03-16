@@ -44,6 +44,14 @@
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">All Applications</span>
             </a>
 
+            <!-- Archive -->
+            <a href="/admin/applications/archived" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/applications/archived*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
+            </a>
+
             <!-- System Settings (Admin only) -->
             <a href="/admin/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
@@ -65,6 +73,14 @@
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
             </a>
 
+            <!-- Archive -->
+            <a href="/staff/applications/archived" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications/archived*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
+            </a>
+
         <!-- APPLICANT ROUTES -->
         @elseif(auth()->user()->role === 'applicant')
             <!-- My Application -->
@@ -73,22 +89,29 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Application</span>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
+            </a>
+
+            <!-- Archive -->
+            <a href="/applicant/applications/archived" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/applications/archived*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
             </a>
         @endif
 
         <!-- DIVIDER - Visible to all roles -->
         <div class="w-full border-t border-gray-200 my-2"></div>
 
-        <!-- PROFILE - Universal link for ALL ROLES (placed outside all role conditions) -->
+        <!-- PROFILE - Universal link for ALL ROLES -->
         <a href="/profile" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('profile*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">My Profile</span>
+            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
         </a>
-
 
     </nav>
 

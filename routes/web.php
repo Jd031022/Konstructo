@@ -181,6 +181,10 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     // Add this inside your applicant routes group
     Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
         ->name('applications.debug-review');
+
+    Route::get('/applications/{id}/activity-history', function ($id) {
+    return view('applicant.activity-history', ['applicationId' => $id]);
+})->name('applicant.activity-history');
 });
 
 // Dashboard route with role-based redirect
