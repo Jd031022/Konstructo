@@ -3,99 +3,107 @@
 @section('title', 'User Management - Konstructo')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
 
-    <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
-            <p class="text-gray-500 text-sm mt-1">Manage system users, roles, and permissions</p>
+            <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage system users, roles, and permissions</p>
         </div>
         
-        <!-- Add User Button -->
-        <button onclick="openUserModal()" 
-            class="inline-flex items-center px-4 py-2.5 bg-[#155386] text-white rounded-xl hover:bg-[#40798C] transition shadow-md hover:shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            Add New User
-        </button>
+        <!-- Action Buttons -->
+        <div class="mt-4 md:mt-0 flex items-center gap-3">
+            <a href="/admin/users/export" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export Report
+            </a>
+            <button onclick="openUserModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Add New User
+            </button>
+        </div>
     </div>
 
-    <!-- User Roles Summary Cards - Dynamically Updated -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 py-2" id="stats-container">
+    <!-- User Roles Summary Cards - Updated Design -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8" id="stats-container">
         <!-- Total Users Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-orange-500 group">
+            <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Total Users</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-users">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Total Users</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-users">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
                 </div>
             </div>
         </div>
         
         <!-- Admins Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <span class="text-purple-600 font-bold text-lg">A</span>
-                </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-purple-500 group">
+            <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Admins</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-admins">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Admins</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-admins">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <span class="text-white font-bold text-lg">A</span>
                 </div>
             </div>
         </div>
         
         <!-- Staff Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <span class="text-blue-600 font-bold text-lg">S</span>
-                </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-blue-500 group">
+            <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Staff</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-staff">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Staff</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-staff">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <span class="text-white font-bold text-lg">S</span>
                 </div>
             </div>
         </div>
         
         <!-- Applicants Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                    <span class="text-gray-600 font-bold text-lg">A</span>
-                </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-gray-500 group">
+            <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Applicants</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-applicants">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Applicants</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-applicants">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <span class="text-white font-bold text-lg">A</span>
                 </div>
             </div>
         </div>
         
         <!-- Active Users Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-green-500 group">
+            <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Active</p>
-                    <p class="text-2xl font-bold text-gray-800" id="total-active">0</p>
+                    <p class="text-gray-500 text-sm font-medium">Active</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-active">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
+                    </svg>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Filters and Search -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <!-- Filters and Search - Updated Design -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4">
             <!-- Search -->
             <div class="flex-1 relative">
@@ -105,11 +113,11 @@
                 <input type="text" 
                        id="search-input"
                        placeholder="Search users by name, email, or role..." 
-                       class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386]">
+                       class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
             </div>
             
             <!-- Role Filter -->
-            <select id="role-filter" class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
+            <select id="role-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
@@ -117,36 +125,36 @@
             </select>
             
             <!-- Status Filter -->
-            <select id="status-filter" class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
+            <select id="status-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
                 <option value="">All Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
             
             <!-- Filter Button -->
-            <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium">
+            <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm">
                 Apply Filters
             </button>
             
             <!-- Reset Button -->
-            <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium">
+            <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
                 Reset
             </button>
         </div>
     </div>
 
     <!-- Users Table -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">User</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Email</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Role</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Last Active</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Active</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="users-table-body" class="divide-y divide-gray-100">
@@ -157,18 +165,24 @@
 
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="text-center py-8 hidden">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#155386]"></div>
+            <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
             <p class="text-gray-500 mt-2">Loading users...</p>
         </div>
 
         <!-- Empty State -->
         <div id="empty-state" class="text-center py-12 hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <h3 class="text-lg font-medium text-gray-900 mt-4">No users found</h3>
-            <p class="text-gray-500 mt-2">Get started by creating a new user.</p>
-            <button onclick="openUserModal()" class="mt-4 inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+            <p class="text-gray-500">Get started by creating a new user.</p>
+            <button onclick="openUserModal()" class="mt-4 inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
                 Add New User
             </button>
         </div>
@@ -181,170 +195,174 @@
 </div>
 
 <!-- Add/Edit User Modal -->
-<div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-screen flex items-center justify-center py-8">
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-auto my-8 max-h-[90vh] overflow-y-auto">
-            <!-- Modal Header - Sticky -->
-            <div class="sticky top-0 z-10 px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center rounded-t-2xl">
-                <h3 class="text-xl font-bold" id="modal-title">Add New User</h3>
-                <button onclick="closeUserModal()" class="text-white hover:text-gray-200 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Modal Body - Scrollable -->
-            <div class="p-6">
-                <div id="modal-error" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
-                <div id="modal-success" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm"></div>
+<div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-3xl">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
+                    <h3 class="text-xl font-bold" id="modal-title">Add New User</h3>
+                    <button onclick="closeUserModal()" class="text-white hover:text-gray-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
                 
-                <form id="user-form" onsubmit="saveUser(event)">
-                    <input type="hidden" id="user-id">
+                <!-- Modal Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
+                    <div id="modal-error" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
+                    <div id="modal-success" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm"></div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- First Name -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="first_name" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
+                    <form id="user-form" onsubmit="saveUser(event)">
+                        <input type="hidden" id="user-id">
                         
-                        <!-- Last Name -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="last_name" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        
-                        <!-- Middle Name -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                            <input type="text" id="middle_name"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        
-                        <!-- Suffix -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
-                            <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                <option value="">None</option>
-                                <option value="Jr.">Jr.</option>
-                                <option value="Sr.">Sr.</option>
-                                <option value="II">II</option>
-                                <option value="III">III</option>
-                                <option value="IV">IV</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Email -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-                            <input type="email" id="email" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        
-                        <!-- Username -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
-                            <input type="text" id="username" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
-                        </div>
-                        
-                        <!-- Password Row - Only shown for new users -->
-                        <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- First Name -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
-                                <input type="password" id="password" 
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="first_name" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
+                            
+                            <!-- Last Name -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
-                                <input type="password" id="password_confirmation" 
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="last_name" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
-                        </div>
-                        
-                        <!-- Phone -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
-                            <div class="flex">
-                                <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+63</span>
-                                <input type="tel" id="phone_number" placeholder="9123456789 or 09123456789" required
-                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            
+                            <!-- Middle Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
+                                <input type="text" id="middle_name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Enter 10 digits (9123456789) or 11 digits starting with 09 (09123456789)</p>
+                            
+                            <!-- Suffix -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
+                                <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">None</option>
+                                    <option value="Jr.">Jr.</option>
+                                    <option value="Sr.">Sr.</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" id="email" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Username -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
+                                <input type="text" id="username" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
+                            </div>
+                            
+                            <!-- Password Row - Only shown for new users -->
+                            <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
+                                    <input type="password" id="password" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
+                                    <input type="password" id="password_confirmation" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                </div>
+                            </div>
+                            
+                            <!-- Phone -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+63</span>
+                                    <input type="tel" id="phone_number" placeholder="9123456789 or 09123456789" required
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Enter 10 digits (9123456789) or 11 digits starting with 09 (09123456789)</p>
+                            </div>
+                            
+                            <!-- Zip Code -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code <span class="text-red-500">*</span></label>
+                                <input type="text" id="zip_code" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Address -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address <span class="text-red-500">*</span></label>
+                                <input type="text" id="address" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Role -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
+                                <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">Select Role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="staff">Staff</option>
+                                    <option value="applicant">Applicant</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <!-- Zip Code -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code <span class="text-red-500">*</span></label>
-                            <input type="text" id="zip_code" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        <!-- Modal Footer -->
+                        <div class="mt-8 flex justify-end gap-3">
+                            <button type="button" onclick="closeUserModal()" 
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit" id="save-btn"
+                                class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2 text-sm">
+                                <span id="save-btn-text">Save User</span>
+                                <span id="save-btn-spinner" class="hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </span>
+                            </button>
                         </div>
-                        
-                        <!-- Address -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Address <span class="text-red-500">*</span></label>
-                            <input type="text" id="address" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        
-                        <!-- Role -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
-                            <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                <option value="">Select Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="staff">Staff</option>
-                                <option value="applicant">Applicant</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Modal Footer -->
-                    <div class="mt-8 flex justify-end gap-3">
-                        <button type="button" onclick="closeUserModal()" 
-                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                            Cancel
-                        </button>
-                        <button type="submit" id="save-btn"
-                            class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2">
-                            <span id="save-btn-text">Save User</span>
-                            <span id="save-btn-spinner" class="hidden">
-                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Reset Password Modal -->
-<div id="reset-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-screen flex items-center justify-center py-8">
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto">
-            <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-t-2xl">
-                <h3 class="text-xl font-bold">Reset Password</h3>
-            </div>
-            <div class="p-6">
-                <div id="reset-password-result" class="mb-4 p-4 bg-gray-50 rounded-lg hidden">
-                    <p class="text-sm font-medium text-gray-700 mb-2">New Password:</p>
-                    <p id="new-password-display" class="text-lg font-mono bg-white p-2 rounded border"></p>
-                    <p class="text-xs text-gray-500 mt-2">Please share this password with the user. They can change it after logging in.</p>
+<div id="reset-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white">
+                    <h3 class="text-xl font-bold">Reset Password</h3>
                 </div>
-                
-                <div class="flex justify-end gap-3">
-                    <button onclick="closeResetPasswordModal()" 
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        Close
-                    </button>
+                <div class="p-6">
+                    <div id="reset-password-result" class="mb-4 p-4 bg-gray-50 rounded-lg hidden">
+                        <p class="text-sm font-medium text-gray-700 mb-2">New Password:</p>
+                        <p id="new-password-display" class="text-lg font-mono bg-white p-2 rounded border"></p>
+                        <p class="text-xs text-gray-500 mt-2">Please share this password with the user. They can change it after logging in.</p>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeResetPasswordModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -352,30 +370,32 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-screen flex items-center justify-center py-8">
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto">
-            <div class="px-6 py-4 bg-red-600 text-white rounded-t-2xl">
-                <h3 class="text-xl font-bold">Delete User</h3>
-            </div>
-            <div class="p-6">
-                <p class="text-gray-700 mb-4">Are you sure you want to delete this user? This action cannot be undone.</p>
-                
-                <div class="flex justify-end gap-3">
-                    <button onclick="closeDeleteModal()" 
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        Cancel
-                    </button>
-                    <button onclick="confirmDelete()" id="delete-btn"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
-                        <span id="delete-btn-text">Delete</span>
-                        <span id="delete-btn-spinner" class="hidden">
-                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </span>
-                    </button>
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-red-600 text-white">
+                    <h3 class="text-xl font-bold">Delete User</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeDeleteModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmDelete()" id="delete-btn"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                            <span id="delete-btn-text">Delete</span>
+                            <span id="delete-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -469,7 +489,7 @@ async function loadUsers() {
     }
 }
 
-// Calculate stats from users array (fallback if API doesn't provide stats)
+// Calculate stats from users array
 function calculateStats(users) {
     const stats = {
         total: users.length,
@@ -536,6 +556,11 @@ function getRoleColor(role) {
     return colors[role] || 'gray';
 }
 
+// Get status badge color
+function getStatusColor(status) {
+    return status === 'active' ? 'green' : 'red';
+}
+
 // Render users table
 function renderUsers() {
     const tbody = document.getElementById('users-table-body');
@@ -553,32 +578,33 @@ function renderUsers() {
     
     tbody.innerHTML = filteredUsers.map(user => {
         const roleColor = getRoleColor(user.role);
+        const statusColor = getStatusColor(user.status);
         
         return `
         <tr class="hover:bg-gray-50 transition">
             <td class="py-4 px-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold text-sm">
                         ${user.initials}
                     </div>
                     <div>
                         <p class="font-medium text-gray-800">${user.name}</p>
-                        <p class="text-xs text-gray-400">ID: USR-${String(user.id).padStart(3, '0')}</p>
+                        <p class="text-xs text-gray-400">ID: USR-${String(user.id).padStart(4, '0')}</p>
                     </div>
                 </div>
             </td>
-            <td class="py-4 px-6 text-gray-600">${user.email}</td>
+            <td class="py-4 px-6 text-sm text-gray-600">${user.email}</td>
             <td class="py-4 px-6">
                 <span class="px-3 py-1 bg-${roleColor}-100 text-${roleColor}-600 rounded-full text-xs font-medium capitalize">
                     ${user.role}
                 </span>
             </td>
             <td class="py-4 px-6">
-                <span class="px-3 py-1 bg-${user.status_badge}-100 text-${user.status_badge}-600 rounded-full text-xs font-medium">
+                <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-600 rounded-full text-xs font-medium">
                     ${user.status}
                 </span>
             </td>
-            <td class="py-4 px-6 text-sm text-gray-500">${user.last_active}</td>
+            <td class="py-4 px-6 text-sm text-gray-500">${user.last_active || 'Never'}</td>
             <td class="py-4 px-6">
                 <div class="flex items-center gap-2">
                     <button onclick="editUser(${user.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
@@ -677,7 +703,7 @@ async function saveUser(event) {
         }
     }
     
-    // Phone validation - UPDATED to accept 10 digits OR 11 digits starting with 09
+    // Phone validation
     const phone = document.getElementById('phone_number').value;
     const phoneRegex = /^(09[0-9]{9}|[0-9]{10})$/;
     if (!phoneRegex.test(phone)) {
@@ -764,7 +790,7 @@ async function saveUser(event) {
             showModalSuccess(data.message);
             setTimeout(() => {
                 closeUserModal();
-                loadUsers(); // Reload users
+                loadUsers();
             }, 1500);
         } else {
             if (data.errors) {
@@ -889,7 +915,7 @@ async function toggleUserStatus(userId) {
         
         if (response.ok) {
             alert(data.message);
-            loadUsers(); // Reload users
+            loadUsers();
         } else {
             alert(data.error || 'Failed to toggle user status');
         }
@@ -933,7 +959,7 @@ async function confirmDelete() {
         if (response.ok) {
             closeDeleteModal();
             alert(data.message);
-            loadUsers(); // Reload users
+            loadUsers();
         } else {
             alert(data.error || 'Failed to delete user');
         }
@@ -953,7 +979,6 @@ function showError(message) {
 }
 </script>
 
-<!-- Add to existing styles -->
 <style>
     /* Modal animations */
     #user-modal, #reset-password-modal, #delete-modal {
@@ -975,15 +1000,20 @@ function showError(message) {
         }
     }
     
-    /* Card hover effects */
-    .stats-card {
-        transition: all 0.3s ease;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-2px);
+    .animate-spin {
+        animation: spin 1s linear infinite;
     }
 
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Card hover effects */
+    .group:hover .group-hover\:scale-110 {
+        transform: scale(1.1);
+    }
+    
     /* Custom scrollbar for modal */
     .overflow-y-auto::-webkit-scrollbar {
         width: 8px;

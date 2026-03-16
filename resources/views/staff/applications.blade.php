@@ -3,26 +3,25 @@
 @section('title', 'Applications')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
 
-    <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Applications</h1>
-            <p class="text-gray-500 text-sm mt-1">Manage and review all building permit applications</p>
+            <h1 class="text-2xl font-bold text-gray-800">Applications</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage and review all building permit applications</p>
         </div>
         
-        <!-- Export and Filter Buttons -->
-        <div class="flex items-center gap-3">
-            <button onclick="exportApplications()" class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Action Buttons -->
+        <div class="mt-4 md:mt-0 flex items-center gap-3">
+            <button onclick="exportApplications()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Export
+                Export Report
             </button>
-            <button onclick="openNewApplicationModal()" 
-                class="inline-flex items-center px-4 py-2.5 bg-[#155386] text-white rounded-xl hover:bg-[#40798C] transition shadow-md hover:shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="openNewApplicationModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 New Application
@@ -31,7 +30,7 @@
     </div>
 
     <!-- Filters and Search -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4">
             <!-- Search -->
             <div class="flex-1 relative">
@@ -41,11 +40,11 @@
                 <input type="text" 
                        id="search-input"
                        placeholder="Search by application number or applicant name..." 
-                       class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386]">
+                       class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
             </div>
         
             <!-- Status Filter -->
-            <select id="status-filter" class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
+            <select id="status-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[180px]">
                 <option value="">All Status</option>
                 <option value="pending">Pending Review</option>
                 <option value="under-review">Under Review</option>
@@ -56,12 +55,12 @@
             </select>
             
             <!-- Filter Button -->
-            <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium">
+            <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm">
                 Apply Filters
             </button>
             
             <!-- Reset Button -->
-            <button onclick="resetFilters()" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium">
+            <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
                 Reset
             </button>
         </div>
@@ -77,28 +76,28 @@
     </div>
 
     <!-- Empty State -->
-    <div id="empty-state" class="hidden text-center py-12 bg-white rounded-2xl border border-gray-100">
-        <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div id="empty-state" class="hidden text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h3 class="text-lg font-medium text-gray-900 mt-4">No applications found</h3>
-        <p class="text-gray-500 mt-2">There are no applications matching your criteria.</p>
-        <button onclick="resetFilters()" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
+        <p class="text-gray-500 mb-4">There are no applications matching your criteria.</p>
+        <button onclick="resetFilters()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
             Clear Filters
         </button>
     </div>
 
     <!-- Applications Table -->
-    <div id="applications-table-container" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden">
+    <div id="applications-table-container" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Application Number</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Applicant</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Date Submitted</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
-                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application #</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="applications-table-body" class="divide-y divide-gray-100">
@@ -119,12 +118,12 @@
 </div>
 
 <!-- New Application Modal -->
-<div id="new-application-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8">
+<div id="new-application-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-3xl">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Modal Header - Sticky -->
-                <div class="sticky top-0 px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center z-10">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
                     <h3 class="text-xl font-bold">New Application</h3>
                     <button onclick="closeNewApplicationModal()" class="text-white hover:text-gray-200 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,8 +132,8 @@
                     </button>
                 </div>
                 
-                <!-- Modal Body - Scrollable -->
-                <div class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+                <!-- Modal Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
                     <form id="new-application-form" onsubmit="submitNewApplication(event)">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Applicant Information -->
@@ -148,7 +147,7 @@
                                        id="first-name"
                                        required
                                        placeholder="e.g., Juan"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
                             <div>
@@ -157,7 +156,7 @@
                                        id="last-name"
                                        required
                                        placeholder="e.g., Dela Cruz"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
                             <div>
@@ -166,7 +165,7 @@
                                        id="email"
                                        required
                                        placeholder="juandelacruz@email.com"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
                             <div>
@@ -175,7 +174,7 @@
                                        id="phone"
                                        required
                                        placeholder="0917 123 4567"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
                             <!-- Project Information -->
@@ -189,7 +188,7 @@
                                        id="address"
                                        required
                                        placeholder="e.g., Brgy. San Jose, Legazpi City"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
                             <div>
@@ -209,18 +208,18 @@
                                        id="google-drive-link"
                                        required
                                        placeholder="https://drive.google.com/drive/folders/..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent placeholder:text-gray-400">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                         </div>
                         
                         <!-- Modal Footer -->
                         <div class="mt-8 flex justify-end gap-3">
                             <button type="button" onclick="closeNewApplicationModal()" 
-                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
                                 Cancel
                             </button>
                             <button type="submit" 
-                                class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+                                class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
                                 Create Application
                             </button>
                         </div>
@@ -232,7 +231,7 @@
 </div>
 
 <!-- Edit Status Modal -->
-<div id="edit-status-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8">
+<div id="edit-status-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-md">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -274,10 +273,10 @@
                         </div>
                         
                         <div class="flex justify-end gap-3 mt-6">
-                            <button type="button" onclick="closeStatusModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            <button type="button" onclick="closeStatusModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
                                 Cancel
                             </button>
-                            <button type="submit" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
+                            <button type="submit" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
                                 Update Status
                             </button>
                         </div>
@@ -288,25 +287,65 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
-    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+<!-- Archive Modal -->
+<div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-yellow-600 text-white">
+                    <h3 class="text-xl font-bold">Archive Application</h3>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Application</h3>
-                <p class="text-sm text-gray-600 mb-6">Are you sure you want to delete this application? This action cannot be undone.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-                        Cancel
-                    </button>
-                    <button onclick="confirmDelete()" id="confirm-delete-btn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
-                        Delete
-                    </button>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-6">Are you sure you want to archive this application? Archived applications can be restored later.</p>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeArchiveModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmArchive()" id="confirm-archive-btn"
+                            class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition flex items-center gap-2 text-sm">
+                            <span id="archive-btn-text">Archive</span>
+                            <span id="archive-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-red-600 text-white">
+                    <h3 class="text-xl font-bold">Delete Application</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-6">Are you sure you want to delete this application? This action cannot be undone.</p>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmDelete()" id="confirm-delete-btn"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                            <span id="delete-btn-text">Delete</span>
+                            <span id="delete-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -314,36 +353,40 @@
 </div>
 
 <!-- Success Message Modal -->
-<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
-    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                    <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
+<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Success</h3>
+                    <p id="success-modal-message" class="text-sm text-gray-600 mb-6"></p>
+                    <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Success</h3>
-                <p id="success-modal-message" class="text-sm text-gray-600 mb-6"></p>
-                <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Error Message Modal -->
-<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
-    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
+                    <p id="error-modal-message" class="text-sm text-gray-600 mb-6"></p>
+                    <button onclick="closeErrorModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
-                <p id="error-modal-message" class="text-sm text-gray-600 mb-6"></p>
-                <button onclick="closeErrorModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
             </div>
         </div>
     </div>
@@ -356,6 +399,7 @@
     let currentPage = 1;
     const itemsPerPage = 10;
     let deleteId = null;
+    let archiveId = null;
 
     // Load applications on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -363,66 +407,63 @@
         setupModals();
     });
 
-  // Load applications from API
-async function loadApplications() {
-    try {
-        console.log('Fetching applications from /staff/applications/data');
-        
-        const response = await fetch('/staff/applications/data', {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'X-Requested-With': 'XMLHttpRequest'
+    // Load applications from API
+    async function loadApplications() {
+        try {
+            console.log('Fetching applications from /staff/applications/data');
+            
+            const response = await fetch('/staff/applications/data', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response:', errorText.substring(0, 200));
+                throw new Error(`HTTP error ${response.status}`);
             }
-        });
-        
-        console.log('Response status:', response.status);
-        
-        // Check if response is OK
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error response:', errorText.substring(0, 200));
-            throw new Error(`HTTP error ${response.status}`);
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response:', text.substring(0, 200));
+                throw new Error('Server returned non-JSON response');
+            }
+            
+            const data = await response.json();
+            console.log('Applications data:', data);
+            
+            if (data.success) {
+                applications = data.applications || [];
+                applyFilters();
+            } else {
+                showErrorModal(data.message || 'Failed to load applications');
+            }
+        } catch (error) {
+            console.error('Error loading applications:', error);
+            showErrorModal('Failed to load applications: ' + error.message);
+            
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('empty-state').innerHTML = `
+                <svg class="w-16 h-16 mx-auto text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Failed to Load Applications</h3>
+                <p class="text-gray-500 mt-2">${error.message}</p>
+                <button onclick="loadApplications()" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                    Try Again
+                </button>
+            `;
+        } finally {
+            document.getElementById('loading-state').classList.add('hidden');
         }
-        
-        // Check content type
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const text = await response.text();
-            console.error('Non-JSON response:', text.substring(0, 200));
-            throw new Error('Server returned non-JSON response');
-        }
-        
-        const data = await response.json();
-        console.log('Applications data:', data);
-        
-        if (data.success) {
-            applications = data.applications || [];
-            applyFilters();
-        } else {
-            showErrorModal(data.message || 'Failed to load applications');
-        }
-    } catch (error) {
-        console.error('Error loading applications:', error);
-        showErrorModal('Failed to load applications: ' + error.message);
-        
-        // Show empty state with error message
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('empty-state').classList.remove('hidden');
-        document.getElementById('empty-state').innerHTML = `
-            <svg class="w-16 h-16 mx-auto text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mt-4">Failed to Load Applications</h3>
-            <p class="text-gray-500 mt-2">${error.message}</p>
-            <button onclick="loadApplications()" class="inline-flex items-center px-4 py-2 mt-4 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">
-                Try Again
-            </button>
-        `;
-    } finally {
-        document.getElementById('loading-state').classList.add('hidden');
     }
-}
 
     // Apply filters
     function applyFilters() {
@@ -535,18 +576,29 @@ async function loadApplications() {
                 </td>
                 <td class="py-4 px-6">
                     <div class="flex items-center gap-2">
-                        <!-- View Details - Redirects to application-details page -->
+                        <!-- View Details -->
                         <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </a>
+                        
+                        <!-- Update Status -->
                         <button onclick="openStatusModal(${app.id}, '${app.application_number}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
+                        
+                        <!-- Archive -->
+                        <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Delete -->
                         <button onclick="openDeleteModal(${app.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -570,7 +622,6 @@ async function loadApplications() {
         
         let controlsHtml = '';
         
-        // Previous button
         controlsHtml += `
             <button onclick="changePage(${currentPage - 1})" 
                 class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
@@ -579,16 +630,16 @@ async function loadApplications() {
             </button>
         `;
         
-        // Page numbers
         for (let i = 1; i <= totalPages; i++) {
             if (i === currentPage) {
                 controlsHtml += `<button class="px-3 py-1 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition">${i}</button>`;
-            } else {
+            } else if (i <= 3 || i > totalPages - 3 || Math.abs(i - currentPage) <= 2) {
                 controlsHtml += `<button onclick="changePage(${i})" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition">${i}</button>`;
+            } else if (i === 4 && currentPage > 4) {
+                controlsHtml += `<span class="px-2 text-gray-400">...</span>`;
             }
         }
         
-        // Next button
         controlsHtml += `
             <button onclick="changePage(${currentPage + 1})" 
                 class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
@@ -657,26 +708,80 @@ async function loadApplications() {
         }
     }
 
-    // Open delete modal
+    // Archive functions
+    function openArchiveModal(id) {
+        archiveId = id;
+        document.getElementById('archive-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeArchiveModal() {
+        document.getElementById('archive-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        archiveId = null;
+    }
+
+    async function confirmArchive() {
+        if (!archiveId) return;
+        
+        const btn = document.getElementById('confirm-archive-btn');
+        const btnText = document.getElementById('archive-btn-text');
+        const spinner = document.getElementById('archive-btn-spinner');
+        
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${archiveId}/archive`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Application archived successfully');
+                closeArchiveModal();
+                loadApplications();
+            } else {
+                showErrorModal(data.message || 'Failed to archive application');
+            }
+        } catch (error) {
+            console.error('Error archiving application:', error);
+            showErrorModal('Failed to archive application');
+        } finally {
+            btnText.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            btn.disabled = false;
+        }
+    }
+
+    // Delete functions
     function openDeleteModal(id) {
         deleteId = id;
         document.getElementById('delete-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
 
-    // Close delete modal
     function closeDeleteModal() {
         document.getElementById('delete-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
         deleteId = null;
     }
 
-    // Confirm delete
     async function confirmDelete() {
         if (!deleteId) return;
         
         const btn = document.getElementById('confirm-delete-btn');
-        btn.innerHTML = 'Deleting...';
+        const btnText = document.getElementById('delete-btn-text');
+        const spinner = document.getElementById('delete-btn-spinner');
+        
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
         btn.disabled = true;
         
         try {
@@ -701,7 +806,8 @@ async function loadApplications() {
             console.error('Error deleting application:', error);
             showErrorModal('Failed to delete application');
         } finally {
-            btn.innerHTML = 'Delete';
+            btnText.classList.remove('hidden');
+            spinner.classList.add('hidden');
             btn.disabled = false;
         }
     }
@@ -718,8 +824,6 @@ async function loadApplications() {
             address: document.getElementById('address').value,
             google_drive_link: document.getElementById('google-drive-link').value
         };
-        
-        // Note: project_type is not included as it's not in the database
         
         try {
             const response = await fetch('/staff/applications', {
@@ -792,7 +896,7 @@ async function loadApplications() {
 
     // Setup modals
     function setupModals() {
-        const modals = ['new-application-modal', 'edit-status-modal', 'delete-modal', 'error-modal', 'success-modal'];
+        const modals = ['new-application-modal', 'edit-status-modal', 'archive-modal', 'delete-modal', 'error-modal', 'success-modal'];
         
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
@@ -801,6 +905,7 @@ async function loadApplications() {
                     if (e.target === modal) {
                         if (modalId === 'new-application-modal') closeNewApplicationModal();
                         if (modalId === 'edit-status-modal') closeStatusModal();
+                        if (modalId === 'archive-modal') closeArchiveModal();
                         if (modalId === 'delete-modal') closeDeleteModal();
                         if (modalId === 'error-modal') closeErrorModal();
                         if (modalId === 'success-modal') closeSuccessModal();
@@ -813,6 +918,7 @@ async function loadApplications() {
             if (e.key === 'Escape') {
                 closeNewApplicationModal();
                 closeStatusModal();
+                closeArchiveModal();
                 closeDeleteModal();
                 closeErrorModal();
                 closeSuccessModal();
@@ -826,6 +932,7 @@ async function loadApplications() {
     /* Modal animations */
     #new-application-modal,
     #edit-status-modal,
+    #archive-modal,
     #delete-modal,
     #error-modal,
     #success-modal {
@@ -834,6 +941,7 @@ async function loadApplications() {
     
     #new-application-modal .bg-white,
     #edit-status-modal .bg-white,
+    #archive-modal .bg-white,
     #delete-modal .bg-white,
     #error-modal .bg-white,
     #success-modal .bg-white {
@@ -878,6 +986,12 @@ async function loadApplications() {
     
     .overflow-y-auto::-webkit-scrollbar-thumb:hover {
         background: #40798C;
+    }
+
+    /* Pagination button styles */
+    #pagination-controls button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
 </style>
 @endsection

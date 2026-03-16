@@ -624,69 +624,91 @@
         }
     }
 
-    // Load trend data
-    async function loadTrendData() {
-        try {
-            const period = document.getElementById('trend-period')?.value || 30;
-            const response = await fetch(`/admin/dashboard/trend?days=${period}`);
-            const data = await response.json();
+    // Load trend data based on selected period
+async function loadTrendData() {
+    const period = document.getElementById('trend-period').value;
+    
+    // Show loading state
+    const barsContainer = document.getElementById('weekly-bars');
+    barsContainer.innerHTML = `
+        <div class="flex items-center justify-center w-full h-full">
+            <svg class="animate-spin h-8 w-8 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    `;
+    
+    try {
+        // Fetch data from your API endpoint
+        const response = await fetch(`/admin/dashboard/trend?days=${period}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.trend_data) {
+            renderTrendChart(data.trend_data);
             
-            const barsContainer = document.getElementById('weekly-bars');
-            const weeks = data.labels || ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-            const values = data.values || [45, 62, 58, 71];
-            const colors = [
-                'from-[#155386] to-[#40798C]',
-                'from-[#40798C] to-[#70A9A1]',
-                'from-[#70A9A1] to-[#9EC5CB]',
-                'from-[#0F3B5A] to-[#155386]'
-            ];
-            
-            // Calculate max for scaling (max bar height 160px)
-            const maxValue = Math.max(...values, 1);
-            const scaleFactor = maxValue > 0 ? 160 / maxValue : 1;
-            
-            let barsHtml = '';
-            let total = 0;
-            
-            weeks.forEach((week, index) => {
-                const height = Math.max(20, values[index] * scaleFactor);
-                total += values[index];
+            // Update summary stats if they exist
+            if (data.summary) {
+                document.getElementById('total-apps').textContent = data.summary.total || 0;
+                document.getElementById('avg-apps').textContent = data.summary.average || 0;
+                document.getElementById('peak-apps').textContent = data.summary.peak || 0;
                 
-                barsHtml += `
-                    <div class="flex flex-col items-center w-16 group">
-                        <div class="relative">
-                            <div class="w-10 bg-gradient-to-t ${colors[index % colors.length]} rounded-t-lg group-hover:brightness-110 group-hover:scale-105 transition-all" style="height: ${height}px;"></div>
-                            <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">${values[index]} applications</span>
-                        </div>
-                        <p class="mt-3 text-sm font-medium text-gray-600">${week}</p>
-                        <span class="text-sm font-bold text-[#155386]">${values[index]}</span>
-                    </div>
-                `;
-            });
-            
-            barsContainer.innerHTML = barsHtml;
-            
-            // Update summary stats
-            const avg = Math.round(total / weeks.length);
-            const peak = Math.max(...values);
-            
-            document.getElementById('total-apps').textContent = total;
-            document.getElementById('avg-apps').textContent = avg;
-            document.getElementById('peak-apps').textContent = peak;
-            
-            // Calculate growth
-            if (values.length >= 2) {
-                const growth = ((values[values.length-1] - values[0]) / values[0] * 100).toFixed(1);
                 const growthElement = document.getElementById('growth-rate');
+                const growth = data.summary.growth || 0;
                 growthElement.textContent = (growth > 0 ? '+' : '') + growth + '%';
                 growthElement.className = growth >= 0 ? 'text-lg font-bold text-green-600' : 'text-lg font-bold text-red-600';
             }
-            
-        } catch (error) {
-            console.error('Error loading trend data:', error);
+        } else {
+            console.error('No trend data received');
+            barsContainer.innerHTML = '<div class="w-full text-center text-gray-500 py-12">No trend data available</div>';
         }
+    } catch (error) {
+        console.error('Error loading trend data:', error);
+        barsContainer.innerHTML = '<div class="w-full text-center text-red-500 py-12">Failed to load trend data</div>';
     }
+}
 
+// Render trend chart
+function renderTrendChart(trendData) {
+    const barsContainer = document.getElementById('weekly-bars');
+    
+    if (!trendData || trendData.length === 0) {
+        barsContainer.innerHTML = '<div class="w-full text-center text-gray-500 py-12">No data available</div>';
+        return;
+    }
+    
+    let html = '';
+    const maxValue = Math.max(...trendData.map(d => d.count), 1);
+    const colors = [
+        'from-[#155386] to-[#40798C]',
+        'from-[#40798C] to-[#70A9A1]',
+        'from-[#70A9A1] to-[#9EC5CB]',
+        'from-[#9EC5CB] to-[#B8D8E3]'
+    ];
+    
+    trendData.forEach((item, index) => {
+        const height = maxValue > 0 ? (item.count / maxValue) * 160 : 20; // Max height 160px, min 20px
+        const colorIndex = index % colors.length;
+        
+        html += `
+            <div class="flex flex-col items-center w-16 group">
+                <div class="relative">
+                    <div class="w-10 bg-gradient-to-t ${colors[colorIndex]} rounded-t-lg group-hover:brightness-110 group-hover:scale-105 transition-all" style="height: ${height}px; min-height: 20px;"></div>
+                    <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">${item.count} applications</span>
+                </div>
+                <p class="mt-3 text-sm font-medium text-gray-600">${item.label}</p>
+                <span class="text-sm font-bold text-[#155386]">${item.count}</span>
+            </div>
+        `;
+    });
+    
+    barsContainer.innerHTML = html;
+}
     // Update donut chart
     function updateDonutChart(counts) {
         const total = counts.pending + counts.under_review + counts.approved + 
