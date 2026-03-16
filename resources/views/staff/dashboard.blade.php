@@ -105,7 +105,7 @@
 </div>
 
 <!-- Original Dashboard Content -->
-<div class="p-4 md:p-6 bg-gray-50 min-h-screen" id="dashboardContent">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen max-w-7xl mx-auto" id="dashboardContent">
     <!-- PAGE HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
@@ -163,30 +163,39 @@
                 </div>
             </div>
 
-            <!-- BAR GRAPH with Y-axis -->
-            <div class="relative h-72">
-                <!-- Y-axis lines and labels -->
-                <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2">
-                    <span>80</span>
-                    <span>60</span>
-                    <span>40</span>
-                    <span>20</span>
-                    <span>0</span>
-                </div>
-                
-                <!-- Grid lines -->
-                <div class="absolute left-8 right-0 top-0 h-full">
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                </div>
-                
-                <!-- Bars container - will be populated dynamically -->
-                <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10">
-                    <!-- Dynamic bars will be inserted here -->
+    <!-- BAR GRAPH with Y-axis -->
+    <div class="relative h-72">
+        <!-- Y-axis lines and labels (dynamic) -->
+        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2" id="y-axis-labels">
+            <span>80</span>
+            <span>60</span>
+            <span>40</span>
+            <span>20</span>
+            <span>0</span>
+        </div>
+        
+        <!-- Grid lines -->
+        <div class="absolute left-8 right-0 top-0 h-full">
+            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+        </div>
+        
+        <!-- Bars container with loading state -->
+        <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10">
+            <!-- Initial loading state -->
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
                 </div>
             </div>
+        </div>
+    </div>
 
             <!-- Summary Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-4 border-t border-gray-100" id="summary-stats">
@@ -1010,6 +1019,184 @@
         if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
         return Math.floor(seconds / 86400) + ' days ago';
     }
+    document.addEventListener('DOMContentLoaded', function() {
+    // Load initial data
+    loadTrendData();
+    
+    // Add event listener for period change
+    document.getElementById('trend-period').addEventListener('change', function() {
+        loadTrendData();
+    });
+});
+
+async function loadTrendData() {
+    const period = document.getElementById('trend-period').value;
+    const barsContainer = document.getElementById('weekly-bars');
+    
+    // Show loading state
+    barsContainer.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center">
+                <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
+            </div>
+        </div>
+    `;
+    
+    try {
+        // Fetch data from your API endpoint
+        const response = await fetch(`/staff/applications/trend?period=${period}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            renderTrendChart(data);
+        } else {
+            showErrorState('No data available');
+        }
+    } catch (error) {
+        console.error('Error loading trend data:', error);
+        showErrorState('Failed to load data');
+    }
+}
+
+function renderTrendChart(data) {
+    const barsContainer = document.getElementById('weekly-bars');
+    const values = data.values || [];
+    const labels = data.labels || [];
+    
+    if (values.length === 0) {
+        showErrorState('No data available');
+        return;
+    }
+    
+    // Calculate max value for scaling
+    const maxValue = Math.max(...values, 1);
+    
+    // Generate Y-axis labels dynamically
+    updateYAxisLabels(maxValue);
+    
+    // Generate bars HTML
+    let barsHtml = '';
+    const gradientColors = [
+        'from-[#155386] to-[#40798C]',
+        'from-[#40798C] to-[#70A9A1]',
+        'from-[#70A9A1] to-[#9EC5CB]',
+        'from-[#9EC5CB] to-[#B8D8E3]'
+    ];
+    
+    values.forEach((value, index) => {
+        const percentage = (value / maxValue) * 100;
+        const colorIndex = index % gradientColors.length;
+        const formattedValue = value.toLocaleString();
+        
+        barsHtml += `
+            <div class="group relative flex flex-col items-center justify-end h-full w-16">
+                <!-- Bar -->
+                <div class="relative w-10 bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
+                     style="height: ${percentage}%; min-height: 4px;">
+                    
+                    <!-- Tooltip -->
+                    <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
+                        ${formattedValue} applications
+                    </div>
+                    
+                    <!-- Value label on bar (shown on hover) -->
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full text-xs font-medium text-[#155386] opacity-0 group-hover:opacity-100 transition">
+                        ${value}
+                    </div>
+                </div>
+                
+                <!-- Label -->
+                <span class="mt-2 text-xs font-medium text-gray-600 truncate w-full text-center" title="${labels[index]}">
+                    ${labels[index]}
+                </span>
+            </div>
+        `;
+    });
+    
+    barsContainer.innerHTML = barsHtml;
+    
+    // Update summary stats
+    updateSummaryStats(values);
+}
+
+function updateYAxisLabels(maxValue) {
+    const yAxisLabels = document.getElementById('y-axis-labels');
+    const step = Math.ceil(maxValue / 4);
+    
+    // Generate labels in multiples of step
+    const labels = [
+        Math.ceil(maxValue),
+        Math.ceil(maxValue * 0.75),
+        Math.ceil(maxValue * 0.5),
+        Math.ceil(maxValue * 0.25),
+        0
+    ];
+    
+    yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
+}
+
+function updateSummaryStats(values) {
+    const total = values.reduce((a, b) => a + b, 0);
+    const avg = Math.round(total / values.length);
+    const peak = Math.max(...values);
+    
+    // Calculate growth (compare first half vs second half)
+    const half = Math.floor(values.length / 2);
+    const firstHalf = values.slice(0, half);
+    const secondHalf = values.slice(half);
+    
+    const firstHalfAvg = firstHalf.length > 0 ? firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length : 0;
+    const secondHalfAvg = secondHalf.length > 0 ? secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length : 0;
+    
+    let growth = 0;
+    let growthClass = 'text-gray-800';
+    
+    if (firstHalfAvg > 0) {
+        growth = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg * 100).toFixed(1);
+        growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
+    }
+    
+    // Update DOM
+    document.getElementById('total-apps').textContent = total.toLocaleString();
+    document.getElementById('avg-apps').textContent = avg.toLocaleString();
+    document.getElementById('peak-apps').textContent = peak.toLocaleString();
+    
+    const growthElement = document.getElementById('growth-rate');
+    growthElement.textContent = growth > 0 ? `+${growth}%` : `${growth}%`;
+    growthElement.className = `text-lg font-bold ${growthClass}`;
+}
+
+function showErrorState(message) {
+    const barsContainer = document.getElementById('weekly-bars');
+    barsContainer.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-gray-500">${message}</p>
+                <button onclick="loadTrendData()" class="mt-3 text-xs text-[#155386] hover:underline">
+                    Try again
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Reset summary stats
+    document.getElementById('total-apps').textContent = '-';
+    document.getElementById('avg-apps').textContent = '-';
+    document.getElementById('peak-apps').textContent = '-';
+    document.getElementById('growth-rate').textContent = '-';
+}
 </script>
 
 <style>

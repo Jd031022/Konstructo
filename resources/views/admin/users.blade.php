@@ -3,7 +3,7 @@
 @section('title', 'User Management - Konstructo')
 
 @section('content')
-<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen max-w-7xl mx-auto">
 
     <!-- PAGE HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -174,12 +174,14 @@
 
         <!-- Empty State -->
         <div id="empty-state" class="text-center py-12 hidden">
-            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p class="text-gray-500">Get started by creating a new user.</p>
-            <button onclick="openUserModal()" class="mt-4 inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+            <p class="text-gray-500 mb-4">Get started by creating a new user.</p>
+            <button onclick="openUserModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -347,20 +349,53 @@
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-md">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white">
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
                     <h3 class="text-xl font-bold">Reset Password</h3>
+                    <button onclick="closeResetPasswordModal()" class="text-white hover:text-gray-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
                 <div class="p-6">
-                    <div id="reset-password-result" class="mb-4 p-4 bg-gray-50 rounded-lg hidden">
-                        <p class="text-sm font-medium text-gray-700 mb-2">New Password:</p>
-                        <p id="new-password-display" class="text-lg font-mono bg-white p-2 rounded border"></p>
-                        <p class="text-xs text-gray-500 mt-2">Please share this password with the user. They can change it after logging in.</p>
+                    <div id="reset-password-content">
+                        <!-- Dynamic content will be inserted here -->
                     </div>
-                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toggle Status Modal -->
+<div id="toggle-status-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
+                    <h3 class="text-xl font-bold" id="toggle-modal-title">Toggle Status</h3>
+                    <button onclick="closeToggleModal()" class="text-white hover:text-gray-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <p id="toggle-modal-message" class="text-gray-700 mb-6"></p>
                     <div class="flex justify-end gap-3">
-                        <button onclick="closeResetPasswordModal()" 
+                        <button onclick="closeToggleModal()" 
                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Close
+                            Cancel
+                        </button>
+                        <button onclick="confirmToggleStatus()" id="confirm-toggle-btn"
+                            class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2 text-sm">
+                            <span id="toggle-btn-text">Confirm</span>
+                            <span id="toggle-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -402,18 +437,61 @@
     </div>
 </div>
 
+<!-- Success Message Modal -->
+<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Success</h3>
+                    <p id="success-modal-message" class="text-sm text-gray-600 mb-6"></p>
+                    <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Message Modal -->
+<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
+                    <p id="error-modal-message" class="text-sm text-gray-600 mb-6"></p>
+                    <button onclick="closeErrorModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript for User Management -->
 <script>
 let currentUserId = null;
 let users = [];
 let filteredUsers = [];
+let resetUserId = null;
+let toggleUserId = null;
+let toggleAction = null;
 
 // Load users on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadUsers();
     
     // Setup modal close on outside click
-    const modals = ['user-modal', 'reset-password-modal', 'delete-modal'];
+    const modals = ['user-modal', 'reset-password-modal', 'toggle-status-modal', 'delete-modal', 'success-modal', 'error-modal'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -421,7 +499,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.target === modal) {
                     if (modalId === 'user-modal') closeUserModal();
                     if (modalId === 'reset-password-modal') closeResetPasswordModal();
+                    if (modalId === 'toggle-status-modal') closeToggleModal();
                     if (modalId === 'delete-modal') closeDeleteModal();
+                    if (modalId === 'success-modal') closeSuccessModal();
+                    if (modalId === 'error-modal') closeErrorModal();
                 }
             });
         }
@@ -430,15 +511,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            if (!document.getElementById('user-modal').classList.contains('hidden')) {
-                closeUserModal();
-            }
-            if (!document.getElementById('reset-password-modal').classList.contains('hidden')) {
-                closeResetPasswordModal();
-            }
-            if (!document.getElementById('delete-modal').classList.contains('hidden')) {
-                closeDeleteModal();
-            }
+            if (!document.getElementById('user-modal').classList.contains('hidden')) closeUserModal();
+            if (!document.getElementById('reset-password-modal').classList.contains('hidden')) closeResetPasswordModal();
+            if (!document.getElementById('toggle-status-modal').classList.contains('hidden')) closeToggleModal();
+            if (!document.getElementById('delete-modal').classList.contains('hidden')) closeDeleteModal();
+            if (!document.getElementById('success-modal').classList.contains('hidden')) closeSuccessModal();
+            if (!document.getElementById('error-modal').classList.contains('hidden')) closeErrorModal();
         }
     });
 
@@ -479,11 +557,11 @@ async function loadUsers() {
             filteredUsers = [...users];
             renderUsers();
         } else {
-            showError('Failed to load users');
+            showErrorModal('Failed to load users');
         }
     } catch (error) {
         console.error('Error:', error);
-        showError('An error occurred while loading users');
+        showErrorModal('An error occurred while loading users');
     } finally {
         hideLoading();
     }
@@ -612,12 +690,12 @@ function renderUsers() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
-                    <button onclick="resetPassword(${user.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Reset Password">
+                    <button onclick="resetPassword(${user.id}, '${user.name}')" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Reset Password">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                     </button>
-                    <button onclick="toggleUserStatus(${user.id})" class="p-2 ${user.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} rounded-lg transition" title="${user.status === 'active' ? 'Deactivate' : 'Activate'}">
+                    <button onclick="toggleUserStatus(${user.id}, '${user.name}', '${user.status}')" class="p-2 ${user.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} rounded-lg transition" title="${user.status === 'active' ? 'Deactivate' : 'Activate'}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${user.status === 'active' 
                                 ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />'
@@ -625,7 +703,7 @@ function renderUsers() {
                             }
                         </svg>
                     </button>
-                    <button onclick="confirmDeleteUser(${user.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                    <button onclick="confirmDeleteUser(${user.id}, '${user.name}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -845,26 +923,56 @@ async function editUser(userId) {
             document.body.style.overflow = 'hidden';
             clearModalMessages();
         } else {
-            alert('Failed to load user data');
+            showErrorModal('Failed to load user data');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred');
+        showErrorModal('An error occurred');
     }
 }
 
 // Reset password
-let resetUserId = null;
-
-async function resetPassword(userId) {
-    if (!confirm('Are you sure you want to reset this user\'s password?')) {
-        return;
-    }
-    
+function resetPassword(userId, userName) {
     resetUserId = userId;
     
+    const modalContent = document.getElementById('reset-password-content');
+    modalContent.innerHTML = `
+        <p class="text-gray-700 mb-6">Are you sure you want to reset the password for <strong>${userName}</strong>? A new random password will be generated.</p>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeResetPasswordModal()" 
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                Cancel
+            </button>
+            <button onclick="confirmResetPassword()" id="confirm-reset-btn"
+                class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2 text-sm">
+                <span id="reset-btn-text">Reset Password</span>
+                <span id="reset-btn-spinner" class="hidden">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('reset-password-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+async function confirmResetPassword() {
+    if (!resetUserId) return;
+    
+    const btn = document.getElementById('confirm-reset-btn');
+    const btnText = document.getElementById('reset-btn-text');
+    const spinner = document.getElementById('reset-btn-spinner');
+    
+    btnText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    btn.disabled = true;
+    
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${userId}/reset-password`, {
+        const response = await fetch(`{{ url('admin/users') }}/${resetUserId}/reset-password`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -875,35 +983,69 @@ async function resetPassword(userId) {
         const data = await response.json();
         
         if (response.ok) {
-            document.getElementById('new-password-display').textContent = data.new_password;
-            document.getElementById('reset-password-result').classList.remove('hidden');
-            document.getElementById('reset-password-modal').classList.remove('hidden');
+            const modalContent = document.getElementById('reset-password-content');
+            modalContent.innerHTML = `
+                <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-sm font-medium text-gray-700 mb-2">New Password:</p>
+                    <p class="text-lg font-mono bg-white p-2 rounded border text-center select-all">${data.new_password}</p>
+                    <p class="text-xs text-gray-500 mt-2">Please share this password with the user. They can change it after logging in.</p>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeResetPasswordModal()" 
+                        class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                        Close
+                    </button>
+                </div>
+            `;
         } else {
-            alert(data.error || 'Failed to reset password');
+            showErrorModal(data.error || 'Failed to reset password');
+            closeResetPasswordModal();
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred');
+        showErrorModal('An error occurred');
+        closeResetPasswordModal();
     }
 }
 
 function closeResetPasswordModal() {
     document.getElementById('reset-password-modal').classList.add('hidden');
-    document.getElementById('reset-password-result').classList.add('hidden');
+    document.body.style.overflow = 'auto';
     resetUserId = null;
 }
 
 // Toggle user status
-async function toggleUserStatus(userId) {
-    const user = users.find(u => u.id === userId);
-    const action = user?.status === 'active' ? 'deactivate' : 'activate';
+function toggleUserStatus(userId, userName, currentStatus) {
+    toggleUserId = userId;
+    toggleAction = currentStatus === 'active' ? 'deactivate' : 'activate';
     
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
-        return;
-    }
+    document.getElementById('toggle-modal-title').textContent = toggleAction === 'deactivate' ? 'Deactivate User' : 'Activate User';
+    document.getElementById('toggle-modal-message').innerHTML = `Are you sure you want to <strong>${toggleAction}</strong> <strong>${userName}</strong>?`;
+    
+    document.getElementById('toggle-status-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeToggleModal() {
+    document.getElementById('toggle-status-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    toggleUserId = null;
+    toggleAction = null;
+}
+
+async function confirmToggleStatus() {
+    if (!toggleUserId) return;
+    
+    const btn = document.getElementById('confirm-toggle-btn');
+    const btnText = document.getElementById('toggle-btn-text');
+    const spinner = document.getElementById('toggle-btn-spinner');
+    
+    btnText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    btn.disabled = true;
     
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${userId}/toggle-status`, {
+        const response = await fetch(`{{ url('admin/users') }}/${toggleUserId}/toggle-status`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -914,36 +1056,43 @@ async function toggleUserStatus(userId) {
         const data = await response.json();
         
         if (response.ok) {
-            alert(data.message);
+            closeToggleModal();
+            showSuccessModal(data.message || `User ${toggleAction}d successfully`);
             loadUsers();
         } else {
-            alert(data.error || 'Failed to toggle user status');
+            showErrorModal(data.error || `Failed to ${toggleAction} user`);
+            closeToggleModal();
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred');
+        showErrorModal('An error occurred');
+        closeToggleModal();
     }
 }
 
 // Delete user
-let deleteUserId = null;
-
-function confirmDeleteUser(userId) {
+function confirmDeleteUser(userId, userName) {
     deleteUserId = userId;
     document.getElementById('delete-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeDeleteModal() {
     document.getElementById('delete-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
     deleteUserId = null;
 }
 
 async function confirmDelete() {
     if (!deleteUserId) return;
     
-    document.getElementById('delete-btn-text').classList.add('hidden');
-    document.getElementById('delete-btn-spinner').classList.remove('hidden');
-    document.getElementById('delete-btn').disabled = true;
+    const btn = document.getElementById('delete-btn');
+    const btnText = document.getElementById('delete-btn-text');
+    const spinner = document.getElementById('delete-btn-spinner');
+    
+    btnText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    btn.disabled = true;
     
     try {
         const response = await fetch(`{{ url('admin/users') }}/${deleteUserId}`, {
@@ -958,34 +1107,57 @@ async function confirmDelete() {
         
         if (response.ok) {
             closeDeleteModal();
-            alert(data.message);
+            showSuccessModal(data.message || 'User deleted successfully');
             loadUsers();
         } else {
-            alert(data.error || 'Failed to delete user');
+            showErrorModal(data.error || 'Failed to delete user');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred');
+        showErrorModal('An error occurred');
     } finally {
-        document.getElementById('delete-btn-text').classList.remove('hidden');
-        document.getElementById('delete-btn-spinner').classList.add('hidden');
-        document.getElementById('delete-btn').disabled = false;
+        btnText.classList.remove('hidden');
+        spinner.classList.add('hidden');
+        btn.disabled = false;
     }
 }
 
-// Show error message
-function showError(message) {
-    alert(message);
+// Success and Error modal functions
+function showSuccessModal(message) {
+    document.getElementById('success-modal-message').textContent = message;
+    document.getElementById('success-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    setTimeout(() => {
+        closeSuccessModal();
+    }, 3000);
+}
+
+function closeSuccessModal() {
+    document.getElementById('success-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function showErrorModal(message) {
+    document.getElementById('error-modal-message').textContent = message;
+    document.getElementById('error-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeErrorModal() {
+    document.getElementById('error-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
 </script>
 
 <style>
     /* Modal animations */
-    #user-modal, #reset-password-modal, #delete-modal {
+    #user-modal, #reset-password-modal, #toggle-status-modal, #delete-modal, #success-modal, #error-modal {
         transition: opacity 0.2s ease-in-out;
     }
     
-    #user-modal .bg-white, #reset-password-modal .bg-white, #delete-modal .bg-white {
+    #user-modal .bg-white, #reset-password-modal .bg-white, #toggle-status-modal .bg-white, 
+    #delete-modal .bg-white, #success-modal .bg-white, #error-modal .bg-white {
         animation: modalSlideIn 0.3s ease-out;
     }
     
@@ -1031,6 +1203,11 @@ function showError(message) {
     
     .overflow-y-auto::-webkit-scrollbar-thumb:hover {
         background: #555;
+    }
+
+    /* Select all for password */
+    .select-all {
+        user-select: all;
     }
 </style>
 @endsection
