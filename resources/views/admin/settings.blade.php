@@ -1,8 +1,11 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Settings')
-
 @section('content')
+@php
+    // Set default value for currentTab if not set
+    $currentTab = $currentTab ?? 'logs';
+@endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Page Header -->
@@ -186,7 +189,15 @@
                             <td class="py-4 px-6">
                                 <span class="font-mono text-sm text-gray-600">{{ $log->ip_address ?? 'N/A' }}</span>
                             </td>
-                            <td class="py-4 px-6 text-sm text-gray-500">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">
+                                <span title="{{ $log->created_at->format('F j, Y g:i:s A') }}">
+                                    {{ $log->created_at->format('M d, Y h:i A') }}
+                                </span>
+                                <br>
+                                <span class="text-xs text-gray-400">
+                                    {{ $log->created_at->diffForHumans() }}
+                                </span>
+                            </td>
                             <td class="py-4 px-6">
                                 <span class="px-3 py-1 {{ $log->status == 'success' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }} rounded-full text-xs font-medium capitalize">
                                     {{ $log->status }}

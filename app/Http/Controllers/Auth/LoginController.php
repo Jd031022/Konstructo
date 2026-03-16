@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Events\UserLoggedIn;
 use App\Models\LoginAttempt;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,7 @@ class LoginController extends Controller
         $login = $request->login;
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Log the attempt
+        // Log the attempt in login_attempts table
         $attempt = LoginAttempt::create([
             'username_attempted' => $login,
             'ip_address' => $request->ip(),
@@ -47,6 +48,23 @@ class LoginController extends Controller
                 'failure_reason' => 'too_many_attempts'
             ]);
             
+            // Log the failed attempt in activity_logs
+            ActivityLog::create([
+                'user_id' => null,
+                'action' => 'login',
+                'description' => 'Too many failed login attempts',
+                'metadata' => json_encode([
+                    'login_attempted' => $login,
+                    'login_type' => $loginType,
+                    'failure_reason' => 'too_many_attempts',
+                    'attempt_count' => $failedAttempts,
+                    'ip_address' => $request->ip()
+                ]),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'failed'
+            ]);
+            
             return response()->json([
                 'error' => 'Too many login attempts. Please try again later.'
             ], 429);
@@ -63,7 +81,23 @@ class LoginController extends Controller
                 'failure_reason' => null,
             ]);
             
-            // Dispatch event for logging
+            // Log successful login in activity_logs
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'login',
+                'description' => 'User logged in successfully',
+                'metadata' => json_encode([
+                    'login_type' => $loginType,
+                    'login_value' => $login,
+                    'user_role' => $user->role,
+                    'ip_address' => $request->ip()
+                ]),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'success'
+            ]);
+            
+            // Dispatch event for logging (if you still want to keep this)
             event(new UserLoggedIn(
                 $user,
                 $request->ip(),
@@ -90,10 +124,29 @@ class LoginController extends Controller
         $user = User::where('email', $login)
                     ->orWhere('username', $login)
                     ->first();
-                    
+        
+        $failureReason = $user ? 'invalid_password' : 'user_not_found';
+        
         $attempt->update([
             'user_id' => $user->id ?? null,
-            'failure_reason' => $user ? 'invalid_password' : 'user_not_found',
+            'failure_reason' => $failureReason,
+        ]);
+        
+        // Log the failed attempt in activity_logs
+        ActivityLog::create([
+            'user_id' => $user->id ?? null,
+            'action' => 'login',
+            'description' => $user ? 'Invalid password provided' : 'User account not found',
+            'metadata' => json_encode([
+                'login_attempted' => $login,
+                'login_type' => $loginType,
+                'failure_reason' => $failureReason,
+                'user_exists' => $user ? true : false,
+                'ip_address' => $request->ip()
+            ]),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'failed'
         ]);
 
         return response()->json(['error' => 'Invalid email/username or password'], 401);
@@ -104,6 +157,21 @@ class LoginController extends Controller
         if (Auth::check()) {
             /** @var \App\Models\User $user */
             $user = Auth::user();
+            
+            // Log logout activity in activity_logs
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => 'logout',
+                'description' => 'User logged out',
+                'metadata' => json_encode([
+                    'method' => $request->method(),
+                    'session_id' => session()->getId(),
+                    'ip_address' => $request->ip()
+                ]),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'success'
+            ]);
         
             // Check if sessions relationship exists before using it
             if (method_exists($user, 'sessions')) {

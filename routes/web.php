@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Admin\SettingsController;
+
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -252,9 +254,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.delete');
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
+     // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
+
 });
 
 // Profile route (kept for backward compatibility)
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
+
+
