@@ -2,6 +2,7 @@ Fees To Be Paid
 
 Filing Fee OBO = 100
 BFP = 200
+Total = 300
 
 
-300 pesos additional fees will be based on new schedule of fees and other charges of the National Building Code of the Philippines and Fire Code of the Philippines
+ Additional fees will be based on new schedule of fees and other charges of the National Building Code of the Philippines and Fire Code of the Philippines
