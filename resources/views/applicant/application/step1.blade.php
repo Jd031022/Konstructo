@@ -4,19 +4,45 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-<!-- Back Button (Simple Version) -->
-<div class="mb-8">
-    <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back
-    </a>
-</div>
-    <!-- Limit Warning Banner (shown dynamically) -->
+    <!-- Back Button with improved navigation handler -->
+    <div class="mb-8">
+        <a href="javascript:void(0)" onclick="handleBackNavigation(event)" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group" id="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </a>
+    </div>
+
+    <!-- Application Stats Banner -->
+    <div id="application-stats-banner" class="mb-6 hidden">
+        <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-xl p-4 text-white">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-white/80 text-sm">Application Status</p>
+                        <p class="text-lg font-semibold">
+                            <span id="stats-drafts">0</span> Draft<span id="draft-plural">s</span> • 
+                            <span id="stats-remaining">3</span> Slot<span id="slot-plural">s</span> Remaining
+                        </p>
+                    </div>
+                </div>
+                <a href="/applicant/applications" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm">
+                    View My Applications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Limit Warning Container -->
     <div id="limit-warning-container"></div>
 
-    <!-- Application Number Banner - Hidden by default, only shows when app letter is downloaded -->
+    <!-- Application Number Banner -->
     <div id="application-number-banner" class="mb-6 hidden">
         <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-2xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 flex items-center justify-between">
@@ -84,7 +110,6 @@
 
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
         <!-- Instructions Card -->
         <div class="p-8 pt-10">
             <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
@@ -394,6 +419,7 @@
     let totalFilesToDownload = 0;
     let pendingNavigationUrl = null;
     let currentDraftId = null;
+    let limitInfo = null;
     
     // Form checklist functionality
     const formCheckboxes = [
@@ -428,10 +454,12 @@
 
     // Handle back button click
     function handleBackNavigation(event) {
+        event.preventDefault();
         if (applicationNumberGenerated) {
-            event.preventDefault();
             pendingNavigationUrl = '/applicant/applications';
             showDraftModal();
+        } else {
+            window.history.back();
         }
     }
 
@@ -478,29 +506,23 @@
         btn.disabled = true;
 
         try {
-            // The draft is already created when application number was generated
+            // Close the draft modal first
             closeDraftModal();
             
+            // Show success message
             const successModal = document.getElementById('success-modal');
             const successMessage = document.getElementById('success-modal-message');
-            const okButton = successModal.querySelector('button');
-            
             successMessage.textContent = 'Application saved as draft!';
-            
-            okButton.onclick = function() {
-                closeSuccessModal();
-                removeBeforeUnload();
-                window.location.href = '/applicant/applications';
-            };
-            
             successModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
+            // Navigate after a short delay
             setTimeout(() => {
                 closeSuccessModal();
                 removeBeforeUnload();
                 window.location.href = '/applicant/applications';
-            }, 2000);
+            }, 1500);
+            
         } catch (error) {
             console.error('Error saving draft:', error);
             showErrorModal('Failed to save draft. Please try again.');
@@ -523,30 +545,68 @@
         btn.disabled = true;
 
         try {
+            // Delete the draft if it exists
             if (currentDraftId) {
                 await fetch(`/applicant/applications/${currentDraftId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
                     }
-                });
+                }).catch(err => console.log('Delete failed, but continuing anyway:', err));
             }
             
+            // Clear storage
             clearApplicationStorage();
+            applicationNumberGenerated = false;
+            
+            // Close the draft modal
             closeDraftModal();
+            
+            // Remove beforeunload listener
             removeBeforeUnload();
             
+            // Navigate immediately
             if (pendingNavigationUrl) {
                 window.location.href = pendingNavigationUrl;
+            } else {
+                window.location.href = '/applicant/applications';
             }
+            
         } catch (error) {
             console.error('Error discarding draft:', error);
+            // Still navigate even if there's an error
             closeDraftModal();
             removeBeforeUnload();
             if (pendingNavigationUrl) {
                 window.location.href = pendingNavigationUrl;
+            } else {
+                window.location.href = '/applicant/applications';
             }
+        }
+    }
+
+    // Update stats display with limit info
+    function updateStatsDisplay(info) {
+        const statsBanner = document.getElementById('application-stats-banner');
+        statsBanner.classList.remove('hidden');
+        
+        document.getElementById('stats-drafts').textContent = info.drafts;
+        document.getElementById('stats-remaining').textContent = info.remaining;
+        
+        // Update pluralization
+        document.getElementById('draft-plural').textContent = info.drafts === 1 ? '' : 's';
+        document.getElementById('slot-plural').textContent = info.remaining === 1 ? '' : 's';
+        
+        // Change color based on remaining slots
+        const remainingElement = document.getElementById('stats-remaining');
+        if (info.remaining === 0) {
+            remainingElement.className = 'text-lg font-semibold text-red-300';
+        } else if (info.remaining <= 1) {
+            remainingElement.className = 'text-lg font-semibold text-yellow-300';
+        } else {
+            remainingElement.className = 'text-lg font-semibold text-white';
         }
     }
 
@@ -563,8 +623,10 @@
             const data = await response.json();
             
             if (data.success) {
-                const limitInfo = data.data;
-                updateLimitDisplay(limitInfo);
+                limitInfo = data.data;
+                
+                // Update stats display
+                updateStatsDisplay(limitInfo);
                 
                 if (!limitInfo.can_apply) {
                     showErrorModal(`You have reached the maximum limit of ${limitInfo.limit} submitted applications. Please complete or delete existing applications before creating a new one.`);
@@ -751,18 +813,22 @@
             if (data.success && data.data.application_number) {
                 sessionStorage.setItem('konstructo_current_app_number', data.data.application_number);
                 currentDraftId = data.data.id;
-                showSuccessModal('Application number generated successfully!');
+                
+                // Show the draft modal after successful draft creation
+                pendingNavigationUrl = null;
             } else if (data.limit_reached) {
                 showErrorModal(data.message);
                 return;
             } else {
                 sessionStorage.setItem('konstructo_current_app_number', appNumber);
-                showSuccessModal('Application number generated successfully!');
+                // Still show modal even if backend doesn't return ID
+                pendingNavigationUrl = null;
             }
         } catch (error) {
             console.error('Error creating draft:', error);
             sessionStorage.setItem('konstructo_current_app_number', appNumber);
-            showSuccessModal('Application number generated successfully!');
+            // Show modal even if there's an error
+            pendingNavigationUrl = null;
         }
     }
 
@@ -796,7 +862,6 @@
             downloadCount = 0;
             totalFilesToDownload = 0;
             document.getElementById('download-btn').disabled = false;
-            showSuccessModal('All files downloaded successfully!');
         }
     }
 
@@ -826,6 +891,11 @@
 
         if (hasAppLetter) {
             await showApplicationNumber();
+            
+            // If the draft modal is showing, pause downloads until user decides
+            if (!document.getElementById('save-draft-modal').classList.contains('hidden')) {
+                return;
+            }
         }
 
         const downloadBtn = document.getElementById('download-btn');
@@ -839,6 +909,13 @@
         selectedForms.forEach((form, index) => {
             setTimeout(() => {
                 downloadFile(form.file);
+                
+                // Show success after all files downloaded
+                if (downloadCount === totalFilesToDownload) {
+                    setTimeout(() => {
+                        showSuccessModal('All files downloaded successfully!');
+                    }, 500);
+                }
             }, index * 800);
         });
     }

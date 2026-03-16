@@ -91,14 +91,6 @@
                 </svg>
                 <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
             </a>
-
-            <!-- Archive -->
-            <a href="/applicant/applications/archived" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('applicant/applications/archived*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
-            </a>
         @endif
 
         <!-- DIVIDER - Visible to all roles -->
