@@ -11,12 +11,6 @@
             <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
             <p class="text-sm text-gray-500 mt-1">Welcome back! Here's your applications overview.</p>
         </div>
-        <div class="mt-4 md:mt-0">
-            <span class="text-sm bg-green-100 text-green-600 px-3 py-1 rounded-full flex items-center gap-1">
-                <span class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                {{ now()->format('F d, Y') }}
-            </span>
-        </div>
     </div>
 
     <!-- TOP STATS - 4 cards in one row with blue icons -->

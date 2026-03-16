@@ -22,11 +22,11 @@
                 </svg>
                 Export PDF
             </button>
-            <button onclick="editApplication()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+            <button onclick="archiveApplication()" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
-                Edit Application
+                Archive Application
             </button>
         </div>
     </div>
@@ -160,27 +160,7 @@
                     </div>
                 </div>
 
-                <!-- Staff Notes Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Staff Notes</h2>
-                    
-                    <div id="notes-container" class="space-y-4">
-                        <!-- Notes will be loaded dynamically -->
-                        <div class="p-3 bg-gray-50 rounded-lg text-center text-gray-500">
-                            No notes yet. Add a note below.
-                        </div>
-                    </div>
-                    
-                    <!-- Add Note -->
-                    <div class="mt-4">
-                        <textarea id="new-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add a note..."></textarea>
-                        <button onclick="addNote()" class="mt-2 px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm w-full">
-                            Add Note
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Staff Guidelines Card - Moved here below Staff Notes -->
+                <!-- Staff Guidelines Card -->
                 <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
                     <div class="flex items-start gap-4">
                         <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -212,7 +192,7 @@
                                 <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
                             </div>
 
-                            <!-- Hard Copy Status Checkbox (for staff to mark when received) -->
+                            <!-- Hard Copy Status Checkbox -->
                             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <label class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
@@ -261,41 +241,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Quick Actions Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
-                        
-                        <div class="space-y-2">
-                            <button onclick="sendMessage()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span class="text-sm">Send Message to Applicant</span>
-                            </button>
-                            
-                            <button onclick="emailApplicant()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <span class="text-sm">Email Applicant</span>
-                            </button>
-                            
-                            <button onclick="scheduleReview()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="text-sm">Schedule Review</span>
-                            </button>
-                            
-                            <button onclick="deleteApplication()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="text-sm">Delete Application</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -320,6 +265,31 @@
                     </button>
                     <button onclick="confirmDelete()" id="confirm-delete-btn" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
                         Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+                    <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Archive Application</h3>
+                <p class="text-sm text-gray-600 mb-6">Are you sure you want to archive this application? Archived applications can be restored later.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeArchiveModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="confirmArchive()" id="confirm-archive-btn" class="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium">
+                        Archive
                     </button>
                 </div>
             </div>
@@ -512,91 +482,101 @@
     }
 
     // Update status
-async function updateStatus() {
-    const selectedRadio = document.querySelector('input[name="status"]:checked');
-    if (!selectedRadio) {
-        showErrorModal('Please select a status');
-        return;
-    }
-
-    const status = selectedRadio.value;
-    const remarks = document.getElementById('status-remarks').value;
-    const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
-
-    // Show loading state on button
-    const updateBtn = event.target;
-    const originalText = updateBtn.innerHTML;
-    updateBtn.innerHTML = 'Updating...';
-    updateBtn.disabled = true;
-
-    try {
-        const response = await fetch(`/staff/applications/${applicationId}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ 
-                status, 
-                remarks,
-                hardcopy_received: hardcopyReceived 
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showSuccessModal('Status updated successfully');
-            updateStatusUI(status);
-            
-            // Clear remarks field
-            document.getElementById('status-remarks').value = '';
-        } else {
-            showErrorModal(data.message || 'Failed to update status');
-        }
-    } catch (error) {
-        console.error('Error updating status:', error);
-        showErrorModal('Failed to update status. Please try again.');
-    } finally {
-        // Restore button
-        updateBtn.innerHTML = originalText;
-        updateBtn.disabled = false;
-    }
-}
-
-    // Add note
-    async function addNote() {
-        const note = document.getElementById('new-note').value;
-        if (!note) {
-            showErrorModal('Please enter a note');
+    async function updateStatus() {
+        const selectedRadio = document.querySelector('input[name="status"]:checked');
+        if (!selectedRadio) {
+            showErrorModal('Please select a status');
             return;
         }
 
-        // Here you would typically save the note to your backend
-        showSuccessModal('Note added successfully');
-        document.getElementById('new-note').value = '';
-        
-        // Add note to container (temporary)
-        const container = document.getElementById('notes-container');
-        const date = new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'short', day: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
-        
-        const noteHtml = `
-            <div class="p-3 bg-gray-50 rounded-lg">
-                <p class="text-xs text-gray-400 mb-1">${date}</p>
-                <p class="text-sm text-gray-700">${note}</p>
-                <p class="text-xs text-gray-500 mt-1">— You</p>
-            </div>
-        `;
-        
-        // Remove the "No notes" message if it exists
-        if (container.children.length === 1 && container.children[0].textContent.includes('No notes yet')) {
-            container.innerHTML = noteHtml;
-        } else {
-            container.innerHTML = noteHtml + container.innerHTML;
+        const status = selectedRadio.value;
+        const remarks = document.getElementById('status-remarks').value;
+        const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
+
+        // Show loading state on button
+        const updateBtn = event.target;
+        const originalText = updateBtn.innerHTML;
+        updateBtn.innerHTML = 'Updating...';
+        updateBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    status, 
+                    remarks,
+                    hardcopy_received: hardcopyReceived 
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showSuccessModal('Status updated successfully');
+                updateStatusUI(status);
+                
+                // Clear remarks field
+                document.getElementById('status-remarks').value = '';
+            } else {
+                showErrorModal(data.message || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            showErrorModal('Failed to update status. Please try again.');
+        } finally {
+            // Restore button
+            updateBtn.innerHTML = originalText;
+            updateBtn.disabled = false;
+        }
+    }
+
+    // Archive functions
+    function archiveApplication() {
+        document.getElementById('archive-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeArchiveModal() {
+        document.getElementById('archive-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    async function confirmArchive() {
+        const btn = document.getElementById('confirm-archive-btn');
+        btn.innerHTML = 'Archiving...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/archive`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showSuccessModal('Application archived successfully');
+                setTimeout(() => {
+                    window.location.href = '/staff/applications';
+                }, 1500);
+            } else {
+                showErrorModal(data.message || 'Failed to archive application');
+            }
+        } catch (error) {
+            console.error('Error archiving application:', error);
+            showErrorModal('Failed to archive application');
+        } finally {
+            btn.innerHTML = 'Archive';
+            btn.disabled = false;
+            closeArchiveModal();
         }
     }
 
@@ -627,30 +607,6 @@ async function updateStatus() {
     // Export as PDF
     function exportAsPDF() {
         window.location.href = `/staff/applications/${applicationId}/export-pdf`;
-    }
-
-    // Edit application
-    function editApplication() {
-        window.location.href = `/staff/applications/${applicationId}/edit`;
-    }
-
-    // Send message
-    function sendMessage() {
-        showSuccessModal('Messaging feature coming soon');
-    }
-
-    // Email applicant
-    function emailApplicant() {
-        if (currentApplication?.email) {
-            window.location.href = `mailto:${currentApplication.email}`;
-        } else {
-            showErrorModal('No email address available');
-        }
-    }
-
-    // Schedule review
-    function scheduleReview() {
-        showSuccessModal('Scheduling feature coming soon');
     }
 
     // Delete application
@@ -736,12 +692,19 @@ async function updateStatus() {
     // Setup modals
     function setupModals() {
         const deleteModal = document.getElementById('delete-modal');
+        const archiveModal = document.getElementById('archive-modal');
         const errorModal = document.getElementById('error-modal');
         const successModal = document.getElementById('success-modal');
         
         if (deleteModal) {
             deleteModal.addEventListener('click', function(e) {
                 if (e.target === deleteModal) closeDeleteModal();
+            });
+        }
+        
+        if (archiveModal) {
+            archiveModal.addEventListener('click', function(e) {
+                if (e.target === archiveModal) closeArchiveModal();
             });
         }
         
@@ -760,6 +723,7 @@ async function updateStatus() {
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeDeleteModal();
+                closeArchiveModal();
                 closeErrorModal();
                 closeSuccessModal();
             }
@@ -773,11 +737,11 @@ async function updateStatus() {
 }
 
 /* Modal animations */
-#delete-modal, #error-modal, #success-modal {
+#delete-modal, #archive-modal, #error-modal, #success-modal {
     transition: opacity 0.2s ease-in-out;
 }
 
-#delete-modal .bg-white, #error-modal .bg-white, #success-modal .bg-white {
+#delete-modal .bg-white, #archive-modal .bg-white, #error-modal .bg-white, #success-modal .bg-white {
     animation: modalSlideIn 0.3s ease-out;
 }
 
