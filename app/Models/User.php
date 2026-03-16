@@ -209,6 +209,110 @@ class User extends Authenticatable
         return $this->role === 'applicant';
     }
 
+    // ========== POSITION METHODS (NEW) ==========
+
+    /**
+     * Get the user's position (if staff).
+     */
+    public function getPositionAttribute(): ?string
+    {
+        return $this->profile?->position;
+    }
+
+    /**
+     * Get the user's position display name.
+     */
+    public function getPositionDisplayAttribute(): ?string
+    {
+        return $this->profile?->position_display;
+    }
+
+    /**
+     * Get the user's position badge color.
+     */
+    public function getPositionColorAttribute(): ?string
+    {
+        return $this->profile?->position_color;
+    }
+
+    /**
+     * Get the user's position badge HTML.
+     */
+    public function getPositionBadgeAttribute(): ?string
+    {
+        return $this->profile?->position_badge;
+    }
+
+    /**
+     * Check if user has position set (for staff).
+     */
+    public function hasPosition(): bool
+    {
+        return $this->isStaff() && $this->profile && !is_null($this->profile->position);
+    }
+
+    /**
+     * Check if user needs to set position.
+     */
+    public function needsPosition(): bool
+    {
+        return $this->isStaff() && (!$this->profile || is_null($this->profile->position));
+    }
+
+    /**
+     * Check if user is engineer.
+     */
+    public function isEngineer(): bool
+    {
+        return $this->isStaff() && $this->profile?->isEngineer();
+    }
+
+    /**
+     * Check if user is architect.
+     */
+    public function isArchitect(): bool
+    {
+        return $this->isStaff() && $this->profile?->isArchitect();
+    }
+
+    /**
+     * Check if user is BFP.
+     */
+    public function isBFP(): bool
+    {
+        return $this->isStaff() && $this->profile?->isBFP();
+    }
+
+    /**
+     * Check if user is administrative aide.
+     */
+    public function isAdministrativeAide(): bool
+    {
+        return $this->isStaff() && $this->profile?->isAdministrativeAide();
+    }
+
+    /**
+     * Check if user has technical position (Engineer or Architect).
+     */
+    public function isTechnical(): bool
+    {
+        return $this->isStaff() && $this->profile?->isTechnical();
+    }
+
+    /**
+     * Update user's position.
+     */
+    public function updatePosition(string $position): bool
+    {
+        if (!$this->isStaff()) {
+            return false;
+        }
+
+        $this->ensureProfileExists();
+        
+        return $this->profile()->update(['position' => $position]);
+    }
+
     // ========== APPLICATION DOCUMENT QUERY METHODS ==========
 
     /**
@@ -494,6 +598,55 @@ class User extends Authenticatable
         }
         
         return 'System';
+    }
+
+    // ========== SCOPES ==========
+
+    /**
+     * Scope a query to only include staff who need position.
+     */
+    public function scopeStaffNeedsPosition($query)
+    {
+        return $query->where('role', 'staff')
+                    ->whereHas('profile', function ($q) {
+                        $q->whereNull('position')
+                          ->orWhere('position', '');
+                    })
+                    ->orWhereDoesntHave('profile');
+    }
+
+    /**
+     * Scope a query to only include staff with specific position.
+     */
+    public function scopeByPosition($query, $position)
+    {
+        return $query->where('role', 'staff')
+                    ->whereHas('profile', function ($q) use ($position) {
+                        $q->where('position', $position);
+                    });
+    }
+
+    /**
+     * Scope a query to only include staff with technical positions.
+     */
+    public function scopeTechnicalStaff($query)
+    {
+        return $query->where('role', 'staff')
+                    ->whereHas('profile', function ($q) {
+                        $q->whereIn('position', ['engineer', 'architect']);
+                    });
+    }
+
+    /**
+     * Scope a query to only include staff with position set.
+     */
+    public function scopeHasPosition($query)
+    {
+        return $query->where('role', 'staff')
+                    ->whereHas('profile', function ($q) {
+                        $q->whereNotNull('position')
+                          ->where('position', '!=', '');
+                    });
     }
 
     // ========== BOOT METHOD ==========

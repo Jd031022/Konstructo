@@ -3,14 +3,126 @@
 @section('title', 'Staff Dashboard')
 
 @section('content')
-<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
+<!-- POSITION MODAL - Overlay on top of dashboard -->
+<div id="positionModal" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none; background-color: transparent; pointer-events: none;">
+    <!-- Modal Content - Only this is clickable, the rest of the overlay allows clicking through to dashboard -->
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 z-50" id="modalContent" style="pointer-events: auto; position: relative;">
+        <div class="p-6">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#155386] bg-opacity-10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">What is your position?</h2>
+                </div>
+                <!-- Small close button (optional - user can also click outside) -->
+                <button onclick="hidePositionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 mb-4">Please select your position to continue. You can close this and set it later.</p>
+                
+                <!-- Position Selection Form -->
+                <form id="positionForm">
+                    @csrf
+                    <div class="space-y-3">
+                        <!-- Engineer -->
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
+                            <input type="radio" name="position" value="engineer" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Engineer</span>
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Technical</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Civil, Electrical, Mechanical Engineering</p>
+                            </div>
+                        </label>
+                        
+                        <!-- Architect -->
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
+                            <input type="radio" name="position" value="architect" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Architect</span>
+                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Design</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Building Design and Planning</p>
+                            </div>
+                        </label>
+                        
+                        <!-- BFP -->
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
+                            <input type="radio" name="position" value="BFP" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">BFP</span>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Fire Safety</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Bureau of Fire Protection</p>
+                            </div>
+                        </label>
+                        
+                        <!-- Administrative Aide -->
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
+                            <input type="radio" name="position" value="administrative_aide" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Administrative Aide</span>
+                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Support</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Administrative and Support Services</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Error Message -->
+                    <div id="positionError" class="mt-4 text-sm text-red-600 hidden"></div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitPositionBtn" class="w-full mt-6 bg-[#155386] text-white py-3 px-4 rounded-xl font-medium hover:bg-[#0f3b5a] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Save Position</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="text-center text-xs text-gray-400">
+                <p>You can close this and set your position later</p>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Original Dashboard Content -->
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen" id="dashboardContent">
     <!-- PAGE HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
             <p class="text-sm text-gray-500 mt-1">Welcome back! Here's your applications overview.</p>
         </div>
+        <!-- Show user's position if set -->
+        @if(Auth::user()->profile && Auth::user()->profile->position)
+        <div class="mt-2 md:mt-0">
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#155386] rounded-lg text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="font-medium">{{ ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }}</span>
+            </span>
+        </div>
+        @endif
     </div>
 
     <!-- TOP STATS - 4 cards in one row with blue icons -->
@@ -32,16 +144,13 @@
 
     <!-- MAIN GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
         <!-- CHART AREA - Monthly Application Trend -->
         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800">Monthly Application Trend</h2>
                     <p class="text-xs text-gray-500 mt-1">Application volume over the last 4 weeks</p>
                 </div>
-
                 <div class="relative">
                     <select id="trend-period" class="appearance-none border border-gray-200 rounded-lg text-sm px-4 py-2.5 pr-8 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                         <option value="this_month">This Month</option>
@@ -98,12 +207,10 @@
                     <p class="text-lg font-bold text-green-600" id="growth-rate">0%</p>
                 </div>
             </div>
-
         </div>
 
         <!-- DONUT CHART - Overall -->
         <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center">
-
             <div class="flex items-center justify-between w-full mb-6">
                 <h2 class="text-lg font-semibold text-gray-700">Application Status</h2>
                 <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
@@ -138,14 +245,11 @@
                     <p class="text-lg font-bold text-gray-800" id="monthly-apps">0</p>
                 </div>
             </div>
-
         </div>
-
     </div>
 
     <!-- EXTRA SECTION -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-
         <!-- RECENT ACTIVITY -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-6">
@@ -194,22 +298,246 @@
                 </a>
             </div>
         </div>
-
     </div>
-
 </div>
 
-<!-- JavaScript for dynamic data loading -->
+<!-- JavaScript for dynamic data loading AND POSITION MODAL -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, checking position...');
+        
+        // Check if user needs to set position - this runs on EVERY page load
+        setTimeout(() => {
+            checkPositionNeeded();
+        }, 500); // Small delay to ensure everything is loaded
+        
+        // Load dashboard data
         loadDashboardData();
         
         // Add event listener for period change
         document.getElementById('trend-period')?.addEventListener('change', function() {
             loadDashboardData(this.value);
         });
+        
+        // Setup position form submission
+        setupPositionForm();
+        
+        // Close modal when clicking outside
+        document.getElementById('positionModal').addEventListener('click', function(e) {
+            // If clicking the modal container (not the content), hide the modal
+            if (e.target === this) {
+                hidePositionModal();
+            }
+        });
     });
 
+    // POSITION MODAL FUNCTIONS
+    async function checkPositionNeeded() {
+        try {
+            console.log('Checking if position needed...');
+            const response = await fetch('/staff/position/check');
+            const data = await response.json();
+            console.log('Position check response:', data);
+            
+            if (data.needs_position) {
+                console.log('Position needed, showing modal');
+                // Show modal as overlay on top of dashboard
+                showPositionModal();
+            } else {
+                console.log('Position already set');
+            }
+        } catch (error) {
+            console.error('Error checking position:', error);
+        }
+    }
+
+    function showPositionModal() {
+        const modal = document.getElementById('positionModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Small delay for animation
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 50);
+        
+        // Don't disable scrolling - user can still scroll dashboard
+        // Don't disable dashboard interactions - user can still click dashboard
+    }
+
+    function hidePositionModal() {
+        const modal = document.getElementById('positionModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    function selectPosition(value) {
+        console.log('Selecting position:', value);
+        const radio = document.querySelector(`input[name="position"][value="${value}"]`);
+        if (radio) {
+            radio.checked = true;
+            
+            // Remove highlight from all labels
+            document.querySelectorAll('label').forEach(label => {
+                label.classList.remove('border-[#155386]', 'bg-blue-50');
+            });
+            
+            // Highlight selected label
+            const selectedLabel = radio.closest('label');
+            if (selectedLabel) {
+                selectedLabel.classList.add('border-[#155386]', 'bg-blue-50');
+            }
+        }
+    }
+
+    function setupPositionForm() {
+        const form = document.getElementById('positionForm');
+        const errorDiv = document.getElementById('positionError');
+        const submitBtn = document.getElementById('submitPositionBtn');
+        
+        if (!form) {
+            console.error('Position form not found');
+            return;
+        }
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Form submitted');
+            
+            // Get selected position
+            const selectedPosition = document.querySelector('input[name="position"]:checked')?.value;
+            
+            if (!selectedPosition) {
+                errorDiv.textContent = 'Please select a position';
+                errorDiv.classList.remove('hidden');
+                
+                // Shake animation for error
+                form.classList.add('animate-shake');
+                setTimeout(() => form.classList.remove('animate-shake'), 500);
+                return;
+            }
+            
+            console.log('Selected position:', selectedPosition);
+            
+            // Disable form
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Saving...</span>
+            `;
+            
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const csrfToken = document.querySelector('input[name="_token"]')?.value;
+                
+                if (!csrfToken) {
+                    throw new Error('CSRF token not found');
+                }
+                
+                const response = await fetch('/staff/position/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ position: selectedPosition })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.errors?.position?.[0] || data.error || 'Failed to save position');
+                }
+                
+                // Show success message
+                showToast('Position saved successfully!', 'success');
+                
+                // Hide modal
+                hidePositionModal();
+                
+                // Update header with position
+                updateHeaderWithPosition(selectedPosition);
+                
+                // Reload dashboard data to reflect position-based features
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error saving position:', error);
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+                
+                // Re-enable form
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <span>Save Position</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+            }
+        });
+    }
+
+    function updateHeaderWithPosition(position) {
+        // Update the header to show the user's position
+        const headerRight = document.querySelector('.flex.flex-col.md\\:flex-row.md\\:items-center.md\\:justify-between.mb-6 .mt-2.md\\:mt-0');
+        
+        if (headerRight) {
+            const positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP');
+            headerRight.innerHTML = `
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#155386] rounded-lg text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span class="font-medium">${positionDisplay.charAt(0).toUpperCase() + positionDisplay.slice(1)}</span>
+                </span>
+            `;
+        }
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 z-[60] px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 translate-x-0 ${
+            type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+        }`;
+        
+        toast.innerHTML = `
+            <svg class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ${type === 'success' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                }
+            </svg>
+            <span class="text-sm font-medium">${message}</span>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // EXISTING DASHBOARD FUNCTIONS (keep all your existing functions)
     async function loadDashboardData(period = 'this_month') {
         try {
             // Load statistics
@@ -426,7 +754,6 @@
         document.getElementById('completion-percentage').textContent = verifiedPercent + '%';
         
         // Create donut chart - simplified for demo, showing only pending and completed
-        // In production, you'd calculate proper angles for all statuses
         const completedPercent = verifiedPercent;
         const pendingTotal = (parseFloat(pendingPercent) + parseFloat(underReviewPercent)).toFixed(1);
         const otherTotal = (parseFloat(approvedPercent) + parseFloat(forReleasePercent) + parseFloat(rejectedPercent)).toFixed(1);
@@ -485,193 +812,193 @@
         `;
     }
 
-   async function loadRecentActivities() {
-    try {
-        const response = await fetch('/staff/applications/recent-activities');
-        
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        
-        const activities = await response.json();
-        
-        const listContainer = document.getElementById('recent-activity-list');
-        
-        // Check if activities is an array
-        if (!Array.isArray(activities)) {
-            console.error('Activities is not an array:', activities);
-            listContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="text-sm">Unable to load activities</p>
-                </div>
-            `;
-            return;
-        }
-        
-        if (!activities || activities.length === 0) {
-            listContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="text-sm">No recent activities</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let activitiesHtml = '';
-        activities.forEach(activity => {
-            const timeAgo = getTimeAgo(activity.created_at);
+    async function loadRecentActivities() {
+        try {
+            const response = await fetch('/staff/applications/recent-activities');
             
-            // Determine icon and color based on action type
-            let iconColor = 'bg-blue-100 text-blue-600';
-            let icon = `
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            `;
-            
-            if (activity.action === 'approved') {
-                iconColor = 'bg-green-100 text-green-600';
-                icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                `;
-            } else if (activity.action === 'released') {
-                iconColor = 'bg-purple-100 text-purple-600';
-                icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                    </svg>
-                `;
-            } else if (activity.action === 'registered') {
-                iconColor = 'bg-amber-100 text-amber-600';
-                icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                `;
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
             
-            activitiesHtml += `
-                <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center">
-                            ${icon}
-                        </div>
-                        <span class="font-medium text-gray-700">${activity.description || 'Unknown activity'}</span>
+            const activities = await response.json();
+            
+            const listContainer = document.getElementById('recent-activity-list');
+            
+            // Check if activities is an array
+            if (!Array.isArray(activities)) {
+                console.error('Activities is not an array:', activities);
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm">Unable to load activities</p>
                     </div>
-                    <span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded-full">${timeAgo}</span>
-                </li>
+                `;
+                return;
+            }
+            
+            if (!activities || activities.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm">No recent activities</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let activitiesHtml = '';
+            activities.forEach(activity => {
+                const timeAgo = getTimeAgo(activity.created_at);
+                
+                // Determine icon and color based on action type
+                let iconColor = 'bg-blue-100 text-blue-600';
+                let icon = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                `;
+                
+                if (activity.action === 'approved') {
+                    iconColor = 'bg-green-100 text-green-600';
+                    icon = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    `;
+                } else if (activity.action === 'released') {
+                    iconColor = 'bg-purple-100 text-purple-600';
+                    icon = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                    `;
+                } else if (activity.action === 'registered') {
+                    iconColor = 'bg-amber-100 text-amber-600';
+                    icon = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                    `;
+                }
+                
+                activitiesHtml += `
+                    <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center">
+                                ${icon}
+                            </div>
+                            <span class="font-medium text-gray-700">${activity.description || 'Unknown activity'}</span>
+                        </div>
+                        <span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded-full">${timeAgo}</span>
+                    </li>
+                `;
+            });
+            
+            listContainer.innerHTML = activitiesHtml;
+            
+        } catch (error) {
+            console.error('Error loading recent activities:', error);
+            document.getElementById('recent-activity-list').innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    <p class="text-sm">Failed to load activities</p>
+                </div>
             `;
-        });
-        
-        listContainer.innerHTML = activitiesHtml;
-        
-    } catch (error) {
-        console.error('Error loading recent activities:', error);
-        document.getElementById('recent-activity-list').innerHTML = `
-            <div class="text-center py-8 text-red-500">
-                <p class="text-sm">Failed to load activities</p>
-            </div>
-        `;
+        }
     }
-}
 
-   async function loadDeadlines() {
-    try {
-        const response = await fetch('/staff/applications/upcoming-deadlines');
-        
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        
-        const deadlines = await response.json();
-        
-        const listContainer = document.getElementById('deadline-list');
-        const deadlineCount = document.getElementById('deadline-count');
-        
-        // Check if deadlines is an array
-        if (!Array.isArray(deadlines)) {
-            console.error('Deadlines is not an array:', deadlines);
-            listContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p class="text-sm">Unable to load deadlines</p>
-                </div>
-            `;
-            deadlineCount.textContent = '0 due soon';
-            return;
-        }
-        
-        deadlineCount.textContent = `${deadlines.length || 0} due soon`;
-        
-        if (!deadlines || deadlines.length === 0) {
-            listContainer.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p class="text-sm">No upcoming deadlines</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let deadlinesHtml = '';
-        deadlines.forEach(deadline => {
-            const daysLeft = deadline.days_left;
-            let colorClass = 'text-red-600';
-            let bgColor = 'bg-red-100';
+    async function loadDeadlines() {
+        try {
+            const response = await fetch('/staff/applications/upcoming-deadlines');
             
-            if (daysLeft > 5) {
-                colorClass = 'text-yellow-600';
-                bgColor = 'bg-yellow-100';
-            } else if (daysLeft > 2) {
-                colorClass = 'text-orange-600';
-                bgColor = 'bg-orange-100';
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
             
-            deadlinesHtml += `
-                <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full ${bgColor} flex items-center justify-center ${colorClass}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+            const deadlines = await response.json();
+            
+            const listContainer = document.getElementById('deadline-list');
+            const deadlineCount = document.getElementById('deadline-count');
+            
+            // Check if deadlines is an array
+            if (!Array.isArray(deadlines)) {
+                console.error('Deadlines is not an array:', deadlines);
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm">Unable to load deadlines</p>
+                    </div>
+                `;
+                deadlineCount.textContent = '0 due soon';
+                return;
+            }
+            
+            deadlineCount.textContent = `${deadlines.length || 0} due soon`;
+            
+            if (!deadlines || deadlines.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm">No upcoming deadlines</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let deadlinesHtml = '';
+            deadlines.forEach(deadline => {
+                const daysLeft = deadline.days_left;
+                let colorClass = 'text-red-600';
+                let bgColor = 'bg-red-100';
+                
+                if (daysLeft > 5) {
+                    colorClass = 'text-yellow-600';
+                    bgColor = 'bg-yellow-100';
+                } else if (daysLeft > 2) {
+                    colorClass = 'text-orange-600';
+                    bgColor = 'bg-orange-100';
+                }
+                
+                deadlinesHtml += `
+                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full ${bgColor} flex items-center justify-center ${colorClass}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${deadline.application_name || 'Unknown'}</p>
+                                <p class="text-xs text-gray-500">${deadline.applicant_name || 'Unknown'}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">${deadline.application_name || 'Unknown'}</p>
-                            <p class="text-xs text-gray-500">${deadline.applicant_name || 'Unknown'}</p>
+                        <div class="text-right">
+                            <p class="text-xs font-bold ${colorClass}">${daysLeft} days left</p>
+                            <p class="text-xs text-gray-400">${deadline.due_date || 'N/A'}</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xs font-bold ${colorClass}">${daysLeft} days left</p>
-                        <p class="text-xs text-gray-400">${deadline.due_date || 'N/A'}</p>
-                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = deadlinesHtml;
+            
+        } catch (error) {
+            console.error('Error loading deadlines:', error);
+            document.getElementById('deadline-list').innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    <p class="text-sm">Failed to load deadlines</p>
                 </div>
             `;
-        });
-        
-        listContainer.innerHTML = deadlinesHtml;
-        
-    } catch (error) {
-        console.error('Error loading deadlines:', error);
-        document.getElementById('deadline-list').innerHTML = `
-            <div class="text-center py-8 text-red-500">
-                <p class="text-sm">Failed to load deadlines</p>
-            </div>
-        `;
-        document.getElementById('deadline-count').textContent = '0 due soon';
+            document.getElementById('deadline-count').textContent = '0 due soon';
+        }
     }
-}
 
     function getTimeAgo(dateString) {
         const date = new Date(dateString);
@@ -706,6 +1033,61 @@
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+    }
+
+    /* Modal animation */
+    #positionModal {
+        transition: opacity 0.3s ease;
+        background-color: transparent;
+        pointer-events: none; /* Allow clicking through to dashboard */
+    }
+    
+    #positionModal.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Modal content is clickable */
+    #modalContent {
+        pointer-events: auto !important; /* Make modal content clickable */
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Shake animation for error */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .animate-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    /* Ensure form elements are clickable */
+    #positionForm label,
+    #positionForm button,
+    #positionForm input {
+        cursor: pointer;
+    }
+
+    /* Make close button visible */
+    #modalContent button {
+        cursor: pointer;
+    }
+
+    /* Add a subtle backdrop blur effect */
+    #positionModal::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        backdrop-filter: blur(2px);
+        background-color: rgba(0,0,0,0.1);
+        pointer-events: none; /* Allow clicking through to dashboard */
     }
 </style>
 @endsection

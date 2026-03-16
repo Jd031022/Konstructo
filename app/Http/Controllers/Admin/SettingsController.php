@@ -5,30 +5,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\ApplicationReviewActivity;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
     public function index(Request $request)
     {
-        // Set default tab to 'logs'
-        $currentTab = $request->get('tab', 'logs');
+        $currentTab = $request->get('tab', 'system-logs');
         
-        // Initialize logs as null
-        $logs = null;
+        $systemLogs = null;
+        $applicationLogs = null;
         
-        // Only fetch logs if we're on the logs tab
-        if ($currentTab == 'logs') {
-            // Start query with user relationship
-            $query = ActivityLog::with('user');
+        // Fetch system logs (activity_logs table)
+        if ($currentTab == 'system-logs') {
+            $query = ActivityLog::with('user')
+                ->orderBy('created_at', 'desc');
             
-            // Apply search filter
+            // Search filter
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
                     $q->where('ip_address', 'like', "%{$search}%")
                       ->orWhere('action', 'like', "%{$search}%")
-                      ->orWhere('status', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%")
                       ->orWhereHas('user', function($userQuery) use ($search) {
                           $userQuery->where('first_name', 'like', "%{$search}%")
                                     ->orWhere('last_name', 'like', "%{$search}%")
@@ -38,12 +38,12 @@ class SettingsController extends Controller
                 });
             }
             
-            // Apply action filter
+            // Action filter
             if ($request->filled('action')) {
                 $query->where('action', $request->action);
             }
             
-            // Apply date range filter
+            // Date range filter
             if ($request->filled('date_range')) {
                 switch($request->date_range) {
                     case 'today':
@@ -62,7 +62,7 @@ class SettingsController extends Controller
                 }
             }
             
-            // Apply sorting
+            // Sorting
             if ($request->filled('sort')) {
                 $direction = $request->get('direction', 'asc');
                 
@@ -81,75 +81,178 @@ class SettingsController extends Controller
                     default:
                         $query->orderBy($request->sort, $direction);
                 }
-            } else {
-                // Default sort by created_at descending
-                $query->orderBy('created_at', 'desc');
             }
             
-            // Paginate results
-            $logs = $query->paginate(15)->withQueryString();
+            $systemLogs = $query->paginate(15)->withQueryString();
         }
         
-        // Return view with data
-        return view('admin.settings', compact('currentTab', 'logs'));
+        // Fetch application review logs (application_review_activities table)
+        if ($currentTab == 'application-logs') {
+            $query = ApplicationReviewActivity::with(['reviewer', 'application'])
+                ->orderBy('created_at', 'desc');
+            
+            // Search filter
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('remarks', 'like', "%{$search}%")
+                      ->orWhere('ip_address', 'like', "%{$search}%")
+                      ->orWhereHas('reviewer', function($reviewerQuery) use ($search) {
+                          $reviewerQuery->where('first_name', 'like', "%{$search}%")
+                                        ->orWhere('last_name', 'like', "%{$search}%")
+                                        ->orWhere('email', 'like', "%{$search}%")
+                                        ->orWhere('username', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('application', function($appQuery) use ($search) {
+                          $appQuery->where('application_number', 'like', "%{$search}%");
+                      });
+                });
+            }
+            
+            // Action filter
+            if ($request->filled('action')) {
+                $query->where('action', $request->action);
+            }
+            
+            // Date range filter
+            if ($request->filled('date_range')) {
+                switch($request->date_range) {
+                    case 'today':
+                        $query->whereDate('created_at', today());
+                        break;
+                    case 'yesterday':
+                        $query->whereDate('created_at', today()->subDay());
+                        break;
+                    case 'week':
+                        $query->where('created_at', '>=', now()->subDays(7));
+                        break;
+                    case 'month':
+                        $query->whereMonth('created_at', now()->month)
+                              ->whereYear('created_at', now()->year);
+                        break;
+                }
+            }
+            
+            // Sorting
+            if ($request->filled('sort')) {
+                $direction = $request->get('direction', 'asc');
+                
+                switch($request->sort) {
+                    case 'reviewer':
+                        $query->join('users', 'application_review_activities.reviewer_id', '=', 'users.id')
+                              ->orderBy('users.first_name', $direction)
+                              ->orderBy('users.last_name', $direction)
+                              ->select('application_review_activities.*');
+                        break;
+                    case 'application':
+                        $query->join('application_documents', 'application_review_activities.application_id', '=', 'application_documents.id')
+                              ->orderBy('application_documents.application_number', $direction)
+                              ->select('application_review_activities.*');
+                        break;
+                    default:
+                        $query->orderBy($request->sort, $direction);
+                }
+            }
+            
+            $applicationLogs = $query->paginate(15)->withQueryString();
+        }
+        
+        return view('admin.settings', compact('currentTab', 'systemLogs', 'applicationLogs'));
     }
 
     public function exportLogs(Request $request)
     {
-        // Fetch all logs for export
-        $logs = ActivityLog::with('user')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $type = $request->get('type', 'system');
         
-        // Create filename with timestamp
-        $filename = 'activity-logs-' . now()->format('Y-m-d-His') . '.csv';
-        
-        // Set headers for CSV download
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0'
-        ];
-        
-        // Create CSV content
-        $callback = function() use ($logs) {
-            $handle = fopen('php://output', 'w');
+        if ($type == 'application') {
+            // Export application review logs
+            $logs = ApplicationReviewActivity::with(['reviewer', 'application'])
+                ->orderBy('created_at', 'desc')
+                ->get();
             
-            // Add UTF-8 BOM for Excel compatibility
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+            $filename = 'application-review-logs-' . now()->format('Y-m-d-His') . '.csv';
             
-            // Add headers
-            fputcsv($handle, [
-                'Name',
-                'Username',
-                'Email',
-                'Action',
-                'IP Address',
-                'Date & Time',
-                'Status',
-                'Description',
-                'Metadata'
-            ]);
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
             
-            // Add data rows
-            foreach ($logs as $log) {
+            $callback = function() use ($logs) {
+                $handle = fopen('php://output', 'w');
+                fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+                
                 fputcsv($handle, [
-                    $log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'Unknown User',
-                    $log->user ? $log->user->username : 'N/A',
-                    $log->user ? $log->user->email : 'N/A',
-                    $log->action,
-                    $log->ip_address ?? 'N/A',
-                    $log->created_at->format('Y-m-d H:i:s'),
-                    $log->status,
-                    $log->description ?? '',
-                    $log->metadata ? json_encode($log->metadata) : ''
+                    'Reviewer',
+                    'Reviewer Email',
+                    'Application #',
+                    'Action',
+                    'Old Status',
+                    'New Status',
+                    'Remarks',
+                    'Date & Time',
+                    'IP Address'
                 ]);
-            }
+                
+                foreach ($logs as $log) {
+                    fputcsv($handle, [
+                        $log->reviewer ? $log->reviewer->first_name . ' ' . $log->reviewer->last_name : 'Unknown',
+                        $log->reviewer ? $log->reviewer->email : 'N/A',
+                        $log->application ? $log->application->application_number : 'N/A',
+                        $log->action,
+                        $log->old_status,
+                        $log->new_status,
+                        $log->remarks ?? '',
+                        $log->created_at->format('Y-m-d H:i:s'),
+                        $log->ip_address ?? 'N/A'
+                    ]);
+                }
+                
+                fclose($handle);
+            };
+        } else {
+            // Export system logs
+            $logs = ActivityLog::with('user')
+                ->orderBy('created_at', 'desc')
+                ->get();
             
-            fclose($handle);
-        };
+            $filename = 'system-logs-' . now()->format('Y-m-d-His') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+            
+            $callback = function() use ($logs) {
+                $handle = fopen('php://output', 'w');
+                fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+                
+                fputcsv($handle, [
+                    'Name',
+                    'Username',
+                    'Email',
+                    'Action',
+                    'Description',
+                    'IP Address',
+                    'Date & Time',
+                    'Status'
+                ]);
+                
+                foreach ($logs as $log) {
+                    fputcsv($handle, [
+                        $log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'Unknown User',
+                        $log->user ? $log->user->username : 'N/A',
+                        $log->user ? $log->user->email : 'N/A',
+                        $log->action,
+                        $log->description ?? '',
+                        $log->ip_address ?? 'N/A',
+                        $log->created_at->format('Y-m-d H:i:s'),
+                        $log->status
+                    ]);
+                }
+                
+                fclose($handle);
+            };
+        }
         
         return response()->stream($callback, 200, $headers);
     }

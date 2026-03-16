@@ -9,7 +9,6 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\SettingsController;
 
-
 Route::get('/', function () {
     return view('applicant.welcome');
 });
@@ -51,6 +50,12 @@ Route::post('/forgot-password/resend-code', [PasswordResetController::class, 're
 
 // Staff UI and API Routes
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
+    // ========== POSITION MANAGEMENT ROUTES (NEW) ==========
+    Route::prefix('position')->name('position.')->group(function () {
+        Route::post('/update', [App\Http\Controllers\Staff\PositionController::class, 'update'])->name('update');
+        Route::get('/check', [App\Http\Controllers\Staff\PositionController::class, 'check'])->name('check');
+    });
+    
     // View routes (return HTML)
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
@@ -97,7 +102,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
         ->name('applications.export');
     
-    // NEW: Staff review activities routes
+    // Staff review activities routes
     Route::post('/applications/{id}/note', [App\Http\Controllers\Staff\ApplicationController::class, 'addNote'])
         ->name('applications.note');
     
@@ -186,7 +191,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
 
     Route::get('/applications/{id}/activity-history', function ($id) {
     return view('applicant.activity-history', ['applicationId' => $id]);
-})->name('applicant.activity-history');
+    })->name('applicant.activity-history');
 });
 
 // Dashboard route with role-based redirect
@@ -254,15 +259,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.delete');
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
-     // Settings routes
+    
+    // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
-
 });
 
 // Profile route (kept for backward compatibility)
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
-
-

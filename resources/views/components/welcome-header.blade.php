@@ -8,11 +8,19 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <!-- Name and Role - smaller text -->
+                <!-- Name and Role/Position - smaller text -->
                 <div>
                     @auth
                         <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name }}!</h1>
-                       <p class="text-white-500 text-sm capitalize">{{ Auth::user()->role }}</p>
+                        
+                        {{-- Show position for staff, otherwise show role --}}
+                        @if(Auth::user()->isStaff() && Auth::user()->profile && Auth::user()->profile->position)
+                            <p class="text-white-500 text-sm">
+                                {{ Auth::user()->profile->position_display ?? ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }}
+                            </p>
+                        @else
+                            <p class="text-white-500 text-sm capitalize">{{ Auth::user()->role }}</p>
+                        @endif
                     @else
                         <h1 class="text-xl sm:text-2xl font-bold">Welcome, Guest!</h1>
                         <p class="text-white-500 text-sm">Visitor</p>

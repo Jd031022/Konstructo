@@ -97,7 +97,7 @@ class LoginController extends Controller
                 'status' => 'success'
             ]);
             
-            // Dispatch event for logging (if you still want to keep this)
+            // Dispatch event for logging
             event(new UserLoggedIn(
                 $user,
                 $request->ip(),
@@ -105,6 +105,13 @@ class LoginController extends Controller
             ));
             
             $request->session()->regenerate();
+            
+            // Check if user is staff and needs to set position
+            $needsPosition = false;
+            if ($user->role === 'staff') {
+                $profile = $user->profile;
+                $needsPosition = !$profile || !$profile->position;
+            }
             
             // Determine redirect based on role
             $redirect = match($user->role) {
@@ -116,11 +123,12 @@ class LoginController extends Controller
             return response()->json([
                 'message' => 'Logged in successfully',
                 'user' => $user,
-                'redirect' => $redirect
+                'redirect' => $redirect,
+                'needs_position' => $needsPosition
             ], 200);
         }
 
-        // Find user for better error message (check both email and username)
+        // Find user for better error message
         $user = User::where('email', $login)
                     ->orWhere('username', $login)
                     ->first();
@@ -132,7 +140,7 @@ class LoginController extends Controller
             'failure_reason' => $failureReason,
         ]);
         
-        // Log the failed attempt in activity_logs
+        // Log the failed attempt
         ActivityLog::create([
             'user_id' => $user->id ?? null,
             'action' => 'login',
@@ -158,7 +166,7 @@ class LoginController extends Controller
             /** @var \App\Models\User $user */
             $user = Auth::user();
             
-            // Log logout activity in activity_logs
+            // Log logout activity
             ActivityLog::create([
                 'user_id' => $user->id,
                 'action' => 'logout',
@@ -173,18 +181,8 @@ class LoginController extends Controller
                 'status' => 'success'
             ]);
         
-            // Check if sessions relationship exists before using it
             if (method_exists($user, 'sessions')) {
                 $user->sessions()->where('session_id', session()->getId())->update(['is_active' => false]);
-            }
-        
-            // Check if logActivity method exists
-            if (method_exists($user, 'logActivity')) {
-                $user->logActivity(
-                    'logout',
-                    'User logged out',
-                    ['method' => $request->method()]
-                );
             }
         }
 
@@ -195,11 +193,10 @@ class LoginController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'message' => 'Logged out successfully',
-                'clear_storage' => true // Add flag to clear client-side storage
+                'clear_storage' => true
             ]);
         }
         
-        // Add flash data to clear storage on next page load
         return redirect()->route('login')->with('clear_storage', true);
     }
 
