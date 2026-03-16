@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Log;
 
 class NewAnnouncementNotification extends Notification implements ShouldQueue
 {
@@ -16,51 +16,29 @@ class NewAnnouncementNotification extends Notification implements ShouldQueue
     protected $announcement;
     protected $creator;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct(Announcement $announcement, User $creator)
     {
         $this->announcement = $announcement;
         $this->creator = $creator;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
     public function via($notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail($notifiable): MailMessage
-    {
-        $role = $notifiable->role === 'applicant' ? 'Applicant' : 'Staff';
-        
-        return (new MailMessage)
-            ->subject('📢 New Announcement: ' . $this->announcement->title)
-            ->greeting("Hello {$notifiable->first_name}!")
-            ->line("A new announcement has been posted by {$this->creator->first_name} :")
-            ->line("")
-            ->line("**{$this->announcement->title}**")
-            ->line($this->announcement->content)
-            ->line("")
-            ->line("---")
-            ->line("Please check your dashboard for more details.")
-            ->line("Thank you for using Konstructo!");
-    }
-
-    /**
-     * Get the array representation of the notification.
-     */
     public function toArray($notifiable): array
     {
         $roleSpecificLink = $notifiable->role === 'applicant' 
             ? '/applicant/dashboard' 
             : '/staff/dashboard';
+        
+        // Log the data being sent
+        Log::info('Creating notification array for user: ' . $notifiable->email, [
+            'type' => 'new_announcement',
+            'announcement_id' => $this->announcement->id,
+            'color' => $this->announcement->color
+        ]);
         
         return [
             'type' => 'new_announcement',
@@ -72,12 +50,10 @@ class NewAnnouncementNotification extends Notification implements ShouldQueue
             'announcement_color' => $this->announcement->color,
             'link' => $roleSpecificLink,
             'icon' => $this->getIconForColor($this->announcement->color),
+            'created_at' => now()->toISOString(),
         ];
     }
 
-    /**
-     * Get icon based on announcement color
-     */
     private function getIconForColor($color): string
     {
         return match($color) {

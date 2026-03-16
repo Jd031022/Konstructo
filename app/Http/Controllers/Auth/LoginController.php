@@ -16,7 +16,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -24,9 +24,13 @@ class LoginController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Determine if the login input is an email or username
+        $login = $request->login;
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
         // Log the attempt
         $attempt = LoginAttempt::create([
-            'username_attempted' => $request->email,
+            'username_attempted' => $login,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'was_successful' => false,
@@ -48,8 +52,8 @@ class LoginController extends Controller
             ], 429);
         }
 
-        // Attempt login
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        // Attempt login with either email or username
+        if (Auth::attempt([$loginType => $login, 'password' => $request->password])) {
             $user = Auth::user();
             
             // Update attempt as successful
@@ -82,14 +86,17 @@ class LoginController extends Controller
             ], 200);
         }
 
-        // Find user for better error message
-        $user = User::where('email', $request->email)->first();
+        // Find user for better error message (check both email and username)
+        $user = User::where('email', $login)
+                    ->orWhere('username', $login)
+                    ->first();
+                    
         $attempt->update([
             'user_id' => $user->id ?? null,
             'failure_reason' => $user ? 'invalid_password' : 'user_not_found',
         ]);
 
-        return response()->json(['error' => 'Invalid credentials'], 401);
+        return response()->json(['error' => 'Invalid email/username or password'], 401);
     }
 
     public function logout(Request $request)

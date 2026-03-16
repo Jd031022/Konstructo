@@ -36,14 +36,14 @@
         <form id="login-form" method="POST">
             @csrf
 
-            <!-- Email -->
+            <!-- Email/Username -->
             <div class="mb-4">
-                <label class="block text-sm  text-black mb-1">Email</label>
-                <input type="email"
-                    id="email"
-                    name="email"
-                    value="{{ old('email') }}"
-                    placeholder="Enter your email here"
+                <label class="block text-sm text-black mb-1">Email or Username</label>
+                <input type="text"
+                    id="login"
+                    name="login"
+                    value="{{ old('login') }}"
+                    placeholder="Enter your email or username"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
                     required>
             </div>
@@ -110,7 +110,6 @@
     </div>
 </div>
 
-<!-- Forgot Password Modal - Step 1: Request Code -->
 <!-- Forgot Password Modal -->
 <div id="forgot-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
@@ -298,7 +297,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: formData.get('email'),
+                login: formData.get('login'), // Send as 'login' field
                 password: formData.get('password'),
                 remember: formData.get('remember') === 'on'
             })
@@ -321,7 +320,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 }
                 showError(errorMessages.join('\n'));
             } else {
-                showError(data.error || 'Invalid email or password.');
+                showError(data.error || 'Invalid email/username or password.');
             }
         }
     } catch (error) {
@@ -701,20 +700,6 @@ function closeForgotPasswordModal() {
     const modalMessage = document.getElementById('modal-message');
     modalMessage.classList.add('hidden');
     modalMessage.innerHTML = '';
-}
-
-function showModalMessage(message, isError = true) {
-    const modalMessage = document.getElementById('modal-message');
-    modalMessage.textContent = message;
-    modalMessage.className = `text-sm p-3 rounded-lg text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
-    modalMessage.classList.remove('hidden');
-    
-    // Auto-hide after 3 seconds for success messages
-    if (!isError) {
-        setTimeout(() => {
-            modalMessage.classList.add('hidden');
-        }, 3000);
-    }
 }
 
 // Initialize password validation when step 3 loads
