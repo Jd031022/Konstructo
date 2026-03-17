@@ -911,4 +911,349 @@ class GmailService
             </html>
         ";
     }
+    /**
+ * Send missing documents request email to applicant
+ */
+public function sendMissingDocumentsEmail($to, $applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks = null)
+{
+    try {
+        // Ensure token is fresh before sending
+        if ($this->client->isAccessTokenExpired()) {
+            $this->client->fetchAccessTokenWithRefreshToken();
+        }
+        
+        $subject = 'Action Required: Missing Documents for Your Building Permit Application - Konstructo';
+        $htmlContent = $this->getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks);
+        
+        $fromName = "Konstructo";
+        $fromEmail = env('EMAIL_USER');
+        
+        // Build email with proper headers
+        $email = "";
+        $email .= "MIME-Version: 1.0\r\n";
+        $email .= "From: {$fromName} <{$fromEmail}>\r\n";
+        $email .= "To: {$to}\r\n";
+        $email .= "Subject: {$subject}\r\n";
+        $email .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $email .= "Content-Transfer-Encoding: quoted-printable\r\n";
+        $email .= "\r\n";
+        $email .= quoted_printable_encode($htmlContent);
+
+        $rawMessage = rtrim(strtr(base64_encode($email), '+/', '-_'), '=');
+        
+        $message = new \Google_Service_Gmail_Message();
+        $message->setRaw($rawMessage);
+        
+        $this->service->users_messages->send('me', $message);
+        
+        Log::info('Missing documents email sent successfully', [
+            'to' => $to,
+            'application' => $applicationNumber,
+            'document_count' => count($missingDocuments)
+        ]);
+        
+        return true;
+        
+    } catch (\Exception $e) {
+        Log::error('Failed to send missing documents email: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get missing documents email content
+ */
+private function getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks = null)
+{
+    $appUrl = env('APP_URL', 'http://localhost:8000') . "/applicant/applications/{$applicationId}";
+    
+    // Build document list HTML
+    $documentListHtml = '';
+    foreach ($missingDocuments as $index => $document) {
+        $documentListHtml .= "
+            <tr>
+                <td style='padding: 10px; border-bottom: 1px solid #e9ecef; width: 30px; vertical-align: top;'>
+                    <span style='display: inline-block; width: 20px; height: 20px; background-color: #dc3545; color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; font-weight: bold;'>!</span>
+                </td>
+                <td style='padding: 10px; border-bottom: 1px solid #e9ecef; color: #495057;'>" . htmlspecialchars($document) . "</td>
+            </tr>
+        ";
+    }
+    
+    return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    line-height: 1.6; 
+                    color: #333333; 
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f5f5f5;
+                }
+                .container { 
+                    max-width: 600px; 
+                    margin: 20px auto; 
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+                .header { 
+                    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); 
+                    color: white; 
+                    padding: 30px 20px; 
+                    text-align: center; 
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 600;
+                }
+                .header p {
+                    margin: 10px 0 0;
+                    font-size: 16px;
+                    opacity: 0.9;
+                }
+                .content { 
+                    padding: 40px 30px; 
+                    background-color: #ffffff; 
+                }
+                .greeting {
+                    font-size: 18px;
+                    color: #155386;
+                    font-weight: 500;
+                    margin-bottom: 20px;
+                }
+                .alert-box { 
+                    background-color: #fff8e7; 
+                    padding: 25px; 
+                    border-radius: 8px; 
+                    margin: 25px 0; 
+                    border-left: 4px solid #dc3545;
+                }
+                .section-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #dc3545;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid #dee2e6;
+                }
+                .document-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                    background-color: white;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                }
+                .document-table th {
+                    background-color: #f8f9fa;
+                    padding: 12px 10px;
+                    text-align: left;
+                    font-weight: 600;
+                    color: #495057;
+                    border-bottom: 2px solid #dee2e6;
+                }
+                .instruction-box {
+                    background-color: #f0f7fa;
+                    padding: 25px;
+                    border-radius: 8px;
+                    margin: 25px 0;
+                    border-left: 4px solid #155386;
+                }
+                .step-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .step-item { 
+                    margin: 15px 0; 
+                    padding-left: 28px; 
+                    position: relative; 
+                }
+                .step-item:before { 
+                    content: ''; 
+                    width: 6px;
+                    height: 6px;
+                    background-color: #155386;
+                    border-radius: 50%;
+                    position: absolute; 
+                    left: 8px; 
+                    top: 10px;
+                }
+                .deadline-box {
+                    background-color: #fff3cd;
+                    padding: 20px;
+                    border-radius: 6px;
+                    border-left: 4px solid #ffc107;
+                    margin: 25px 0;
+                }
+                .remarks-box {
+                    background-color: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 6px;
+                    margin: 20px 0;
+                    font-style: italic;
+                    border: 1px dashed #6c757d;
+                }
+                .button { 
+                    background: linear-gradient(135deg, #155386 0%, #40798C 100%); 
+                    color: white; 
+                    padding: 14px 30px; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    display: inline-block; 
+                    margin: 20px 0; 
+                    font-weight: 600; 
+                    font-size: 15px;
+                    transition: all 0.3s ease;
+                }
+                .button:hover { 
+                    opacity: 0.9;
+                    transform: translateY(-2px);
+                }
+                .divider {
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, #dee2e6, transparent);
+                    margin: 30px 0;
+                }
+                .footer { 
+                    padding: 25px 30px;
+                    background-color: #f8f9fa;
+                    border-top: 1px solid #e9ecef;
+                    font-size: 13px; 
+                    color: #6c757d; 
+                    text-align: center; 
+                }
+                .brand-name {
+                    font-weight: 600;
+                    color: #155386;
+                }
+                .application-number {
+                    font-family: 'Courier New', monospace;
+                    font-weight: 600;
+                    color: #155386;
+                    background-color: #f0f7fa;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                }
+                .drive-link {
+                    background-color: #e8f5e9;
+                    padding: 15px;
+                    border-radius: 6px;
+                    text-align: center;
+                    margin: 20px 0;
+                }
+                .drive-link a {
+                    color: #155386;
+                    font-weight: 600;
+                    text-decoration: none;
+                }
+                .drive-link a:hover {
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>Missing Documents Required</h1>
+                    <p>Action Needed for Application #{$applicationNumber}</p>
+                </div>
+                <div class='content'>
+                    <div class='greeting'>Dear {$applicantName},</div>
+                    
+                    <p>We have reviewed your building permit application and identified that some required documents are missing or incomplete. Please upload the following documents to your Google Drive folder at your earliest convenience.</p>
+                    
+                    <div class='alert-box'>
+                        <div class='section-title'>📋 Missing Documents Checklist</div>
+                        
+                        <table class='document-table'>
+                            <thead>
+                                <tr>
+                                    <th style='width: 40px;'></th>
+                                    <th>Document Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {$documentListHtml}
+                            </tbody>
+                        </table>
+                        
+                        <p style='margin-top: 15px; color: #6c757d; font-size: 14px;'>
+                            <strong>Total:</strong> " . count($missingDocuments) . " document(s) required
+                        </p>
+                    </div>
+                    
+                    " . ($remarks ? "
+                    <div class='remarks-box'>
+                        <strong style='color: #495057;'>Additional Remarks from Staff:</strong>
+                        <p style='margin: 10px 0 0; color: #6c757d;'>" . nl2br(htmlspecialchars($remarks)) . "</p>
+                    </div>
+                    " : "") . "
+                    
+                    <div class='instruction-box'>
+                        <h4 style='margin-top: 0; color: #155386;'>📤 How to Submit Missing Documents</h4>
+                        
+                        <ul class='step-list'>
+                            <li class='step-item'><strong>Step 1:</strong> Access your Google Drive folder using the link below</li>
+                            <li class='step-item'><strong>Step 2:</strong> Upload the missing documents in the appropriate format (PDF, JPG, PNG)</li>
+                            <li class='step-item'><strong>Step 3:</strong> Ensure files are clearly named (e.g., \"Proof_of_Ownership.pdf\")</li>
+                            <li class='step-item'><strong>Step 4:</strong> Organize documents in the correct folder structure</li>
+                            <li class='step-item'><strong>Step 5:</strong> No need to resubmit - we will automatically detect the new files</li>
+                        </ul>
+                        
+                        <div class='drive-link'>
+                            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#155386' stroke-width='2' style='vertical-align: middle; margin-right: 8px;'>
+                                <path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z'/>
+                                <path d='M14 2v6h6M16 13H8M16 17H8M10 9H8'/>
+                            </svg>
+                            <a href='#' id='drive-link-placeholder' onclick='event.preventDefault();'>Your Google Drive Folder</a>
+                            <p style='margin: 5px 0 0; font-size: 13px; color: #6c757d;'>Access your dedicated folder through your Konstructo dashboard</p>
+                        </div>
+                    </div>
+                    
+                    <div class='deadline-box'>
+                        <strong style='color: #856404;'>⏰ Important Deadline:</strong>
+                        <p style='margin: 10px 0 0;'>Please upload the missing documents within <strong>5 business days</strong> to avoid delays in processing your application. If you need more time, please contact the OBO office.</p>
+                    </div>
+                    
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{$appUrl}' class='button'>Go to My Application</a>
+                    </div>
+                    
+                    <div style='background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0;'>
+                        <p style='margin: 0; font-size: 14px; color: #495057;'>
+                            <strong>Application Reference:</strong> <span class='application-number'>#{$applicationNumber}</span><br>
+                            <strong>Status:</strong> Pending Additional Documents
+                        </p>
+                    </div>
+                    
+                    <div class='divider'></div>
+                    
+                    <p style='font-size: 14px; color: #6c757d;'>
+                        Once you've uploaded the documents, our staff will be notified and will continue reviewing your application. You can track the status in real-time through your dashboard.
+                    </p>
+                    
+                    <p style='font-size: 14px; color: #6c757d;'>
+                        If you have any questions or need assistance, please contact the Office of the Building Official (OBO) during office hours.
+                    </p>
+                </div>
+                <div class='footer'>
+                    <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                    <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    ";
+}
 }

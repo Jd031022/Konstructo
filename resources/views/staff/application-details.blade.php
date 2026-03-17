@@ -151,10 +151,166 @@
 
                     <!-- Document Actions -->
                     <div class="flex justify-end gap-3">
-                        <button onclick="requestMissingDocuments()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Request Missing Documents
-                        </button>
-                        <button onclick="verifyDocuments()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                        <div class="relative">
+                            <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Request Missing Documents
+                                <svg class="w-4 h-4 ml-2 transition-transform" id="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Missing Documents Dropdown -->
+                            <div id="missing-documents-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-800">Select Missing Documents</h3>
+                                        <button onclick="toggleMissingDocumentsDropdown()" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Search Box -->
+                                    <div class="mb-3">
+                                        <input type="text" id="document-search" placeholder="Search documents..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" onkeyup="filterDocuments()">
+                                    </div>
+                                    
+                                    <!-- Document Categories -->
+                                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                                        <!-- Application Forms -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Application Forms</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Building Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Sign Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Architectural Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Electrical Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Electronics Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Sanitary/Plumbing Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Demolition Permit Form</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Civil/Structural</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Fencing Permit</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Plans and Specifications -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Plans and Specifications</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Architectural Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Civil/Structural Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Electrical Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Sanitary/Plumbing Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Fencing Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Bill of Materials (5 copies)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Supporting Documents -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Supporting Documents</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Proof of Ownership (2 copies)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Structural Design Analysis</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Locational/Zoning Clearance</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Barangay Clearance</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Certificate of Construction Safety and Health Program (CSHP) from DOLE (for Contractors w/ PCAB)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Remarks Field -->
+                                    <div class="mt-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks (Optional)</label>
+                                        <textarea id="document-request-remarks" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" placeholder="Add any additional instructions or notes for the applicant..."></textarea>
+                                    </div>
+                                    
+                                    <!-- Dropdown Actions -->
+                                    <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end gap-2">
+                                        <button onclick="clearSelectedDocuments()" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">
+                                            Clear All
+                                        </button>
+                                        <button onclick="sendDocumentRequest()" class="px-4 py-1.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                                            Send Request
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showVerifyModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
                             Verify Documents
                         </button>
                     </div>
@@ -209,6 +365,11 @@
                                 </label>
                                 
                                 <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                    <input type="radio" name="status" value="document-verification" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                                    <span class="ml-3 text-sm font-medium text-purple-600">Document Verification</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
                                     <input type="radio" name="status" value="approved" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
                                     <span class="ml-3 text-sm font-medium text-green-600">Approved</span>
                                 </label>
@@ -241,6 +402,42 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Documents Confirmation Modal -->
+<div id="verify-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">
+                    <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Verify Documents</h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    Are you sure you want to mark these documents as verified? 
+                    This will update the application status to <strong class="text-purple-600">Document Verification</strong> 
+                    and notify the applicant.
+                </p>
+                
+                <!-- Optional remarks field -->
+                <div class="mb-6 text-left">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Remarks (Optional)</label>
+                    <textarea id="verify-remarks" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add any notes about document verification..."></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="closeVerifyModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="confirmVerify()" id="confirm-verify-btn" class="flex-1 px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+                        Confirm Verification
+                    </button>
                 </div>
             </div>
         </div>
@@ -343,6 +540,7 @@
     
     let applicationId = getApplicationIdFromUrl();
     let currentApplication = null;
+    let selectedDocuments = [];
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -353,6 +551,17 @@
             showError();
         }
         setupModals();
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('missing-documents-dropdown');
+            const button = event.target.closest('button');
+            
+            if (dropdown && !dropdown.contains(event.target) && !button?.onclick?.toString().includes('toggleMissingDocumentsDropdown')) {
+                dropdown.classList.add('hidden');
+                document.getElementById('dropdown-arrow')?.classList.remove('rotate-180');
+            }
+        });
     });
 
     // Load application details from API
@@ -461,6 +670,7 @@
         const statusConfig = {
             'pending': { color: 'yellow', text: 'Pending Review' },
             'under-review': { color: 'purple', text: 'Under Review' },
+            'document-verification': { color: 'purple', text: 'Document Verification' },
             'approved': { color: 'green', text: 'Approved' },
             'rejected': { color: 'red', text: 'Rejected' },
             'for-release': { color: 'blue', text: 'For Release' },
@@ -535,6 +745,201 @@
         }
     }
 
+    // Toggle missing documents dropdown
+    function toggleMissingDocumentsDropdown() {
+        const dropdown = document.getElementById('missing-documents-dropdown');
+        const arrow = document.getElementById('dropdown-arrow');
+        
+        dropdown.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+    }
+
+    // Filter documents by search
+    function filterDocuments() {
+        const searchTerm = document.getElementById('document-search').value.toLowerCase();
+        const labels = document.querySelectorAll('#missing-documents-dropdown .space-y-2 label');
+        
+        labels.forEach(label => {
+            const text = label.querySelector('span').textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                label.style.display = 'flex';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+        
+        // Hide empty categories
+        const categories = document.querySelectorAll('#missing-documents-dropdown .space-y-3 > div');
+        categories.forEach(category => {
+            const visibleItems = category.querySelectorAll('label[style="display: flex;"]').length;
+            if (visibleItems === 0) {
+                category.style.display = 'none';
+            } else {
+                category.style.display = 'block';
+            }
+        });
+    }
+
+    // Clear all selected documents
+    function clearSelectedDocuments() {
+        const checkboxes = document.querySelectorAll('.document-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectedDocuments = [];
+    }
+
+    // Send document request with email notification
+    async function sendDocumentRequest() {
+        // Get selected documents
+        selectedDocuments = [];
+        const checkboxes = document.querySelectorAll('.document-checkbox:checked');
+        
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.closest('label');
+            const documentName = label.querySelector('span').textContent;
+            selectedDocuments.push(documentName);
+        });
+        
+        if (selectedDocuments.length === 0) {
+            showErrorModal('Please select at least one document to request');
+            return;
+        }
+        
+        // Get remarks if any
+        const remarks = document.getElementById('document-request-remarks')?.value || '';
+        
+        // Show loading on button
+        const requestBtn = event.target;
+        const originalText = requestBtn.innerHTML;
+        requestBtn.innerHTML = 'Sending...';
+        requestBtn.disabled = true;
+        
+        try {
+            // Send the request to the server
+            const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    documents: selectedDocuments,
+                    remarks: remarks
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal(`Request sent for ${selectedDocuments.length} document(s). Email notification has been sent to the applicant.`);
+                
+                // Clear selections and close dropdown
+                clearSelectedDocuments();
+                toggleMissingDocumentsDropdown();
+                
+                // Clear remarks if any
+                if (document.getElementById('document-request-remarks')) {
+                    document.getElementById('document-request-remarks').value = '';
+                }
+            } else {
+                showErrorModal(data.message || 'Failed to send request');
+            }
+        } catch (error) {
+            console.error('Error sending document request:', error);
+            showErrorModal('Failed to send request. Please try again.');
+        } finally {
+            requestBtn.innerHTML = originalText;
+            requestBtn.disabled = false;
+        }
+    }
+
+    // Show verify modal
+    function showVerifyModal() {
+        document.getElementById('verify-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close verify modal
+    function closeVerifyModal() {
+        document.getElementById('verify-modal').classList.add('hidden');
+        document.getElementById('verify-remarks').value = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Confirm verify
+    async function confirmVerify() {
+        const verifyBtn = document.getElementById('confirm-verify-btn');
+        const originalText = verifyBtn.innerHTML;
+        verifyBtn.innerHTML = 'Verifying...';
+        verifyBtn.disabled = true;
+        
+        try {
+            // Use document-verification status (now added to controller validation)
+            const status = 'document-verification';
+            const remarks = document.getElementById('verify-remarks').value || 'Documents verified by staff - verification in progress';
+            const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
+            
+            const response = await fetch(`/staff/applications/${applicationId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    status: status,
+                    remarks: remarks,
+                    hardcopy_received: hardcopyReceived
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Close the verify modal
+                closeVerifyModal();
+                
+                // Show success message
+                showSuccessModal('Documents verification started. Status updated to Document Verification.');
+                
+                // Update the UI to reflect the new status
+                updateStatusUI(status);
+                
+                // Update the radio button selection
+                const radios = document.querySelectorAll('.status-radio');
+                radios.forEach(radio => {
+                    if (radio.value === status) {
+                        radio.checked = true;
+                    }
+                });
+                
+                // Add a note about document verification
+                await fetch(`/staff/applications/${applicationId}/note`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        note: remarks
+                    })
+                });
+                
+            } else {
+                showErrorModal(data.message || 'Failed to verify documents');
+            }
+        } catch (error) {
+            console.error('Error verifying documents:', error);
+            showErrorModal('Failed to verify documents. Please try again.');
+        } finally {
+            verifyBtn.innerHTML = originalText;
+            verifyBtn.disabled = false;
+        }
+    }
+
     // Archive functions
     function archiveApplication() {
         document.getElementById('archive-modal').classList.remove('hidden');
@@ -592,16 +997,6 @@
         } else {
             showErrorModal('No link to copy');
         }
-    }
-
-    // Request missing documents
-    function requestMissingDocuments() {
-        showSuccessModal('Request sent to applicant');
-    }
-
-    // Verify documents
-    function verifyDocuments() {
-        showSuccessModal('Documents verified successfully');
     }
 
     // Export as PDF
@@ -695,6 +1090,7 @@
         const archiveModal = document.getElementById('archive-modal');
         const errorModal = document.getElementById('error-modal');
         const successModal = document.getElementById('success-modal');
+        const verifyModal = document.getElementById('verify-modal');
         
         if (deleteModal) {
             deleteModal.addEventListener('click', function(e) {
@@ -719,6 +1115,12 @@
                 if (e.target === successModal) closeSuccessModal();
             });
         }
+        
+        if (verifyModal) {
+            verifyModal.addEventListener('click', function(e) {
+                if (e.target === verifyModal) closeVerifyModal();
+            });
+        }
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
@@ -726,6 +1128,7 @@
                 closeArchiveModal();
                 closeErrorModal();
                 closeSuccessModal();
+                closeVerifyModal();
             }
         });
     }
@@ -737,11 +1140,11 @@
 }
 
 /* Modal animations */
-#delete-modal, #archive-modal, #error-modal, #success-modal {
+#delete-modal, #archive-modal, #error-modal, #success-modal, #missing-documents-dropdown, #verify-modal {
     transition: opacity 0.2s ease-in-out;
 }
 
-#delete-modal .bg-white, #archive-modal .bg-white, #error-modal .bg-white, #success-modal .bg-white {
+#delete-modal .bg-white, #archive-modal .bg-white, #error-modal .bg-white, #success-modal .bg-white, #missing-documents-dropdown .bg-white, #verify-modal .bg-white {
     animation: modalSlideIn 0.3s ease-out;
 }
 
@@ -769,6 +1172,25 @@
 /* Disable pointer events for disabled links */
 .pointer-events-none {
     pointer-events: none;
+}
+
+/* Dropdown scrollbar styling */
+#missing-documents-dropdown .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+#missing-documents-dropdown .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#missing-documents-dropdown .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+#missing-documents-dropdown .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 </style>
 @endsection

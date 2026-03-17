@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <h4 class="font-semibold text-gray-800">Hard Copy Submission Required</h4>
-                    <p class="text-sm text-gray-700 mt-1">Please submit the original hard copies of ALL documents to the Office of the Building Official (OBO) to complete your application.</p>
+                    <p class="text-sm text-gray-700 mt-1">After the approval of your application, Please submit the original hard copies of ALL documents to the Office of the Building Official (OBO) to complete your application.</p>
                 </div>
             </div>
         </div>
@@ -65,6 +65,21 @@
                 <div>
                     <h4 class="font-semibold text-gray-800">Hard Copy Received</h4>
                     <p class="text-sm text-gray-700 mt-1">Your hard copy documents have been received and verified by the OBO.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Verification Alert -->
+        <div id="document-verification-alert" class="mb-6 p-4 bg-purple-100 border-l-4 border-purple-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Documents Under Verification</h4>
+                    <p class="text-sm text-gray-700 mt-1">Your documents are currently being verified by our staff. This process may take 1-2 business days.</p>
                 </div>
             </div>
         </div>
@@ -298,6 +313,16 @@
                         <span class="text-sm text-gray-600">Document Status:</span>
                         <span id="document-status" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500">Not Available</span>
                     </div>
+
+                    <!-- Document Verification Status -->
+                    <div id="document-verification-status" class="mt-4 p-3 bg-purple-50 rounded-lg hidden">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
+                            <span class="text-xs font-medium text-gray-700">Verification Status:</span>
+                            <span id="verification-badge" class="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">In Progress</span>
+                        </div>
+                        <p id="verification-message" class="text-xs text-gray-500 mt-1">Documents are being verified by staff</p>
+                    </div>
                 </div>
 
                 <!-- Important Notes Card - Moved here below Google Drive -->
@@ -471,13 +496,14 @@
     let currentApplication = null;
     let previousStatus = null;
     let updateCheckInterval = null;
+    let previousDocumentVerification = false;
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Application ID from URL:', applicationId);
         if (applicationId && applicationId !== 'application-details' && !isNaN(applicationId)) {
             loadApplicationDetails();
-            // Start checking for updates every 30 seconds
+            // Start checking for updates every 15 seconds (more frequent for document verification)
             startRealTimeUpdates();
         } else {
             showError();
@@ -487,8 +513,8 @@
 
     // Start real-time updates
     function startRealTimeUpdates() {
-        // Check for updates every 30 seconds
-        updateCheckInterval = setInterval(checkForUpdates, 30000);
+        // Check for updates every 15 seconds
+        updateCheckInterval = setInterval(checkForUpdates, 15000);
     }
 
     // Check for updates
@@ -510,6 +536,16 @@
                     if (previousStatus && previousStatus !== newApplication.status) {
                         showUpdateNotification('Application status updated to ' + formatStatus(newApplication.status));
                         animateStatusChange();
+                        
+                        // Check if document verification started
+                        if (newApplication.status === 'document-verification') {
+                            showDocumentVerificationAlert();
+                        }
+                        
+                        // Check if documents were verified
+                        if (previousStatus === 'document-verification' && newApplication.status === 'approved') {
+                            showUpdateNotification('Documents have been verified and approved!');
+                        }
                     }
                     
                     // Update the application data
@@ -538,6 +574,17 @@
         setTimeout(() => {
             notification.style.transform = 'translateY(-100px)';
         }, 5000);
+    }
+
+    // Show document verification alert
+    function showDocumentVerificationAlert() {
+        const alert = document.getElementById('document-verification-alert');
+        if (alert) {
+            alert.classList.remove('hidden');
+            setTimeout(() => {
+                alert.classList.add('hidden');
+            }, 10000); // Hide after 10 seconds
+        }
     }
 
     // Animate status change
@@ -805,7 +852,6 @@
         return name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
     }
 
-    // Display review activities
     // Display review activities (only show last 3)
 function displayReviewActivities(activities) {
     const activityLog = document.getElementById('activity-log');
@@ -853,6 +899,14 @@ function displayReviewActivities(activities) {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 `;
+            } else if (activity.new_status && activity.new_status === 'document-verification') {
+                iconColor = 'bg-purple-100';
+                iconTextColor = 'text-purple-600';
+                iconSvg = `
+                    <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
             } else {
                 iconColor = 'bg-purple-100';
                 iconTextColor = 'text-purple-600';
@@ -881,6 +935,14 @@ function displayReviewActivities(activities) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
             `;
+        } else if (activity.action === 'document_verified') {
+            iconColor = 'bg-green-100';
+            iconTextColor = 'text-green-600';
+            iconSvg = `
+                <svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            `;
         }
         
         const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
@@ -894,6 +956,8 @@ function displayReviewActivities(activities) {
             } else {
                 actionDisplay = 'Status updated';
             }
+        } else if (activity.action === 'document_verified') {
+            actionDisplay = 'Documents Verified';
         } else {
             actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         }
@@ -992,6 +1056,27 @@ function displayReviewActivities(activities) {
 
         // Update hard copy status
         updateHardCopyStatus(currentApplication.hard_copy_received);
+
+        // Check if document verification is in progress
+        if (currentApplication.status === 'document-verification') {
+            showDocumentVerificationStatus(true);
+        } else {
+            showDocumentVerificationStatus(false);
+        }
+    }
+
+    // Show/hide document verification status
+    function showDocumentVerificationStatus(show) {
+        const verificationStatus = document.getElementById('document-verification-status');
+        const verificationAlert = document.getElementById('document-verification-alert');
+        
+        if (show) {
+            if (verificationStatus) verificationStatus.classList.remove('hidden');
+            if (verificationAlert) verificationAlert.classList.remove('hidden');
+        } else {
+            if (verificationStatus) verificationStatus.classList.add('hidden');
+            if (verificationAlert) verificationAlert.classList.add('hidden');
+        }
     }
 
     // Helper function to format exact date and time
@@ -1038,7 +1123,7 @@ function displayReviewActivities(activities) {
             'draft': { color: 'gray', text: 'Draft' },
             'pending': { color: 'yellow', text: 'Pending Review' },
             'under-review': { color: 'purple', text: 'Under Review' },
-            'document-verification': { color: 'indigo', text: 'Document Verification' },
+            'document-verification': { color: 'purple', text: 'Document Verification' },
             'approved': { color: 'green', text: 'Approved' },
             'for-release': { color: 'blue', text: 'For Release' },
             'verified': { color: 'emerald', text: 'Completed' },
@@ -1081,12 +1166,53 @@ function displayReviewActivities(activities) {
                         dateElement.textContent = 'In Progress';
                         dateElement.className = 'text-xs text-[#155386] font-medium animate-pulse';
                     }
-                } else if (currentApplication?.created_at && index === 0) {
-                    // Submitted date
-                    const date = new Date(currentApplication.created_at + ' UTC');
-                    dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    dateElement.className = 'text-xs text-gray-500';
+                    
+                    // Add processing class for glow effect
+                    stepElement.classList.add('step-processing');
+                } else {
+                    stepElement.classList.remove('step-processing');
+                    
+                    if (index === 0 && currentApplication?.created_at) {
+                        // Submitted date
+                        const date = new Date(currentApplication.created_at + ' UTC');
+                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dateElement.className = 'text-xs text-gray-500';
+                    } else if (index === 1 && currentApplication?.under_review_at) {
+                        // Under review date
+                        const date = new Date(currentApplication.under_review_at + ' UTC');
+                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dateElement.className = 'text-xs text-gray-500';
+                    } else if (index === 2 && currentApplication?.verification_at) {
+                        // Verification date
+                        const date = new Date(currentApplication.verification_at + ' UTC');
+                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dateElement.className = 'text-xs text-gray-500';
+                    } else if (index === 3 && currentApplication?.approved_at) {
+                        // Approval date
+                        const date = new Date(currentApplication.approved_at + ' UTC');
+                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dateElement.className = 'text-xs text-gray-500';
+                    } else if (index === 4 && currentApplication?.release_at) {
+                        // Release date
+                        const date = new Date(currentApplication.release_at + ' UTC');
+                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dateElement.className = 'text-xs text-gray-500';
+                    }
                 }
+            } else {
+                // Future step
+                if (circle) {
+                    circle.className = 'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500';
+                    circle.innerHTML = `<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>`;
+                }
+                if (text) text.className = 'text-sm font-medium text-gray-400 transition-all duration-500';
+                if (dateElement) {
+                    dateElement.textContent = '';
+                    dateElement.className = 'text-xs text-gray-400';
+                }
+                stepElement.classList.remove('step-processing');
             }
         });
 

@@ -269,3 +269,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
+// In your routes file (web.php or api.php)
+Route::post('/staff/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);

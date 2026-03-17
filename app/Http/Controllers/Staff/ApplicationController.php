@@ -280,7 +280,7 @@ public function index()
         ]);
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pending,under-review,approved,rejected,for-release,verified',
+            'status' => 'required|string|in:pending,under-review,document-verification,approved,rejected,for-release,verified',
             'remarks' => 'nullable|string',
             'hardcopy_received' => 'sometimes|boolean'
         ]);
@@ -805,4 +805,122 @@ public function index()
         
         return $username;
     }
+    /**
+ * Send missing documents request to applicant
+ */
+public function requestMissingDocuments(Request $request, $id)
+{
+    Log::info('========== REQUEST MISSING DOCUMENTS START ==========');
+    Log::info('requestMissingDocuments called', [
+        'application_id' => $id,
+        'documents' => $request->documents,
+        'remarks' => $request->remarks,
+        'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+    ]);
+
+    $validator = Validator::make($request->all(), [
+        'documents' => 'required|array|min:1',
+        'documents.*' => 'required|string',
+        'remarks' => 'nullable|string'
+    ]);
+
+    if ($validator->fails()) {
+        Log::error('Validation failed', ['errors' => $validator->errors()]);
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
+            Log::error('Application not found', ['id' => $id]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+
+        $staff = auth()->user();
+        
+        // Format the missing documents list
+        $documentList = implode("\n", array_map(function($doc) {
+            return "• " . $doc;
+        }, $request->documents));
+        
+        // Create the note message
+        $noteMessage = "Missing documents requested:\n\n" . $documentList;
+        
+        if ($request->remarks) {
+            $noteMessage .= "\n\nRemarks: " . $request->remarks;
+        }
+        
+        // Add note to application
+        $existingNotes = $application->admin_notes;
+        $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " requested missing documents:\n" . $documentList;
+        
+        if ($request->remarks) {
+            $newNote .= "\nRemarks: " . $request->remarks;
+        }
+        
+        $application->admin_notes = $existingNotes 
+            ? $existingNotes . "\n\n" . $newNote 
+            : $newNote;
+        
+        $application->last_updated_by = $staff->id;
+        $application->save();
+
+        // SEND EMAIL NOTIFICATION
+        Log::info('📧 SENDING MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE');
+        
+        $emailSent = $this->gmailService->sendMissingDocumentsEmail(
+            $application->user->email,
+            $application->application_number,
+            $application->user->first_name,
+            $request->documents,
+            $application->id,
+            $request->remarks
+        );
+        
+        if ($emailSent) {
+            Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY ✓✓✓');
+        } else {
+            Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL ✗✗✗');
+        }
+
+        // Log the activity
+        $this->logReviewActivity(
+            $application->id,
+            $staff->id,
+            'missing_documents_requested',
+            $application->status,
+            $application->status,
+            "Requested missing documents: " . implode(", ", $request->documents),
+            $request->ip(),
+            $request->userAgent()
+        );
+
+        Log::info('========== REQUEST MISSING DOCUMENTS END (SUCCESS) ==========');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Missing documents request sent successfully',
+            'data' => [
+                'document_count' => count($request->documents)
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('========== REQUEST MISSING DOCUMENTS END (ERROR) ==========');
+        Log::error('Error in requestMissingDocuments: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
