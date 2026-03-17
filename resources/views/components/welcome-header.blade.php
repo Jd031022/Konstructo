@@ -2,12 +2,34 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <!-- Profile Avatar - slightly smaller -->
-                <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                <!-- Profile Avatar - dynamically updates -->
+                <div id="header-avatar-container" class="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
+                    @auth
+                        @php
+                            $avatarPath = Auth::user()->avatar;
+                            $fullName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
+                            
+                            if (!empty($avatarPath)) {
+                                $avatarUrl = asset('storage/' . $avatarPath);
+                            } else {
+                                $avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&size=40&background=ffffff&color=155386&bold=true";
+                            }
+                        @endphp
+                        
+                        <img src="{{ $avatarUrl }}" 
+                             alt="{{ $fullName }}" 
+                             id="header-avatar-image"
+                             class="w-full h-full object-cover"
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}') + '&size=40&background=ffffff&color=155386&bold=true';">
+                    @else
+                        <div class="h-full w-full bg-white/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                    @endauth
                 </div>
+                
                 <!-- Name and Role/Position - smaller text -->
                 <div>
                     @auth
@@ -42,6 +64,51 @@
 </div>
 
 <script>
+// Function to update header avatar
+function updateHeaderAvatar() {
+    @auth
+    fetch('{{ route("profile.avatar.info") }}', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.avatar_url) {
+            const headerAvatar = document.getElementById('header-avatar-image');
+            if (headerAvatar) {
+                // Add timestamp to prevent caching
+                headerAvatar.src = data.avatar_url + '?v=' + new Date().getTime();
+            }
+        }
+    })
+    .catch(error => console.error('Error updating avatar:', error));
+    @endauth
+}
+
+// Listen for avatar updates from profile page
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for avatar update every 3 seconds (polling)
+    // This ensures the header updates when profile page changes avatar
+    setInterval(updateHeaderAvatar, 3000);
+    
+    // Also listen for custom events (if you want to trigger update immediately after upload)
+    window.addEventListener('avatarUpdated', function() {
+        updateHeaderAvatar();
+    });
+    
+    // Optional: Listen for storage events (if multiple tabs open)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'avatar_updated') {
+            updateHeaderAvatar();
+        }
+    });
+});
+
+// Update date and time functions
 function updateDateTime() {
     const now = new Date();
     
@@ -64,19 +131,6 @@ function updateDateTime() {
         ...options,
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
-    });
-    
-    // For mobile (optional - shorter format if you want)
-    const mobileTimeString = now.toLocaleTimeString('en-US', {
-        ...options,
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    const mobileDateString = now.toLocaleDateString('en-US', {
-        ...options,
-        month: 'short',
         day: 'numeric'
     });
     

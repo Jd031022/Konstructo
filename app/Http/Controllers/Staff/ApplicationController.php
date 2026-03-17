@@ -7,7 +7,7 @@ use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
 use App\Services\NotificationService;
-use App\Services\GmailService; // ADD THIS IMPORT
+use App\Services\GmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -34,86 +34,94 @@ class ApplicationController extends Controller
         $this->gmailService = $gmailService;
     }
 
-   /**
- * Display a listing of all submitted applications (excluding drafts)
- */
-public function index()
-{
-    try {
-        Log::info('Fetching all staff applications');
-        
-        // Get all applications EXCLUDING drafts
-        $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+    /**
+     * Display a listing of all submitted applications (excluding drafts)
+     */
+    public function index()
+    {
+        try {
+            Log::info('Fetching all staff applications');
+            
+            // Get all applications EXCLUDING drafts
+            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        $formattedApplications = [];
-        foreach ($applications as $app) {
-            // Safely get applicant name
-            $applicantName = 'Unknown';
-            if ($app->user) {
-                $firstName = $app->user->first_name ?? '';
-                $lastName = $app->user->last_name ?? '';
-                $applicantName = trim($firstName . ' ' . $lastName);
-                if (empty($applicantName)) {
-                    $applicantName = 'Unknown';
+            $formattedApplications = [];
+            foreach ($applications as $app) {
+                // Safely get applicant name
+                $applicantName = 'Unknown';
+                if ($app->user) {
+                    $firstName = $app->user->first_name ?? '';
+                    $lastName = $app->user->last_name ?? '';
+                    $applicantName = trim($firstName . ' ' . $lastName);
+                    if (empty($applicantName)) {
+                        $applicantName = 'Unknown';
+                    }
                 }
+                
+                // Safely format dates
+                $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
+                $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
+                
+                // Safely get last updated by name
+                $lastUpdatedByName = null;
+                if ($app->lastUpdatedBy) {
+                    $firstName = $app->lastUpdatedBy->first_name ?? '';
+                    $lastName = $app->lastUpdatedBy->last_name ?? '';
+                    $lastUpdatedByName = trim($firstName . ' ' . $lastName);
+                    if (empty($lastUpdatedByName)) {
+                        $lastUpdatedByName = null;
+                    }
+                }
+                
+                $formattedApplications[] = [
+                    'id' => $app->id,
+                    'application_number' => $app->application_number ?? 'N/A',
+                    'applicant_name' => $applicantName,
+                    'email' => $app->user ? ($app->user->email ?? null) : null,
+                    'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
+                    'address' => $app->user ? ($app->user->address ?? null) : null,
+                    'google_drive_link' => $app->google_drive_link,
+                    'status' => $app->status ?? 'unknown',
+                    'rejection_reason' => $app->rejection_reason,
+                    'admin_notes' => $app->admin_notes,
+                    'created_at' => $createdAt,
+                    'updated_at' => $updatedAt,
+                    'hard_copy_received' => $app->hard_copy_received ?? false,
+                    'last_updated_by' => $app->last_updated_by,
+                    'last_updated_by_name' => $lastUpdatedByName,
+                    'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null
+                ];
             }
             
-            // Safely format dates
-            $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
-            $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
+            return response()->json([
+                'success' => true,
+                'applications' => $formattedApplications,
+                'total' => count($formattedApplications)
+            ]);
             
-            // Safely get last updated by name
-            $lastUpdatedByName = null;
-            if ($app->lastUpdatedBy) {
-                $firstName = $app->lastUpdatedBy->first_name ?? '';
-                $lastName = $app->lastUpdatedBy->last_name ?? '';
-                $lastUpdatedByName = trim($firstName . ' ' . $lastName);
-                if (empty($lastUpdatedByName)) {
-                    $lastUpdatedByName = null;
-                }
-            }
+        } catch (\Exception $e) {
+            Log::error('Error loading staff applications: ' . $e->getMessage());
+            Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            $formattedApplications[] = [
-                'id' => $app->id,
-                'application_number' => $app->application_number ?? 'N/A',
-                'applicant_name' => $applicantName,
-                'email' => $app->user ? ($app->user->email ?? null) : null,
-                'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
-                'address' => $app->user ? ($app->user->address ?? null) : null,
-                'google_drive_link' => $app->google_drive_link,
-                'status' => $app->status ?? 'unknown',
-                'rejection_reason' => $app->rejection_reason,
-                'admin_notes' => $app->admin_notes,
-                'created_at' => $createdAt,
-                'updated_at' => $updatedAt,
-                'hard_copy_received' => $app->hard_copy_received ?? false,
-                'last_updated_by' => $app->last_updated_by,
-                'last_updated_by_name' => $lastUpdatedByName,
-                'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null
-            ];
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading applications: ' . $e->getMessage(),
+                'applications' => []
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'applications' => $formattedApplications,
-            'total' => count($formattedApplications)
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error loading staff applications: ' . $e->getMessage());
-        Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
-        Log::error('Stack trace: ' . $e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading applications: ' . $e->getMessage(),
-            'applications' => []
-        ], 500);
     }
-}
 
     /**
      * Get a single application details
@@ -124,7 +132,15 @@ public function index()
             Log::info('Fetching application details for ID: ' . $id);
             
             $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-                ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
                 ->find($id);
             
             if (!$application) {
@@ -654,6 +670,125 @@ public function index()
     }
 
     /**
+     * Request missing documents from applicant
+     */
+    public function requestMissingDocuments(Request $request, $id)
+    {
+        Log::info('========== REQUEST MISSING DOCUMENTS START ==========');
+        Log::info('requestMissingDocuments called', [
+            'application_id' => $id,
+            'documents' => $request->documents,
+            'remarks' => $request->remarks,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'documents' => 'required|array|min:1',
+            'documents.*' => 'required|string',
+            'remarks' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            // Format the missing documents list
+            $documentList = implode("\n", array_map(function($doc) {
+                return "• " . $doc;
+            }, $request->documents));
+            
+            // Create the note message
+            $noteMessage = "Missing documents requested:\n\n" . $documentList;
+            
+            if ($request->remarks) {
+                $noteMessage .= "\n\nRemarks: " . $request->remarks;
+            }
+            
+            // Add note to application
+            $existingNotes = $application->admin_notes;
+            $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " requested missing documents:\n" . $documentList;
+            
+            if ($request->remarks) {
+                $newNote .= "\nRemarks: " . $request->remarks;
+            }
+            
+            $application->admin_notes = $existingNotes 
+                ? $existingNotes . "\n\n" . $newNote 
+                : $newNote;
+            
+            $application->last_updated_by = $staff->id;
+            $application->save();
+
+            // SEND EMAIL NOTIFICATION
+            Log::info('📧 SENDING MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE');
+            
+            $emailSent = $this->gmailService->sendMissingDocumentsEmail(
+                $application->user->email,
+                $application->application_number,
+                $application->user->first_name,
+                $request->documents,
+                $application->id,
+                $request->remarks
+            );
+            
+            if ($emailSent) {
+                Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY ✓✓✓');
+            } else {
+                Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL ✗✗✗');
+            }
+
+            // Log the activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'missing_documents_requested',
+                $application->status,
+                $application->status,
+                "Requested missing documents: " . implode(", ", $request->documents),
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            Log::info('========== REQUEST MISSING DOCUMENTS END (SUCCESS) ==========');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Missing documents request sent successfully',
+                'data' => [
+                    'document_count' => count($request->documents)
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('========== REQUEST MISSING DOCUMENTS END (ERROR) ==========');
+            Log::error('Error in requestMissingDocuments: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Delete an application
      */
     public function destroy(Request $request, $id)
@@ -706,7 +841,15 @@ public function index()
     {
         try {
             $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-                ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
                 ->get();
             
             $filename = 'applications_' . date('Y-m-d') . '.csv';
@@ -805,122 +948,4 @@ public function index()
         
         return $username;
     }
-    /**
- * Send missing documents request to applicant
- */
-public function requestMissingDocuments(Request $request, $id)
-{
-    Log::info('========== REQUEST MISSING DOCUMENTS START ==========');
-    Log::info('requestMissingDocuments called', [
-        'application_id' => $id,
-        'documents' => $request->documents,
-        'remarks' => $request->remarks,
-        'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
-    ]);
-
-    $validator = Validator::make($request->all(), [
-        'documents' => 'required|array|min:1',
-        'documents.*' => 'required|string',
-        'remarks' => 'nullable|string'
-    ]);
-
-    if ($validator->fails()) {
-        Log::error('Validation failed', ['errors' => $validator->errors()]);
-        return response()->json([
-            'success' => false,
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        $application = ApplicationDocument::with('user')->find($id);
-        
-        if (!$application) {
-            Log::error('Application not found', ['id' => $id]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-
-        $staff = auth()->user();
-        
-        // Format the missing documents list
-        $documentList = implode("\n", array_map(function($doc) {
-            return "• " . $doc;
-        }, $request->documents));
-        
-        // Create the note message
-        $noteMessage = "Missing documents requested:\n\n" . $documentList;
-        
-        if ($request->remarks) {
-            $noteMessage .= "\n\nRemarks: " . $request->remarks;
-        }
-        
-        // Add note to application
-        $existingNotes = $application->admin_notes;
-        $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " requested missing documents:\n" . $documentList;
-        
-        if ($request->remarks) {
-            $newNote .= "\nRemarks: " . $request->remarks;
-        }
-        
-        $application->admin_notes = $existingNotes 
-            ? $existingNotes . "\n\n" . $newNote 
-            : $newNote;
-        
-        $application->last_updated_by = $staff->id;
-        $application->save();
-
-        // SEND EMAIL NOTIFICATION
-        Log::info('📧 SENDING MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE');
-        
-        $emailSent = $this->gmailService->sendMissingDocumentsEmail(
-            $application->user->email,
-            $application->application_number,
-            $application->user->first_name,
-            $request->documents,
-            $application->id,
-            $request->remarks
-        );
-        
-        if ($emailSent) {
-            Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY ✓✓✓');
-        } else {
-            Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL ✗✗✗');
-        }
-
-        // Log the activity
-        $this->logReviewActivity(
-            $application->id,
-            $staff->id,
-            'missing_documents_requested',
-            $application->status,
-            $application->status,
-            "Requested missing documents: " . implode(", ", $request->documents),
-            $request->ip(),
-            $request->userAgent()
-        );
-
-        Log::info('========== REQUEST MISSING DOCUMENTS END (SUCCESS) ==========');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Missing documents request sent successfully',
-            'data' => [
-                'document_count' => count($request->documents)
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('========== REQUEST MISSING DOCUMENTS END (ERROR) ==========');
-        Log::error('Error in requestMissingDocuments: ' . $e->getMessage());
-        Log::error($e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ], 500);
-    }
-}
 }

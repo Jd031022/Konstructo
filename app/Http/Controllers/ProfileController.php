@@ -209,4 +209,27 @@ class ProfileController extends Controller
         return redirect()->route('profile.show')
             ->with('success', 'Profile picture updated successfully!');
     }
+    public function getAvatarInfo()
+{
+    $user = Auth::user();
+    
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+    }
+    
+    $avatarPath = $user->avatar;
+    
+    if (!empty($avatarPath)) {
+        $avatarUrl = asset('storage/' . $avatarPath);
+    } else {
+        $fullName = urlencode($user->first_name . ' ' . $user->last_name);
+        $avatarUrl = "https://ui-avatars.com/api/?name={$fullName}&size=40&background=ffffff&color=155386&bold=true";
+    }
+    
+    return response()->json([
+        'success' => true,
+        'avatar_url' => $avatarUrl,
+        'avatar_path' => $avatarPath
+    ]);
+}
 }

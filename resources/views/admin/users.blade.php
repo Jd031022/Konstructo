@@ -485,6 +485,7 @@ let filteredUsers = [];
 let resetUserId = null;
 let toggleUserId = null;
 let toggleAction = null;
+let deleteUserId = null;
 
 // Load users on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -639,6 +640,17 @@ function getStatusColor(status) {
     return status === 'active' ? 'green' : 'red';
 }
 
+// Get avatar URL for a user
+function getUserAvatarUrl(user) {
+    if (user.avatar) {
+        // If user has a custom avatar
+        return `{{ Storage::url('') }}${user.avatar}?v=${new Date().getTime()}`;
+    } else {
+        // Fallback to UI Avatars
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=40&background=155386&color=fff&bold=true`;
+    }
+}
+
 // Render users table
 function renderUsers() {
     const tbody = document.getElementById('users-table-body');
@@ -657,13 +669,17 @@ function renderUsers() {
     tbody.innerHTML = filteredUsers.map(user => {
         const roleColor = getRoleColor(user.role);
         const statusColor = getStatusColor(user.status);
+        const avatarUrl = getUserAvatarUrl(user);
         
         return `
         <tr class="hover:bg-gray-50 transition">
             <td class="py-4 px-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                        ${user.initials}
+                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200">
+                        <img src="${avatarUrl}" 
+                             alt="${user.name}" 
+                             class="w-full h-full object-cover"
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${user.name}') + '&size=40&background=155386&color=fff&bold=true';">
                     </div>
                     <div>
                         <p class="font-medium text-gray-800">${user.name}</p>
@@ -1208,6 +1224,13 @@ function closeErrorModal() {
     /* Select all for password */
     .select-all {
         user-select: all;
+    }
+
+    /* Avatar image styles */
+    .w-10.h-10.rounded-full img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
     }
 </style>
 @endsection

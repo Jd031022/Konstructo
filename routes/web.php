@@ -271,3 +271,4 @@ Route::get('/profile/profile', function () {
 });
 // In your routes file (web.php or api.php)
 Route::post('/staff/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);
+Route::get('/profile/avatar-info', [App\Http\Controllers\ProfileController::class, 'getAvatarInfo'])->name('profile.avatar.info');
