@@ -91,6 +91,7 @@
                         <option value="yesterday" {{ request('date_range') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                         <option value="week" {{ request('date_range') == 'week' ? 'selected' : '' }}>Last 7 Days</option>
                         <option value="month" {{ request('date_range') == 'month' ? 'selected' : '' }}>This Month</option>
+                        <option value="year" {{ request('date_range') == 'year' ? 'selected' : '' }}>This Year</option>
                     </select>
                     
                     <!-- Filter Button -->
@@ -312,6 +313,7 @@
                         <option value="yesterday" {{ request('date_range') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                         <option value="week" {{ request('date_range') == 'week' ? 'selected' : '' }}>Last 7 Days</option>
                         <option value="month" {{ request('date_range') == 'month' ? 'selected' : '' }}>This Month</option>
+                        <option value="year" {{ request('date_range') == 'year' ? 'selected' : '' }}>This Year</option>
                     </select>
                     
                     <!-- Filter Button -->
@@ -327,146 +329,212 @@
             </form>
         </div>
 
-        <!-- Application Review Logs Table -->
+        <!-- Application Review Logs Table - Improved UX -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full min-w-[1200px]">
                     <thead class="bg-gray-50 border-b border-gray-100">
                         <tr>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'reviewer', 'direction' => request('sort') == 'reviewer' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1">
-                                    Reviewer
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[15%]">
+                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'reviewer', 'direction' => request('sort') == 'reviewer' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1 group">
+                                    <span>Reviewer</span>
                                     @if(request('sort') == 'reviewer')
-                                        <span class="ml-1">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                        <span class="ml-1 text-[#155386]">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                    @else
+                                        <span class="ml-1 opacity-0 group-hover:opacity-50">↕️</span>
                                     @endif
                                 </a>
                             </th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'application', 'direction' => request('sort') == 'application' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1">
-                                    Application #
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[12%]">
+                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'application', 'direction' => request('sort') == 'application' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1 group">
+                                    <span>Application #</span>
                                     @if(request('sort') == 'application')
-                                        <span class="ml-1">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                        <span class="ml-1 text-[#155386]">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                    @else
+                                        <span class="ml-1 opacity-0 group-hover:opacity-50">↕️</span>
                                     @endif
                                 </a>
                             </th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'action', 'direction' => request('sort') == 'action' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1">
-                                    Action
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[10%]">
+                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'action', 'direction' => request('sort') == 'action' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1 group">
+                                    <span>Action</span>
                                     @if(request('sort') == 'action')
-                                        <span class="ml-1">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                        <span class="ml-1 text-[#155386]">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                    @else
+                                        <span class="ml-1 opacity-0 group-hover:opacity-50">↕️</span>
                                     @endif
                                 </a>
                             </th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status Change</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Remarks</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'created_at', 'direction' => request('sort') == 'created_at' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1">
-                                    Date & Time
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[15%]">
+                                Status Change
+                            </th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[20%]">
+                                Remarks
+                            </th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[15%]">
+                                <a href="{{ route('admin.settings', array_merge(request()->query(), ['sort' => 'created_at', 'direction' => request('sort') == 'created_at' && request('direction') == 'asc' ? 'desc' : 'asc', 'tab' => 'application-logs'])) }}" class="hover:text-[#155386] flex items-center gap-1 group">
+                                    <span>Date & Time</span>
                                     @if(request('sort') == 'created_at')
-                                        <span class="ml-1">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                        <span class="ml-1 text-[#155386]">{{ request('direction') == 'asc' ? '↑' : '↓' }}</span>
+                                    @else
+                                        <span class="ml-1 opacity-0 group-hover:opacity-50">↕️</span>
                                     @endif
                                 </a>
                             </th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">IP Address</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider w-[8%]">
+                                IP Address
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($applicationLogs as $log)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="py-4 px-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-gradient-to-r from-[#40798C] to-[#70A9A1] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        <tr class="hover:bg-gray-50 transition group">
+                            <!-- Reviewer Column -->
+                            <td class="py-3 px-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-[#40798C] to-[#70A9A1] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm group-hover:shadow transition">
                                         {{ $log->reviewer ? strtoupper(substr($log->reviewer->first_name, 0, 1) . substr($log->reviewer->last_name, 0, 1)) : 'UN' }}
                                     </div>
-                                    <div>
-                                        <span class="text-sm font-medium text-gray-800">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-medium text-gray-800 truncate" title="{{ $log->reviewer ? $log->reviewer->first_name . ' ' . $log->reviewer->last_name : 'Unknown Reviewer' }}">
                                             {{ $log->reviewer ? $log->reviewer->first_name . ' ' . $log->reviewer->last_name : 'Unknown Reviewer' }}
-                                        </span>
-                                        <p class="text-xs text-gray-500">
-                                            {{ $log->reviewer ? $log->reviewer->email : '' }}
                                         </p>
+                                        @if($log->reviewer)
+                                            <p class="text-xs text-gray-500 truncate">{{ $log->reviewer->email }}</p>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 px-6">
-                                <a href="/admin/applications/{{ $log->application_id }}" class="text-[#155386] hover:underline font-mono text-sm">
+                            
+                            <!-- Application # Column -->
+                            <td class="py-3 px-6">
+                                <a href="/admin/applications/{{ $log->application_id }}" class="text-[#155386] hover:text-[#40798C] font-mono text-sm font-medium underline decoration-transparent hover:decoration-[#155386] transition-all">
                                     {{ $log->application->application_number ?? 'N/A' }}
                                 </a>
                             </td>
-                            <td class="py-4 px-6">
+                            
+                            <!-- Action Column -->
+                            <td class="py-3 px-6">
                                 @php
                                     $actionColors = [
-                                        'document_verified' => 'bg-green-100 text-green-600',
-                                        'document_rejected' => 'bg-red-100 text-red-600',
-                                        'status_updated' => 'bg-blue-100 text-blue-600',
+                                        'document_verified' => 'bg-green-100 text-green-700 border border-green-200',
+                                        'document_rejected' => 'bg-red-100 text-red-700 border border-red-200',
+                                        'status_updated' => 'bg-blue-100 text-blue-700 border border-blue-200',
+                                    ];
+                                    $actionIcons = [
+                                        'document_verified' => '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>',
+                                        'document_rejected' => '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>',
+                                        'status_updated' => '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>',
                                     ];
                                     $actionLabels = [
-                                        'document_verified' => 'Verified',
-                                        'document_rejected' => 'Rejected',
+                                        'document_verified' => 'Document Verified',
+                                        'document_rejected' => 'Document Rejected',
                                         'status_updated' => 'Status Updated',
                                     ];
-                                    $colorClass = $actionColors[$log->action] ?? 'bg-gray-100 text-gray-600';
+                                    $colorClass = $actionColors[$log->action] ?? 'bg-gray-100 text-gray-600 border border-gray-200';
+                                    $actionIcon = $actionIcons[$log->action] ?? '';
                                     $actionLabel = $actionLabels[$log->action] ?? ucfirst(str_replace('_', ' ', $log->action));
                                 @endphp
-                                <span class="px-3 py-1 {{ $colorClass }} rounded-full text-xs font-medium whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 {{ $colorClass }} rounded-full text-xs font-medium">
+                                    {!! $actionIcon !!}
                                     {{ $actionLabel }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    @if($log->old_status)
-                                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs whitespace-nowrap">
-                                            {{ str_replace('_', ' ', $log->old_status) }}
-                                        </span>
-                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    @endif
-                                    @if($log->new_status)
-                                        <span class="px-2 py-1 
-                                            @if($log->new_status == 'verified') bg-green-100 text-green-600
-                                            @elseif($log->new_status == 'rejected') bg-red-100 text-red-600
-                                            @elseif($log->new_status == 'approved') bg-green-100 text-green-600
-                                            @elseif($log->new_status == 'under-review') bg-purple-100 text-purple-600
-                                            @elseif($log->new_status == 'for-release') bg-blue-100 text-blue-600
-                                            @else bg-gray-100 text-gray-600
-                                            @endif rounded text-xs whitespace-nowrap">
-                                            {{ str_replace('_', ' ', $log->new_status) }}
-                                        </span>
-                                    @endif
-                                </div>
+                            
+                            <!-- Status Change Column -->
+                            <td class="py-3 px-6">
+                                @if($log->old_status || $log->new_status)
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        @if($log->old_status)
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs border border-gray-200">
+                                                {{ str_replace('_', ' ', Str::title($log->old_status)) }}
+                                            </span>
+                                        @endif
+                                        
+                                        @if($log->old_status && $log->new_status)
+                                            <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        @endif
+                                        
+                                        @if($log->new_status)
+                                            @php
+                                                $statusColors = [
+                                                    'verified' => 'bg-green-100 text-green-700 border-green-200',
+                                                    'approved' => 'bg-green-100 text-green-700 border-green-200',
+                                                    'rejected' => 'bg-red-100 text-red-700 border-red-200',
+                                                    'under-review' => 'bg-purple-100 text-purple-700 border-purple-200',
+                                                    'for-release' => 'bg-blue-100 text-blue-700 border-blue-200',
+                                                ];
+                                                $statusClass = $statusColors[$log->new_status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+                                            @endphp
+                                            <span class="px-2 py-1 {{ $statusClass }} rounded-md text-xs font-medium border">
+                                                {{ str_replace('_', ' ', Str::title($log->new_status)) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">No status change</span>
+                                @endif
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="max-w-xs">
-                                    <p class="text-sm text-gray-600 truncate" title="{{ $log->remarks }}">
-                                        {{ $log->remarks ?? 'No remarks' }}
-                                    </p>
-                                </div>
+                            
+                            <!-- Remarks Column -->
+                            <td class="py-3 px-6">
+                                @if($log->remarks)
+                                    <div class="group relative">
+                                        <p class="text-sm text-gray-600 line-clamp-2 hover:line-clamp-none transition-all cursor-help" title="{{ $log->remarks }}">
+                                            {{ $log->remarks }}
+                                        </p>
+                                        @if(strlen($log->remarks) > 100)
+                                            <span class="text-xs text-[#155386] mt-1 hidden group-hover:inline-block">(click to expand)</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">—</span>
+                                @endif
                             </td>
-                            <td class="py-4 px-6">
+                            
+                            <!-- Date & Time Column -->
+                            <td class="py-3 px-6">
                                 <div class="flex flex-col">
-                                    <span class="text-sm text-gray-700" title="{{ $log->created_at->format('F j, Y g:i:s A') }}">
-                                        {{ $log->created_at->format('M d, Y h:i A') }}
+                                    <span class="text-sm text-gray-700 whitespace-nowrap" title="{{ $log->created_at->format('F j, Y g:i:s A') }}">
+                                        {{ $log->created_at->format('M d, Y') }}
+                                    </span>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">
+                                        {{ $log->created_at->format('h:i A') }}
                                     </span>
                                     <span class="text-xs text-gray-400">
-                                        {{ $log->created_at->diffForHumans() }}
+                                        ({{ $log->created_at->diffForHumans() }})
                                     </span>
                                 </div>
                             </td>
-                            <td class="py-4 px-6">
-                                <span class="font-mono text-xs text-gray-600">{{ $log->ip_address ?? 'N/A' }}</span>
+                            
+                            <!-- IP Address Column -->
+                            <td class="py-3 px-6">
+                                @if($log->ip_address)
+                                    <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-600 border border-gray-200" title="IP Address">
+                                        {{ $log->ip_address }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">—</span>
+                                @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="py-12 text-center text-gray-500">
-                                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
+                            <td colspan="7" class="py-16 text-center text-gray-500">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-lg font-medium text-gray-900 mb-2">No application review logs found</p>
+                                    <p class="text-sm text-gray-500 max-w-md">Try adjusting your filters or check back later when staff have reviewed applications.</p>
+                                    <button onclick="window.location.href='{{ route('admin.settings', ['tab' => 'application-logs']) }}'" class="mt-4 px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                                        Clear All Filters
+                                    </button>
                                 </div>
-                                <p class="text-lg font-medium text-gray-900 mb-2">No application review logs found</p>
-                                <p class="text-sm text-gray-500">Try adjusting your filters or check back later</p>
                             </td>
                         </tr>
                         @endforelse
@@ -477,46 +545,54 @@
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <p class="text-sm text-gray-500">
-                    Showing {{ $applicationLogs->firstItem() ?? 0 }} to {{ $applicationLogs->lastItem() ?? 0 }} of {{ $applicationLogs->total() }} log entries
+                    @if($applicationLogs->total() > 0)
+                        Showing <span class="font-medium">{{ $applicationLogs->firstItem() ?? 0 }}</span> to 
+                        <span class="font-medium">{{ $applicationLogs->lastItem() ?? 0 }}</span> of 
+                        <span class="font-medium">{{ $applicationLogs->total() }}</span> log entries
+                    @else
+                        No entries found
+                    @endif
                 </p>
                 <div class="flex items-center gap-2">
                     @if($applicationLogs->onFirstPage())
-                        <button class="px-3 py-1 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed text-sm" disabled>Previous</button>
+                        <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed text-sm bg-gray-50" disabled>Previous</button>
                     @else
-                        <a href="{{ $applicationLogs->previousPageUrl() }}" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition text-sm">Previous</a>
+                        <a href="{{ $applicationLogs->previousPageUrl() }}" class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition text-sm">Previous</a>
                     @endif
                     
-                    @php
-                        $start = max(1, $applicationLogs->currentPage() - 2);
-                        $end = min($applicationLogs->lastPage(), $applicationLogs->currentPage() + 2);
-                    @endphp
-                    
-                    @if($start > 1)
-                        <a href="{{ $applicationLogs->url(1) }}" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition text-sm">1</a>
-                        @if($start > 2)
-                            <span class="px-2 text-gray-400">...</span>
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max(1, $applicationLogs->currentPage() - 2);
+                            $end = min($applicationLogs->lastPage(), $applicationLogs->currentPage() + 2);
+                        @endphp
+                        
+                        @if($start > 1)
+                            <a href="{{ $applicationLogs->url(1) }}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition text-sm">1</a>
+                            @if($start > 2)
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-400">...</span>
+                            @endif
                         @endif
-                    @endif
-                    
-                    @for($page = $start; $page <= $end; $page++)
-                        @if($page == $applicationLogs->currentPage())
-                            <button class="px-3 py-1 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">{{ $page }}</button>
-                        @else
-                            <a href="{{ $applicationLogs->url($page) }}" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition text-sm">{{ $page }}</a>
+                        
+                        @for($page = $start; $page <= $end; $page++)
+                            @if($page == $applicationLogs->currentPage())
+                                <span class="w-8 h-8 flex items-center justify-center bg-[#155386] text-white rounded-lg text-sm font-medium shadow-sm">{{ $page }}</span>
+                            @else
+                                <a href="{{ $applicationLogs->url($page) }}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition text-sm">{{ $page }}</a>
+                            @endif
+                        @endfor
+                        
+                        @if($end < $applicationLogs->lastPage())
+                            @if($end < $applicationLogs->lastPage() - 1)
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-400">...</span>
+                            @endif
+                            <a href="{{ $applicationLogs->url($applicationLogs->lastPage()) }}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition text-sm">{{ $applicationLogs->lastPage() }}</a>
                         @endif
-                    @endfor
-                    
-                    @if($end < $applicationLogs->lastPage())
-                        @if($end < $applicationLogs->lastPage() - 1)
-                            <span class="px-2 text-gray-400">...</span>
-                        @endif
-                        <a href="{{ $applicationLogs->url($applicationLogs->lastPage()) }}" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition text-sm">{{ $applicationLogs->lastPage() }}</a>
-                    @endif
+                    </div>
                     
                     @if($applicationLogs->hasMorePages())
-                        <a href="{{ $applicationLogs->nextPageUrl() }}" class="px-3 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition text-sm">Next</a>
+                        <a href="{{ $applicationLogs->nextPageUrl() }}" class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition text-sm">Next</a>
                     @else
-                        <button class="px-3 py-1 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed text-sm" disabled>Next</button>
+                        <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed text-sm bg-gray-50" disabled>Next</button>
                     @endif
                 </div>
             </div>
@@ -612,6 +688,38 @@
     /* Gradient text */
     .bg-gradient-to-r {
         background-size: 100% 100%;
+    }
+    
+    /* Line clamp for remarks */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .line-clamp-2:hover {
+        -webkit-line-clamp: unset;
+    }
+    
+    /* Pagination button styles */
+    .pagination-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .pagination-btn:hover:not(:disabled) {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    
+    /* Summary cards hover */
+    .grid > div {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .grid > div:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     }
 </style>
 @endsection

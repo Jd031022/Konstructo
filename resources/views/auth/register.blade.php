@@ -123,7 +123,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
                                     <div class="flex">
                                         <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+63</span>
-                                        <input type="tel" id="phone_number" name="phone_number" placeholder="9123456789" value="{{ old('phone_number') }}" required
+                                        <input type="tel" id="phone_number" name="phone_number" placeholder="09123456789" value="{{ old('phone_number') }}" required
                                             class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                     <p class="text-xs text-gray-500 mt-1">Format: 9123456789 (must start with 09 and be 11 digits)</p>

@@ -196,26 +196,6 @@
                     </div>
                 </div>
 
-                <!-- Hard Copy Confirmation Section -->
-                <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-800 text-lg">Hard Copy Submission Confirmation</h4>
-                            <p class="text-sm text-gray-600 mt-1">I confirm that all documents are uploaded to Google Drive and I will submit the original hard copies to the Office of the Building Official (OBO) for final processing.</p>
-                            
-                            <div class="mt-4 flex items-center gap-3">
-                                <input type="checkbox" id="hardcopy-confirm" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                <label for="hardcopy-confirm" class="text-sm font-medium text-gray-700">I confirm that I will submit all original hard copies to the OBO</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Declaration Section -->
                 <div class="border-t border-gray-200 pt-6">
                     <div class="bg-yellow-50 rounded-xl p-6 border border-yellow-100">
@@ -238,12 +218,32 @@
                     </div>
                 </div>
 
+                                <!-- Hard Copy Confirmation Section -->
+                <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 text-lg">Hard Copy Submission Confirmation</h4>
+                            <p class="text-sm text-gray-600 mt-1">I confirm that all documents are uploaded to Google Drive and I will submit the original hard copies to the Office of the Building Official (OBO) for final processing.</p>
+                            
+                            <div class="mt-4 flex items-center gap-3">
+                                <input type="checkbox" id="hardcopy-confirm" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                <label for="hardcopy-confirm" class="text-sm font-medium text-gray-700">I confirm that I will submit all original hard copies to the OBO</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Application Summary -->
                 <div class="bg-[#155386]/5 rounded-xl p-6 border border-[#155386]/20">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Processing Time</p>
-                            <p class="text-lg font-semibold text-gray-800">7-10 business days</p>
+                            <p class="text-lg font-semibold text-gray-800">0-0 business days</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Application Number</p>
