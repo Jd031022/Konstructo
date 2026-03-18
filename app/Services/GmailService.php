@@ -199,43 +199,8 @@ class GmailService
         $subject = 'Verify Your Email Address - Konstructo';
         $formattedName = $firstName ? ucfirst(strtolower(trim($firstName))) : null;
         
-        // Personalize greeting
-        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
+        $htmlContent = $this->getVerificationEmailContent($code, $formattedName);
         
-        $htmlContent = "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
-                    .code-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; font-size: 42px; letter-spacing: 8px; font-weight: 600; border-radius: 8px; margin: 30px 0; font-family: 'Courier New', monospace; color: #155386; border: 1px solid #dee2e6; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'><h1>Konstructo</h1></div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        <p>Thank you for registering with Konstructo. Please verify your email address using the code below:</p>
-                        <div class='code-box'>{$code}</div>
-                        <p>This code will expire in 10 minutes.</p>
-                    </div>
-                    <div class='footer'>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-
         return $this->sendEmail($to, $subject, $htmlContent);
     }
 
@@ -255,7 +220,7 @@ class GmailService
      */
     public function sendMissingDocumentsEmail($to, $applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks = null)
     {
-        $subject = 'Action Required: Missing Documents for Your Building Permit Application - Konstructo';
+        $subject = 'Action Required: Missing Documents for Your Building Permit Application';
         $htmlContent = $this->getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks);
         
         return $this->sendEmail($to, $subject, $htmlContent);
@@ -267,54 +232,71 @@ class GmailService
     private function getEmailSubject($status)
     {
         return match($status) {
-            'approved' => '✓ Building Permit Application Approved - Konstructo',
-            'for-release' => '📄 Building Permit Ready for Release - Konstructo',
-            'rejected' => '⚠️ Building Permit Application Update - Konstructo',
-            'under-review' => '🔍 Your Application is Under Review - Konstructo',
-            'verified' => '✅ Documents Verified - Konstructo',
-            'pending' => '⏳ Application Received - Konstructo',
-            'document-verification' => '📋 Document Verification in Progress - Konstructo',
+            'approved' => 'Building Permit Application Approved - Konstructo',
+            'for-release' => 'Building Permit Ready for Release - Konstructo',
+            'rejected' => 'Building Permit Application Update - Konstructo',
+            'under-review' => 'Your Application is Under Review - Konstructo',
+            'verified' => 'Documents Verified - Konstructo',
+            'pending' => 'Application Received - Konstructo',
+            'document-verification' => 'Document Verification in Progress - Konstructo',
             default => 'Building Permit Application Status Update - Konstructo'
         };
     }
 
     /**
-     * Get email content based on status
+     * Get verification email content
      */
-    private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId)
+    private function getVerificationEmailContent($code, $firstName = null)
     {
-        $appUrl = env('APP_URL', 'http://localhost:8000') . "/applicant/application-details/{$applicationId}";
+        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
         
-        $statusDisplay = ucfirst(str_replace('-', ' ', $status));
-        
-        // Simplified template for brevity - you can use your full templates here
         return "
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                 <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-                    .header { background: #155386; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                    .content { padding: 20px; }
-                    .status { color: #155386; font-weight: bold; }
-                    .button { background: #155386; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+                    .code-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; font-size: 42px; letter-spacing: 8px; font-weight: 600; border-radius: 8px; margin: 30px 0; font-family: 'Courier New', monospace; color: #155386; border: 1px solid #dee2e6; }
+                    .expiry-note { background-color: #fff8e7; padding: 15px; border-radius: 6px; border-left: 4px solid #40798C; margin: 25px 0; font-size: 14px; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
                 </style>
             </head>
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h1>Application Status Update</h1>
+                        <h1>Konstructo</h1>
                     </div>
                     <div class='content'>
-                        <p>Dear {$applicantName},</p>
-                        <p>Your application <strong>#{$applicationNumber}</strong> status has been updated to: <span class='status'>{$statusDisplay}</span></p>
-                        <p>Click the button below to view your application details:</p>
-                        <p style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>View Application</a>
+                        <div class='greeting'>{$greeting}</div>
+                        <p>Thank you for registering with Konstructo. To complete your account setup and ensure the security of your account, please verify your email address using the verification code below:</p>
+                        
+                        <div class='code-box'>{$code}</div>
+                        
+                        <div class='expiry-note'>
+                            <strong>Note:</strong> This verification code will expire in 10 minutes for security purposes.
+                        </div>
+                        
+                        <p>If you did not initiate this registration request, please disregard this email. No further action is required.</p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d;'>
+                            For security reasons, never share this code with anyone. Our team will never ask for your verification code.
                         </p>
-                        <p>Thank you for using Konstructo.</p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
                     </div>
                 </div>
             </body>
@@ -323,45 +305,181 @@ class GmailService
     }
 
     /**
-     * Get missing documents email content
+     * Get status email content
      */
-    private function getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks = null)
+    private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId)
     {
         $appUrl = env('APP_URL', 'http://localhost:8000') . "/applicant/application-details/{$applicationId}";
+        $statusDisplay = ucfirst(str_replace('-', ' ', $status));
         
-        $documentList = '<ul>';
-        foreach ($missingDocuments as $doc) {
-            $documentList .= "<li>" . htmlspecialchars($doc) . "</li>";
-        }
-        $documentList .= '</ul>';
+        // Define colors based on status
+        $statusColors = [
+            'approved' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
+            'rejected' => ['bg' => '#EF4444', 'light' => '#FEE2E2'],
+            'pending' => ['bg' => '#F59E0B', 'light' => '#FEF3C7'],
+            'under-review' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE'],
+            'for-release' => ['bg' => '#3B82F6', 'light' => '#DBEAFE'],
+            'verified' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
+            'document-verification' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE']
+        ];
+        
+        $color = $statusColors[$status] ?? ['bg' => '#6B7280', 'light' => '#F3F4F6'];
         
         return "
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                 <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-                    .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                    .content { padding: 20px; }
-                    .button { background: #155386; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+                    .status-badge { background-color: {$color['light']}; color: {$color['bg']}; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid {$color['bg']}20; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #155386; }
+                    .application-number { font-family: 'Courier New', monospace; font-weight: 600; color: #155386; background-color: #f0f7fa; padding: 2px 8px; border-radius: 4px; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
                 </style>
             </head>
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h1>Missing Documents Required</h1>
+                        <h1>Application Status Update</h1>
                     </div>
                     <div class='content'>
-                        <p>Dear {$applicantName},</p>
-                        <p>Your application <strong>#{$applicationNumber}</strong> requires the following documents:</p>
-                        {$documentList}
-                        " . ($remarks ? "<p><strong>Remarks:</strong> {$remarks}</p>" : "") . "
-                        <p>Please upload these documents to your Google Drive folder.</p>
-                        <p style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>View Application</a>
+                        <div class='greeting'>Dear {$applicantName},</div>
+                        
+                        <p>Your building permit application <span class='application-number'>#{$applicationNumber}</span> has received a status update.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='status-badge'>Current Status: {$statusDisplay}</span>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <p style='margin: 0;'>Please log in to your Konstructo dashboard to view the complete details regarding this update and any next steps required.</p>
+                        </div>
+                        
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d;'>Thank you for using Konstructo for your permitting needs.</p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get missing documents email content with professional design
+     */
+    private function getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks = null)
+    {
+        $appUrl = env('APP_URL', 'http://localhost:8000') . "/applicant/application-details/{$applicationId}";
+        
+        // Build document list HTML
+        $documentList = '<div style="margin: 20px 0;">';
+        foreach ($missingDocuments as $index => $doc) {
+            $documentList .= '
+                <div style="display: flex; align-items: center; padding: 10px; ' . ($index % 2 === 0 ? 'background-color: #f8f9fa;' : '') . ' border-radius: 4px; margin-bottom: 5px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="margin-right: 12px; flex-shrink: 0;">
+                        <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" fill="#EF4444" fill-opacity="0.2" stroke="#EF4444" stroke-width="2"/>
+                    </svg>
+                    <span style="font-size: 14px; color: #1F2937;">' . htmlspecialchars($doc) . '</span>
+                </div>';
+        }
+        $documentList .= '</div>';
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .warning-badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #DC2626; }
+                    .document-list { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin: 20px 0; }
+                    .application-number { font-family: 'Courier New', monospace; font-weight: 600; color: #DC2626; background-color: #FEE2E2; padding: 2px 8px; border-radius: 4px; }
+                    .remarks-box { background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0; font-size: 14px; color: #92400E; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .deadline-note { background-color: #FEF2F2; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #FEE2E2; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Action Required: Missing Documents</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>Dear {$applicantName},</div>
+                        
+                        <p>Your building permit application <span class='application-number'>#{$applicationNumber}</span> requires additional documents to proceed with the review process.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='warning-badge'>⚠️ Missing Documents Required</span>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3 style='margin-top: 0; color: #DC2626; font-size: 16px;'>The following documents are missing:</h3>
+                            {$documentList}
+                            
+                            " . ($remarks ? "
+                            <div class='remarks-box'>
+                                <strong>Additional Remarks:</strong>
+                                <p style='margin: 8px 0 0 0;'>" . htmlspecialchars($remarks) . "</p>
+                            </div>
+                            " : "") . "
+                            
+                            <div class='deadline-note'>
+                                <strong>⏰ Please submit these documents within 7 days</strong>
+                                <p style='margin: 8px 0 0 0; font-size: 13px; color: #6B7280;'>Failure to provide the required documents may result in delays or rejection of your application.</p>
+                            </div>
+                        </div>
+                        
+                        <p><strong>Next Steps:</strong></p>
+                        <ol style='margin-bottom: 25px; color: #4B5563;'>
+                            <li>Upload the missing documents to your Google Drive folder</li>
+                            <li>Ensure all documents are clear and readable</li>
+                            <li>Submit hard copies to the OBO office if required</li>
+                            <li>Track your application status through your dashboard</li>
+                        </ol>
+                    
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            If you have already uploaded these documents, please disregard this message.
                         </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            For questions or assistance, please contact the Office of the Building Official (OBO).
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
                     </div>
                 </div>
             </body>
