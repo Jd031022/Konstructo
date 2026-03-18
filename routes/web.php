@@ -339,3 +339,50 @@ Route::get('/profile/profile', function () {
 });
 
 Route::get('/profile/avatar-info', [App\Http\Controllers\ProfileController::class, 'getAvatarInfo'])->name('profile.avatar.info');
+Route::get('/test-gmail', function() {
+    try {
+        $refreshToken = env('GOOGLE_REFRESH_TOKEN');
+        $clientId = env('GOOGLE_CLIENT_ID');
+        $clientSecret = env('GOOGLE_CLIENT_SECRET');
+        
+        $result = [
+            'credentials_exist' => [
+                'refresh_token' => !empty($refreshToken),
+                'client_id' => !empty($clientId),
+                'client_secret' => !empty($clientSecret)
+            ],
+            'refresh_token_length' => strlen($refreshToken ?? ''),
+            'refresh_token_prefix' => substr($refreshToken ?? '', 0, 10) . '...'
+        ];
+        
+        // Try to initialize Gmail service
+        try {
+            $client = new Google_Client();
+            $client->setClientId($clientId);
+            $client->setClientSecret($clientSecret);
+            $client->setAccessType('offline');
+            
+            // Test setting refresh token
+            $client->refreshToken($refreshToken);
+            
+            // Try to fetch access token
+            $token = $client->fetchAccessTokenWithRefreshToken();
+            
+            if (isset($token['error'])) {
+                $result['token_error'] = $token['error'];
+                $result['token_error_description'] = $token['error_description'] ?? 'No description';
+            } else {
+                $result['token_success'] = true;
+                $result['has_access_token'] = isset($token['access_token']);
+            }
+            
+        } catch (\Exception $e) {
+            $result['error'] = $e->getMessage();
+        }
+        
+        return response()->json($result);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});

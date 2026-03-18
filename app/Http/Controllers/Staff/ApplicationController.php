@@ -32,6 +32,12 @@ class ApplicationController extends Controller
     {
         $this->notificationService = $notificationService;
         $this->gmailService = $gmailService;
+        
+        // Log that services are injected
+        Log::info('ApplicationController initialized', [
+            'notification_service' => get_class($notificationService),
+            'gmail_service' => get_class($gmailService)
+        ]);
     }
 
     /**
@@ -262,6 +268,34 @@ class ApplicationController extends Controller
             // TRIGGER NOTIFICATION: Notify staff about new application
             $this->notificationService->notifyStaffNewApplication($application);
             
+            // Send email to applicant about new application
+            try {
+                Log::info('📧 Attempting to send PENDING email to: ' . $user->email);
+                
+                // Check if Gmail service is configured
+                if (method_exists($this->gmailService, 'isConfigured')) {
+                    $isConfigured = $this->gmailService->isConfigured();
+                    Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
+                }
+                
+                $emailSent = $this->gmailService->sendStatusEmail(
+                    $user->email,
+                    'pending',
+                    $applicationNumber,
+                    $user->first_name,
+                    $application->id
+                );
+                
+                if ($emailSent) {
+                    Log::info('✓✓✓ PENDING EMAIL SENT SUCCESSFULLY TO ' . $user->email);
+                } else {
+                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email . ' - sendStatusEmail returned false');
+                }
+            } catch (\Exception $e) {
+                Log::error('✗✗✗ EXCEPTION when sending pending email: ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Application created successfully',
@@ -291,6 +325,7 @@ class ApplicationController extends Controller
             'application_id' => $id,
             'status' => $request->status,
             'hardcopy_received' => $request->hardcopy_received,
+            'remarks' => $request->remarks,
             'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
             'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
         ]);
@@ -326,7 +361,8 @@ class ApplicationController extends Controller
                 'current_status' => $application->status,
                 'current_hardcopy_status' => $application->hard_copy_received,
                 'applicant_id' => $application->user_id,
-                'applicant_email' => $application->user ? $application->user->email : 'no user'
+                'applicant_email' => $application->user ? $application->user->email : 'no user',
+                'applicant_name' => $application->user ? $application->user->first_name : 'unknown'
             ]);
             
             $staff = auth()->user();
@@ -394,46 +430,36 @@ class ApplicationController extends Controller
                     );
                     Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
                     
-                    // SEND EMAIL NOTIFICATIONS FOR SPECIFIC STATUSES USING GMAIL SERVICE
-                    if ($newStatus === 'approved') {
-                        Log::info('📧 SENDING APPROVED EMAIL VIA GMAIL SERVICE');
+                    // SEND EMAIL NOTIFICATIONS FOR ALL STATUSES USING GMAIL SERVICE
+                    if ($application->user && $application->user->email) {
+                        Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
+                        
+                        // Check if Gmail service is configured
+                        if (method_exists($this->gmailService, 'isConfigured')) {
+                            $isConfigured = $this->gmailService->isConfigured();
+                            Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
+                        }
                         
                         $emailSent = $this->gmailService->sendStatusEmail(
                             $application->user->email,
-                            'approved',
+                            $newStatus,
                             $application->application_number,
                             $application->user->first_name,
                             $application->id
                         );
                         
                         if ($emailSent) {
-                            Log::info('✓✓✓ APPROVED EMAIL SENT SUCCESSFULLY ✓✓✓');
+                            Log::info("✓✓✓ {$newStatus} EMAIL SENT SUCCESSFULLY TO {$application->user->email}");
                         } else {
-                            Log::error('✗✗✗ FAILED TO SEND APPROVED EMAIL ✗✗✗');
+                            Log::error("✗✗✗ FAILED TO SEND {$newStatus} EMAIL TO {$application->user->email} - sendStatusEmail returned false");
                         }
-                    }
-                    
-                    if ($newStatus === 'for-release') {
-                        Log::info('📧 SENDING FOR-RELEASE EMAIL VIA GMAIL SERVICE');
-                        
-                        $emailSent = $this->gmailService->sendStatusEmail(
-                            $application->user->email,
-                            'for-release',
-                            $application->application_number,
-                            $application->user->first_name,
-                            $application->id
-                        );
-                        
-                        if ($emailSent) {
-                            Log::info('✓✓✓ FOR-RELEASE EMAIL SENT SUCCESSFULLY ✓✓✓');
-                        } else {
-                            Log::error('✗✗✗ FAILED TO SEND FOR-RELEASE EMAIL ✗✗✗');
-                        }
+                    } else {
+                        Log::error('Cannot send email: Applicant email not found');
                     }
                     
                 } catch (\Exception $e) {
-                    Log::error('✗✗✗ FAILED TO SEND STATUS NOTIFICATION ✗✗✗');
-                    Log::error('Error message: ' . $e->getMessage());
+                    Log::error('✗✗✗ EXCEPTION when sending status email: ' . $e->getMessage());
+                    Log::error($e->getTraceAsString());
                 }
             }
 
@@ -444,9 +470,27 @@ class ApplicationController extends Controller
                 try {
                     $this->notificationService->notifyHardCopyReceived($application, $staff);
                     Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
+                    
+                    // Also send email for hard copy received
+                    if ($application->user && $application->user->email) {
+                        Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL VIA GMAIL SERVICE");
+                        
+                        $emailSent = $this->gmailService->sendStatusEmail(
+                            $application->user->email,
+                            $newStatus,
+                            $application->application_number,
+                            $application->user->first_name,
+                            $application->id
+                        );
+                        
+                        if ($emailSent) {
+                            Log::info('✓✓✓ HARD COPY RECEIVED EMAIL SENT SUCCESSFULLY');
+                        }
+                    }
+                    
                 } catch (\Exception $e) {
-                    Log::error('✗✗✗ FAILED TO SEND HARD COPY NOTIFICATION ✗✗✗');
-                    Log::error('Error message: ' . $e->getMessage());
+                    Log::error('✗✗✗ EXCEPTION when sending hard copy notification: ' . $e->getMessage());
+                    Log::error($e->getTraceAsString());
                 }
             }
 
@@ -463,7 +507,7 @@ class ApplicationController extends Controller
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ]);
-                Log::info('Review activity created with ID: ' . $activity->id);
+                Log::info('Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
             } catch (\Exception $e) {
                 Log::error('Failed to log activity: ' . $e->getMessage());
             }
@@ -510,7 +554,7 @@ class ApplicationController extends Controller
         }
 
         try {
-            $application = ApplicationDocument::find($id);
+            $application = ApplicationDocument::with('user')->find($id);
             
             if (!$application) {
                 return response()->json([
@@ -537,6 +581,27 @@ class ApplicationController extends Controller
                 $request->note,
                 $staff
             );
+
+            // Send email about new note
+            try {
+                if ($application->user && $application->user->email) {
+                    Log::info("📧 ATTEMPTING TO SEND NOTE ADDED EMAIL TO {$application->user->email}");
+                    
+                    $emailSent = $this->gmailService->sendStatusEmail(
+                        $application->user->email,
+                        $application->status,
+                        $application->application_number,
+                        $application->user->first_name,
+                        $application->id
+                    );
+                    
+                    if ($emailSent) {
+                        Log::info('✓✓✓ NOTE ADDED EMAIL SENT SUCCESSFULLY');
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send note email: ' . $e->getMessage());
+            }
 
             // Log the note activity
             $this->logReviewActivity(
@@ -618,6 +683,28 @@ class ApplicationController extends Controller
             try {
                 $this->notificationService->notifyHardCopyReceived($application, $staff);
                 Log::info('✅ Notification service called successfully');
+                
+                // Send email about hard copy received
+                if ($application->user && $application->user->email) {
+                    try {
+                        Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL TO {$application->user->email}");
+                        
+                        $emailSent = $this->gmailService->sendStatusEmail(
+                            $application->user->email,
+                            $application->status,
+                            $application->application_number,
+                            $application->user->first_name,
+                            $application->id
+                        );
+                        
+                        if ($emailSent) {
+                            Log::info('✓✓✓ HARD COPY RECEIVED EMAIL SENT SUCCESSFULLY');
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send hard copy email: ' . $e->getMessage());
+                    }
+                }
+                
             } catch (\Exception $e) {
                 Log::error('❌ Error calling notification service: ' . $e->getMessage());
                 Log::error($e->getTraceAsString());
@@ -737,21 +824,31 @@ class ApplicationController extends Controller
             $application->save();
 
             // SEND EMAIL NOTIFICATION
-            Log::info('📧 SENDING MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE');
-            
-            $emailSent = $this->gmailService->sendMissingDocumentsEmail(
-                $application->user->email,
-                $application->application_number,
-                $application->user->first_name,
-                $request->documents,
-                $application->id,
-                $request->remarks
-            );
-            
-            if ($emailSent) {
-                Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY ✓✓✓');
+            if ($application->user && $application->user->email) {
+                Log::info('📧 ATTEMPTING TO SEND MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE TO ' . $application->user->email);
+                
+                // Check if Gmail service is configured
+                if (method_exists($this->gmailService, 'isConfigured')) {
+                    $isConfigured = $this->gmailService->isConfigured();
+                    Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
+                }
+                
+                $emailSent = $this->gmailService->sendMissingDocumentsEmail(
+                    $application->user->email,
+                    $application->application_number,
+                    $application->user->first_name,
+                    $request->documents,
+                    $application->id,
+                    $request->remarks
+                );
+                
+                if ($emailSent) {
+                    Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY TO ' . $application->user->email);
+                } else {
+                    Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL TO ' . $application->user->email . ' - sendMissingDocumentsEmail returned false');
+                }
             } else {
-                Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL ✗✗✗');
+                Log::error('Cannot send email: Applicant email not found');
             }
 
             // Log the activity
