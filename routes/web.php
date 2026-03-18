@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\SettingsController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -50,7 +52,7 @@ Route::post('/forgot-password/resend-code', [PasswordResetController::class, 're
 
 // Staff UI and API Routes
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
-    // ========== POSITION MANAGEMENT ROUTES (NEW) ==========
+    // ========== POSITION MANAGEMENT ROUTES ==========
     Route::prefix('position')->name('position.')->group(function () {
         Route::post('/update', [App\Http\Controllers\Staff\PositionController::class, 'update'])->name('update');
         Route::get('/check', [App\Http\Controllers\Staff\PositionController::class, 'check'])->name('check');
@@ -61,7 +63,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.dashboard');
     })->name('dashboard');
     
-    // View route for application details - returns HTML
     Route::get('/application-details/{id}', function ($id) {
         return view('staff.application-details', ['applicationId' => $id]);
     })->name('application.details');
@@ -102,6 +103,8 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
         ->name('applications.export');
     
+    Route::post('/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);
+    
     // Staff review activities routes
     Route::post('/applications/{id}/note', [App\Http\Controllers\Staff\ApplicationController::class, 'addNote'])
         ->name('applications.note');
@@ -124,12 +127,10 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.dashboard');
     })->name('dashboard');
     
-    // Building Permit Preview Page
     Route::get('/buildingpermit-preview', function () {
         return view('applicant.buildingpermit-preview');
     })->name('building-permit.preview');
     
-    // FIXED: Added ID parameter to application details route
     Route::get('/application-details/{id}', function ($id) {
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
@@ -181,17 +182,89 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/applications/stats', [App\Http\Controllers\Applicant\ApplicationController::class, 'getStats'])
         ->name('applications.stats');
     
-    // NEW: Applicant view review activities route
     Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Applicant\ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
     
-    // Add this inside your applicant routes group
     Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
         ->name('applications.debug-review');
 
     Route::get('/applications/{id}/activity-history', function ($id) {
-    return view('applicant.activity-history', ['applicationId' => $id]);
+        return view('applicant.activity-history', ['applicationId' => $id]);
     })->name('applicant.activity-history');
+    
+    // Debug Routes - Place these INSIDE the applicant middleware group
+    Route::get('/applications/debug-db', function() {
+        try {
+            // Check if user is authenticated
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'Not authenticated'], 401);
+            }
+            
+            // Test database connection
+            $connection = DB::connection()->getPdo();
+            
+            // Check if table exists
+            $tableExists = Schema::hasTable('application_documents');
+            
+            // Try a simple query
+            $count = DB::table('application_documents')->where('user_id', $user->id)->count();
+            
+            // Get column information
+            $columns = Schema::getColumnListing('application_documents');
+            
+            return response()->json([
+                'success' => true,
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_role' => $user->role,
+                'database_connected' => true,
+                'table_exists' => $tableExists,
+                'application_count' => $count,
+                'columns' => $columns,
+                'database_name' => DB::connection()->getDatabaseName()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    })->name('applications.debug-db');
+    
+    Route::get('/applications/check-columns', function() {
+        try {
+            // Check if user is authenticated
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'Not authenticated'], 401);
+            }
+            
+            // Check if table exists
+            if (!Schema::hasTable('application_documents')) {
+                return response()->json([
+                    'error' => 'application_documents table does not exist',
+                    'existing_columns' => []
+                ]);
+            }
+            
+            $columns = Schema::getColumnListing('application_documents');
+            $required = ['hard_copy_received_at', 'last_updated_by', 'admin_notes', 'hard_copy_received', 'verified_at', 'verified_by', 'rejection_reason'];
+            $missing = array_diff($required, $columns);
+            
+            return response()->json([
+                'existing_columns' => $columns,
+                'missing_columns' => $missing,
+                'has_all_columns' => empty($missing)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'existing_columns' => []
+            ], 500);
+        }
+    })->name('applications.check-columns');
 });
 
 // Dashboard route with role-based redirect
@@ -227,23 +300,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     })->name('applications');
     
     // ========== ADMIN DASHBOARD API ROUTES ==========
-    // Dashboard statistics
     Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])
         ->name('dashboard.stats');
     
-    // Trend data for charts
     Route::get('/dashboard/trend', [App\Http\Controllers\Admin\DashboardController::class, 'getTrend'])
         ->name('dashboard.trend');
     
-    // User statistics for dashboard
     Route::get('/users/stats', [App\Http\Controllers\Admin\UserController::class, 'getStats'])
         ->name('users.stats');
     
-    // Staff performance data
     Route::get('/staff/performance', [App\Http\Controllers\Admin\StaffPerformanceController::class, 'getPerformance'])
         ->name('staff.performance');
     
-    // Announcements
     Route::get('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'index'])
         ->name('announcements.index');
     
@@ -265,10 +333,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
 });
 
-// Profile route (kept for backward compatibility)
+// Profile routes
 Route::get('/profile/profile', function () {
     return view('profile.profile');
 });
-// In your routes file (web.php or api.php)
-Route::post('/staff/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);
+
 Route::get('/profile/avatar-info', [App\Http\Controllers\ProfileController::class, 'getAvatarInfo'])->name('profile.avatar.info');

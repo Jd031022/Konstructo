@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\ApplicationReviewActivity;
 use App\Models\User;
-use App\Services\NotificationService; // ADD THIS IMPORT
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ApplicationController extends Controller
 {
@@ -32,9 +33,13 @@ class ApplicationController extends Controller
     public function index()
     {
         try {
+            Log::info('ApplicationController@index started');
+            
             $user = Auth::user();
+            Log::info('User authenticated', ['user_id' => $user ? $user->id : null]);
 
             if (!$user) {
+                Log::error('User not authenticated in index method');
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -42,27 +47,50 @@ class ApplicationController extends Controller
                 ], 401);
             }
 
+            // Check if table exists
+            if (!Schema::hasTable('application_documents')) {
+                Log::error('application_documents table does not exist');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Database table not found',
+                    'applications' => []
+                ], 500);
+            }
+
             // Get all applications for the user
             $applications = ApplicationDocument::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
+            
+            Log::info('Applications retrieved', ['count' => $applications->count()]);
 
             $formattedApplications = [];
             foreach ($applications as $app) {
-                $formattedApplications[] = [
-                    'id' => $app->id,
-                    'application_number' => $app->application_number,
-                    'google_drive_link' => $app->google_drive_link,
-                    'status' => $app->status,
-                    'status_display' => $this->formatStatus($app->status),
-                    'rejection_reason' => $app->rejection_reason,
-                    'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
-                    'hard_copy_received' => $app->hard_copy_received ?? false,
-                    'last_updated_by' => $app->last_updated_by,
-                    'project_name' => 'Building Permit Application',
-                    'progress' => $this->calculateProgress($app->status)
-                ];
+                try {
+                    $formattedApplications[] = [
+                        'id' => $app->id,
+                        'application_number' => $app->application_number,
+                        'google_drive_link' => $app->google_drive_link,
+                        'status' => $app->status,
+                        'status_display' => $this->formatStatus($app->status),
+                        'rejection_reason' => $app->rejection_reason,
+                        'admin_notes' => $app->admin_notes,
+                        'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
+                        'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
+                        'hard_copy_received' => $app->hard_copy_received ?? false,
+                        'hard_copy_received_at' => $app->hard_copy_received_at ? $app->hard_copy_received_at->format('Y-m-d H:i:s') : null,
+                        'last_updated_by' => $app->last_updated_by,
+                        'project_name' => 'Building Permit Application',
+                        'progress' => $this->calculateProgress($app->status)
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Error formatting application', [
+                        'application_id' => $app->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Skip this application but continue
+                    continue;
+                }
             }
 
             return response()->json([
@@ -85,8 +113,6 @@ class ApplicationController extends Controller
 
     /**
      * Store a newly created application
-     * 
-     * NOTE: You need to add this method if it doesn't exist yet
      */
     public function store(Request $request)
     {
@@ -103,21 +129,53 @@ class ApplicationController extends Controller
             // Validate request
             $request->validate([
                 'google_drive_link' => 'required|url',
-                // Add other validation rules as needed
             ]);
+
+            // Check if user has reached the application limit
+            if ($this->hasReachedApplicationLimit($user)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have reached the maximum limit of 3 applications.'
+                ], 403);
+            }
+
+            // Generate application number
+            $applicationNumber = $this->generateApplicationNumber();
 
             // Create application
             $application = ApplicationDocument::create([
                 'user_id' => $user->id,
-                'application_number' => ApplicationDocument::generateApplicationNumber(),
+                'application_number' => $applicationNumber,
                 'google_drive_link' => $request->google_drive_link,
                 'status' => 'pending',
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
 
+            // Log the activity
+            try {
+                if (class_exists('App\Models\ApplicationReviewActivity')) {
+                    ApplicationReviewActivity::create([
+                        'application_id' => $application->id,
+                        'reviewer_id' => $user->id,
+                        'action' => 'application_created',
+                        'old_status' => null,
+                        'new_status' => 'pending',
+                        'remarks' => 'Application created via API',
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to log activity: ' . $e->getMessage());
+            }
+
             // TRIGGER NOTIFICATION: Notify staff about new application
-            $this->notificationService->notifyStaffNewApplication($application);
+            try {
+                $this->notificationService->notifyStaffNewApplication($application);
+            } catch (\Exception $e) {
+                Log::error('Failed to send notification: ' . $e->getMessage());
+            }
 
             Log::info('Application created successfully', [
                 'application_id' => $application->id,
@@ -233,7 +291,8 @@ class ApplicationController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User not authenticated'
+                    'message' => 'User not authenticated',
+                    'activities' => []
                 ], 401);
             }
 
@@ -246,17 +305,26 @@ class ApplicationController extends Controller
                 Log::error('Application not found for ID: ' . $id);
                 return response()->json([
                     'success' => false,
-                    'message' => 'Application not found'
+                    'message' => 'Application not found',
+                    'activities' => []
                 ], 404);
+            }
+
+            // Check if table exists
+            if (!Schema::hasTable('application_review_activities')) {
+                return response()->json([
+                    'success' => true,
+                    'activities' => [],
+                    'message' => 'Review activities table not found'
+                ]);
             }
 
             // Get review activities with reviewer information
             $activities = ApplicationReviewActivity::where('application_id', $id)
-                ->with('reviewer') // Make sure this relationship exists in the model
+                ->with('reviewer')
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($activity) {
-                    // Format the activity for the frontend
                     $reviewerInfo = null;
                     
                     if ($activity->reviewer) {
@@ -281,20 +349,18 @@ class ApplicationController extends Controller
                         }
                     }
                     
-                    // Determine action display text
-                    $actionDisplay = $this->getActionDisplay($activity->action);
-                    
                     return [
                         'id' => $activity->id,
                         'application_id' => $activity->application_id,
                         'reviewer_id' => $activity->reviewer_id,
                         'action' => $activity->action,
-                        'action_display' => $actionDisplay,
+                        'action_display' => $this->getActionDisplay($activity->action),
                         'old_status' => $activity->old_status,
                         'new_status' => $activity->new_status,
                         'remarks' => $activity->remarks,
-                        'created_at' => $activity->created_at,
-                        'created_at_formatted' => $activity->created_at->format('Y-m-d H:i:s'),
+                        'created_at' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : null,
+                        'created_at_formatted' => $activity->created_at ? $activity->created_at->format('M d, Y h:i A') : null,
+                        'time_ago' => $activity->created_at ? $activity->created_at->diffForHumans() : null,
                         'reviewer' => $reviewerInfo
                     ];
                 });
@@ -345,6 +411,24 @@ class ApplicationController extends Controller
                 ], 404);
             }
 
+            // Log the deletion activity
+            try {
+                if (class_exists('App\Models\ApplicationReviewActivity')) {
+                    ApplicationReviewActivity::create([
+                        'application_id' => $application->id,
+                        'reviewer_id' => $user->id,
+                        'action' => 'application_deleted',
+                        'old_status' => 'draft',
+                        'new_status' => null,
+                        'remarks' => 'Draft application deleted by applicant',
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to log deletion activity: ' . $e->getMessage());
+            }
+
             $application->delete();
 
             return response()->json([
@@ -368,19 +452,38 @@ class ApplicationController extends Controller
     public function getStats()
     {
         try {
+            Log::info('ApplicationController@getStats started');
+            
             $user = Auth::user();
-
+            
             if (!$user) {
+                Log::warning('User not authenticated in getStats');
                 return response()->json([
                     'total' => 0,
+                    'draft' => 0,
                     'pending' => 0,
                     'under_review' => 0,
                     'document_verification' => 0,
                     'approved' => 0,
                     'for_release' => 0,
                     'verified' => 0,
-                    'rejected' => 0,
-                    'draft' => 0
+                    'rejected' => 0
+                ]);
+            }
+
+            // Check if table exists
+            if (!Schema::hasTable('application_documents')) {
+                Log::error('application_documents table does not exist');
+                return response()->json([
+                    'total' => 0,
+                    'draft' => 0,
+                    'pending' => 0,
+                    'under_review' => 0,
+                    'document_verification' => 0,
+                    'approved' => 0,
+                    'for_release' => 0,
+                    'verified' => 0,
+                    'rejected' => 0
                 ]);
             }
 
@@ -396,10 +499,13 @@ class ApplicationController extends Controller
                 'rejected' => ApplicationDocument::where('user_id', $user->id)->where('status', 'rejected')->count()
             ];
 
+            Log::info('Stats retrieved', $stats);
+            
             return response()->json($stats);
             
         } catch (\Exception $e) {
             Log::error('Error in ApplicationController@getStats: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'total' => 0,
@@ -410,9 +516,74 @@ class ApplicationController extends Controller
                 'approved' => 0,
                 'for_release' => 0,
                 'verified' => 0,
-                'rejected' => 0
+                'rejected' => 0,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Debug review activities
+     */
+    public function debugReviewActivities($id)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Not authenticated'
+                ]);
+            }
+
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $id)
+                ->first();
+
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ]);
+            }
+
+            $tableExists = Schema::hasTable('application_review_activities');
+            $activities = [];
+            
+            if ($tableExists) {
+                $activities = ApplicationReviewActivity::where('application_id', $id)->get();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'table_exists' => $tableExists,
+                'application_id' => $id,
+                'activities_count' => count($activities),
+                'activities' => $activities,
+                'application' => $application
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Generate a unique application number
+     */
+    private function generateApplicationNumber()
+    {
+        $year = date('Y');
+        do {
+            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $applicationNumber = $year . $random;
+        } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
+
+        return $applicationNumber;
     }
 
     /**
@@ -493,7 +664,30 @@ class ApplicationController extends Controller
             'hard_copy_received' => 'Hard Copy Received',
             'application_created' => 'Application Created',
             'application_deleted' => 'Application Deleted',
+            'application_submitted' => 'Application Submitted',
+            'document_rejected' => 'Documents Rejected',
+            'review_started' => 'Review Started',
+            'review_completed' => 'Review Completed',
+            'assigned_to_staff' => 'Assigned to Staff',
+            'returned_for_revision' => 'Returned for Revision',
+            'forwarded_to_engineer' => 'Forwarded to Engineer',
+            'forwarded_to_building_official' => 'Forwarded to Building Official',
+            'payment_verified' => 'Payment Verified',
+            'payment_rejected' => 'Payment Rejected',
+            'certificate_generated' => 'Certificate Generated',
+            'certificate_released' => 'Certificate Released',
             default => ucfirst(str_replace('_', ' ', $action))
         };
+    }
+
+    /**
+     * Check if user has reached application limit
+     */
+    private function hasReachedApplicationLimit($user)
+    {
+        $count = ApplicationDocument::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
+            ->count();
+        return $count >= 3;
     }
 }

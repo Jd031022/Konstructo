@@ -9,6 +9,8 @@ class ApplicationDocument extends Model
 {
     use HasFactory;
 
+    protected $table = 'application_documents';
+
     protected $fillable = [
         'user_id',
         'application_number',
@@ -19,11 +21,13 @@ class ApplicationDocument extends Model
         'verified_by',
         'rejection_reason',
         'hard_copy_received',
+        'hard_copy_received_at',
         'last_updated_by'
     ];
 
     protected $casts = [
         'verified_at' => 'datetime',
+        'hard_copy_received_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'hard_copy_received' => 'boolean'
@@ -43,6 +47,30 @@ class ApplicationDocument extends Model
     public function verifier()
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * Get the user who last updated the application
+     */
+    public function lastUpdatedBy()
+    {
+        return $this->belongsTo(User::class, 'last_updated_by');
+    }
+
+    /**
+     * Get the review activities for this application
+     */
+    public function reviewActivities()
+    {
+        return $this->hasMany(ApplicationReviewActivity::class, 'application_id')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get the latest review activity for this application
+     */
+    public function latestReviewActivity()
+    {
+        return $this->hasOne(ApplicationReviewActivity::class, 'application_id')->latestOfMany();
     }
 
     /**
@@ -78,6 +106,69 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Scope a query to only include under review applications
+     */
+    public function scopeUnderReview($query)
+    {
+        return $query->where('status', 'under-review');
+    }
+
+    /**
+     * Scope a query to only include document verification applications
+     */
+    public function scopeDocumentVerification($query)
+    {
+        return $query->where('status', 'document-verification');
+    }
+
+    /**
+     * Scope a query to only include approved applications
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    /**
+     * Scope a query to only include for release applications
+     */
+    public function scopeForRelease($query)
+    {
+        return $query->where('status', 'for-release');
+    }
+
+    /**
+     * Scope a query to only include submitted applications (non-draft)
+     */
+    public function scopeSubmitted($query)
+    {
+        return $query->whereIn('status', [
+            'pending', 
+            'under-review', 
+            'document-verification', 
+            'approved', 
+            'for-release', 
+            'verified', 
+            'rejected'
+        ]);
+    }
+
+    /**
+     * Scope a query to only include active applications (not rejected or draft)
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', [
+            'pending', 
+            'under-review', 
+            'document-verification', 
+            'approved', 
+            'for-release', 
+            'verified'
+        ]);
+    }
+
+    /**
      * Check if application is verified
      */
     public function isVerified()
@@ -110,30 +201,138 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Check if application is under review
+     */
+    public function isUnderReview()
+    {
+        return $this->status === 'under-review';
+    }
+
+    /**
+     * Check if application is in document verification
+     */
+    public function isDocumentVerification()
+    {
+        return $this->status === 'document-verification';
+    }
+
+    /**
+     * Check if application is approved
+     */
+    public function isApproved()
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Check if application is for release
+     */
+    public function isForRelease()
+    {
+        return $this->status === 'for-release';
+    }
+
+    /**
+     * Check if hard copy is received
+     */
+    public function isHardCopyReceived()
+    {
+        return $this->hard_copy_received === true;
+    }
+
+    /**
+     * Check if application is submitted (not draft)
+     */
+    public function isSubmitted()
+    {
+        return !in_array($this->status, ['draft']);
+    }
+
+    /**
+     * Check if application can be edited
+     */
+    public function isEditable()
+    {
+        return in_array($this->status, ['draft', 'rejected']);
+    }
+
+    /**
+     * Check if application can be deleted
+     */
+    public function isDeletable()
+    {
+        return $this->status === 'draft';
+    }
+
+    /**
      * Get status badge class
      */
     public function getStatusBadgeClass()
     {
         return match($this->status) {
-            'pending' => 'bg-yellow-100 text-yellow-600',
-            'verified' => 'bg-green-100 text-green-600',
-            'rejected' => 'bg-red-100 text-red-600',
-            'draft' => 'bg-gray-100 text-gray-600',
-            default => 'bg-gray-100 text-gray-600'
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'verified' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            'draft' => 'bg-gray-100 text-gray-800',
+            'under-review' => 'bg-purple-100 text-purple-800',
+            'document-verification' => 'bg-indigo-100 text-indigo-800',
+            'approved' => 'bg-emerald-100 text-emerald-800',
+            'for-release' => 'bg-blue-100 text-blue-800',
+            default => 'bg-gray-100 text-gray-800'
         };
     }
 
     /**
-     * Get status text
+     * Get status text for display
      */
     public function getStatusText()
     {
         return match($this->status) {
             'pending' => 'Pending Review',
-            'verified' => 'Approved',
+            'verified' => 'Verified',
             'rejected' => 'Rejected',
             'draft' => 'Draft',
-            default => 'Unknown'
+            'under-review' => 'Under Review',
+            'document-verification' => 'Document Verification',
+            'approved' => 'Approved',
+            'for-release' => 'For Release',
+            default => ucfirst(str_replace('-', ' ', $this->status))
+        };
+    }
+
+    /**
+     * Get status color for UI
+     */
+    public function getStatusColor()
+    {
+        return match($this->status) {
+            'pending' => 'yellow',
+            'verified' => 'green',
+            'rejected' => 'red',
+            'draft' => 'gray',
+            'under-review' => 'purple',
+            'document-verification' => 'indigo',
+            'approved' => 'emerald',
+            'for-release' => 'blue',
+            default => 'gray'
+        };
+    }
+
+    /**
+     * Get progress percentage based on status
+     */
+    public function getProgressPercentage()
+    {
+        return match($this->status) {
+            'draft' => 0,
+            'pending' => 20,
+            'under-review' => 40,
+            'document-verification' => 60,
+            'approved' => 80,
+            'for-release' => 90,
+            'verified' => 100,
+            'rejected' => 100,
+            default => 0
         };
     }
 
@@ -142,13 +341,18 @@ class ApplicationDocument extends Model
      */
     public function markAsVerified($adminId, $notes = null)
     {
+        $oldStatus = $this->status;
+        
         $this->update([
             'status' => 'verified',
             'verified_at' => now(),
             'verified_by' => $adminId,
             'admin_notes' => $notes,
-            'rejection_reason' => null
+            'rejection_reason' => null,
+            'last_updated_by' => $adminId
         ]);
+
+        return $oldStatus;
     }
 
     /**
@@ -156,13 +360,18 @@ class ApplicationDocument extends Model
      */
     public function markAsRejected($reason, $adminId = null, $notes = null)
     {
+        $oldStatus = $this->status;
+        
         $this->update([
             'status' => 'rejected',
             'rejection_reason' => $reason,
             'verified_by' => $adminId,
             'admin_notes' => $notes,
-            'verified_at' => null
+            'verified_at' => null,
+            'last_updated_by' => $adminId
         ]);
+
+        return $oldStatus;
     }
 
     /**
@@ -170,23 +379,160 @@ class ApplicationDocument extends Model
      */
     public function markAsDraft()
     {
+        $oldStatus = $this->status;
+        
         $this->update([
             'status' => 'draft'
         ]);
+
+        return $oldStatus;
     }
-    // In App\Models\ApplicationDocument.php
 
-public function reviewActivities()
-{
-    return $this->hasMany(ApplicationReviewActivity::class, 'application_id')->orderBy('created_at', 'desc');
-}
-
-public function latestReviewActivity()
-{
-    return $this->hasOne(ApplicationReviewActivity::class, 'application_id')->latestOfMany();
-}
-public function lastUpdatedBy()
+    /**
+     * Update status with tracking
+     */
+    public function updateStatus($newStatus, $userId = null, $remarks = null)
     {
-        return $this->belongsTo(User::class, 'last_updated_by');
+        $oldStatus = $this->status;
+        
+        $this->update([
+            'status' => $newStatus,
+            'last_updated_by' => $userId
+        ]);
+
+        return $oldStatus;
+    }
+
+    /**
+     * Mark hard copy as received
+     */
+    public function markHardCopyReceived($userId)
+    {
+        $oldStatus = $this->hard_copy_received;
+        
+        $this->update([
+            'hard_copy_received' => true,
+            'hard_copy_received_at' => now(),
+            'last_updated_by' => $userId
+        ]);
+
+        return $oldStatus;
+    }
+
+    /**
+     * Generate a unique application number
+     */
+    public static function generateApplicationNumber()
+    {
+        $year = date('Y');
+        do {
+            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $applicationNumber = $year . $random;
+        } while (self::where('application_number', $applicationNumber)->exists());
+
+        return $applicationNumber;
+    }
+
+    /**
+     * Get the formatted created date
+     */
+    public function getFormattedCreatedAt()
+    {
+        return $this->created_at ? $this->created_at->format('M d, Y h:i A') : null;
+    }
+
+    /**
+     * Get the formatted updated date
+     */
+    public function getFormattedUpdatedAt()
+    {
+        return $this->updated_at ? $this->updated_at->format('M d, Y h:i A') : null;
+    }
+
+    /**
+     * Get the formatted verified date
+     */
+    public function getFormattedVerifiedAt()
+    {
+        return $this->verified_at ? $this->verified_at->format('M d, Y h:i A') : null;
+    }
+
+    /**
+     * Get the formatted hard copy received date
+     */
+    public function getFormattedHardCopyReceivedAt()
+    {
+        return $this->hard_copy_received_at ? $this->hard_copy_received_at->format('M d, Y h:i A') : null;
+    }
+
+    /**
+     * Get the verifier name
+     */
+    public function getVerifierName()
+    {
+        return $this->verifier ? $this->verifier->first_name . ' ' . $this->verifier->last_name : null;
+    }
+
+    /**
+     * Get the last updated by name
+     */
+    public function getLastUpdatedByName()
+    {
+        return $this->lastUpdatedBy ? $this->lastUpdatedBy->first_name . ' ' . $this->lastUpdatedBy->last_name : null;
+    }
+
+    /**
+     * Get the applicant name
+     */
+    public function getApplicantName()
+    {
+        return $this->user ? $this->user->first_name . ' ' . $this->user->last_name : null;
+    }
+
+    /**
+     * Get the applicant email
+     */
+    public function getApplicantEmail()
+    {
+        return $this->user ? $this->user->email : null;
+    }
+
+    /**
+     * Get the applicant phone
+     */
+    public function getApplicantPhone()
+    {
+        return $this->user ? $this->user->phone_number : null;
+    }
+
+    /**
+     * Check if user can submit this application
+     */
+    public function canBeSubmitted()
+    {
+        return $this->status === 'draft' && $this->google_drive_link !== null;
+    }
+
+    /**
+     * Check if user can add Google Drive link
+     */
+    public function canAddLink()
+    {
+        return in_array($this->status, ['draft', 'rejected']);
+    }
+
+    /**
+     * Get the next available statuses for workflow
+     */
+    public function getNextPossibleStatuses()
+    {
+        return match($this->status) {
+            'pending' => ['under-review', 'rejected'],
+            'under-review' => ['document-verification', 'rejected'],
+            'document-verification' => ['approved', 'rejected'],
+            'approved' => ['for-release'],
+            'for-release' => ['verified'],
+            default => []
+        };
     }
 }
