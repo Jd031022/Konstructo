@@ -615,20 +615,417 @@
         </div>
     @endif
 
-    <!-- User Roles Tab -->
-    @if($currentTab == 'roles')
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
-            <div class="text-center">
-                <div class="w-24 h-24 bg-gradient-to-r from-[#155386]/10 to-[#40798C]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+   <!-- User Roles Tab - User Approval Management -->
+@if($currentTab == 'roles')
+    <div class="space-y-6">
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
+                    <input type="text" 
+                           id="search-user"
+                           placeholder="Search by name, email, or username..." 
+                           class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">User Roles Coming Soon</h3>
-                <p class="text-gray-500 max-w-md mx-auto">This section is under construction. Check back later for role management.</p>
+                
+                <select id="filter-role" class="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
+                    <option value="all">All Roles</option>
+                    <option value="applicant">Applicants</option>
+                    <option value="staff">Staff</option>
+                </select>
+                
+                <select id="filter-status" class="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                
+                <button onclick="resetUserFilters()" class="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
+                    Reset Filters
+                </button>
             </div>
         </div>
-    @endif
+        
+        <!-- Users Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Registered</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <svg class="animate-spin h-8 w-8 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm">Loading users...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Approve Modal -->
+    <div id="approve-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+        <div class="relative min-h-full flex items-center justify-center">
+            <div class="mx-auto w-full max-w-md">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="px-6 py-4 bg-green-600 text-white">
+                        <h3 class="text-xl font-bold">Approve User</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 mb-4">Are you sure you want to approve this user? They will be able to log in to the system.</p>
+                        <p class="text-sm text-gray-500 mb-6" id="approve-user-info"></p>
+                        
+                        <div class="flex justify-end gap-3">
+                            <button onclick="closeApproveModal()" 
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Cancel
+                            </button>
+                            <button onclick="confirmApprove()" id="confirm-approve-btn"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 text-sm">
+                                <span id="approve-btn-text">Approve</span>
+                                <span id="approve-btn-spinner" class="hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reject Modal -->
+    <div id="reject-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+        <div class="relative min-h-full flex items-center justify-center">
+            <div class="mx-auto w-full max-w-md">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="px-6 py-4 bg-red-600 text-white">
+                        <h3 class="text-xl font-bold">Reject User</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 mb-4">Are you sure you want to reject this user? They will not be able to log in to the system.</p>
+                        <p class="text-sm text-gray-500 mb-3" id="reject-user-info"></p>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection (Optional)</label>
+                            <textarea id="reject-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+                                placeholder="Enter reason for rejection..."></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end gap-3">
+                            <button onclick="closeRejectModal()" 
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Cancel
+                            </button>
+                            <button onclick="confirmReject()" id="confirm-reject-btn"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                                <span id="reject-btn-text">Reject</span>
+                                <span id="reject-btn-spinner" class="hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let users = [];
+        let currentUserId = null;
+        
+        // Hardcoded user data for demonstration
+        const hardcodedUsers = [
+            { id: 1, name: 'Juan Dela Cruz', email: 'juan.delacruz@email.com', username: 'juandelacruz', role: 'applicant', status: 'pending', registered_at: '2024-03-15 10:30:00', position: null },
+            { id: 2, name: 'Maria Santos', email: 'maria.santos@email.com', username: 'mariasantos', role: 'applicant', status: 'pending', registered_at: '2024-03-16 14:20:00', position: null },
+            { id: 3, name: 'John Smith', email: 'john.smith@email.com', username: 'johnsmith', role: 'staff', status: 'pending', registered_at: '2024-03-14 09:15:00', position: 'engineer' },
+            { id: 4, name: 'Sarah Johnson', email: 'sarah.johnson@email.com', username: 'sarahjohnson', role: 'staff', status: 'approved', registered_at: '2024-03-10 11:00:00', position: 'architect' },
+            { id: 5, name: 'Mike Brown', email: 'mike.brown@email.com', username: 'mikebrown', role: 'applicant', status: 'rejected', registered_at: '2024-03-12 16:45:00', position: null },
+            { id: 6, name: 'Emily Davis', email: 'emily.davis@email.com', username: 'emilydavis', role: 'staff', status: 'approved', registered_at: '2024-03-13 08:30:00', position: 'cpdo' },
+            { id: 7, name: 'Robert Wilson', email: 'robert.wilson@email.com', username: 'robertwilson', role: 'applicant', status: 'pending', registered_at: '2024-03-17 13:20:00', position: null },
+            { id: 8, name: 'Lisa Anderson', email: 'lisa.anderson@email.com', username: 'lisaanderson', role: 'staff', status: 'pending', registered_at: '2024-03-16 10:10:00', position: 'BFP' },
+        ];
+        
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            setupEventListeners();
+        });
+        
+        function loadUsers() {
+            // Use hardcoded data instead of API call
+            users = [...hardcodedUsers];
+            filterUsers();
+        }
+        
+        function filterUsers() {
+            const searchTerm = document.getElementById('search-user').value.toLowerCase();
+            const roleFilter = document.getElementById('filter-role').value;
+            const statusFilter = document.getElementById('filter-status').value;
+            
+            let filteredUsers = users.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchTerm) || 
+                                     user.email.toLowerCase().includes(searchTerm) ||
+                                     user.username.toLowerCase().includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+                const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            renderUsersTable(filteredUsers);
+        }
+        
+        function renderUsersTable(filteredUsers) {
+            const tbody = document.getElementById('users-table-body');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                <p class="text-gray-500">No users found</p>
+                                <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = filteredUsers.map(user => `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold">
+                                ${getInitials(user.name)}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${user.name}</p>
+                                <p class="text-xs text-gray-500">@${user.username}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-600">${user.email}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium capitalize ${user.role === 'staff' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">
+                            ${user.role === 'staff' ? 'Staff' : 'Applicant'}
+                            ${user.position ? ` (${user.position.toUpperCase()})` : ''}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-500">
+                        ${formatDate(user.registered_at)}
+                    </td>
+                    <td class="py-4 px-6">
+                        ${getStatusBadge(user.status)}
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-2">
+                            ${user.status === 'pending' ? `
+                                <button onclick="openApproveModal(${user.id})" 
+                                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Approve">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </button>
+                                <button onclick="openRejectModal(${user.id})" 
+                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Reject">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            ` : `
+                                <span class="text-xs text-gray-400 italic">${user.status === 'approved' ? 'Approved' : 'Rejected'}</span>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+        
+        function getStatusBadge(status) {
+            const badges = {
+                'pending': '<span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>',
+                'approved': '<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Approved</span>',
+                'rejected': '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Rejected</span>'
+            };
+            return badges[status] || badges.pending;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('search-user').addEventListener('input', () => filterUsers());
+            document.getElementById('filter-role').addEventListener('change', () => filterUsers());
+            document.getElementById('filter-status').addEventListener('change', () => filterUsers());
+        }
+        
+        function resetUserFilters() {
+            document.getElementById('search-user').value = '';
+            document.getElementById('filter-role').value = 'all';
+            document.getElementById('filter-status').value = 'all';
+            filterUsers();
+        }
+        
+        function openApproveModal(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                currentUserId = userId;
+                document.getElementById('approve-user-info').innerHTML = `
+                    <strong>${user.name}</strong><br>
+                    Email: ${user.email}<br>
+                    Role: ${user.role === 'staff' ? 'Staff' : 'Applicant'}
+                `;
+                document.getElementById('approve-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeApproveModal() {
+            document.getElementById('approve-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentUserId = null;
+        }
+        
+        async function confirmApprove() {
+            if (!currentUserId) return;
+            
+            const btn = document.getElementById('confirm-approve-btn');
+            const btnText = document.getElementById('approve-btn-text');
+            const spinner = document.getElementById('approve-btn-spinner');
+            
+            btnText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                const userIndex = users.findIndex(u => u.id === currentUserId);
+                if (userIndex !== -1) {
+                    users[userIndex].status = 'approved';
+                    filterUsers();
+                    showToast('User approved successfully!', 'success');
+                }
+                
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+                closeApproveModal();
+            }, 500);
+        }
+        
+        function openRejectModal(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                currentUserId = userId;
+                document.getElementById('reject-user-info').innerHTML = `
+                    <strong>${user.name}</strong><br>
+                    Email: ${user.email}<br>
+                    Role: ${user.role === 'staff' ? 'Staff' : 'Applicant'}
+                `;
+                document.getElementById('reject-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeRejectModal() {
+            document.getElementById('reject-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('reject-reason').value = '';
+            currentUserId = null;
+        }
+        
+        async function confirmReject() {
+            if (!currentUserId) return;
+            
+            const btn = document.getElementById('confirm-reject-btn');
+            const btnText = document.getElementById('reject-btn-text');
+            const spinner = document.getElementById('reject-btn-spinner');
+            const reason = document.getElementById('reject-reason').value;
+            
+            btnText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                const userIndex = users.findIndex(u => u.id === currentUserId);
+                if (userIndex !== -1) {
+                    users[userIndex].status = 'rejected';
+                    filterUsers();
+                    showToast(`User rejected${reason ? ': ' + reason : ''}`, 'warning');
+                }
+                
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+                closeRejectModal();
+            }, 500);
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+                type === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' :
+                'bg-red-50 text-red-800 border border-red-200'
+            }`;
+            
+            toast.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${type === 'success' 
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    }
+                </svg>
+                <span class="text-sm font-medium">${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+@endif
 
     <!-- Security Tab -->
     @if($currentTab == 'security')

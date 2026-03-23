@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;
 
 class ApplicationController extends Controller
 {
@@ -1044,5 +1047,270 @@ class ApplicationController extends Controller
         }
         
         return $username;
+    }
+ /**
+     * Archive an application
+     */
+    public function archive($id)
+    {
+        try {
+            $application = ApplicationDocument::findOrFail($id);
+            
+            // Check if already archived
+            if ($application->is_archived) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application is already archived'
+                ], 400);
+            }
+            
+            DB::beginTransaction();
+            
+            // Update the application to archived
+            $application->update([
+                'is_archived' => true,
+                'archived_at' => now(),
+                'archived_by' => Auth::id(),
+                'archive_reason' => request('reason', 'Archived by staff')
+            ]);
+            
+            // Log the activity
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'application_archived',
+                'description' => 'Archived application',
+                'metadata' => json_encode([
+                    'application_id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'reason' => request('reason', 'Archived by staff')
+                ]),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'success'
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application archived successfully',
+                'application' => $application
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error archiving application: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to archive application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Restore an archived application
+     */
+    public function restore($id)
+    {
+        try {
+            $application = ApplicationDocument::where('is_archived', true)
+                ->where('id', $id)
+                ->firstOrFail();
+            
+            DB::beginTransaction();
+            
+            $application->update([
+                'is_archived' => false,
+                'archived_at' => null,
+                'archived_by' => null,
+                'archive_reason' => null
+            ]);
+            
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'application_restored',
+                'description' => 'Restored archived application',
+                'metadata' => json_encode([
+                    'application_id' => $application->id,
+                    'application_number' => $application->application_number
+                ]),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'success'
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application restored successfully',
+                'application' => $application
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error restoring application: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to restore application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Restore multiple archived applications
+     */
+    public function restoreMultiple(Request $request)
+    {
+        try {
+            $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'integer|exists:application_documents,id'
+            ]);
+            
+            DB::beginTransaction();
+            
+            $count = ApplicationDocument::whereIn('id', $request->ids)
+                ->where('is_archived', true)
+                ->update([
+                    'is_archived' => false,
+                    'archived_at' => null,
+                    'archived_by' => null,
+                    'archive_reason' => null
+                ]);
+            
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'applications_restored_bulk',
+                'description' => "Restored {$count} archived applications",
+                'metadata' => json_encode([
+                    'application_ids' => $request->ids,
+                    'count' => $count
+                ]),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'success'
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'restored_count' => $count,
+                'message' => "Successfully restored {$count} application(s)"
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error restoring multiple applications: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to restore applications: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Get archived applications list (for the archive page)
+     */
+    public function getArchivedApplications(Request $request)
+    {
+        try {
+            $query = ApplicationDocument::with(['user', 'archivedBy'])
+                ->where('is_archived', true)
+                ->where('archived_at', '!=', null);
+            
+            // Apply search filter
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('application_number', 'LIKE', "%{$search}%")
+                      ->orWhereHas('user', function($userQuery) use ($search) {
+                          $userQuery->where('first_name', 'LIKE', "%{$search}%")
+                                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                                    ->orWhere('email', 'LIKE', "%{$search}%");
+                      })
+                      ->orWhere('project_address', 'LIKE', "%{$search}%");
+                });
+            }
+            
+            // Apply date filter
+            if ($request->filled('date')) {
+                switch ($request->date) {
+                    case 'today':
+                        $query->whereDate('archived_at', today());
+                        break;
+                    case 'week':
+                        $query->where('archived_at', '>=', now()->subDays(7));
+                        break;
+                    case 'month':
+                        $query->whereMonth('archived_at', now()->month)
+                              ->whereYear('archived_at', now()->year);
+                        break;
+                    case 'year':
+                        $query->whereYear('archived_at', now()->year);
+                        break;
+                }
+            }
+            
+            // Apply type filter
+            if ($request->filled('type') && $request->type !== 'all') {
+                $query->where('application_type', $request->type);
+            }
+            
+            // Order by archived date (most recent first)
+            $query->orderBy('archived_at', 'desc');
+            
+            // Get stats before pagination
+            $stats = [
+                'total' => ApplicationDocument::where('is_archived', true)->count(),
+                'this_month' => ApplicationDocument::where('is_archived', true)
+                    ->whereMonth('archived_at', now()->month)
+                    ->whereYear('archived_at', now()->year)
+                    ->count()
+            ];
+            
+            // Paginate results
+            $perPage = $request->get('per_page', 10);
+            $applications = $query->paginate($perPage);
+            
+            // Transform the data
+            $applications->getCollection()->transform(function($app) {
+                return [
+                    'id' => $app->id,
+                    'application_number' => $app->application_number,
+                    'applicant_name' => $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'N/A',
+                    'applicant_email' => $app->user ? $app->user->email : 'N/A',
+                    'application_type' => $app->application_type,
+                    'archived_at' => $app->archived_at,
+                    'archived_by_name' => $app->archivedBy ? $app->archivedBy->first_name . ' ' . $app->archivedBy->last_name : null,
+                    'archive_reason' => $app->archive_reason
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'applications' => $applications->items(),
+                'pagination' => [
+                    'current_page' => $applications->currentPage(),
+                    'last_page' => $applications->lastPage(),
+                    'per_page' => $applications->perPage(),
+                    'total' => $applications->total(),
+                    'from' => $applications->firstItem(),
+                    'to' => $applications->lastItem()
+                ],
+                'stats' => $stats
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error fetching archived applications: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch archived applications'
+            ], 500);
+        }
     }
 }

@@ -296,7 +296,13 @@
                     <h3 class="text-xl font-bold">Archive Application</h3>
                 </div>
                 <div class="p-6">
-                    <p class="text-gray-700 mb-6">Are you sure you want to archive this application? Archived applications can be restored later.</p>
+                    <p class="text-gray-700 mb-4">Are you sure you want to archive this application? Archived applications can be restored later from the Archive page.</p>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Archiving (Optional)</label>
+                        <textarea id="archive-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent" 
+                            placeholder="Enter reason for archiving..."></textarea>
+                    </div>
                     
                     <div class="flex justify-end gap-3">
                         <button onclick="closeArchiveModal()" 
@@ -722,43 +728,50 @@
     }
 
     async function confirmArchive() {
-        if (!archiveId) return;
+    if (!archiveId) return;
+    
+    const btn = document.getElementById('confirm-archive-btn');
+    const btnText = document.getElementById('archive-btn-text');
+    const spinner = document.getElementById('archive-btn-spinner');
+    const reason = document.getElementById('archive-reason')?.value || '';
+    
+    btnText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`/staff/applications/${archiveId}/archive`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        });
         
-        const btn = document.getElementById('confirm-archive-btn');
-        const btnText = document.getElementById('archive-btn-text');
-        const spinner = document.getElementById('archive-btn-spinner');
+        const data = await response.json();
         
-        btnText.classList.add('hidden');
-        spinner.classList.remove('hidden');
-        btn.disabled = true;
-        
-        try {
-            const response = await fetch(`/staff/applications/${archiveId}/archive`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal('Application archived successfully');
-                closeArchiveModal();
-                loadApplications();
-            } else {
-                showErrorModal(data.message || 'Failed to archive application');
-            }
-        } catch (error) {
-            console.error('Error archiving application:', error);
-            showErrorModal('Failed to archive application');
-        } finally {
-            btnText.classList.remove('hidden');
-            spinner.classList.add('hidden');
-            btn.disabled = false;
+        if (data.success) {
+            showSuccessModal('Application archived successfully');
+            closeArchiveModal();
+            loadApplications(); // Reload the applications list
+        } else {
+            showErrorModal(data.message || 'Failed to archive application');
+        }
+    } catch (error) {
+        console.error('Error archiving application:', error);
+        showErrorModal('Failed to archive application: ' + error.message);
+    } finally {
+        btnText.classList.remove('hidden');
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+        // Clear the reason field
+        if (document.getElementById('archive-reason')) {
+            document.getElementById('archive-reason').value = '';
         }
     }
+}
 
     // Delete functions
     function openDeleteModal(id) {

@@ -22,7 +22,11 @@ class ApplicationDocument extends Model
         'rejection_reason',
         'hard_copy_received',
         'hard_copy_received_at',
-        'last_updated_by'
+        'last_updated_by',
+        'is_archived',
+        'archived_at',
+        'archived_by',
+        'archive_reason'
     ];
 
     protected $casts = [
@@ -32,6 +36,12 @@ class ApplicationDocument extends Model
         'updated_at' => 'datetime',
         'hard_copy_received' => 'boolean'
     ];
+
+    // Add relationships
+    public function archivedBy()
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
 
     /**
      * Get the user that owns the application documents

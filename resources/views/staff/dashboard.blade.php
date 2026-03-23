@@ -70,6 +70,18 @@
                             </div>
                         </label>
                         
+                        <!-- CPDO (City Planning and Development Office) -->
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
+                            <input type="radio" name="position" value="cpdo" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">CPDO</span>
+                                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">Planning</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">City Planning and Development Office</p>
+                            </div>
+                        </label>
+                        
                         <!-- Administrative Aide -->
                         <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
                             <input type="radio" name="position" value="administrative_aide" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>

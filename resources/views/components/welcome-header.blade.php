@@ -38,7 +38,18 @@
                         {{-- Show position for staff, otherwise show role --}}
                         @if(Auth::user()->isStaff() && Auth::user()->profile && Auth::user()->profile->position)
                             <p class="text-white-500 text-sm">
-                                {{ Auth::user()->profile->position_display ?? ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }}
+                                @php
+                                    $position = Auth::user()->profile->position;
+                                    $positionDisplay = match($position) {
+                                        'engineer' => 'Engineer',
+                                        'architect' => 'Architect',
+                                        'BFP' => 'BFP - Bureau of Fire Protection',
+                                        'cpdo' => 'CPDO - City Planning and Development Office',
+                                        'administrative_aide' => 'Administrative Aide',
+                                        default => ucfirst(str_replace('_', ' ', $position))
+                                    };
+                                @endphp
+                                {{ $positionDisplay }}
                             </p>
                         @else
                             <p class="text-white-500 text-sm capitalize">{{ Auth::user()->role }}</p>
@@ -89,6 +100,34 @@ function updateHeaderAvatar() {
     @endauth
 }
 
+// Function to update header position display
+function updateHeaderPosition(position) {
+    const positionElement = document.querySelector('.text-white-500.text-sm');
+    if (positionElement) {
+        let positionDisplay = '';
+        switch(position) {
+            case 'engineer':
+                positionDisplay = 'Engineer';
+                break;
+            case 'architect':
+                positionDisplay = 'Architect';
+                break;
+            case 'BFP':
+                positionDisplay = 'BFP - Bureau of Fire Protection';
+                break;
+            case 'cpdo':
+                positionDisplay = 'CPDO - City Planning and Development Office';
+                break;
+            case 'administrative_aide':
+                positionDisplay = 'Administrative Aide';
+                break;
+            default:
+                positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+        }
+        positionElement.textContent = positionDisplay;
+    }
+}
+
 // Listen for avatar updates from profile page
 document.addEventListener('DOMContentLoaded', function() {
     // Check for avatar update every 3 seconds (polling)
@@ -100,10 +139,21 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHeaderAvatar();
     });
     
+    // Listen for position updates
+    window.addEventListener('positionUpdated', function(event) {
+        if (event.detail && event.detail.position) {
+            updateHeaderPosition(event.detail.position);
+        }
+    });
+    
     // Optional: Listen for storage events (if multiple tabs open)
     window.addEventListener('storage', function(e) {
         if (e.key === 'avatar_updated') {
             updateHeaderAvatar();
+        }
+        if (e.key === 'position_updated' && e.newValue) {
+            const positionData = JSON.parse(e.newValue);
+            updateHeaderPosition(positionData.position);
         }
     });
 });

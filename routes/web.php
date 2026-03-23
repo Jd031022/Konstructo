@@ -114,6 +114,24 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Staff\ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
+
+        // Archive routes
+    Route::post('/applications/{id}/archive', [App\Http\Controllers\Staff\ApplicationController::class, 'archive'])
+        ->name('applications.archive');
+    
+    Route::post('/applications/{id}/restore', [App\Http\Controllers\Staff\ApplicationController::class, 'restore'])
+        ->name('applications.restore');
+    
+    Route::post('/applications/restore-multiple', [App\Http\Controllers\Staff\ApplicationController::class, 'restoreMultiple'])
+        ->name('applications.restore-multiple');
+    
+    Route::get('/archived-applications', function () {
+        return view('staff.archived-applications');
+    })->name('archived-applications');
+    
+    Route::get('/archived-applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getArchivedApplications'])
+        ->name('archived-applications.data');
+    
 });
 
 // Applicant UI Routes
@@ -265,7 +283,31 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
             ], 500);
         }
     })->name('applications.check-columns');
+
+     Route::get('/applications', function () {
+        return view('applicant.applications');
+    })->name('applications');
+    
+    Route::get('/dashboard', function () {
+        return view('applicant.dashboard');
+    })->name('dashboard');
+    
+    // Add this route - Account Status
+    Route::get('/account-status', function () {
+        $user = Auth::user();
+        
+        if ($user && $user->role === 'applicant') {
+            // For testing, get status from query parameter or use default
+            $status = request()->get('status', 'pending');
+            
+            return view('applicant.account-status', ['account_status' => $status]);
+        }
+        
+        return redirect()->route('dashboard');
+    })->name('account-status');
 });
+
+
 
 // Dashboard route with role-based redirect
 Route::get('/dashboard', function () {
