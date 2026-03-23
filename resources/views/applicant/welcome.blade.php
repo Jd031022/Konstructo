@@ -16,13 +16,16 @@
     </div>
 
    <!-- NAVBAR - Fixed position with auto-hide on scroll -->
-<nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4 bg-white/70 backdrop-blur-md shadow-sm transition-transform duration-300 w-full">
-    <!-- Left Spacer -->
-    <div class="w-[180px]"></div>
+<nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-4 bg-white/70 backdrop-blur-md shadow-sm transition-transform duration-300 w-full">
+    <!-- Logo/Brand -->
+    <div class="flex items-center gap-2">
+        <img src="{{ asset('images/ligao-seal.png') }}" alt="Logo" class="h-8 w-8 md:h-10 md:w-10 object-contain">
+        <span class="text-lg md:text-xl font-bold bg-gradient-to-r from-[#155386] to-[#40798C] bg-clip-text text-transparent hidden sm:inline">Konstructo</span>
+    </div>
 
-    <!-- Center Menu -->
-    <ul class="flex gap-8 text-sm font-medium text-gray-700">
-         <li>
+    <!-- Center Menu - Hidden on mobile, visible on md+ -->
+    <ul class="hidden md:flex gap-6 lg:gap-8 text-sm font-medium text-gray-700">
+        <li>
             <a href="#home" class="hover:text-[#40798C] transition">Home</a>
         </li>
         <li>
@@ -36,27 +39,96 @@
         </li>
     </ul>
 
-    <!-- Right Buttons -->
-    <div class="flex items-center gap-3 w-[180px] justify-end">
-        <a href="{{ route('login') }}" 
-           class="px-4 py-1.5 text-sm rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-200">
-            Log in
-        </a>
-        <a href="{{ route('register') }}" 
-           class="px-5 py-1.5 text-sm rounded-full bg-gradient-to-r from-[#155386] to-[#40798C] text-white hover:from-[#1F363D] hover:to-[#1F363D] shadow-sm transition-all duration-300 hover:shadow-lg">
-            Sign up
-        </a>
+    <!-- Right Section - User Info or Auth Buttons -->
+    <div class="flex items-center gap-2 md:gap-3">
+        @auth
+            <!-- User is logged in - Show user info and dashboard link -->
+            <div class="relative group">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="toggleUserMenu()">
+                    <!-- Avatar -->
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-[#155386] to-[#40798C] flex items-center justify-center text-white font-bold text-sm shadow-md">
+                        {{ strtoupper(substr(Auth::user()->first_name, 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name, 0, 1)) }}
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <p class="text-sm font-medium text-gray-800 leading-tight">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                        <p class="text-xs text-gray-500 capitalize leading-tight">
+                            @if(Auth::user()->role === 'staff')
+                                Staff
+                                @if(Auth::user()->profile && Auth::user()->profile->position)
+                                    ({{ ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }})
+                                @endif
+                            @elseif(Auth::user()->role === 'applicant')
+                                Applicant
+                            @elseif(Auth::user()->role === 'admin')
+                                Admin
+                            @endif
+                        </p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                
+                <!-- Dropdown Menu -->
+                <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden transition-all duration-200">
+                    <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Dashboard
+                        </div>
+                    </a>
+                    <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            My Profile
+                        </div>
+                    </a>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <form method="POST" action="{{ route('logout') }}" id="logout-form-nav">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <!-- User is not logged in - Show Login/Signup buttons -->
+            <a href="{{ route('login') }}" 
+               class="px-3 py-1.5 md:px-4 md:py-1.5 text-sm rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-200">
+                Log in
+            </a>
+            <a href="{{ route('register') }}" 
+               class="px-4 py-1.5 md:px-5 md:py-1.5 text-sm rounded-full bg-gradient-to-r from-[#155386] to-[#40798C] text-white hover:from-[#1F363D] hover:to-[#1F363D] shadow-sm transition-all duration-300 hover:shadow-lg">
+                Sign up
+            </a>
+        @endauth
     </div>
 </nav>
 
     <!-- HERO CONTENT -->
 <div id="home" class="relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)]">
-    <div class="flex flex-col items-center text-center">
-        <img src="{{ asset('images/ligao-seal.png') }}" alt="City Seal" class="w-[30%] drop-shadow-lg shadow-sm animate-float-glow">
+    <div class="flex flex-col items-center text-center px-4">
+        <img src="{{ asset('images/ligao-seal.png') }}" alt="City Seal" class="w-32 sm:w-48 md:w-60 drop-shadow-lg shadow-sm animate-float-glow">
         <div class="flex gap-4 mt-8">
-            <a href="{{ route('register') }}" class="px-8 py-3 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 shadow-lg hover:shadow-xl font-medium">
-                Get Started
-            </a>
+            @auth
+                <a href="/dashboard" class="px-8 py-3 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 shadow-lg hover:shadow-xl font-medium">
+                    Go to Dashboard
+                </a>
+            @else
+                <a href="{{ route('register') }}" class="px-8 py-3 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 shadow-lg hover:shadow-xl font-medium">
+                    Get Started
+                </a>
+            @endauth
             <a href="#services" class="px-8 py-3 bg-white/20 backdrop-blur-sm text-black rounded-xl hover:bg-white/30 transition-all duration-300 font-medium border-2 border-black/80 hover:border-white/80">
                 Learn More
             </a>
@@ -66,6 +138,7 @@
 
 </section>
 
+<!-- Rest of your sections remain the same -->
 <!-- Features Section -->
 <section class="py-20 px-4 bg-white text-gray-800">
     <div class="max-w-6xl mx-auto text-center">
@@ -190,12 +263,21 @@
                         <span>Track progress in real-time</span>
                     </li>
                 </ul>
-                <a href="{{ route('register') }}" class="inline-flex items-center text-[#155386] font-medium group-hover:translate-x-2 transition-transform">
-                    Apply Now 
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
+                @auth
+                    <a href="{{ route('applicant.application.step1') }}" class="inline-flex items-center text-[#155386] font-medium group-hover:translate-x-2 transition-transform">
+                        Apply Now 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                @else
+                    <a href="{{ route('register') }}" class="inline-flex items-center text-[#155386] font-medium group-hover:translate-x-2 transition-transform">
+                        Apply Now 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                @endauth
             </div>
         </div>
 
@@ -437,7 +519,7 @@
     </div>
 </footer>
 
-<!-- JavaScript for navbar hide/show on scroll -->
+<!-- JavaScript for navbar hide/show on scroll and user dropdown -->
 <script>
     let lastScrollTop = 0;
     const navbar = document.getElementById('main-navbar');
@@ -455,6 +537,22 @@
         }
         
         lastScrollTop = scrollTop;
+    });
+
+    // User dropdown toggle
+    function toggleUserMenu() {
+        const dropdown = document.getElementById('user-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const userMenu = document.querySelector('.relative.group');
+        
+        if (dropdown && userMenu && !userMenu.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
     });
 </script>
 

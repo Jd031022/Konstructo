@@ -314,6 +314,9 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         return redirect()->route('dashboard');
     })->name('account-status');
+
+        Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])
+        ->name('application.store-links');
 });
 
 // Dashboard route with role-based redirect - UPDATED to check approval status for applicants
@@ -365,6 +368,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         return view('admin.applications');
     })->name('applications');
     
+    // ========== ADMIN ARCHIVE ROUTES ==========
+    // View for archived applications
+    Route::get('/archived-applications', function () {
+        return view('admin.archived-applications');
+    })->name('archived-applications');
+    
+    // API endpoint for archived applications data
+    Route::get('/archived-applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'getArchivedApplications'])
+        ->name('archived-applications.data');
+    
+    // Restore archived application
+    Route::post('/applications/{id}/restore', [App\Http\Controllers\Admin\ApplicationController::class, 'restoreArchivedApplication'])
+        ->name('applications.restore');
+    
+    // Restore multiple archived applications
+    Route::post('/applications/restore-multiple', [App\Http\Controllers\Admin\ApplicationController::class, 'restoreMultipleArchivedApplications'])
+        ->name('applications.restore-multiple');
+    
+    // Permanent delete for archived applications
+    Route::delete('/applications/{id}/permanent-delete', [App\Http\Controllers\Admin\ApplicationController::class, 'permanentDelete'])
+        ->name('applications.permanent-delete');
+    
     // ========== ADMIN DASHBOARD API ROUTES ==========
     Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])
         ->name('dashboard.stats');
@@ -394,10 +419,29 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
     
-    // ========== ADMIN USER APPROVAL ROUTES (NEW) ==========
+    // ========== ADMIN USER APPROVAL ROUTES ==========
     Route::post('/users/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
     Route::post('/users/{id}/reject', [App\Http\Controllers\Admin\UserController::class, 'reject'])->name('users.reject');
     Route::get('/pending-applicants', [App\Http\Controllers\Admin\UserController::class, 'getPendingApplicants'])->name('pending-applicants');
+    
+    // ========== ADMIN APPLICATION MANAGEMENT ROUTES ==========
+    Route::get('/applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])
+        ->name('applications.data');
+    
+    Route::get('/applications/{id}', [App\Http\Controllers\Admin\ApplicationController::class, 'show'])
+        ->name('applications.show');
+    
+    Route::put('/applications/{id}/status', [App\Http\Controllers\Admin\ApplicationController::class, 'updateStatus'])
+        ->name('applications.status');
+    
+    Route::delete('/applications/{id}', [App\Http\Controllers\Admin\ApplicationController::class, 'destroy'])
+        ->name('applications.destroy');
+    
+    Route::post('/applications/{id}/archive', [App\Http\Controllers\Admin\ApplicationController::class, 'archive'])
+        ->name('applications.archive');
+    
+    Route::get('/applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'export'])
+        ->name('applications.export');
     
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');

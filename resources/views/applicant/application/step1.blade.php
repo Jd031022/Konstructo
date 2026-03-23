@@ -328,6 +328,66 @@
 
 </div>
 
+<!-- Data Privacy Act Consent Modal -->
+<div id="dpa-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-2xl">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <h3 class="text-xl font-bold">Data Privacy Act Compliance</h3>
+                    </div>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6 max-h-[60vh] overflow-y-auto">
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600">
+                            <p class="text-sm text-blue-800 font-medium">Republic Act No. 10173 (Data Privacy Act of 2012)</p>
+                        </div>
+                        
+                        <div class="space-y-3 text-gray-600 text-sm">
+                            <p>In compliance with the Data Privacy Act of 2012 (Republic Act No. 10173), we would like to inform you that:</p>
+                            
+                            <ul class="list-disc list-inside space-y-2 ml-2">
+                                <li>The personal information you provide in this application will be collected, processed, and stored solely for the purpose of processing your building permit application.</li>
+                                <li>Your information may be shared with relevant government agencies and offices involved in the approval process.</li>
+                                <li>We implement appropriate security measures to protect your personal data from unauthorized access, use, or disclosure.</li>
+                                <li>You have the right to access, correct, and request deletion of your personal information, subject to legal and regulatory requirements.</li>
+                                <li>Your data will be retained only for as long as necessary to fulfill the purpose of this application and comply with legal obligations.</li>
+                            </ul>
+                            
+                            <p class="mt-4">By proceeding with this application, you acknowledge that you have read, understood, and agree to the collection, processing, and storage of your personal information in accordance with the Data Privacy Act of 2012.</p>
+                            
+                            <p class="mt-2 text-xs text-gray-500">For any concerns regarding your data privacy, please contact our Data Protection Officer at dpo@konstructo.gov.ph or (02) 1234-5678.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                    <button onclick="declineDPA()" 
+                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition text-sm">
+                        Decline
+                    </button>
+                    <button onclick="acceptDPA()" 
+                        id="accept-dpa-btn"
+                        class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#1F363D] transition text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        I Agree & Proceed
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Save Draft Modal -->
 <div id="save-draft-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
@@ -420,6 +480,102 @@
     let pendingNavigationUrl = null;
     let currentDraftId = null;
     let limitInfo = null;
+    let dpaAccepted = false;
+    
+    // Check if DPA has been accepted before
+    function checkDPAStatus() {
+        const dpaConsent = localStorage.getItem('dpa_consent');
+        if (dpaConsent === 'accepted') {
+            dpaAccepted = true;
+            return true;
+        }
+        return false;
+    }
+    
+    // Show DPA modal if not accepted
+    function showDPAModalIfNeeded() {
+        if (!checkDPAStatus()) {
+            const dpaModal = document.getElementById('dpa-modal');
+            dpaModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            return false;
+        }
+        return true;
+    }
+    
+    // Accept DPA
+    function acceptDPA() {
+        localStorage.setItem('dpa_consent', 'accepted');
+        dpaAccepted = true;
+        
+        const modal = document.getElementById('dpa-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
+        // Show success message
+        showSuccessModal('Thank you for your consent. You may now proceed with your application.');
+        
+        // Enable all interactive elements
+        enableApplicationFeatures();
+    }
+    
+    // Decline DPA
+    function declineDPA() {
+        localStorage.removeItem('dpa_consent');
+        
+        const modal = document.getElementById('dpa-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
+        // Show message and redirect
+        showErrorModal('You must accept the Data Privacy Act terms to proceed with your application.');
+        
+        // Disable all form elements
+        disableApplicationFeatures();
+        
+        // Redirect after a delay
+        setTimeout(() => {
+            window.location.href = '/applicant/dashboard';
+        }, 3000);
+    }
+    
+    // Enable application features after DPA acceptance
+    function enableApplicationFeatures() {
+        const checkboxes = document.querySelectorAll('.form-checkbox');
+        checkboxes.forEach(cb => {
+            cb.disabled = false;
+        });
+        
+        const downloadBtn = document.getElementById('download-btn');
+        if (downloadBtn) {
+            downloadBtn.disabled = false;
+        }
+        
+        const selectAllBtn = document.querySelector('button[onclick="selectAllForms()"]');
+        const deselectAllBtn = document.querySelector('button[onclick="deselectAllForms()"]');
+        
+        if (selectAllBtn) selectAllBtn.style.pointerEvents = 'auto';
+        if (deselectAllBtn) deselectAllBtn.style.pointerEvents = 'auto';
+    }
+    
+    // Disable application features if DPA declined
+    function disableApplicationFeatures() {
+        const checkboxes = document.querySelectorAll('.form-checkbox');
+        checkboxes.forEach(cb => {
+            cb.disabled = true;
+        });
+        
+        const downloadBtn = document.getElementById('download-btn');
+        if (downloadBtn) {
+            downloadBtn.disabled = true;
+        }
+        
+        const selectAllBtn = document.querySelector('button[onclick="selectAllForms()"]');
+        const deselectAllBtn = document.querySelector('button[onclick="deselectAllForms()"]');
+        
+        if (selectAllBtn) selectAllBtn.style.pointerEvents = 'none';
+        if (deselectAllBtn) deselectAllBtn.style.pointerEvents = 'none';
+    }
     
     // Form checklist functionality
     const formCheckboxes = [
@@ -506,17 +662,14 @@
         btn.disabled = true;
 
         try {
-            // Close the draft modal first
             closeDraftModal();
             
-            // Show success message
             const successModal = document.getElementById('success-modal');
             const successMessage = document.getElementById('success-modal-message');
             successMessage.textContent = 'Application saved as draft!';
             successModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            // Navigate after a short delay
             setTimeout(() => {
                 closeSuccessModal();
                 removeBeforeUnload();
@@ -545,7 +698,6 @@
         btn.disabled = true;
 
         try {
-            // Delete the draft if it exists
             if (currentDraftId) {
                 await fetch(`/applicant/applications/${currentDraftId}`, {
                     method: 'DELETE',
@@ -557,17 +709,11 @@
                 }).catch(err => console.log('Delete failed, but continuing anyway:', err));
             }
             
-            // Clear storage
             clearApplicationStorage();
             applicationNumberGenerated = false;
-            
-            // Close the draft modal
             closeDraftModal();
-            
-            // Remove beforeunload listener
             removeBeforeUnload();
             
-            // Navigate immediately
             if (pendingNavigationUrl) {
                 window.location.href = pendingNavigationUrl;
             } else {
@@ -576,7 +722,6 @@
             
         } catch (error) {
             console.error('Error discarding draft:', error);
-            // Still navigate even if there's an error
             closeDraftModal();
             removeBeforeUnload();
             if (pendingNavigationUrl) {
@@ -595,11 +740,9 @@
         document.getElementById('stats-drafts').textContent = info.drafts;
         document.getElementById('stats-remaining').textContent = info.remaining;
         
-        // Update pluralization
         document.getElementById('draft-plural').textContent = info.drafts === 1 ? '' : 's';
         document.getElementById('slot-plural').textContent = info.remaining === 1 ? '' : 's';
         
-        // Change color based on remaining slots
         const remainingElement = document.getElementById('stats-remaining');
         if (info.remaining === 0) {
             remainingElement.className = 'text-lg font-semibold text-red-300';
@@ -624,8 +767,6 @@
             
             if (data.success) {
                 limitInfo = data.data;
-                
-                // Update stats display
                 updateStatsDisplay(limitInfo);
                 
                 if (!limitInfo.can_apply) {
@@ -712,6 +853,9 @@
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('DOM Content Loaded - Starting...');
         
+        // First check DPA status
+        const canProceed = showDPAModalIfNeeded();
+        
         const isNew = isNewApplication();
         console.log('Is new application:', isNew);
         
@@ -766,6 +910,11 @@
     }
 
     async function selectAllForms() {
+        if (!dpaAccepted) {
+            showErrorModal('Please accept the Data Privacy Act terms first.');
+            return;
+        }
+        
         const canProceed = await checkApplicationLimit();
         if (!canProceed) return;
         
@@ -777,6 +926,11 @@
     }
 
     async function deselectAllForms() {
+        if (!dpaAccepted) {
+            showErrorModal('Please accept the Data Privacy Act terms first.');
+            return;
+        }
+        
         const canProceed = await checkApplicationLimit();
         if (!canProceed) return;
         
@@ -788,6 +942,11 @@
     }
 
     async function showApplicationNumber() {
+        if (!dpaAccepted) {
+            showErrorModal('Please accept the Data Privacy Act terms first.');
+            return;
+        }
+        
         const canProceed = await checkApplicationLimit();
         if (!canProceed) {
             return;
@@ -813,21 +972,17 @@
             if (data.success && data.data.application_number) {
                 sessionStorage.setItem('konstructo_current_app_number', data.data.application_number);
                 currentDraftId = data.data.id;
-                
-                // Show the draft modal after successful draft creation
                 pendingNavigationUrl = null;
             } else if (data.limit_reached) {
                 showErrorModal(data.message);
                 return;
             } else {
                 sessionStorage.setItem('konstructo_current_app_number', appNumber);
-                // Still show modal even if backend doesn't return ID
                 pendingNavigationUrl = null;
             }
         } catch (error) {
             console.error('Error creating draft:', error);
             sessionStorage.setItem('konstructo_current_app_number', appNumber);
-            // Show modal even if there's an error
             pendingNavigationUrl = null;
         }
     }
@@ -866,6 +1021,11 @@
     }
 
     async function downloadSelectedForms() {
+        if (!dpaAccepted) {
+            showErrorModal('Please accept the Data Privacy Act terms first.');
+            return;
+        }
+        
         const canProceed = await checkApplicationLimit();
         if (!canProceed) {
             return;
@@ -892,7 +1052,6 @@
         if (hasAppLetter) {
             await showApplicationNumber();
             
-            // If the draft modal is showing, pause downloads until user decides
             if (!document.getElementById('save-draft-modal').classList.contains('hidden')) {
                 return;
             }
@@ -910,7 +1069,6 @@
             setTimeout(() => {
                 downloadFile(form.file);
                 
-                // Show success after all files downloaded
                 if (downloadCount === totalFilesToDownload) {
                     setTimeout(() => {
                         showSuccessModal('All files downloaded successfully!');
@@ -950,6 +1108,7 @@
         const errorModal = document.getElementById('error-modal');
         const successModal = document.getElementById('success-modal');
         const saveDraftModal = document.getElementById('save-draft-modal');
+        const dpaModal = document.getElementById('dpa-modal');
         
         if (errorModal) {
             errorModal.addEventListener('click', function(e) {
@@ -974,6 +1133,14 @@
                 }
             });
         }
+        
+        if (dpaModal) {
+            dpaModal.addEventListener('click', function(e) {
+                if (e.target === dpaModal) {
+                    // Don't close on outside click - force decision
+                }
+            });
+        }
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
@@ -993,11 +1160,11 @@
 </script>
 
 <style>
-    #error-modal, #success-modal, #save-draft-modal {
+    #error-modal, #success-modal, #save-draft-modal, #dpa-modal {
         transition: opacity 0.2s ease-in-out;
     }
     
-    #error-modal .bg-white, #success-modal .bg-white, #save-draft-modal .bg-white {
+    #error-modal .bg-white, #success-modal .bg-white, #save-draft-modal .bg-white, #dpa-modal .bg-white {
         animation: modalSlideIn 0.3s ease-out;
     }
     

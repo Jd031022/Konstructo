@@ -312,10 +312,7 @@ class GmailService
                                 <li>Track the status of your applications in real-time</li>
                             </ul>
                         </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='" . url('/login') . "' class='button'>Login to Your Account</a>
-                        </div>
+                    
                         
                         <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
                             If you have any questions or need assistance, please don't hesitate to contact our support team.
