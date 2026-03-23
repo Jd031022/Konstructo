@@ -205,6 +205,38 @@ class GmailService
     }
 
     /**
+     * Send account approval email to user
+     */
+    public function sendAccountApprovalEmail($to, $name)
+    {
+        $subject = 'Account Approved - Konstructo';
+        $htmlContent = $this->getAccountApprovalEmailContent($name);
+        
+        return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Send account rejection email to user
+     */
+    public function sendAccountRejectionEmail($to, $name, $reason = null)
+    {
+        $subject = 'Account Application Status - Konstructo';
+        $htmlContent = $this->getAccountRejectionEmailContent($name, $reason);
+        
+        return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Send admin notification about new user
+     */
+    public function sendAdminNotification($to, $subject, $message, $userName = null, $userEmail = null)
+    {
+        $htmlContent = $this->getAdminNotificationEmailContent($message, $userName, $userEmail);
+        
+        return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
      * Send status update email
      */
     public function sendStatusEmail($to, $status, $applicationNumber, $applicantName, $applicationId)
@@ -224,6 +256,245 @@ class GmailService
         $htmlContent = $this->getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks);
         
         return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Get account approval email content
+     */
+    private function getAccountApprovalEmailContent($name)
+    {
+        $greeting = $name ? "Dear " . $name . "," : "Dear Valued User,";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .steps-list { margin: 20px 0; padding-left: 20px; }
+                    .steps-list li { margin: 10px 0; color: #4B5563; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Welcome to Konstructo!</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>Great news! Your account has been <strong>approved</strong> by the administrator.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='success-badge'>✓ Account Approved</span>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3 style='margin-top: 0; color: #059669; font-size: 16px;'>What's Next?</h3>
+                            <ul class='steps-list'>
+                                <li>Log in to your account using your registered email/username and password</li>
+                                <li>Complete your profile information</li>
+                                <li>Start submitting building permit applications</li>
+                                <li>Track the status of your applications in real-time</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='" . url('/login') . "' class='button'>Login to Your Account</a>
+                        </div>
+                        
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            If you have any questions or need assistance, please don't hesitate to contact our support team.
+                        </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Thank you for choosing Konstructo for your permitting needs.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get account rejection email content
+     */
+    private function getAccountRejectionEmailContent($name, $reason = null)
+    {
+        $greeting = $name ? "Dear " . $name . "," : "Dear Valued User,";
+        $reasonHtml = $reason ? "
+            <div class='reason-box'>
+                <strong>Reason for rejection:</strong>
+                <p style='margin: 8px 0 0 0;'>" . htmlspecialchars($reason) . "</p>
+            </div>
+        " : "";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .rejection-badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .reason-box { background-color: #FEE2E2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #DC2626; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .support-list { margin: 20px 0; padding-left: 20px; }
+                    .support-list li { margin: 8px 0; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Account Application Status</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>We regret to inform you that your account application has been <strong>rejected</strong>.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='rejection-badge'>✗ Account Rejected</span>
+                        </div>
+                        
+                        {$reasonHtml}
+                        
+                        <div class='info-section'>
+                            <h3 style='margin-top: 0; color: #DC2626; font-size: 16px;'>What can you do?</h3>
+                            <ul class='support-list'>
+                                <li>Review the reason for rejection provided above</li>
+                                <li>Ensure all required information is accurate and complete</li>
+                                <li>Try registering again with a new account</li>
+                                <li>Contact our support team for assistance</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='" . url('/register') . "' class='button'>Create New Account</a>
+                        </div>
+                        
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            If you believe this is a mistake or if you have any questions, please contact our support team.
+                        </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Thank you for your interest in Konstructo.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get admin notification email content
+     */
+    private function getAdminNotificationEmailContent($message, $userName = null, $userEmail = null)
+    {
+        $userInfo = "";
+        if ($userName || $userEmail) {
+            $userInfo = "
+                <div class='user-info'>
+                    <h3>User Details:</h3>
+                    " . ($userName ? "<p><strong>Name:</strong> " . htmlspecialchars($userName) . "</p>" : "") . "
+                    " . ($userEmail ? "<p><strong>Email:</strong> " . htmlspecialchars($userEmail) . "</p>" : "") . "
+                </div>
+            ";
+        }
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .user-info { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #155386; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Admin Notification</h1>
+                    </div>
+                    <div class='content'>
+                        <p>" . nl2br(htmlspecialchars($message)) . "</p>
+                        
+                        {$userInfo}
+                        
+                        <div style='text-align: center;'>
+                            <a href='" . url('/admin/settings?tab=roles') . "' class='button'>Go to Admin Panel</a>
+                        </div>
+                        
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            Please log in to review and take action.
+                        </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            This is an automated notification from Konstructo.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 
     /**
@@ -342,6 +613,7 @@ class GmailService
                     .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #155386; }
                     .application-number { font-family: 'Courier New', monospace; font-weight: 600; color: #155386; background-color: #f0f7fa; padding: 2px 8px; border-radius: 4px; }
                     .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
                     .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
                     .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
                     .brand-name { font-weight: 600; color: #155386; }
@@ -365,6 +637,9 @@ class GmailService
                             <p style='margin: 0;'>Please log in to your Konstructo dashboard to view the complete details regarding this update and any next steps required.</p>
                         </div>
                         
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application</a>
+                        </div>
                         
                         <div class='divider'></div>
                         
@@ -465,7 +740,11 @@ class GmailService
                             <li>Submit hard copies to the OBO office if required</li>
                             <li>Track your application status through your dashboard</li>
                         </ol>
-                    
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application</a>
+                        </div>
+                        
                         <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
                             If you have already uploaded these documents, please disregard this message.
                         </p>

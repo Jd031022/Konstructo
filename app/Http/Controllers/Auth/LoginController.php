@@ -48,7 +48,6 @@ class LoginController extends Controller
                 'failure_reason' => 'too_many_attempts'
             ]);
             
-            // Log the failed attempt in activity_logs
             ActivityLog::create([
                 'user_id' => null,
                 'action' => 'login',
@@ -81,6 +80,54 @@ class LoginController extends Controller
                 'failure_reason' => null,
             ]);
             
+            // CHECK IF USER CAN LOGIN (email verified AND approval status approved for applicants)
+            if (!$user->canLogin()) {
+                Auth::logout();
+                
+                // Determine the specific reason and redirect
+                $redirectUrl = null;
+                $errorMessage = '';
+                
+                if (is_null($user->email_verified_at)) {
+                    $errorMessage = 'Please verify your email address before logging in.';
+                } elseif ($user->isApplicant() && $user->isPending()) {
+                    $errorMessage = 'Your account is pending admin approval. You will be notified once approved.';
+                    $redirectUrl = route('applicant.account-status');
+                } elseif ($user->isApplicant() && $user->isRejected()) {
+                    $errorMessage = 'Your account application has been rejected. Please contact support for more information.';
+                    $redirectUrl = route('applicant.account-status');
+                } else {
+                    $errorMessage = 'Your account cannot be accessed at this time.';
+                }
+                
+                // Log the failed attempt due to approval/verification
+                ActivityLog::create([
+                    'user_id' => $user->id,
+                    'action' => 'login',
+                    'description' => 'Login blocked: ' . $errorMessage,
+                    'metadata' => json_encode([
+                        'login_type' => $loginType,
+                        'user_role' => $user->role,
+                        'approval_status' => $user->approval_status,
+                        'email_verified' => !is_null($user->email_verified_at),
+                        'ip_address' => $request->ip()
+                    ]),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'status' => 'failed'
+                ]);
+                
+                // If there's a redirect URL for pending/rejected, return that
+                if ($redirectUrl) {
+                    return response()->json([
+                        'error' => $errorMessage,
+                        'redirect' => $redirectUrl
+                    ], 403);
+                }
+                
+                return response()->json(['error' => $errorMessage], 403);
+            }
+            
             // Log successful login in activity_logs
             ActivityLog::create([
                 'user_id' => $user->id,
@@ -105,6 +152,9 @@ class LoginController extends Controller
             ));
             
             $request->session()->regenerate();
+            
+            // Update last login timestamp
+            $user->updateLastLogin();
             
             // Check if user is staff and needs to set position
             $needsPosition = false;

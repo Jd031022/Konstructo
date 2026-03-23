@@ -553,7 +553,7 @@ function nextStep() {
         return;
     }
     
-    // Check for special character - IMPORTANT: Make sure this regex matches exactly
+    // Check for special character
     if (!/[@$!%*?&]/.test(password)) {
         showError('Password must contain at least one special character (@$!%*?&)');
         return;
@@ -777,7 +777,7 @@ function moveToNext(current, nextId) {
     }
 }
 
-// Verify email
+// Verify email - UPDATED to redirect to account status page
 async function verifyEmail() {
     // Collect code
     let code = '';
@@ -815,16 +815,17 @@ async function verifyEmail() {
         const data = await response.json();
         
         if (response.ok) {
-            document.getElementById('verification-success').textContent = 'Email verified successfully! Redirecting to login...';
+            // Show success message about pending approval
+            document.getElementById('verification-success').innerHTML = '✅ Email verified successfully! Your account is now pending admin approval. You will be notified once approved.';
             document.getElementById('verification-success').classList.remove('hidden');
             
             // Show global loading before redirect
-            showGlobalLoading('Verification successful! Redirecting...');
+            showGlobalLoading('Verification successful! Redirecting to status page...');
             
-            // Redirect to login after 2 seconds
+            // Redirect to account status page after 3 seconds (to let user read the message)
             setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
+                window.location.href = '/applicant/account-status';
+            }, 3000);
         } else {
             hideVerifyButtonLoading();
             document.getElementById('verification-error').textContent = data.message || 'Invalid verification code';
@@ -859,7 +860,7 @@ async function resendCode() {
         const data = await response.json();
         
         if (response.ok) {
-            document.getElementById('verification-success').textContent = 'New verification code sent!';
+            document.getElementById('verification-success').textContent = 'New verification code sent! Please check your email.';
             document.getElementById('verification-success').classList.remove('hidden');
             
             // Clear code inputs
@@ -887,6 +888,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (phoneSpan) {
         phoneSpan.className = 'inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm';
     }
+    
+    // Check if there's a pending approval message from session
+    @if(session('warning'))
+        showError('{{ session('warning') }}');
+    @endif
+    @if(session('error'))
+        showError('{{ session('error') }}');
+    @endif
 });
 </script>
 

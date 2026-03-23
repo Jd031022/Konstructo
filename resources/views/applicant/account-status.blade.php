@@ -9,7 +9,10 @@
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
             <!-- Header with dynamic gradient based on status -->
             @php
-                $status = session('account_status', 'pending');
+                $user = Auth::user();
+                $status = $user->approval_status ?? 'pending';
+                $rejectionReason = $user->rejection_reason ?? null;
+                
                 $statusColors = [
                     'approved' => 'from-green-500 to-green-600',
                     'rejected' => 'from-red-500 to-red-600',
@@ -60,7 +63,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Account Holder</p>
-                            <p class="font-medium text-gray-800">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                            <p class="font-medium text-gray-800">{{ $user->first_name }} {{ $user->last_name }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -71,7 +74,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Email Address</p>
-                            <p class="font-medium text-gray-800">{{ Auth::user()->email }}</p>
+                            <p class="font-medium text-gray-800">{{ $user->email }}</p>
                         </div>
                     </div>
                 </div>
@@ -102,11 +105,7 @@
                             <div>
                                 <p class="text-sm text-red-800 font-medium mb-1">Reason for Rejection</p>
                                 <p class="text-xs text-red-700">
-                                    @if(session('rejection_reason'))
-                                        {{ session('rejection_reason') }}
-                                    @else
-                                        Your account application did not meet the required criteria. Please contact support for more information.
-                                    @endif
+                                    {{ $rejectionReason ?? 'Your account application did not meet the required criteria. Please contact support for more information.' }}
                                 </p>
                             </div>
                         </div>
@@ -158,10 +157,14 @@
                             Create New Account
                         </a>
                     @else
-                        <button onclick="checkStatusAgain()" 
-                                class="block w-full text-center bg-gradient-to-r from-[#155386] to-[#40798C] text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300">
-                            Check Status Again
-                        </button>
+                        <!-- For pending status, show logout button instead of check status again -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" 
+                                    class="block w-full text-center bg-gradient-to-r from-[#155386] to-[#40798C] text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300">
+                                Logout & Return to Login
+                            </button>
+                        </form>
                     @endif
                     
                     <a href="/" 
@@ -190,20 +193,7 @@
 </div>
 
 <script>
-    function checkStatusAgain() {
-        // Show loading state
-        const button = event.target;
-        const originalText = button.textContent;
-        button.textContent = 'Checking...';
-        button.disabled = true;
-        
-        // Simulate checking status
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    }
-    
-    // Auto-refresh for pending status every 30 seconds
+    // Auto-refresh for pending status every 30 seconds to check if approved
     @if($status == 'pending')
         let refreshInterval = setInterval(() => {
             fetch(window.location.href, {
@@ -213,13 +203,13 @@
             })
             .then(response => response.text())
             .then(html => {
-                // Check if status changed
+                // Check if status changed by looking for the header text
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                const newStatus = doc.querySelector('[data-status]')?.getAttribute('data-status');
-                const currentStatus = '{{ $status }}';
+                const headerText = doc.querySelector('h1')?.textContent || '';
+                const currentHeader = '{{ $title }}';
                 
-                if (newStatus && newStatus !== currentStatus) {
+                if (headerText !== currentHeader) {
                     clearInterval(refreshInterval);
                     location.reload();
                 }

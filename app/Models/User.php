@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\LogActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class User
@@ -28,6 +29,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $remember_token
  * @property string $role
  * @property \Carbon\Carbon|null $email_verified_at
+ * @property string $approval_status
+ * @property string|null $rejection_reason
+ * @property \Carbon\Carbon|null $approved_at
+ * @property int|null $approved_by
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * 
@@ -39,15 +44,21 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \Illuminate\Database\Eloquent\Collection|ApplicationDocument[] $applicationDocuments
  * @property-read \Illuminate\Database\Eloquent\Collection|Application[] $applications
  * @property-read \Illuminate\Database\Eloquent\Collection|ApplicationDocument[] $assignedDocuments
+ * @property-read User|null $approver
  * 
  * @method bool isAdmin()
  * @method bool isStaff()
  * @method bool isApplicant()
  * @method bool hasRole(string $role)
+ * @method bool isApproved()
+ * @method bool isPending()
+ * @method bool isRejected()
+ * @method bool canLogin()
  * @method string getFullNameAttribute()
  * @method string getInitialsAttribute()
  * @method string getRoleBadgeColorAttribute()
  * @method string getStatusBadgeColorAttribute()
+ * @method string getApprovalStatusBadgeAttribute()
  * @method string getAvatarUrlAttribute()
  */
 class User extends Authenticatable
@@ -74,6 +85,10 @@ class User extends Authenticatable
         'role',
         'avatar',
         'remember_token',
+        'approval_status',
+        'rejection_reason',
+        'approved_at',
+        'approved_by',
     ];
 
     /**
@@ -93,6 +108,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'approved_at' => 'datetime',
         'password' => 'hashed',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -107,6 +123,7 @@ class User extends Authenticatable
         'full_name',
         'initials',
         'avatar_url',
+        'approval_status_badge',
     ];
 
     // ========== RELATIONSHIPS ==========
@@ -175,6 +192,14 @@ class User extends Authenticatable
         return $this->hasMany(ApplicationDocument::class, 'assigned_to');
     }
 
+    /**
+     * Get the user who approved/rejected this user.
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     // ========== ROLE CHECK METHODS ==========
 
     /**
@@ -209,7 +234,98 @@ class User extends Authenticatable
         return $this->role === 'applicant';
     }
 
-    // ========== POSITION METHODS (NEW) ==========
+    // ========== APPROVAL STATUS METHODS ==========
+
+    /**
+     * Check if user account is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
+    /**
+     * Check if user account is pending approval
+     */
+    public function isPending(): bool
+    {
+        return $this->approval_status === 'pending';
+    }
+
+    /**
+     * Check if user account is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->approval_status === 'rejected';
+    }
+
+    /**
+     * Check if user can login (email verified AND approved for applicants, always true for admin/staff)
+     */
+    public function canLogin(): bool
+    {
+        // Admin and staff can always login if email is verified
+        if ($this->isAdmin() || $this->isStaff()) {
+            return !is_null($this->email_verified_at);
+        }
+        
+        // Applicants need email verified AND approval status approved
+        return !is_null($this->email_verified_at) && $this->isApproved();
+    }
+
+    /**
+     * Get approval status badge HTML
+     */
+    public function getApprovalStatusBadgeAttribute(): string
+    {
+        $badges = [
+            'approved' => '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Approved</span>',
+            'pending' => '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>',
+            'rejected' => '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Rejected</span>',
+        ];
+        
+        return $badges[$this->approval_status] ?? $badges['pending'];
+    }
+
+    /**
+     * Approve user account
+     */
+    public function approve(int $adminId): bool
+    {
+        return $this->update([
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => $adminId,
+            'rejection_reason' => null,
+        ]);
+    }
+
+    /**
+     * Reject user account
+     */
+    public function reject(int $adminId, ?string $reason = null): bool
+    {
+        return $this->update([
+            'approval_status' => 'rejected',
+            'approved_at' => now(),
+            'approved_by' => $adminId,
+            'rejection_reason' => $reason,
+        ]);
+    }
+
+    /**
+     * Get pending applicants
+     */
+    public static function getPendingApplicants()
+    {
+        return self::where('role', 'applicant')
+                   ->where('approval_status', 'pending')
+                   ->orderBy('created_at', 'asc')
+                   ->get();
+    }
+
+    // ========== POSITION METHODS ==========
 
     /**
      * Get the user's position (if staff).
@@ -408,7 +524,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get status badge color
+     * Get status badge color (email verification status)
      */
     public function getStatusBadgeColorAttribute(): string
     {
@@ -603,6 +719,50 @@ class User extends Authenticatable
     // ========== SCOPES ==========
 
     /**
+     * Scope a query to only include pending applicants.
+     */
+    public function scopePendingApplicants($query)
+    {
+        return $query->where('role', 'applicant')
+                    ->where('approval_status', 'pending');
+    }
+
+    /**
+     * Scope a query to only include approved applicants.
+     */
+    public function scopeApprovedApplicants($query)
+    {
+        return $query->where('role', 'applicant')
+                    ->where('approval_status', 'approved');
+    }
+
+    /**
+     * Scope a query to only include rejected applicants.
+     */
+    public function scopeRejectedApplicants($query)
+    {
+        return $query->where('role', 'applicant')
+                    ->where('approval_status', 'rejected');
+    }
+
+    /**
+     * Scope a query to only include users who can login.
+     */
+    public function scopeCanLogin($query)
+    {
+        return $query->where(function($q) {
+            $q->where(function($sub) {
+                $sub->whereIn('role', ['admin', 'staff'])
+                    ->whereNotNull('email_verified_at');
+            })->orWhere(function($sub) {
+                $sub->where('role', 'applicant')
+                    ->whereNotNull('email_verified_at')
+                    ->where('approval_status', 'approved');
+            });
+        });
+    }
+
+    /**
      * Scope a query to only include staff who need position.
      */
     public function scopeStaffNeedsPosition($query)
@@ -666,7 +826,7 @@ class User extends Authenticatable
                 $user->logActivity(
                     'account_created',
                     'User account was created',
-                    ['method' => 'registration', 'role' => $user->role]
+                    ['method' => 'registration', 'role' => $user->role, 'approval_status' => $user->approval_status]
                 );
                 unset($user->logging);
             }

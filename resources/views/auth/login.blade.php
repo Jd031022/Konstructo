@@ -6,31 +6,34 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
 
     <!-- Background Illustration -->
-<div class="absolute inset-0">
-    <img src="{{ asset('images/cover.jpg') }}" 
-         class="w-full h-full object-cover" 
-         alt="background">
-    <div class="absolute inset-0 backdrop-blur-[2px] bg-white/10"></div>
-</div>
+    <div class="absolute inset-0">
+        <img src="{{ asset('images/cover.jpg') }}" 
+             class="w-full h-full object-cover" 
+             alt="background">
+        <div class="absolute inset-0 backdrop-blur-[2px] bg-white/10"></div>
+    </div>
 
     <!-- Login Card -->
-<div class="relative bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-8" style="width: 500px; min-height: auto; padding: 90px 70px;">
+    <div class="relative bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-8" style="width: 500px; min-height: auto; padding: 90px 70px;">
 
         <!-- Logo -->
-       <div class="flex flex-col items-center mb-6">
-    <img src="{{ asset('images/logo.png') }}" class="w-12 mb-2">
-    <div class="flex">
-        <h1 class="text-xl font-semibold text-[#155386]">Konstr</h1>
-        <h1 class="text-xl font-semibold text-[#40798C]">ucto</h1>
-    </div>
-    <p class="text-sm text-gray-500">Login to continue</p>
-</div>
+        <div class="flex flex-col items-center mb-6">
+            <img src="{{ asset('images/logo.png') }}" class="w-12 mb-2">
+            <div class="flex">
+                <h1 class="text-xl font-semibold text-[#155386]">Konstr</h1>
+                <h1 class="text-xl font-semibold text-[#40798C]">ucto</h1>
+            </div>
+            <p class="text-sm text-gray-500">Login to continue</p>
+        </div>
 
         <!-- Error Message Display -->
         <div id="error-message" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
         
         <!-- Success Message Display -->
         <div id="success-message" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm"></div>
+        
+        <!-- Warning Message Display (for approval status) -->
+        <div id="warning-message" class="hidden mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg text-sm"></div>
 
         <!-- Login Form -->
         <form id="login-form" method="POST">
@@ -93,11 +96,11 @@
                 </span>
             </button>
 
-             <div class="mt-3 text-right">
-            <a href="#" class="text-sm text-gray-500 hover:text-[#155386] transition" onclick="showForgotPassword()">
-                Forgot Password?
-            </a>
-             </div>
+            <div class="mt-3 text-right">
+                <a href="#" class="text-sm text-gray-500 hover:text-[#155386] transition" onclick="showForgotPassword()">
+                    Forgot Password?
+                </a>
+            </div>
 
             <!-- Register -->
             <p class="text-center text-sm text-gray-500 mt-6">
@@ -278,15 +281,67 @@ function togglePasswordVisibility() {
     }
 }
 
-// Login form submission
+// Enhanced message display functions
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    const warningDiv = document.getElementById('warning-message');
+    const successDiv = document.getElementById('success-message');
+    
+    // Hide other messages
+    errorDiv.classList.add('hidden');
+    warningDiv.classList.add('hidden');
+    successDiv.classList.add('hidden');
+    
+    // Show error
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    setTimeout(() => errorDiv.classList.add('hidden'), 8000);
+}
+
+function showWarning(message) {
+    const errorDiv = document.getElementById('error-message');
+    const warningDiv = document.getElementById('warning-message');
+    const successDiv = document.getElementById('success-message');
+    
+    // Hide other messages
+    errorDiv.classList.add('hidden');
+    warningDiv.classList.add('hidden');
+    successDiv.classList.add('hidden');
+    
+    // Show warning
+    warningDiv.textContent = message;
+    warningDiv.classList.remove('hidden');
+    setTimeout(() => warningDiv.classList.add('hidden'), 8000);
+}
+
+function showSuccess(message) {
+    const errorDiv = document.getElementById('error-message');
+    const warningDiv = document.getElementById('warning-message');
+    const successDiv = document.getElementById('success-message');
+    
+    // Hide other messages
+    errorDiv.classList.add('hidden');
+    warningDiv.classList.add('hidden');
+    successDiv.classList.add('hidden');
+    
+    // Show success
+    successDiv.textContent = message;
+    successDiv.classList.remove('hidden');
+    setTimeout(() => successDiv.classList.add('hidden'), 5000);
+}
+
+// Update the login form submission in login.blade.php
 document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('warning-message').classList.add('hidden');
     document.getElementById('success-message').classList.add('hidden');
     showButtonLoading();
     
     const formData = new FormData(this);
+    const loginValue = formData.get('login');
+    const passwordValue = formData.get('password');
     
     try {
         const response = await fetch('{{ route("login") }}', {
@@ -297,8 +352,8 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                login: formData.get('login'), // Send as 'login' field
-                password: formData.get('password'),
+                login: loginValue,
+                password: passwordValue,
                 remember: formData.get('remember') === 'on'
             })
         });
@@ -313,21 +368,82 @@ document.getElementById('login-form').addEventListener('submit', async function(
         } else {
             hideButtonLoading();
             
+            // Check if there's a redirect URL in the response (for pending/rejected users)
+            if (data.redirect) {
+                showWarning(data.error || 'Your account requires admin approval.');
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 2000);
+                return;
+            }
+            
             if (data.errors) {
                 let errorMessages = [];
                 for (let field in data.errors) {
                     errorMessages.push(data.errors[field].join(', '));
                 }
                 showError(errorMessages.join('\n'));
+            } else if (data.error) {
+                // Check for specific error types
+                const errorMessage = data.error;
+                
+                if (errorMessage.includes('pending admin approval')) {
+                    showWarning(errorMessage);
+                    setTimeout(() => {
+                        window.location.href = '/applicant/account-status';
+                    }, 2000);
+                } else if (errorMessage.includes('rejected')) {
+                    showError(errorMessage);
+                    setTimeout(() => {
+                        if (confirm('Your account has been rejected. Would you like to create a new account?')) {
+                            window.location.href = '/register';
+                        }
+                    }, 1000);
+                } else if (errorMessage.includes('verify your email')) {
+                    showWarning(errorMessage);
+                    setTimeout(() => {
+                        if (confirm('Would you like to resend the verification email?')) {
+                            resendVerification(loginValue);
+                        }
+                    }, 1000);
+                } else {
+                    showError(errorMessage);
+                }
             } else {
-                showError(data.error || 'Invalid email/username or password.');
+                showError('Invalid email/username or password.');
             }
         }
     } catch (error) {
         hideButtonLoading();
         showError('An error occurred. Please try again.');
+        console.error('Login error:', error);
     }
 });
+
+// Function to resend verification email
+async function resendVerification(email) {
+    try {
+        const response = await fetch('/resend-verification', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showSuccess('Verification email resent! Please check your inbox.');
+        } else {
+            showError(data.message || 'Failed to resend verification email.');
+        }
+    } catch (error) {
+        showError('An error occurred. Please try again.');
+    }
+}
 
 // Button loading states
 function showButtonLoading() {
@@ -340,20 +456,6 @@ function hideButtonLoading() {
     document.getElementById('button-text').classList.remove('hidden');
     document.getElementById('button-spinner').classList.add('hidden');
     document.getElementById('login-button').disabled = false;
-}
-
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('hidden');
-    setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-}
-
-function showSuccess(message) {
-    const successDiv = document.getElementById('success-message');
-    successDiv.textContent = message;
-    successDiv.classList.remove('hidden');
-    setTimeout(() => successDiv.classList.add('hidden'), 5000);
 }
 
 // Modal controls
@@ -703,6 +805,19 @@ function closeForgotPasswordModal() {
 }
 
 // Initialize password validation when step 3 loads
+
+// Check for session messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('success'))
+        showSuccess('{{ session('success') }}');
+    @endif
+    @if(session('error'))
+        showError('{{ session('error') }}');
+    @endif
+    @if(session('warning'))
+        showWarning('{{ session('warning') }}');
+    @endif
+});
 </script>
 
 <style>
@@ -735,6 +850,19 @@ button:disabled {
 /* Step transitions */
 .step {
     transition: all 0.3s ease;
+}
+
+/* Additional styling for warning messages */
+#warning-message {
+    border-left: 4px solid #eab308;
+}
+
+#error-message {
+    border-left: 4px solid #ef4444;
+}
+
+#success-message {
+    border-left: 4px solid #22c55e;
 }
 </style>
 @endsection

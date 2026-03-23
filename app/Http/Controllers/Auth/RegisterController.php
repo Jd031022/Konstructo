@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Auth/RegisterController.php
 
 namespace App\Http\Controllers\Auth;
 
@@ -8,14 +9,14 @@ use App\Services\GmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache; // Add this for storing verification codes
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
     protected $gmailService;
 
-    // Inject GmailService via constructor
     public function __construct(GmailService $gmailService)
     {
         $this->gmailService = $gmailService;
@@ -57,24 +58,22 @@ class RegisterController extends Controller
         // Store code in cache for 10 minutes
         Cache::put('verification_' . $request->email, $verificationCode, now()->addMinutes(10));
 
-        // Send verification email with personalized first name
+        // Send verification email
         try {
             $emailSent = $this->gmailService->sendVerificationEmail(
                 $request->email, 
                 $verificationCode,
-                $request->first_name // Pass the first name for personalization
+                $request->first_name
             );
             
             if (!$emailSent) {
-                // Log but don't stop registration - you can retry later
                 Log::warning('Verification email failed to send for: ' . $request->email);
             }
         } catch (\Exception $e) {
             Log::error('Email sending error: ' . $e->getMessage());
-            // Don't throw - user can still register, maybe resend later
         }
 
-        // Create user - but DON'T auto-verify email
+        // Create user - approval_status defaults to 'pending'
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -86,24 +85,21 @@ class RegisterController extends Controller
             'address' => $request->address,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            // 'email_verified_at' => null, // This is the default, so you can remove this line
+            'role' => 'applicant', // Always set role to applicant for registration
+            'approval_status' => 'pending', // Explicitly set pending
         ]);
 
         // Log the registration attempt
         $user->logLoginAttempt($request->username, true);
 
-        // Return response with verification info
         return response()->json([
             'message' => 'Registration successful. Please check your email for verification code.',
             'requires_verification' => true,
-            'email' => $request->email, // Send back so frontend knows which email to verify
+            'email' => $request->email,
             'user' => $user->only(['id', 'first_name', 'last_name', 'email', 'username'])
         ], 201);
     }
 
-    /**
-     * Verify the email with code
-     */
     public function verifyEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -115,7 +111,6 @@ class RegisterController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Get the stored code from cache
         $storedCode = Cache::get('verification_' . $request->email);
 
         if (!$storedCode) {
@@ -130,23 +125,65 @@ class RegisterController extends Controller
             ], 400);
         }
 
-        // Find user and verify email
         $user = User::where('email', $request->email)->first();
+        
+        // Check if email is already verified
+        if ($user->email_verified_at) {
+            return response()->json([
+                'message' => 'Email already verified.'
+            ], 400);
+        }
+        
+        // Verify email
         $user->email_verified_at = now();
         $user->save();
 
-        // Clear the verification code from cache
         Cache::forget('verification_' . $request->email);
 
+        // After email verification, send notification to admins about pending approval
+        $this->notifyAdminsOfPendingApproval($user);
+
+        // Log the user in automatically after verification
+        Auth::login($user);
+
         return response()->json([
-            'message' => 'Email verified successfully!',
-            'verified' => true
+            'message' => 'Email verified successfully! Your account is now pending admin approval. You will be notified once approved.',
+            'verified' => true,
+            'requires_approval' => true,
+            'redirect' => route('applicant.account-status')
         ]);
     }
 
     /**
-     * Resend verification code
+     * Notify admins about new pending user approval
      */
+    private function notifyAdminsOfPendingApproval(User $user)
+    {
+        $admins = User::where('role', 'admin')->get();
+        
+        foreach ($admins as $admin) {
+            // Create notification in database
+            try {
+                $admin->notify(new \App\Notifications\NewUserPendingApproval($user));
+            } catch (\Exception $e) {
+                Log::error('Failed to create database notification: ' . $e->getMessage());
+            }
+            
+            // Optionally send email notification
+            try {
+                $this->gmailService->sendAdminNotification(
+                    $admin->email,
+                    'New User Pending Approval',
+                    "User {$user->first_name} {$user->last_name} ({$user->email}) has registered and verified their email. Please review and approve their account.",
+                    $user->first_name . ' ' . $user->last_name,
+                    $user->email
+                );
+            } catch (\Exception $e) {
+                Log::error('Failed to send admin notification email: ' . $e->getMessage());
+            }
+        }
+    }
+
     public function resendVerificationCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -159,18 +196,15 @@ class RegisterController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // Check if already verified
         if ($user->email_verified_at) {
             return response()->json([
                 'message' => 'Email already verified.'
             ], 400);
         }
 
-        // Generate new code
         $newCode = rand(100000, 999999);
         Cache::put('verification_' . $request->email, $newCode, now()->addMinutes(10));
 
-        // Send new code
         try {
             $this->gmailService->sendVerificationEmail(
                 $request->email, 

@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -115,7 +116,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Staff\ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
 
-        // Archive routes
+    // Archive routes
     Route::post('/applications/{id}/archive', [App\Http\Controllers\Staff\ApplicationController::class, 'archive'])
         ->name('applications.archive');
     
@@ -284,7 +285,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         }
     })->name('applications.check-columns');
 
-     Route::get('/applications', function () {
+    Route::get('/applications', function () {
         return view('applicant.applications');
     })->name('applications');
     
@@ -292,29 +293,52 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.dashboard');
     })->name('dashboard');
     
-    // Add this route - Account Status
+    // Account Status Route - UPDATED to get actual approval status from database
     Route::get('/account-status', function () {
         $user = Auth::user();
         
         if ($user && $user->role === 'applicant') {
-            // For testing, get status from query parameter or use default
-            $status = request()->get('status', 'pending');
+            // Get the actual approval status from the user model
+            $status = $user->approval_status ?? 'pending';
+            $rejectionReason = $user->rejection_reason ?? null;
             
-            return view('applicant.account-status', ['account_status' => $status]);
+            // Store in session for the view
+            session(['account_status' => $status]);
+            session(['rejection_reason' => $rejectionReason]);
+            
+            return view('applicant.account-status', [
+                'account_status' => $status,
+                'rejection_reason' => $rejectionReason
+            ]);
         }
         
         return redirect()->route('dashboard');
     })->name('account-status');
 });
 
-
-
-// Dashboard route with role-based redirect
+// Dashboard route with role-based redirect - UPDATED to check approval status for applicants
 Route::get('/dashboard', function () {
     /** @var \App\Models\User $user */
     $user = auth()->user();
     
     if ($user) {
+        // For applicants, check if they can access dashboard
+        if ($user->isApplicant()) {
+            if (!$user->canLogin()) {
+                // Redirect to account status page if not approved
+                if ($user->isPending()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('warning', 'Your account is pending admin approval.');
+                } elseif ($user->isRejected()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('error', 'Your account has been rejected.');
+                } elseif (is_null($user->email_verified_at)) {
+                    return redirect()->route('login')
+                        ->with('error', 'Please verify your email address first.');
+                }
+            }
+        }
+        
         return match($user->role) {
             'admin' => redirect()->route('admin.dashboard'),
             'staff' => redirect()->route('staff.dashboard'),
@@ -369,6 +393,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.delete');
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
+    
+    // ========== ADMIN USER APPROVAL ROUTES (NEW) ==========
+    Route::post('/users/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{id}/reject', [App\Http\Controllers\Admin\UserController::class, 'reject'])->name('users.reject');
+    Route::get('/pending-applicants', [App\Http\Controllers\Admin\UserController::class, 'getPendingApplicants'])->name('pending-applicants');
     
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
