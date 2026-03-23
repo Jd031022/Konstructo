@@ -501,3 +501,7 @@ Route::get('/test-gmail', function() {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
+Route::get('/chat', function () {
+    return view('chat.index');
+})->middleware(['auth'])->name('chat');
