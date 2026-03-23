@@ -38,10 +38,12 @@
                 class="py-3 px-1 border-b-2 {{ $currentTab == 'application-logs' ? 'border-[#155386] text-[#155386]' : 'border-transparent text-gray-500 hover:text-gray-700' }} font-medium text-sm whitespace-nowrap transition">
                 Application Review Logs
             </button>
+
             <button onclick="window.location.href='{{ route('admin.settings', ['tab' => 'general']) }}'" 
                 class="py-3 px-1 border-b-2 {{ $currentTab == 'general' ? 'border-[#155386] text-[#155386]' : 'border-transparent text-gray-500 hover:text-gray-700' }} font-medium text-sm whitespace-nowrap transition">
                 General Settings
             </button>
+
             <button onclick="window.location.href='{{ route('admin.settings', ['tab' => 'roles']) }}'" 
                 class="py-3 px-1 border-b-2 {{ $currentTab == 'roles' ? 'border-[#155386] text-[#155386]' : 'border-transparent text-gray-500 hover:text-gray-700' }} font-medium text-sm whitespace-nowrap transition">
                 User Approval
@@ -612,534 +614,466 @@
         </div>
     @endif
 
-    <!-- User Approval Management - Only Applicants -->
-    @if($currentTab == 'roles')
-    <div class="space-y-6">
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Applicants</p>
-                        <p class="text-2xl font-bold text-gray-800" id="total-applicants">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                </div>
+   <!-- User Approval Management - Only Applicants -->
+@if($currentTab == 'roles')
+<div class="space-y-6">
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" 
+                       id="search-user"
+                       placeholder="Search by name, email, or username..." 
+                       class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Pending</p>
-                        <p class="text-2xl font-bold text-yellow-600" id="pending-applicants">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Approved</p>
-                        <p class="text-2xl font-bold text-green-600" id="approved-applicants">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Rejected</p>
-                        <p class="text-2xl font-bold text-red-600" id="rejected-applicants">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            
+            <select id="filter-status" class="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            
+            <button onclick="resetUserFilters()" class="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
+                Reset Filters
+            </button>
+            
+            <button onclick="refreshUsers()" class="px-6 py-2.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+            </button>
         </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Username</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Registered</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email Verified</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <svg class="animate-spin h-8 w-8 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="mt-2 text-sm">Loading applicants...</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        <!-- Filters -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1 relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input type="text" 
-                           id="search-user"
-                           placeholder="Search by name, email, or username..." 
-                           class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
+<!-- Approve Modal -->
+<div id="approve-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-green-600 text-white">
+                    <h3 class="text-xl font-bold">Approve Applicant</h3>
                 </div>
-                
-                <select id="filter-status" class="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                </select>
-                
-                <button onclick="resetUserFilters()" class="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
-                    Reset Filters
-                </button>
-                
-                <button onclick="refreshUsers()" class="px-6 py-2.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Refresh
-                </button>
-            </div>
-        </div>
-        
-        <!-- Users Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-100">
-                         <tr>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Username</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Registered</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email Verified</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                            <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                         </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                         <tr>
-                            <td colspan="7" class="py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center">
-                                    <svg class="animate-spin h-8 w-8 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <p class="mt-2 text-sm">Loading applicants...</p>
-                                </div>
-                            </td>
-                         </tr>
-                    </tbody>
-                 </table>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Approve Modal -->
-    <div id="approve-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
-        <div class="relative min-h-full flex items-center justify-center">
-            <div class="mx-auto w-full max-w-md">
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div class="px-6 py-4 bg-green-600 text-white">
-                        <h3 class="text-xl font-bold">Approve Applicant</h3>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-gray-700 mb-4">Are you sure you want to approve this applicant? They will be able to log in to the system.</p>
-                        <p class="text-sm text-gray-500 mb-6" id="approve-user-info"></p>
-                        
-                        <div class="flex justify-end gap-3">
-                            <button onclick="closeApproveModal()" 
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                                Cancel
-                            </button>
-                            <button onclick="confirmApprove()" id="confirm-approve-btn"
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 text-sm">
-                                <span id="approve-btn-text">Approve</span>
-                                <span id="approve-btn-spinner" class="hidden">
-                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">Are you sure you want to approve this applicant? They will be able to log in to the system.</p>
+                    <p class="text-sm text-gray-500 mb-6" id="approve-user-info"></p>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeApproveModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmApprove()" id="confirm-approve-btn"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 text-sm">
+                            <span id="approve-btn-text">Approve</span>
+                            <span id="approve-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Reject Modal -->
-    <div id="reject-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
-        <div class="relative min-h-full flex items-center justify-center">
-            <div class="mx-auto w-full max-w-md">
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div class="px-6 py-4 bg-red-600 text-white">
-                        <h3 class="text-xl font-bold">Reject Applicant</h3>
+</div>
+
+<!-- Reject Modal -->
+<div id="reject-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-red-600 text-white">
+                    <h3 class="text-xl font-bold">Reject Applicant</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">Are you sure you want to reject this applicant? They will not be able to log in to the system.</p>
+                    <p class="text-sm text-gray-500 mb-3" id="reject-user-info"></p>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection (Optional)</label>
+                        <textarea id="reject-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+                            placeholder="Enter reason for rejection..."></textarea>
                     </div>
-                    <div class="p-6">
-                        <p class="text-gray-700 mb-4">Are you sure you want to reject this applicant? They will not be able to log in to the system.</p>
-                        <p class="text-sm text-gray-500 mb-3" id="reject-user-info"></p>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection (Optional)</label>
-                            <textarea id="reject-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
-                                placeholder="Enter reason for rejection..."></textarea>
-                        </div>
-                        
-                        <div class="flex justify-end gap-3">
-                            <button onclick="closeRejectModal()" 
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                                Cancel
-                            </button>
-                            <button onclick="confirmReject()" id="confirm-reject-btn"
-                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
-                                <span id="reject-btn-text">Reject</span>
-                                <span id="reject-btn-spinner" class="hidden">
-                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeRejectModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmReject()" id="confirm-reject-btn"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                            <span id="reject-btn-text">Reject</span>
+                            <span id="reject-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<script>
+    let applicants = [];
+    let currentUserId = null;
     
-    <script>
-        let applicants = [];
-        let currentUserId = null;
-        
-        // Load applicants from API on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadApplicants();
-            setupEventListeners();
-        });
-        
-        async function loadApplicants() {
-            try {
-                const response = await fetch('/admin/users/list?role=applicant', {
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.users) {
-                    // Filter only applicants
-                    applicants = data.users.filter(user => user.role === 'applicant');
-                    updateStats(applicants);
-                    filterUsers();
-                } else {
-                    console.error('Failed to load applicants:', data);
-                    showToast('Failed to load applicants', 'error');
+    // Load applicants from API on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadApplicants();
+        setupEventListeners();
+    });
+    
+    async function loadApplicants() {
+        try {
+            const response = await fetch('/admin/users/list?role=applicant', {
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 }
-            } catch (error) {
-                console.error('Error loading applicants:', error);
-                showToast('Error loading applicants', 'error');
-            }
-        }
-        
-        function updateStats(applicantsList) {
-            const pending = applicantsList.filter(a => a.approval_status === 'pending').length;
-            const approved = applicantsList.filter(a => a.approval_status === 'approved').length;
-            const rejected = applicantsList.filter(a => a.approval_status === 'rejected').length;
-            
-            document.getElementById('total-applicants').textContent = applicantsList.length;
-            document.getElementById('pending-applicants').textContent = pending;
-            document.getElementById('approved-applicants').textContent = approved;
-            document.getElementById('rejected-applicants').textContent = rejected;
-        }
-        
-        function filterUsers() {
-            const searchTerm = document.getElementById('search-user').value.toLowerCase();
-            const statusFilter = document.getElementById('filter-status').value;
-            
-            let filteredUsers = applicants.filter(user => {
-                const matchesSearch = (user.name?.toLowerCase().includes(searchTerm) || false) || 
-                                     (user.email?.toLowerCase().includes(searchTerm) || false) ||
-                                     (user.username?.toLowerCase().includes(searchTerm) || false);
-                const matchesStatus = statusFilter === 'all' || user.approval_status === statusFilter;
-                
-                return matchesSearch && matchesStatus;
             });
             
-            renderUsersTable(filteredUsers);
+            const data = await response.json();
+            
+            if (response.ok && data.users) {
+                // Filter only applicants
+                applicants = data.users.filter(user => user.role === 'applicant');
+                filterUsers();
+            } else {
+                console.error('Failed to load applicants:', data);
+                showToast('Failed to load applicants', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading applicants:', error);
+            showToast('Error loading applicants', 'error');
+        }
+    }
+    
+    function filterUsers() {
+        const searchTerm = document.getElementById('search-user').value.toLowerCase();
+        const statusFilter = document.getElementById('filter-status').value;
+        
+        let filteredUsers = applicants.filter(user => {
+            const matchesSearch = (user.name?.toLowerCase().includes(searchTerm) || false) || 
+                                 (user.email?.toLowerCase().includes(searchTerm) || false) ||
+                                 (user.username?.toLowerCase().includes(searchTerm) || false);
+            const matchesStatus = statusFilter === 'all' || user.approval_status === statusFilter;
+            
+            return matchesSearch && matchesStatus;
+        });
+        
+        renderUsersTable(filteredUsers);
+    }
+    
+    function renderUsersTable(filteredUsers) {
+        const tbody = document.getElementById('users-table-body');
+        
+        if (filteredUsers.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-12 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <p class="text-gray-500">No applicants found</p>
+                            <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
         }
         
-        function renderUsersTable(filteredUsers) {
-            const tbody = document.getElementById('users-table-body');
+        tbody.innerHTML = filteredUsers.map(user => {
+            // Get the username - handle both possible formats
+            const username = user.username || user.user_name || 'N/A';
             
-            if (filteredUsers.length === 0) {
-                tbody.innerHTML = `
-                     <tr>
-                        <td colspan="7" class="py-12 text-center text-gray-500">
-                            <div class="flex flex-col items-center">
-                                <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            // Check email verification status
+            const emailVerified = user.email_verified_at !== null && user.email_verified_at !== undefined;
+            
+            // Get full name
+            const fullName = user.name || (user.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Unknown User');
+            
+            return `
+            <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                <td class="py-4 px-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold">
+                            ${getInitials(fullName)}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">${escapeHtml(fullName)}</p>
+                        </div>
+                    </div>
+                  </td>
+                <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(user.email || 'N/A')}</td>
+                <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(username)}</td>
+                <td class="py-4 px-6 text-sm text-gray-500">
+                    ${formatDate(user.created_at)}
+                  </td>
+                <td class="py-4 px-6">
+                    ${emailVerified ? 
+                        '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Verified</span>' : 
+                        '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Unverified</span>'}
+                  </td>
+                <td class="py-4 px-6">
+                    ${getStatusBadge(user.approval_status)}
+                  </td>
+                <td class="py-4 px-6">
+                    <div class="flex items-center gap-2">
+                        ${user.approval_status === 'pending' ? `
+                            <button onclick="openApproveModal(${user.id}, '${escapeHtml(fullName).replace(/'/g, "\\'")}', '${escapeHtml(user.email).replace(/'/g, "\\'")}')" 
+                                class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Approve">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-gray-500">No applicants found</p>
-                                <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
-                            </div>
-                         </td>
-                     </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = filteredUsers.map(user => {
-                // Get the username - handle both possible formats
-                const username = user.username || user.user_name || 'N/A';
-                
-                // Check email verification status
-                const emailVerified = user.email_verified_at !== null && user.email_verified_at !== undefined;
-                
-                // Get full name
-                const fullName = user.name || (user.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Unknown User');
-                
-                return `
-                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                    <td class="py-4 px-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white font-bold">
-                                ${getInitials(fullName)}
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-800">${escapeHtml(fullName)}</p>
-                            </div>
-                        </div>
-                     </td>
-                    <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(user.email || 'N/A')}</td>
-                    <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(username)}</td>
-                    <td class="py-4 px-6 text-sm text-gray-500">
-                        ${formatDate(user.created_at)}
-                     </td>
-                    <td class="py-4 px-6">
-                        ${emailVerified ? 
-                            '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Verified</span>' : 
-                            '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Unverified</span>'}
-                     </td>
-                    <td class="py-4 px-6">
-                        ${getStatusBadge(user.approval_status)}
-                     </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center gap-2">
-                            ${user.approval_status === 'pending' ? `
-                                <button onclick="openApproveModal(${user.id}, '${escapeHtml(fullName).replace(/'/g, "\\'")}', '${escapeHtml(user.email).replace(/'/g, "\\'")}')" 
-                                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Approve">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </button>
-                                <button onclick="openRejectModal(${user.id}, '${escapeHtml(fullName).replace(/'/g, "\\'")}', '${escapeHtml(user.email).replace(/'/g, "\\'")}')" 
-                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Reject">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            ` : `
-                                <span class="text-xs text-gray-400 italic">${user.approval_status === 'approved' ? 'Approved' : 'Rejected'}</span>
-                            `}
-                        </div>
-                     </td>
-                 </tr>
+                            </button>
+                            <button onclick="openRejectModal(${user.id}, '${escapeHtml(fullName).replace(/'/g, "\\'")}', '${escapeHtml(user.email).replace(/'/g, "\\'")}')" 
+                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Reject">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        ` : `
+                            <span class="text-xs text-gray-400 italic">${user.approval_status === 'approved' ? 'Approved' : 'Rejected'}</span>
+                        `}
+                    </div>
+                  </td>
+              </tr>
             `}).join('');
-        }
+    }
+    
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function getInitials(name) {
+        if (!name || name === 'Unknown User') return 'U';
+        const parts = name.split(' ');
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+    
+    function getStatusBadge(status) {
+        const badges = {
+            'pending': '<span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>',
+            'approved': '<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Approved</span>',
+            'rejected': '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Rejected</span>'
+        };
+        return badges[status] || badges.pending;
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function setupEventListeners() {
+        document.getElementById('search-user').addEventListener('input', () => filterUsers());
+        document.getElementById('filter-status').addEventListener('change', () => filterUsers());
+    }
+    
+    function resetUserFilters() {
+        document.getElementById('search-user').value = '';
+        document.getElementById('filter-status').value = 'all';
+        filterUsers();
+    }
+    
+    function refreshUsers() {
+        loadApplicants();
+    }
+    
+    function openApproveModal(userId, userName, userEmail) {
+        currentUserId = userId;
+        document.getElementById('approve-user-info').innerHTML = `
+            <strong>${escapeHtml(userName)}</strong><br>
+            Email: ${escapeHtml(userEmail)}
+        `;
+        document.getElementById('approve-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeApproveModal() {
+        document.getElementById('approve-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        currentUserId = null;
+    }
+    
+    async function confirmApprove() {
+        if (!currentUserId) return;
         
-        // Helper function to escape HTML
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        const btn = document.getElementById('confirm-approve-btn');
+        const btnText = document.getElementById('approve-btn-text');
+        const spinner = document.getElementById('approve-btn-spinner');
         
-        function getInitials(name) {
-            if (!name || name === 'Unknown User') return 'U';
-            const parts = name.split(' ');
-            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-        }
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
         
-        function getStatusBadge(status) {
-            const badges = {
-                'pending': '<span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>',
-                'approved': '<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Approved</span>',
-                'rejected': '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Rejected</span>'
-            };
-            return badges[status] || badges.pending;
-        }
-        
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-        
-        function setupEventListeners() {
-            document.getElementById('search-user').addEventListener('input', () => filterUsers());
-            document.getElementById('filter-status').addEventListener('change', () => filterUsers());
-        }
-        
-        function resetUserFilters() {
-            document.getElementById('search-user').value = '';
-            document.getElementById('filter-status').value = 'all';
-            filterUsers();
-        }
-        
-        function refreshUsers() {
-            loadApplicants();
-        }
-        
-        function openApproveModal(userId, userName, userEmail) {
-            currentUserId = userId;
-            document.getElementById('approve-user-info').innerHTML = `
-                <strong>${escapeHtml(userName)}</strong><br>
-                Email: ${escapeHtml(userEmail)}
-            `;
-            document.getElementById('approve-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeApproveModal() {
-            document.getElementById('approve-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            currentUserId = null;
-        }
-        
-        async function confirmApprove() {
-            if (!currentUserId) return;
-            
-            const btn = document.getElementById('confirm-approve-btn');
-            const btnText = document.getElementById('approve-btn-text');
-            const spinner = document.getElementById('approve-btn-spinner');
-            
-            btnText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch(`/admin/users/${currentUserId}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showToast('Applicant approved successfully!', 'success');
-                    loadApplicants(); // Refresh the list
-                } else {
-                    showToast(data.error || 'Failed to approve applicant', 'error');
+        try {
+            const response = await fetch(`/admin/users/${currentUserId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
-            } catch (error) {
-                console.error('Error approving applicant:', error);
-                showToast('An error occurred', 'error');
-            } finally {
-                btnText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-                btn.disabled = false;
-                closeApproveModal();
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Applicant approved successfully!', 'success');
+                loadApplicants(); // Refresh the list
+            } else {
+                showToast(data.error || 'Failed to approve applicant', 'error');
             }
+        } catch (error) {
+            console.error('Error approving applicant:', error);
+            showToast('An error occurred', 'error');
+        } finally {
+            btnText.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            btn.disabled = false;
+            closeApproveModal();
         }
+    }
+    
+    function openRejectModal(userId, userName, userEmail) {
+        currentUserId = userId;
+        document.getElementById('reject-user-info').innerHTML = `
+            <strong>${escapeHtml(userName)}</strong><br>
+            Email: ${escapeHtml(userEmail)}
+        `;
+        document.getElementById('reject-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeRejectModal() {
+        document.getElementById('reject-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        document.getElementById('reject-reason').value = '';
+        currentUserId = null;
+    }
+    
+    async function confirmReject() {
+        if (!currentUserId) return;
         
-        function openRejectModal(userId, userName, userEmail) {
-            currentUserId = userId;
-            document.getElementById('reject-user-info').innerHTML = `
-                <strong>${escapeHtml(userName)}</strong><br>
-                Email: ${escapeHtml(userEmail)}
-            `;
-            document.getElementById('reject-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        const btn = document.getElementById('confirm-reject-btn');
+        const btnText = document.getElementById('reject-btn-text');
+        const spinner = document.getElementById('reject-btn-spinner');
+        const reason = document.getElementById('reject-reason').value;
+        
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/admin/users/${currentUserId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast(`Applicant rejected${reason ? ': ' + reason : ''}`, 'warning');
+                loadApplicants(); // Refresh the list
+            } else {
+                showToast(data.error || 'Failed to reject applicant', 'error');
+            }
+        } catch (error) {
+            console.error('Error rejecting applicant:', error);
+            showToast('An error occurred', 'error');
+        } finally {
+            btnText.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            btn.disabled = false;
+            closeRejectModal();
         }
+    }
+    
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+            type === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' :
+            'bg-red-50 text-red-800 border border-red-200'
+        }`;
         
-        function closeRejectModal() {
-            document.getElementById('reject-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            document.getElementById('reject-reason').value = '';
-            currentUserId = null;
-        }
-        
-        async function confirmReject() {
-            if (!currentUserId) return;
-            
-            const btn = document.getElementById('confirm-reject-btn');
-            const btnText = document.getElementById('reject-btn-text');
-            const spinner = document.getElementById('reject-btn-spinner');
-            const reason = document.getElementById('reject-reason').value;
-            
-            btnText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch(`/admin/users/${currentUserId}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ reason: reason })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showToast(`Applicant rejected${reason ? ': ' + reason : ''}`, 'warning');
-                    loadApplicants(); // Refresh the list
-                } else {
-                    showToast(data.error || 'Failed to reject applicant', 'error');
+        toast.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ${type === 'success' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
                 }
-            } catch (error) {
-                console.error('Error rejecting applicant:', error);
-                showToast('An error occurred', 'error');
-            } finally {
-                btnText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-                btn.disabled = false;
-                closeRejectModal();
-            }
-        }
+            </svg>
+            <span class="text-sm font-medium">${escapeHtml(message)}</span>
+        `;
         
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
-                type === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' :
-                'bg-red-50 text-red-800 border border-red-200'
-            }`;
-            
-            toast.innerHTML = `
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'success' 
-                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                    }
-                </svg>
-                <span class="text-sm font-medium">${escapeHtml(message)}</span>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-    </script>
-    @endif
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+</script>
+@endif
 
     <!-- Security Tab -->
     @if($currentTab == 'security')
