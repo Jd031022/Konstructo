@@ -59,6 +59,18 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         Route::get('/check', [App\Http\Controllers\Staff\PositionController::class, 'check'])->name('check');
     });
     
+    // ========== BASIC REQUIREMENTS REVIEW ROUTES ==========
+    Route::get('/basic-requirements', [App\Http\Controllers\Staff\BasicRequirementController::class, 'index'])
+        ->name('basic-requirements.index');
+    Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
+        ->name('basic-requirements.show');
+    Route::post('/basic-requirements/{id}/approve', [App\Http\Controllers\Staff\BasicRequirementController::class, 'approve'])
+        ->name('basic-requirements.approve');
+    Route::post('/basic-requirements/{id}/reject', [App\Http\Controllers\Staff\BasicRequirementController::class, 'reject'])
+        ->name('basic-requirements.reject');
+    Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
+        ->name('basic-requirements.stats');
+    
     // View routes (return HTML)
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
@@ -137,13 +149,27 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
 
 // Applicant UI Routes
 Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(function () {
+    // ========== BASIC REQUIREMENTS ROUTES ==========
+    Route::get('/basic-requirements', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'index'])
+        ->name('basic-requirements.index');
+    Route::post('/basic-requirements', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'store'])
+        ->name('basic-requirements.store');
+    Route::get('/basic-requirements/status', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'checkStatus'])
+        ->name('basic-requirements.status');
+    Route::get('/basic-requirements/can-proceed', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'canProceed'])
+        ->name('basic-requirements.can-proceed');
+    
     // View routes
     Route::get('/applications', function () {
         return view('applicant.applications');
     })->name('applications');
     
     Route::get('/dashboard', function () {
-        return view('applicant.dashboard');
+        $user = Auth::user();
+        $hasBasicRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
+        return view('applicant.dashboard', compact('hasBasicRequirements'));
     })->name('dashboard');
     
     Route::get('/buildingpermit-preview', function () {
@@ -154,15 +180,46 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
+    // Step routes with basic requirements check
     Route::get('/application/step1', function () {
+        $user = Auth::user();
+        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
+            
+        if (!$hasApprovedRequirements) {
+            return redirect()->route('applicant.basic-requirements.index')
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
         return view('applicant.application.step1');
     })->name('application.step1');
     
     Route::get('/application/step2', function () {
+        $user = Auth::user();
+        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
+            
+        if (!$hasApprovedRequirements) {
+            return redirect()->route('applicant.basic-requirements.index')
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
         return view('applicant.application.step2');
     })->name('application.step2');
     
     Route::get('/application/step3', function () {
+        $user = Auth::user();
+        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
+            
+        if (!$hasApprovedRequirements) {
+            return redirect()->route('applicant.basic-requirements.index')
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
         return view('applicant.application.step3');
     })->name('application.step3');
     
@@ -315,7 +372,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return redirect()->route('dashboard');
     })->name('account-status');
 
-        Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])
+    Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])
         ->name('application.store-links');
 });
 
@@ -339,6 +396,16 @@ Route::get('/dashboard', function () {
                     return redirect()->route('login')
                         ->with('error', 'Please verify your email address first.');
                 }
+            }
+            
+            // Check if basic requirements are approved
+            $hasBasicRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->exists();
+                
+            if (!$hasBasicRequirements) {
+                return redirect()->route('applicant.basic-requirements.index')
+                    ->with('info', 'Please complete and get approval for basic requirements before starting your application.');
             }
         }
         

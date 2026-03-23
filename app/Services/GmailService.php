@@ -259,6 +259,327 @@ class GmailService
     }
 
     /**
+     * ========== BASIC REQUIREMENTS EMAIL METHODS ==========
+     */
+
+    /**
+     * Send basic requirements approval email
+     */
+    public function sendBasicRequirementsApprovedEmail($to, $firstName, $requirementId, $approverName = null)
+    {
+        $subject = 'Basic Requirements Approved - Konstructo';
+        $htmlContent = $this->getBasicRequirementsApprovedEmailContent($firstName, $requirementId, $approverName);
+        
+        Log::info('📧 Sending basic requirements approval email', [
+            'to' => $to,
+            'requirement_id' => $requirementId
+        ]);
+        
+        return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Send basic requirements rejection email
+     */
+    public function sendBasicRequirementsRejectedEmail($to, $firstName, $reason, $requirementId, $rejectorName = null)
+    {
+        $subject = 'Basic Requirements Update - Konstructo';
+        $htmlContent = $this->getBasicRequirementsRejectedEmailContent($firstName, $reason, $requirementId, $rejectorName);
+        
+        Log::info('📧 Sending basic requirements rejection email', [
+            'to' => $to,
+            'requirement_id' => $requirementId,
+            'reason_length' => strlen($reason)
+        ]);
+        
+        return $this->sendEmail($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Send notification to staff about new basic requirements submission
+     */
+    public function sendNewBasicRequirementsEmail($staffEmail, $staffName, $applicant, $requirement)
+    {
+        $subject = 'New Basic Requirements Submitted - Konstructo';
+        $htmlContent = $this->getNewBasicRequirementsEmailContent($staffName, $applicant, $requirement);
+        
+        Log::info('📧 Sending new basic requirements notification to staff', [
+            'to' => $staffEmail,
+            'applicant_id' => $applicant->id,
+            'requirement_id' => $requirement->id
+        ]);
+        
+        return $this->sendEmail($staffEmail, $subject, $htmlContent);
+    }
+
+    /**
+     * Get basic requirements approved email content
+     */
+    private function getBasicRequirementsApprovedEmailContent($firstName, $requirementId, $approverName = null)
+    {
+        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
+        $approverText = $approverName ? " by " . $approverName : "";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .next-steps { margin: 20px 0; padding-left: 20px; }
+                    .next-steps li { margin: 10px 0; color: #4B5563; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Basic Requirements Approved! ✅</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>Great news! Your basic requirements have been <strong>approved</strong>{$approverText}.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='success-badge'>✓ Requirements Approved</span>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3 style='margin-top: 0; color: #059669; font-size: 16px;'>What's Next?</h3>
+                            <ul class='next-steps'>
+                                <li>You can now proceed to Step 1 of your building permit application</li>
+                                <li>Download the required forms from the application portal</li>
+                                <li>Fill out the forms completely and accurately</li>
+                                <li>Upload your completed documents in Step 2</li>
+                                <li>Submit your application for review</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='" . route('applicant.application.step1') . "' class='button'>Start Your Application</a>
+                        </div>
+                        
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            If you have any questions or need assistance, please don't hesitate to contact our support team.
+                        </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Thank you for choosing Konstructo for your permitting needs.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get basic requirements rejected email content
+     */
+    private function getBasicRequirementsRejectedEmailContent($firstName, $reason, $requirementId, $rejectorName = null)
+    {
+        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
+        $rejectorText = $rejectorName ? " by " . $rejectorName : "";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .rejection-badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .reason-box { background-color: #FEE2E2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
+                    .reason-box p { margin: 8px 0 0 0; color: #991B1B; line-height: 1.5; }
+                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #DC2626; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .next-steps { margin: 20px 0; padding-left: 20px; }
+                    .next-steps li { margin: 10px 0; color: #4B5563; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Basic Requirements Update</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>We regret to inform you that your basic requirements have been <strong>rejected</strong>{$rejectorText}.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='rejection-badge'>✗ Requirements Rejected</span>
+                        </div>
+                        
+                        <div class='reason-box'>
+                            <strong style='color: #DC2626;'>Reason for rejection:</strong>
+                            <p>" . nl2br(htmlspecialchars($reason)) . "</p>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3 style='margin-top: 0; color: #DC2626; font-size: 16px;'>What you can do:</h3>
+                            <ul class='next-steps'>
+                                <li>Review the reason for rejection provided above</li>
+                                <li>Prepare corrected or missing documents</li>
+                                <li>Ensure all documents are clear and complete</li>
+                                <li>Resubmit your basic requirements with the necessary corrections</li>
+                                <li>Contact our support team if you need clarification</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='" . route('applicant.basic-requirements.index') . "' class='button'>Resubmit Requirements</a>
+                        </div>
+                        
+                        <p style='margin-top: 25px; font-size: 14px; color: #6B7280; text-align: center;'>
+                            If you believe this is a mistake or need assistance, please contact our support team.
+                        </p>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Thank you for your patience and cooperation.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get new basic requirements notification email content for staff
+     */
+    private function getNewBasicRequirementsEmailContent($staffName, $applicant, $requirement)
+    {
+        $greeting = $staffName ? "Dear " . $staffName . "," : "Dear Staff,";
+        $requirementsUrl = route('staff.basic-requirements.show', $requirement->id);
+        
+        // Build document list
+        $documentList = "<ul style='margin: 15px 0; padding-left: 20px;'>";
+        $documentList .= "<li><strong>Transfer Certificate of Title (TCT):</strong> <a href='{$requirement->tct_link}' style='color: #155386;'>View Document</a></li>";
+        $documentList .= "<li><strong>Tax Declaration:</strong> <a href='{$requirement->tax_declaration_link}' style='color: #155386;'>View Document</a></li>";
+        $documentList .= "<li><strong>Current Tax Receipt:</strong> <a href='{$requirement->current_tax_receipt_link}' style='color: #155386;'>View Document</a></li>";
+        
+        if (!$requirement->is_owner) {
+            if ($requirement->deed_of_sale_link) {
+                $documentList .= "<li><strong>Notarized Deed of Sale:</strong> <a href='{$requirement->deed_of_sale_link}' style='color: #155386;'>View Document</a></li>";
+            }
+            if ($requirement->spa_link) {
+                $documentList .= "<li><strong>Special Power of Attorney (SPA):</strong> <a href='{$requirement->spa_link}' style='color: #155386;'>View Document</a></li>";
+            }
+        }
+        $documentList .= "</ul>";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+                    .badge { background-color: #FEF3C7; color: #F59E0B; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+                    .applicant-info { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #155386; }
+                    .document-list { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin: 20px 0; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>New Basic Requirements Submission</h1>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>A new basic requirements submission requires your review.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='badge'>⏳ Pending Review</span>
+                        </div>
+                        
+                        <div class='applicant-info'>
+                            <h3 style='margin-top: 0; color: #155386; font-size: 16px;'>Applicant Information:</h3>
+                            <p><strong>Name:</strong> {$applicant->first_name} {$applicant->last_name}</p>
+                            <p><strong>Email:</strong> {$applicant->email}</p>
+                            <p><strong>Phone:</strong> {$applicant->phone_number}</p>
+                            <p><strong>Property Owner:</strong> " . ($requirement->is_owner ? 'Yes' : 'No (Authorized Representative)') . "</p>
+                            <p><strong>Submitted:</strong> " . ($requirement->submitted_at ? $requirement->submitted_at->format('F d, Y h:i A') : 'N/A') . "</p>
+                        </div>
+                        
+                        <div class='document-list'>
+                            <h3 style='margin-top: 0; color: #155386; font-size: 16px;'>Submitted Documents:</h3>
+                            {$documentList}
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$requirementsUrl}' class='button'>Review Requirements</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Please review and take appropriate action on this submission.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                        <p style='margin-top: 15px; font-size: 12px;'>This is an automated message, please do not reply to this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
      * Get account approval email content
      */
     private function getAccountApprovalEmailContent($name)
