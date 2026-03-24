@@ -113,6 +113,146 @@
     </div>
 </div>
 
+<!-- Pending Approval Modal -->
+<div id="pending-approval-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Account Pending Approval</h3>
+                        <p class="text-white/80 text-sm">Verification Required</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-2">Your account is pending admin approval</h4>
+                    <p class="text-gray-600 text-sm">
+                        Thank you for registering! Your account is currently being reviewed by our administrators.
+                        You will receive a notification once your account is approved.
+                    </p>
+                </div>
+                
+                <div class="bg-yellow-50 rounded-lg p-4 mb-6 border border-yellow-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm text-yellow-800 font-medium mb-1">What happens next?</p>
+                            <p class="text-xs text-yellow-700">Our team will review your account details. This process usually takes 1-2 business days. You will receive an email notification once your account is approved.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <button onclick="closePendingApprovalModal()" 
+                            class="w-full bg-gradient-to-r from-[#155386] to-[#1F363D] text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
+                        I Understand
+                    </button>
+                    
+                    <a href="/" 
+                       class="w-full text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-all duration-300">
+                        Return to Homepage
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+                <p class="text-xs text-gray-500">
+                    Need help? Contact our support team at 
+                    <a href="mailto:support@konstructo.com" class="text-[#155386] hover:underline">support@konstructo.com</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejected Account Modal -->
+<div id="rejected-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Account Rejected</h3>
+                        <p class="text-white/80 text-sm">Application Denied</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-2">Account Registration Rejected</h4>
+                    <p class="text-gray-600 text-sm">
+                        We regret to inform you that your account registration has been rejected by our administrators.
+                    </p>
+                </div>
+                
+                <div class="bg-red-50 rounded-lg p-4 mb-6 border border-red-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm text-red-800 font-medium mb-1">Reason for Rejection</p>
+                            <p class="text-sm text-red-700" id="rejection-reason-display">Your application did not meet the required criteria. Please contact support for more information.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <a href="{{ route('register') }}" 
+                       class="w-full bg-gradient-to-r from-[#155386] to-[#1F363D] text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 text-center">
+                        Create New Account
+                    </a>
+                    
+                    <a href="/" 
+                       class="w-full text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-all duration-300">
+                        Return to Homepage
+                    </a>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-center gap-2 text-sm text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>Need help? Contact us at support@konstructo.com</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Forgot Password Modal -->
 <div id="forgot-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
@@ -262,8 +402,41 @@
     </div>
 </div>
 
-<!-- JavaScript -->
 <script>
+// Rejected Modal functions
+let rejectionReason = '';
+
+function showRejectedModal(reason) {
+    const modal = document.getElementById('rejected-modal');
+    const reasonDisplay = document.getElementById('rejection-reason-display');
+    if (reason) {
+        reasonDisplay.textContent = reason;
+    } else {
+        reasonDisplay.textContent = 'Your application did not meet the required criteria. Please contact support for more information.';
+    }
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRejectedModal() {
+    const modal = document.getElementById('rejected-modal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Pending Approval Modal functions
+function showPendingApprovalModal() {
+    const modal = document.getElementById('pending-approval-modal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePendingApprovalModal() {
+    const modal = document.getElementById('pending-approval-modal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
 // Password visibility toggle
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('password');
@@ -287,12 +460,10 @@ function showError(message) {
     const warningDiv = document.getElementById('warning-message');
     const successDiv = document.getElementById('success-message');
     
-    // Hide other messages
     errorDiv.classList.add('hidden');
     warningDiv.classList.add('hidden');
     successDiv.classList.add('hidden');
     
-    // Show error
     errorDiv.textContent = message;
     errorDiv.classList.remove('hidden');
     setTimeout(() => errorDiv.classList.add('hidden'), 8000);
@@ -303,12 +474,10 @@ function showWarning(message) {
     const warningDiv = document.getElementById('warning-message');
     const successDiv = document.getElementById('success-message');
     
-    // Hide other messages
     errorDiv.classList.add('hidden');
     warningDiv.classList.add('hidden');
     successDiv.classList.add('hidden');
     
-    // Show warning
     warningDiv.textContent = message;
     warningDiv.classList.remove('hidden');
     setTimeout(() => warningDiv.classList.add('hidden'), 8000);
@@ -319,18 +488,16 @@ function showSuccess(message) {
     const warningDiv = document.getElementById('warning-message');
     const successDiv = document.getElementById('success-message');
     
-    // Hide other messages
     errorDiv.classList.add('hidden');
     warningDiv.classList.add('hidden');
     successDiv.classList.add('hidden');
     
-    // Show success
     successDiv.textContent = message;
     successDiv.classList.remove('hidden');
     setTimeout(() => successDiv.classList.add('hidden'), 5000);
 }
 
-// Update the login form submission in login.blade.php
+// Update the login form submission
 document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -368,6 +535,18 @@ document.getElementById('login-form').addEventListener('submit', async function(
         } else {
             hideButtonLoading();
             
+            // Check for rejected account
+            if (data.error && data.error.includes('rejected')) {
+                showRejectedModal(data.rejection_reason || null);
+                return;
+            }
+            
+            // Check if it's a pending approval error
+            if (data.error && data.error.includes('pending admin approval')) {
+                showPendingApprovalModal();
+                return;
+            }
+            
             // Check if there's a redirect URL in the response (for pending/rejected users)
             if (data.redirect) {
                 showWarning(data.error || 'Your account requires admin approval.');
@@ -384,21 +563,12 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 }
                 showError(errorMessages.join('\n'));
             } else if (data.error) {
-                // Check for specific error types
                 const errorMessage = data.error;
                 
-                if (errorMessage.includes('pending admin approval')) {
-                    showWarning(errorMessage);
-                    setTimeout(() => {
-                        window.location.href = '/applicant/account-status';
-                    }, 2000);
-                } else if (errorMessage.includes('rejected')) {
-                    showError(errorMessage);
-                    setTimeout(() => {
-                        if (confirm('Your account has been rejected. Would you like to create a new account?')) {
-                            window.location.href = '/register';
-                        }
-                    }, 1000);
+                if (errorMessage.includes('rejected')) {
+                    showRejectedModal(data.rejection_reason || null);
+                } else if (errorMessage.includes('pending admin approval')) {
+                    showPendingApprovalModal();
                 } else if (errorMessage.includes('verify your email')) {
                     showWarning(errorMessage);
                     setTimeout(() => {
@@ -458,7 +628,7 @@ function hideButtonLoading() {
     document.getElementById('login-button').disabled = false;
 }
 
-// Modal controls
+// Forgot Password Modal functions
 let resetEmail = '';
 let resetToken = '';
 
@@ -471,11 +641,31 @@ function showForgotPassword() {
     clearModalMessage();
 }
 
-function closeForgotModal() {
+function closeForgotPasswordModal() {
     document.getElementById('forgot-password-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    
+    // Reset all steps
+    document.getElementById('step-email').classList.remove('hidden');
+    document.getElementById('step-code').classList.add('hidden');
+    document.getElementById('step-password').classList.add('hidden');
+    
+    // Clear inputs
+    document.getElementById('reset-email').value = '';
+    for (let i = 1; i <= 6; i++) {
+        const codeInput = document.getElementById(`code${i}`);
+        if (codeInput) codeInput.value = '';
+    }
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    
+    // Reset message
+    const modalMessage = document.getElementById('modal-message');
+    modalMessage.classList.add('hidden');
+    modalMessage.innerHTML = '';
+    
     resetEmail = '';
     resetToken = '';
-    clearCodeInputs();
 }
 
 function clearCodeInputs() {
@@ -685,7 +875,7 @@ async function resetPassword() {
             showModalMessage('Password reset successfully! Redirecting to login...', false);
             
             setTimeout(() => {
-                closeForgotModal();
+                closeForgotPasswordModal();
                 showSuccess('Password reset successful! You can now login with your new password.');
             }, 2000);
         } else {
@@ -780,31 +970,24 @@ function setupPasswordValidation() {
     confirm.addEventListener('input', validatePassword);
 }
 
-function closeForgotPasswordModal() {
-    document.getElementById('forgot-password-modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    
-    // Reset all steps
-    document.getElementById('step-email').classList.remove('hidden');
-    document.getElementById('step-code').classList.add('hidden');
-    document.getElementById('step-password').classList.add('hidden');
-    
-    // Clear inputs
-    document.getElementById('reset-email').value = '';
-    for (let i = 1; i <= 6; i++) {
-        const codeInput = document.getElementById(`code${i}`);
-        if (codeInput) codeInput.value = '';
+// Close modals when clicking outside
+document.getElementById('pending-approval-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePendingApprovalModal();
     }
-    document.getElementById('new-password').value = '';
-    document.getElementById('confirm-password').value = '';
-    
-    // Reset message
-    const modalMessage = document.getElementById('modal-message');
-    modalMessage.classList.add('hidden');
-    modalMessage.innerHTML = '';
-}
+});
 
-// Initialize password validation when step 3 loads
+document.getElementById('rejected-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRejectedModal();
+    }
+});
+
+document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeForgotPasswordModal();
+    }
+});
 
 // Check for session messages on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -818,6 +1001,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showWarning('{{ session('warning') }}');
     @endif
 });
+
 </script>
 
 <style>
@@ -852,7 +1036,7 @@ button:disabled {
     transition: all 0.3s ease;
 }
 
-/* Additional styling for warning messages */
+/* Additional styling for messages */
 #warning-message {
     border-left: 4px solid #eab308;
 }
@@ -863,6 +1047,28 @@ button:disabled {
 
 #success-message {
     border-left: 4px solid #22c55e;
+}
+
+/* Modal animations */
+#pending-approval-modal,
+#rejected-modal {
+    transition: opacity 0.2s ease-in-out;
+}
+
+#pending-approval-modal .bg-white,
+#rejected-modal .bg-white {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 </style>
 @endsection

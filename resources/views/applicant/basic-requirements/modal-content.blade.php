@@ -1,10 +1,4 @@
-{{-- resources/views/applicant/basic-requirements/index.blade.php --}}
-@extends('layouts.app')
-
-@section('title', 'Basic Requirements')
-
-@section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+<div class="min-h-full bg-gradient-to-br from-gray-50 to-gray-100 py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header Section -->
         <div class="text-center mb-8">
@@ -243,13 +237,13 @@
                                         </svg>
                                         Verified on {{ $basicRequirement->approved_at ? $basicRequirement->approved_at->format('F d, Y') : 'N/A' }}
                                     </span>
-                                    <a href="{{ route('applicant.application.step1') }}" 
+                                    <button onclick="window.location.reload()" 
                                        class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
                                         Proceed to Application
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -299,31 +293,3 @@
         </div>
     </div>
 </div>
-
-<!-- Success/Error Toast Styles -->
-<style>
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    .animate-slide-in {
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-</style>
-@endsection

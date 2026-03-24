@@ -132,86 +132,86 @@ class BasicRequirementController extends Controller
     /**
      * Reject basic requirements
      */
-    public function reject(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'rejection_reason' => 'required|string|min:10|max:1000',
-            'notes' => 'nullable|string|max:500'
-        ]);
+   // In app/Http/Controllers/Staff/BasicRequirementController.php
 
+public function reject(Request $request, $id)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'rejection_reason' => 'required|string|min:10',
+            'notes' => 'nullable|string'
+        ]);
+        
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
+                'message' => 'Validation failed'
             ], 422);
         }
-
-        try {
-            $requirement = BasicRequirement::findOrFail($id);
-            $user = $requirement->user;
-            
-            if ($requirement->status !== 'pending') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This requirement has already been processed.'
-                ], 400);
-            }
-
-            $fullReason = $request->rejection_reason;
-            if ($request->notes) {
-                $fullReason .= "\n\nAdditional Notes: " . $request->notes;
-            }
-
-            $requirement->markAsRejected($fullReason, Auth::id());
-
-            // Get rejector name
-            $rejector = Auth::user();
-            $rejectorName = $rejector->first_name . ' ' . $rejector->last_name;
-
-            // Send email notification to applicant
-            $emailSent = $this->gmailService->sendBasicRequirementsRejectedEmail(
-                $user->email,
-                $user->first_name,
-                $fullReason,
-                $requirement->id,
-                $rejectorName
-            );
-
-            if ($emailSent) {
-                Log::info('Basic requirements rejection email sent', [
-                    'requirement_id' => $requirement->id,
-                    'user_id' => $user->id,
-                    'user_email' => $user->email
-                ]);
-            } else {
-                Log::warning('Failed to send basic requirements rejection email', [
-                    'requirement_id' => $requirement->id,
-                    'user_id' => $user->id,
-                    'user_email' => $user->email
-                ]);
-            }
-
-            Log::info('Basic requirements rejected', [
-                'requirement_id' => $requirement->id,
-                'user_id' => $user->id,
-                'rejected_by' => Auth::id(),
-                'reason' => $fullReason
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Basic requirements rejected. Applicant has been notified via email.'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error rejecting basic requirements: ' . $e->getMessage());
-            
+        
+        $requirement = BasicRequirement::findOrFail($id);
+        
+        // Only allow rejection of pending requirements
+        if ($requirement->status !== 'pending') {
             return response()->json([
                 'success' => false,
-                'message' => 'Error rejecting requirements: ' . $e->getMessage()
-            ], 500);
+                'message' => 'This requirement has already been processed'
+            ], 400);
         }
+        
+        DB::beginTransaction();
+        
+        $requirement->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+            'reviewed_at' => now(),
+            'reviewed_by' => Auth::id(),
+            'admin_notes' => $request->notes
+        ]);
+        
+        // Create notification for applicant
+        Notification::create([
+            'user_id' => $requirement->user_id,
+            'type' => 'basic_requirements_rejected',
+            'title' => 'Basic Requirements Rejected',
+            'message' => 'Your basic requirements have been rejected. Reason: ' . $request->rejection_reason,
+            'link' => route('applicant.basic-requirements.index'),
+            'created_at' => now()
+        ]);
+        
+        // Log activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'basic_requirements_rejected',
+            'description' => 'Rejected basic requirements for applicant: ' . $requirement->user->email,
+            'metadata' => json_encode([
+                'requirement_id' => $requirement->id,
+                'applicant_id' => $requirement->user_id,
+                'reason' => $request->rejection_reason
+            ]),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'success'
+        ]);
+        
+        DB::commit();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Requirements rejected successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error rejecting requirements: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to reject requirements: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Get statistics for dashboard
@@ -229,4 +229,6 @@ class BasicRequirementController extends Controller
         
         return response()->json($stats);
     }
+
+    
 }
