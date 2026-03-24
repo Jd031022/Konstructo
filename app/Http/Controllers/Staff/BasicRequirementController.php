@@ -33,19 +33,44 @@ class BasicRequirementController extends Controller
             
         return view('staff.basic-requirements.index', compact('requirements'));
     }
-
-    /**
-     * Show details of a specific requirement
-     */
-    public function show($id)
-    {
-        $requirement = BasicRequirement::with(['user', 'approver'])->findOrFail($id);
+/**
+ * Display the specified basic requirement details
+ */
+public function show($id)
+{
+    try {
+        $requirement = BasicRequirement::with('user')
+            ->findOrFail($id);
         
-        // Mark as viewed in session
-        session(['viewed_requirement_' . $id => true]);
-        
-        return view('staff.basic-requirements.show', compact('requirement'));
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $requirement->id,
+                'user' => [
+                    'first_name' => $requirement->user->first_name,
+                    'last_name' => $requirement->user->last_name,
+                    'email' => $requirement->user->email,
+                    'phone_number' => $requirement->user->phone_number,
+                ],
+                'is_owner' => $requirement->is_owner,
+                'submitted_at' => $requirement->submitted_at,
+                'tct_link' => $requirement->tct_link,
+                'tax_declaration_link' => $requirement->tax_declaration_link,
+                'current_tax_receipt_link' => $requirement->current_tax_receipt_link,
+                'deed_of_sale_link' => $requirement->deed_of_sale_link,
+                'spa_link' => $requirement->spa_link,
+                'status' => $requirement->status,
+                'rejection_reason' => $requirement->rejection_reason,
+            ]
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error fetching basic requirement details: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load requirement details'
+        ], 500);
     }
+}
 
     /**
      * Approve basic requirements

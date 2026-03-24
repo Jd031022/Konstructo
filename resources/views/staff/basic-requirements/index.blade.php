@@ -9,6 +9,11 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
             <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-[#155386] to-[#1F363D] flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">Basic Requirements Review</h1>
                     <p class="text-sm text-gray-500 mt-1">Review and approve applicant basic requirements</p>
@@ -61,6 +66,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
+                    办法
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
@@ -377,6 +383,7 @@ function applyFilters() {
 async function viewDocuments(id) {
     currentRequirementId = id;
     
+    // Show modal with loading state
     const modal = document.getElementById('documents-modal');
     const loadingDiv = document.getElementById('docs-loading');
     const contentDiv = document.getElementById('docs-content');
@@ -387,7 +394,7 @@ async function viewDocuments(id) {
     document.body.style.overflow = 'hidden';
     
     try {
-        // Use the route helper for the show endpoint
+        // Use the correct URL with the ID
         const response = await fetch(`/staff/basic-requirements/${id}`, {
             headers: {
                 'Accept': 'application/json',
@@ -586,29 +593,20 @@ async function confirmReject() {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ 
-                rejection_reason: reason,  // Make sure this matches the field name in controller
+                rejection_reason: reason,
                 notes: notes
             })
         });
         
         const data = await response.json();
         
-        if (response.ok && data.success) {
+        if (data.success) {
             showSuccess(data.message);
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         } else {
-            // Show validation errors
-            if (data.errors) {
-                let errorMsg = '';
-                for (const [field, messages] of Object.entries(data.errors)) {
-                    errorMsg += messages.join(', ') + '\n';
-                }
-                showError(errorMsg);
-            } else {
-                showError(data.message || 'Failed to reject requirements');
-            }
+            showError(data.message);
             btnText.classList.remove('hidden');
             spinner.classList.add('hidden');
             btn.disabled = false;
@@ -620,6 +618,28 @@ async function confirmReject() {
         spinner.classList.add('hidden');
         btn.disabled = false;
     }
+}
+
+function showSuccess(message) {
+    const toast = document.getElementById('success-toast');
+    const messageSpan = document.getElementById('success-message');
+    messageSpan.textContent = message;
+    toast.classList.remove('hidden');
+    
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
+function showError(message) {
+    const toast = document.getElementById('error-toast');
+    const messageSpan = document.getElementById('error-message');
+    messageSpan.textContent = message;
+    toast.classList.remove('hidden');
+    
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 5000);
 }
 
 // Close modals when clicking outside

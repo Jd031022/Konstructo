@@ -70,6 +70,8 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         ->name('basic-requirements.reject');
     Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
         ->name('basic-requirements.stats');
+    Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
+        ->name('basic-requirements.show');
     
     // View routes (return HTML)
     Route::get('/dashboard', function () {
