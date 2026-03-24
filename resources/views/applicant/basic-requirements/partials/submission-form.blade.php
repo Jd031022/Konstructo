@@ -17,6 +17,9 @@
     <form id="basic-requirements-form" class="p-6 space-y-8">
         @csrf
         
+        <!-- Hidden Application ID -->
+        <input type="hidden" name="application_id" id="application_id" value="{{ $application->id ?? '' }}">
+
         <!-- Property Ownership Status Card -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
             <div class="flex items-start gap-3 mb-4">
@@ -69,7 +72,8 @@
                         <input type="url" name="tct_link" id="tct_link" 
                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
                                placeholder="https://drive.google.com/file/d/..." 
-                               value="{{ $basicRequirement->tct_link ?? '' }}">
+                               value="{{ $basicRequirement->tct_link ?? '' }}"
+                               required>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">Provide a Google Drive link to the Certified True Copy of TCT</p>
                 </div>
@@ -89,7 +93,8 @@
                         <input type="url" name="tax_declaration_link" id="tax_declaration_link" 
                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
                                placeholder="https://drive.google.com/file/d/..." 
-                               value="{{ $basicRequirement->tax_declaration_link ?? '' }}">
+                               value="{{ $basicRequirement->tax_declaration_link ?? '' }}"
+                               required>
                     </div>
                 </div>
 
@@ -108,7 +113,8 @@
                         <input type="url" name="current_tax_receipt_link" id="current_tax_receipt_link" 
                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
                                placeholder="https://drive.google.com/file/d/..." 
-                               value="{{ $basicRequirement->current_tax_receipt_link ?? '' }}">
+                               value="{{ $basicRequirement->current_tax_receipt_link ?? '' }}"
+                               required>
                     </div>
                 </div>
             </div>
@@ -197,22 +203,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const authorizationSection = document.getElementById('authorization-section');
     const form = document.getElementById('basic-requirements-form');
     const submitBtn = document.getElementById('submit-btn');
+    const applicationIdInput = document.getElementById('application_id');
 
-    if (isOwnerRadios.length > 0 && authorizationSection) {
-        // Toggle authorization section based on owner status
-        function toggleAuthorizationSection() {
-            const isOwner = document.querySelector('input[name="is_owner"]:checked');
+    // Ensure application_id exists
+    if (!applicationIdInput || !applicationIdInput.value) {
+        console.error('Application ID is missing');
+        showErrorToast('Application ID is missing. Please refresh the page and try again.');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        return;
+    }
+
+    // Toggle authorization section based on owner status
+    function toggleAuthorizationSection() {
+        const isOwner = document.querySelector('input[name="is_owner"]:checked');
+        if (authorizationSection) {
+            const deedInput = document.getElementById('deed_of_sale_link');
+            const spaInput = document.getElementById('spa_link');
+            
             if (isOwner && isOwner.value === '0') {
                 authorizationSection.classList.remove('hidden');
+                // Make authorization fields required
+                if (deedInput) deedInput.setAttribute('required', 'required');
+                if (spaInput) spaInput.setAttribute('required', 'required');
             } else {
                 authorizationSection.classList.add('hidden');
+                // Remove required from authorization fields
+                if (deedInput) deedInput.removeAttribute('required');
+                if (spaInput) spaInput.removeAttribute('required');
             }
         }
+    }
 
+    if (isOwnerRadios.length > 0) {
         isOwnerRadios.forEach(radio => {
             radio.addEventListener('change', toggleAuthorizationSection);
         });
-
         toggleAuthorizationSection();
     }
 
@@ -221,33 +249,34 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validate Google Drive links
-            const driveLinks = [
-                'tct_link',
-                'tax_declaration_link',
-                'current_tax_receipt_link'
+            // Validate all required fields
+            const requiredFields = [
+                { id: 'tct_link', name: 'Transfer Certificate of Title (TCT)' },
+                { id: 'tax_declaration_link', name: 'Tax Declaration' },
+                { id: 'current_tax_receipt_link', name: 'Current Tax Receipt' }
             ];
             
             const isOwner = document.querySelector('input[name="is_owner"]:checked');
             if (isOwner && isOwner.value === '0') {
-                driveLinks.push('deed_of_sale_link', 'spa_link');
+                requiredFields.push(
+                    { id: 'deed_of_sale_link', name: 'Notarized Deed of Sale' },
+                    { id: 'spa_link', name: 'Special Power of Attorney (SPA)' }
+                );
             }
             
             let hasError = false;
-            for (const linkId of driveLinks) {
-                const input = document.getElementById(linkId);
-                if (input && input.value.trim()) {
-                    if (!isValidGoogleDriveLink(input.value.trim())) {
-                        showErrorToast('Please provide a valid Google Drive link');
-                        input.classList.add('border-red-500');
-                        hasError = true;
-                    } else {
-                        input.classList.remove('border-red-500');
-                    }
-                } else if (input && input.required !== false) {
-                    showErrorToast('Please fill in all required fields');
+            for (const field of requiredFields) {
+                const input = document.getElementById(field.id);
+                if (!input || !input.value.trim()) {
+                    showErrorToast(`Please provide a link for: ${field.name}`);
+                    if (input) input.classList.add('border-red-500');
+                    hasError = true;
+                } else if (!isValidGoogleDriveLink(input.value.trim())) {
+                    showErrorToast(`Please provide a valid Google Drive link for: ${field.name}`);
                     input.classList.add('border-red-500');
                     hasError = true;
+                } else {
+                    input.classList.remove('border-red-500');
                 }
             }
             
@@ -265,10 +294,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
             
-            const formData = new FormData(form);
+            // Build FormData
+            const formData = new FormData();
+            formData.append('application_id', applicationIdInput.value);
+            formData.append('_token', document.querySelector('input[name="_token"]').value);
+            
+            // Add all form fields
+            const formElements = form.elements;
+            for (let element of formElements) {
+                if (element.name && element.name !== '_token' && element.name !== 'application_id') {
+                    if (element.type === 'radio') {
+                        if (element.checked) {
+                            formData.append(element.name, element.value);
+                        }
+                    } else if (element.type !== 'button' && element.type !== 'submit') {
+                        formData.append(element.name, element.value);
+                    }
+                }
+            }
             
             try {
-                const response = await fetch('{{ route("applicant.basic-requirements.store") }}', {
+                const response = await fetch('/applicant/basic-requirements', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
@@ -279,8 +325,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (response.ok && data.success) {
                     showSuccessToast(data.message);
+                    // Reload after a short delay
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
@@ -288,13 +335,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.errors) {
                         let errorMessages = [];
                         for (const [field, messages] of Object.entries(data.errors)) {
-                            errorMessages.push(messages.join(', '));
+                            errorMessages.push(`${field}: ${messages.join(', ')}`);
                             const input = document.getElementById(field);
                             if (input) input.classList.add('border-red-500');
                         }
                         showErrorToast(errorMessages.join('\n'));
                     } else {
-                        showErrorToast(data.message || 'An error occurred');
+                        showErrorToast(data.message || 'An error occurred while submitting your requirements.');
                     }
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -308,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showErrorToast('An error occurred. Please try again.');
+                showErrorToast('An error occurred. Please check your connection and try again.');
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = `
@@ -340,17 +387,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function showErrorToast(message) {
         const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in';
+        toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in max-w-md';
         toast.innerHTML = `
             <div class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>${message}</span>
+                <span class="text-sm whitespace-pre-line">${message}</span>
             </div>
         `;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 5000);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
     }
     
     function showSuccessToast(message) {
@@ -365,7 +415,10 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
     
     // Clear red borders when user starts typing
@@ -375,5 +428,24 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('border-red-500');
         });
     });
-});
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+    `;
+    document.head.appendChild(style);
+    
 </script>

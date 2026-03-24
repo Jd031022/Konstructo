@@ -594,7 +594,8 @@
                 application_id: applicationId || null
             };
             
-            const response = await fetch('{{ route("applicant.application.store-links") }}', {
+            // Use the correct route - either direct URL or route name
+            const response = await fetch('/applicant/application/store-links', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -615,7 +616,7 @@
                 showSuccessModal('All documents saved successfully! Redirecting...');
                 
                 setTimeout(() => {
-                    window.location.href = '/applicant/application/step3';
+                    window.location.href = '/applicant/application/step3?id=' + (data.data?.id || applicationId);
                 }, 2000);
             } else {
                 showErrorModal(data.message || 'Failed to save documents. Please try again.');

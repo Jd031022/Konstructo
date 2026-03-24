@@ -7,7 +7,7 @@
 
     <!-- Back Button -->
     <div class="mb-8">
-        <a href="/applicant/application/step2" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+        <a href="javascript:void(0)" onclick="goBack()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -21,7 +21,7 @@
             <div class="flex items-center justify-center w-8 h-8 bg-[#155386] text-white rounded-full font-bold text-sm">3</div>
             <div>
                 <h2 class="text-2xl font-semibold text-gray-800">Step 3: Review & Submit</h2>
-                <p class="text-l text-gray-600">Review your downloaded forms and Google Drive link before final submission</p>
+                <p class="text-l text-gray-600">Review your downloaded forms and Google Drive documents before final submission</p>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
             </div>
             <div>
                 <h4 class="font-semibold text-gray-800">Important Reminder</h4>
-                <p class="text-sm text-gray-700 mt-1">After online submission, <span class="font-semibold">you must submit the original hard copies of ALL 13 required documents</span> to the Office of the Building Official (OBO) for final processing.</p>
+                <p class="text-sm text-gray-700 mt-1">After online submission, <span class="font-semibold">you must submit the original hard copies of ALL required documents</span> to the Office of the Building Official (OBO) for final processing.</p>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">Downloaded Forms</h3>
-                        <a href="/applicant/application/step1" class="text-sm text-[#155386] hover:underline flex items-center gap-1">
+                        <a href="/applicant/application/step1?id={{ request()->get('id') }}" class="text-sm text-[#155386] hover:underline flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
@@ -112,73 +112,21 @@
                     </div>
                 </div>
 
-                <!-- Google Drive Link Review with Edit Functionality -->
+                <!-- Google Drive Documents Review -->
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">Google Drive Documents</h3>
-                        <button onclick="toggleDriveLinkEdit()" class="text-sm text-[#155386] hover:underline flex items-center gap-1" id="edit-drive-btn">
+                        <a href="/applicant/application/step2?id={{ request()->get('id') }}" class="text-sm text-[#155386] hover:underline flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
-                            Edit Link
-                        </button>
+                            Edit
+                        </a>
                     </div>
                     
-                    <!-- Display Mode -->
                     <div id="drive-link-display" class="bg-gray-50 rounded-xl p-6">
-                        <div class="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-800">Google Drive Link</p>
-                                <p class="text-xs text-gray-500 mb-2 break-all" id="drive-link-display-text"></p>
-                                <div class="flex items-center gap-2 text-xs">
-                                    <span class="text-xs text-gray-500">Make sure all 13 required documents are uploaded to this folder</span>
-                                    <span class="text-gray-300 mx-1">|</span>
-                                    <button onclick="openGoogleDriveLink()" class="text-[#155386] hover:underline flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                        Open Link
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit Mode -->
-                    <div id="drive-link-edit" class="hidden bg-gray-50 rounded-xl p-6">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Google Drive Shareable Link <span class="text-red-500">*</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <input type="url" 
-                                           id="edit-gdrive-link" 
-                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                                    <button onclick="testEditedLink()" 
-                                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-                                        Test
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">Make sure the link is shared with "Anyone with the link can view" permission</p>
-                            </div>
-                            
-                            <div class="flex gap-2 justify-end">
-                                <button onclick="cancelDriveLinkEdit()" 
-                                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                                    Cancel
-                                </button>
-                                <button onclick="saveDriveLink()" 
-                                        id="save-drive-btn"
-                                        class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-                                    Save Link
-                                </button>
-                            </div>
+                        <div id="document-links-container" class="space-y-3">
+                            <!-- Document links will be loaded dynamically -->
                         </div>
                     </div>
                 </div>
@@ -191,7 +139,7 @@
                         </svg>
                         <div>
                             <p class="text-sm font-medium text-gray-800">Required Documents Reminder</p>
-                            <p class="text-xs text-gray-600 mt-1">Please ensure all 13 required documents are uploaded to your Google Drive folder before submitting. This includes application letter, building permit forms, architectural plans, structural plans, electrical plans, sanitary/plumbing plans, mechanical plans, fencing plans, proof of ownership, bill of materials, structural design analysis, barangay clearance, and valid ID.</p>
+                            <p class="text-xs text-gray-600 mt-1">Please ensure all 13 required documents are uploaded to your Google Drive folder before submitting.</p>
                         </div>
                     </div>
                 </div>
@@ -218,7 +166,7 @@
                     </div>
                 </div>
 
-                                <!-- Hard Copy Confirmation Section -->
+                <!-- Hard Copy Confirmation Section -->
                 <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
                     <div class="flex items-start gap-4">
                         <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -243,14 +191,13 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Processing Time</p>
-                            <p class="text-lg font-semibold text-gray-800">0-0 business days</p>
+                            <p class="text-lg font-semibold text-gray-800">7-10 business days</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Application Number</p>
                             <p class="text-lg font-semibold text-gray-800 font-mono" id="summary-app-number">-</p>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2 text-right">*All 13 documents require original hard copy submission to OBO</p>
                 </div>
 
             </div>
@@ -326,28 +273,39 @@
     </div>
 </div>
 
-<!-- JavaScript -->
 <script>
     let applicationData = null;
-    let downloadedForms = [];
+    let currentApplicationId = null;
+    let documentLinks = {};
 
-    // List of all available forms (matching step1.blade.php)
-    const allForms = [
-        { id: 'form-appletter', name: 'Application Letter', downloaded: false },
-        { id: 'form-building-permit', name: 'Building Permit Application', downloaded: false },
-        { id: 'form-sign-permit', name: 'Sign Permit Application', downloaded: false },
-        { id: 'form-architectural-permit', name: 'Architectural Permit', downloaded: false },
-        { id: 'form-mechanical-permit', name: 'Mechanical Permit', downloaded: false },
-        { id: 'form-electrical-permit', name: 'Electrical Permit', downloaded: false },
-        { id: 'form-electronics-permit', name: 'Electronics Permit', downloaded: false },
-        { id: 'form-sanitary-permit', name: 'Sanitary/Plumbing Permit', downloaded: false },
-        { id: 'form-demolition-permit', name: 'Demolition Permit', downloaded: false },
-        { id: 'form-civil-permit', name: 'Civil/Structural Permit', downloaded: false },
-        { id: 'form-fencing-permit', name: 'Fencing Permit', downloaded: false }
-    ];
+    // Get application ID from URL
+    function getApplicationId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id');
+    }
+
+    // Go back to Step 2 with application ID
+    function goBack() {
+        const appId = getApplicationId();
+        if (appId) {
+            window.location.href = `/applicant/application/step2?id=${appId}`;
+        } else {
+            window.location.href = '/applicant/application/step2';
+        }
+    }
 
     // Load application data on page load
     document.addEventListener('DOMContentLoaded', function() {
+        currentApplicationId = getApplicationId();
+        
+        if (!currentApplicationId) {
+            showErrorModal('Application ID not found. Please start from Step 1.');
+            setTimeout(() => {
+                window.location.href = '/applicant/applications';
+            }, 2000);
+            return;
+        }
+        
         loadApplicationData();
         
         // Modal close handlers
@@ -356,21 +314,16 @@
         
         if (errorModal) {
             errorModal.addEventListener('click', function(e) {
-                if (e.target === errorModal) {
-                    closeErrorModal();
-                }
+                if (e.target === errorModal) closeErrorModal();
             });
         }
         
         if (successModal) {
             successModal.addEventListener('click', function(e) {
-                if (e.target === successModal) {
-                    closeSuccessModal();
-                }
+                if (e.target === successModal) closeSuccessModal();
             });
         }
 
-        // Close modals with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeErrorModal();
@@ -382,9 +335,9 @@
     // Load application data from API
     async function loadApplicationData() {
         try {
-            console.log('Loading application data...');
+            console.log('Loading application data for ID:', currentApplicationId);
             
-            const response = await fetch('/applicant/application/details', {
+            const response = await fetch(`/applicant/application/details?application_id=${currentApplicationId}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -406,14 +359,12 @@
                     return;
                 }
                 
-                // If it's a draft, display the data
+                // Display the data
                 displayApplicationData();
             } else {
-                // No application data found, redirect to step 2
-                console.log('No application data found, redirecting to step 2');
-                showErrorModal('Please complete Step 2 first.');
+                showErrorModal('No application data found. Please complete Step 2 first.');
                 setTimeout(() => {
-                    window.location.href = '/applicant/application/step2';
+                    window.location.href = `/applicant/application/step2?id=${currentApplicationId}`;
                 }, 2000);
             }
         } catch (error) {
@@ -434,187 +385,132 @@
         if (applicationData.application_number) {
             document.getElementById('display-application-number').textContent = applicationData.application_number;
             document.getElementById('summary-app-number').textContent = applicationData.application_number;
+        } else {
+            document.getElementById('display-application-number').textContent = 'Pending';
+            document.getElementById('summary-app-number').textContent = 'Pending';
         }
         
-        // In a real application, you would fetch which forms were downloaded from the database
-        // For now, we'll simulate that the user downloaded 2 specific forms
-        simulateDownloadedForms();
+        // Get document links
+        documentLinks = applicationData.document_links || {};
+        
+        // Display document links
+        displayDocumentLinks();
         
         // Display downloaded forms
         displayDownloadedForms();
-        
-        // Display Google Drive link
-        if (applicationData.google_drive_link) {
-            document.getElementById('drive-link-display-text').textContent = applicationData.google_drive_link;
-            document.getElementById('edit-gdrive-link').value = applicationData.google_drive_link;
-        } else {
-            document.getElementById('drive-link-display-text').textContent = 'No Google Drive link provided';
-            document.getElementById('edit-gdrive-link').value = '';
-        }
         
         // Set up checkbox listeners
         setupCheckboxListeners();
     }
 
-    // Simulate which forms were downloaded (for demo purposes)
-    function simulateDownloadedForms() {
-        // Example: User downloaded Application Letter and Building Permit Application
-        // In production, this would come from the database
-        allForms[0].downloaded = true; // Application Letter
-        allForms[1].downloaded = true; // Building Permit Application
-        // allForms[2].downloaded = true; // Uncomment to mark more as downloaded
+    // Display document links
+    function displayDocumentLinks() {
+        const container = document.getElementById('document-links-container');
+        
+        // Define document names for display
+        const documentNames = {
+            'app_letter_link': 'Application Letter',
+            'bp_forms_link': 'Building Permit Forms',
+            'arch_plans_link': 'Architectural Plans (5 sets)',
+            'structural_plans_link': 'Civil/Structural Plans (5 sets)',
+            'electrical_plans_link': 'Electrical Plans (5 sets)',
+            'plumbing_plans_link': 'Sanitary/Plumbing Plans (5 sets)',
+            'mechanical_plans_link': 'Mechanical Plans (5 sets)',
+            'fencing_plans_link': 'Fencing Plans (5 sets)',
+            'ownership_link': 'Proof of Ownership (2 copies)',
+            'bom_link': 'Bill of Materials (5 copies)',
+            'structural_analysis_link': 'Structural Design Analysis',
+            'barangay_clearance_link': 'Barangay Clearance',
+            'valid_id_link': 'Valid ID'
+        };
+        
+        // Count how many documents are uploaded
+        let uploadedCount = 0;
+        let documentHtml = '';
+        
+        if (documentLinks && Object.keys(documentLinks).length > 0) {
+            for (const [key, value] of Object.entries(documentLinks)) {
+                if (value && value.trim()) {
+                    uploadedCount++;
+                    const displayName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '');
+                    documentHtml += `
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">${displayName}</p>
+                                    <p class="text-xs text-gray-500 truncate max-w-md">${value.substring(0, 50)}${value.length > 50 ? '...' : ''}</p>
+                                </div>
+                            </div>
+                            <a href="${value}" target="_blank" class="text-xs text-[#155386] hover:underline flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                View
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        if (uploadedCount === 0) {
+            container.innerHTML = `
+                <div class="p-4 bg-white rounded-lg border border-gray-200">
+                    <p class="text-sm text-gray-500">No documents have been uploaded to Google Drive yet.</p>
+                    <a href="/applicant/application/step2?id=${currentApplicationId}" class="text-xs text-[#155386] hover:underline mt-2 inline-block">Go to Step 2 to upload documents</a>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="mb-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm text-green-700">${uploadedCount} out of 13 required documents uploaded</p>
+                    </div>
+                </div>
+                ${documentHtml}
+            `;
+        }
     }
 
     // Display downloaded forms
     function displayDownloadedForms() {
         const container = document.getElementById('downloaded-forms-container');
-        container.innerHTML = '';
         
-        const downloadedCount = allForms.filter(f => f.downloaded).length;
-        
-        if (downloadedCount === 0) {
-            container.innerHTML = `
-                <div class="p-4 bg-white rounded-lg border border-gray-200">
-                    <p class="text-sm text-gray-500">No forms have been downloaded yet.</p>
-                    <a href="/applicant/application/step1" class="text-xs text-[#155386] hover:underline mt-2 inline-block">Go to Step 1 to download forms</a>
+        container.innerHTML = `
+            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
                 </div>
-            `;
-            return;
-        }
-        
-        // Create a card for each downloaded form
-        allForms.forEach(form => {
-            if (form.downloaded) {
-                container.innerHTML += `
-                    <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-800">${form.name}</p>
-                        </div>
-                        <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Downloaded</span>
-                    </div>
-                `;
-            }
-        });
-        
-        // Show summary
-        container.innerHTML += `
-            <div class="mt-3 text-xs text-gray-500">
-                Downloaded ${downloadedCount} out of 11 forms. You can download additional forms in Step 1 if needed.
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-800">Application Letter</p>
+                </div>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Downloaded</span>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-800">Building Permit Forms</p>
+                </div>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Downloaded</span>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+                Additional forms can be downloaded in Step 1 if needed.
             </div>
         `;
-    }
-
-    // Toggle document checklist (removed - no longer needed)
-    function toggleDocuments() {
-        // This function is kept for compatibility but does nothing
-    }
-
-    // Toggle drive link edit mode
-    function toggleDriveLinkEdit() {
-        document.getElementById('drive-link-display').classList.add('hidden');
-        document.getElementById('drive-link-edit').classList.remove('hidden');
-    }
-
-    // Cancel drive link edit
-    function cancelDriveLinkEdit() {
-        document.getElementById('drive-link-display').classList.remove('hidden');
-        document.getElementById('drive-link-edit').classList.add('hidden');
-        // Reset to original value
-        document.getElementById('edit-gdrive-link').value = applicationData.google_drive_link || '';
-    }
-
-    // Test edited link
-    function testEditedLink() {
-        const link = document.getElementById('edit-gdrive-link').value.trim();
-        
-        if (!link) {
-            showErrorModal('Please enter a Google Drive link.');
-            return;
-        }
-
-        const isGoogleDriveLink = link.includes('drive.google.com') || link.includes('docs.google.com');
-        
-        if (!isGoogleDriveLink) {
-            showErrorModal('Please enter a valid Google Drive link.');
-            return;
-        }
-
-        showSuccessModal('Link is valid! Make sure sharing is set to "Anyone with the link".');
-    }
-
-    // Save drive link
-    async function saveDriveLink() {
-        const newLink = document.getElementById('edit-gdrive-link').value.trim();
-        
-        if (!newLink) {
-            showErrorModal('Please enter a Google Drive link.');
-            return;
-        }
-
-        const isGoogleDriveLink = newLink.includes('drive.google.com') || newLink.includes('docs.google.com');
-        
-        if (!isGoogleDriveLink) {
-            showErrorModal('Please enter a valid Google Drive link.');
-            return;
-        }
-
-        // Show loading state
-        const saveBtn = document.getElementById('save-drive-btn');
-        const originalText = saveBtn.innerHTML;
-        saveBtn.innerHTML = 'Saving...';
-        saveBtn.disabled = true;
-
-        try {
-            const response = await fetch('/applicant/application/store-link', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    google_drive_link: newLink,
-                    hardcopy_confirmed: true
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Update display
-                applicationData.google_drive_link = newLink;
-                document.getElementById('drive-link-display-text').textContent = newLink;
-                
-                // Exit edit mode
-                document.getElementById('drive-link-display').classList.remove('hidden');
-                document.getElementById('drive-link-edit').classList.add('hidden');
-                
-                showSuccessModal('Google Drive link updated successfully!');
-            } else {
-                showErrorModal(data.message || 'Failed to update link');
-            }
-        } catch (error) {
-            console.error('Error updating link:', error);
-            showErrorModal('Failed to update link. Please try again.');
-        } finally {
-            saveBtn.innerHTML = originalText;
-            saveBtn.disabled = false;
-        }
-    }
-
-    // Open Google Drive link
-    function openGoogleDriveLink() {
-        const link = applicationData?.google_drive_link;
-        if (link) {
-            window.open(link, '_blank');
-        } else {
-            showErrorModal('Google Drive link not found.');
-        }
     }
 
     // Setup checkbox listeners
@@ -630,19 +526,27 @@
             hardcopyCheckbox.addEventListener('change', updateSubmitButton);
         }
 
-        // Initialize button state
         updateSubmitButton();
     }
 
-    // Enable submit button only when both checkboxes are checked
+    // Enable submit button only when both checkboxes are checked and documents are uploaded
     function updateSubmitButton() {
         const agreeChecked = document.getElementById('agree-checkbox').checked;
         const hardcopyChecked = document.getElementById('hardcopy-confirm')?.checked || false;
         
-        document.getElementById('submit-button').disabled = !(agreeChecked && hardcopyChecked);
+        // Check if documents are uploaded
+        const hasDocuments = documentLinks && Object.keys(documentLinks).length > 0;
+        
+        const submitBtn = document.getElementById('submit-button');
+        submitBtn.disabled = !(agreeChecked && hardcopyChecked && hasDocuments);
+        
+        // Update button text based on document status
+        if (!hasDocuments) {
+            submitBtn.title = 'Please upload your documents in Step 2 first';
+        }
     }
 
-    // Submit application function
+    // Submit application
     async function submitApplication() {
         const agreeChecked = document.getElementById('agree-checkbox').checked;
         const hardcopyChecked = document.getElementById('hardcopy-confirm')?.checked || false;
@@ -676,7 +580,10 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    application_id: currentApplicationId
+                })
             });
             
             const result = await response.json();
@@ -684,9 +591,9 @@
             if (result.success) {
                 showSuccessModal('Application submitted successfully! Please bring all original hard copies to the OBO for final processing.');
                 
-                // Clear any session storage
+                // Clear session storage
+                sessionStorage.removeItem('konstructo_current_app_id');
                 sessionStorage.removeItem('konstructo_current_app_number');
-                sessionStorage.removeItem('konstructo_just_generated');
                 
                 // Redirect to applications list
                 setTimeout(() => {
@@ -743,7 +650,6 @@
     to { transform: rotate(360deg); }
 }
 
-/* Modal animations */
 #error-modal, #success-modal {
     transition: opacity 0.2s ease-in-out;
 }
@@ -763,13 +669,18 @@
     }
 }
 
-.rotate-180 {
-    transform: rotate(180deg);
-}
-
-/* Link break styling */
 .break-all {
     word-break: break-all;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.max-w-md {
+    max-width: 28rem;
 }
 </style>
 @endsection

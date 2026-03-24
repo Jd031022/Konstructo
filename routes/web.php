@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
+use Illuminate\Http\Request;
 
 
 Route::get('/', function () {
@@ -73,8 +74,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         ->name('basic-requirements.reject');
     Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
         ->name('basic-requirements.stats');
-    Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
-        ->name('basic-requirements.show');
     
     // View routes (return HTML)
     Route::get('/dashboard', function () {
@@ -89,7 +88,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.applications');
     })->name('applications');
     
-    // Staff Dashboard API Routes (return JSON)
+    // Staff Dashboard API Routes
     Route::get('/applications/stats', [App\Http\Controllers\Staff\DashboardController::class, 'getStats'])
         ->name('applications.stats');
     
@@ -102,7 +101,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/upcoming-deadlines', [App\Http\Controllers\Staff\DashboardController::class, 'getUpcomingDeadlines'])
         ->name('applications.upcoming-deadlines');
     
-    // Staff Applications API Routes (return JSON)
+    // Staff Applications API Routes
     Route::get('/applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'index'])
         ->name('applications.data');
     
@@ -123,7 +122,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::post('/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);
     
-    // Staff review activities routes
     Route::post('/applications/{id}/note', [App\Http\Controllers\Staff\ApplicationController::class, 'addNote'])
         ->name('applications.note');
     
@@ -163,6 +161,8 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         ->name('basic-requirements.status');
     Route::get('/basic-requirements/can-proceed', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'canProceed'])
         ->name('basic-requirements.can-proceed');
+    Route::get('/basic-requirements/{applicationId}/details', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'getDetails'])
+        ->name('basic-requirements.details');
     
     // View routes
     Route::get('/applications', function () {
@@ -170,11 +170,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     })->name('applications');
     
     Route::get('/dashboard', function () {
-        $user = Auth::user();
-        $hasBasicRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->exists();
-        return view('applicant.dashboard', compact('hasBasicRequirements'));
+        return view('applicant.dashboard');
     })->name('dashboard');
     
     Route::get('/buildingpermit-preview', function () {
@@ -185,47 +181,118 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
-    // Step routes with basic requirements check
-    Route::get('/application/step1', function () {
+    // Step routes with per-application basic requirements check
+    Route::get('/application/step1', function (Request $request) {
         $user = Auth::user();
-        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->exists();
-            
-        if (!$hasApprovedRequirements) {
-            return redirect()->route('applicant.basic-requirements.index')
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
+        $applicationId = $request->get('id');
         
-        return view('applicant.application.step1');
+        if ($applicationId) {
+            // Check if application exists and belongs to user
+            $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->first();
+                
+            if (!$application) {
+                return redirect()->route('applicant.applications')
+                    ->with('error', 'Application not found.');
+            }
+            
+            // Check if basic requirements are approved for this application
+            $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+                ->where('status', 'approved')
+                ->first();
+                
+            if (!$basicRequirement) {
+                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                    ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+            }
+            
+            return view('applicant.application.step1', compact('application'));
+        } else {
+            // Creating new application - check if user has reached limit
+            $submittedCount = \App\Models\ApplicationDocument::where('user_id', $user->id)
+                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
+                ->count();
+                
+            if ($submittedCount >= 3) {
+                return redirect()->route('applicant.applications')
+                    ->with('error', 'You have reached the maximum limit of 3 applications.');
+            }
+            
+            // Create new draft application WITHOUT application number
+            $application = \App\Models\ApplicationDocument::create([
+                'user_id' => $user->id,
+                'application_number' => null,
+                'status' => 'draft',
+                'google_drive_link' => null
+            ]);
+            
+            // Redirect to basic requirements for this new application
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $application->id])
+                ->with('info', 'Please complete the basic requirements first.');
+        }
     })->name('application.step1');
     
-    Route::get('/application/step2', function () {
+    Route::get('/application/step2', function (Request $request) {
         $user = Auth::user();
-        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->exists();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
             
-        if (!$hasApprovedRequirements) {
-            return redirect()->route('applicant.basic-requirements.index')
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if basic requirements are approved for this application
+        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
                 ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
         }
         
-        return view('applicant.application.step2');
+        return view('applicant.application.step2', compact('application'));
     })->name('application.step2');
     
-    Route::get('/application/step3', function () {
+    Route::get('/application/step3', function (Request $request) {
         $user = Auth::user();
-        $hasApprovedRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->exists();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
             
-        if (!$hasApprovedRequirements) {
-            return redirect()->route('applicant.basic-requirements.index')
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if basic requirements are approved for this application
+        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
                 ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
         }
         
-        return view('applicant.application.step3');
+        return view('applicant.application.step3', compact('application'));
     })->name('application.step3');
     
     // Application Document API Routes
@@ -250,6 +317,10 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::post('/application/submit', [App\Http\Controllers\ApplicationDocumentController::class, 'submitApplication'])
         ->name('application.submit');
     
+// In the applicant routes group, make sure this route exists:
+Route::post('/application/generate-number', [App\Http\Controllers\ApplicationDocumentController::class, 'generateNumber'])
+    ->name('application.generate-number');
+    
     // Applications Management API Routes
     Route::get('/applications/data', [App\Http\Controllers\Applicant\ApplicationController::class, 'index'])
         ->name('applications.data');
@@ -273,25 +344,16 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.activity-history', ['applicationId' => $id]);
     })->name('applicant.activity-history');
     
-    // Debug Routes - Place these INSIDE the applicant middleware group
+    // Debug Routes
     Route::get('/applications/debug-db', function() {
         try {
-            // Check if user is authenticated
             $user = Auth::user();
             if (!$user) {
                 return response()->json(['error' => 'Not authenticated'], 401);
             }
             
-            // Test database connection
-            $connection = DB::connection()->getPdo();
-            
-            // Check if table exists
             $tableExists = Schema::hasTable('application_documents');
-            
-            // Try a simple query
             $count = DB::table('application_documents')->where('user_id', $user->id)->count();
-            
-            // Get column information
             $columns = Schema::getColumnListing('application_documents');
             
             return response()->json([
@@ -308,21 +370,18 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ], 500);
         }
     })->name('applications.debug-db');
     
     Route::get('/applications/check-columns', function() {
         try {
-            // Check if user is authenticated
             $user = Auth::user();
             if (!$user) {
                 return response()->json(['error' => 'Not authenticated'], 401);
             }
             
-            // Check if table exists
             if (!Schema::hasTable('application_documents')) {
                 return response()->json([
                     'error' => 'application_documents table does not exist',
@@ -346,25 +405,15 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
             ], 500);
         }
     })->name('applications.check-columns');
-
-    Route::get('/applications', function () {
-        return view('applicant.applications');
-    })->name('applications');
     
-    Route::get('/dashboard', function () {
-        return view('applicant.dashboard');
-    })->name('dashboard');
-    
-    // Account Status Route - UPDATED to get actual approval status from database
+    // Account Status Route
     Route::get('/account-status', function () {
         $user = Auth::user();
         
         if ($user && $user->role === 'applicant') {
-            // Get the actual approval status from the user model
             $status = $user->approval_status ?? 'pending';
             $rejectionReason = $user->rejection_reason ?? null;
             
-            // Store in session for the view
             session(['account_status' => $status]);
             session(['rejection_reason' => $rejectionReason]);
             
@@ -381,16 +430,14 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         ->name('application.store-links');
 });
 
-// Dashboard route with role-based redirect - UPDATED to check approval status for applicants
+// Dashboard route with role-based redirect
 Route::get('/dashboard', function () {
     /** @var \App\Models\User $user */
     $user = auth()->user();
     
     if ($user) {
-        // For applicants, check if they can access dashboard
         if ($user->isApplicant()) {
             if (!$user->canLogin()) {
-                // Redirect to account status page if not approved
                 if ($user->isPending()) {
                     return redirect()->route('applicant.account-status')
                         ->with('warning', 'Your account is pending admin approval.');
@@ -401,16 +448,6 @@ Route::get('/dashboard', function () {
                     return redirect()->route('login')
                         ->with('error', 'Please verify your email address first.');
                 }
-            }
-            
-            // Check if basic requirements are approved
-            $hasBasicRequirements = \App\Models\BasicRequirement::where('user_id', $user->id)
-                ->where('status', 'approved')
-                ->exists();
-                
-            if (!$hasBasicRequirements) {
-                return redirect()->route('applicant.basic-requirements.index')
-                    ->with('info', 'Please complete and get approval for basic requirements before starting your application.');
             }
         }
         
@@ -427,7 +464,6 @@ Route::get('/dashboard', function () {
 
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    // View routes (return HTML)
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
@@ -440,29 +476,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         return view('admin.applications');
     })->name('applications');
     
-    // ========== ADMIN ARCHIVE ROUTES ==========
-    // View for archived applications
     Route::get('/archived-applications', function () {
         return view('admin.archived-applications');
     })->name('archived-applications');
     
-    // API endpoint for archived applications data
     Route::get('/archived-applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'getArchivedApplications'])
         ->name('archived-applications.data');
     
-    // Restore archived application
     Route::post('/applications/{id}/restore', [App\Http\Controllers\Admin\ApplicationController::class, 'restoreArchivedApplication'])
         ->name('applications.restore');
     
-    // Restore multiple archived applications
     Route::post('/applications/restore-multiple', [App\Http\Controllers\Admin\ApplicationController::class, 'restoreMultipleArchivedApplications'])
         ->name('applications.restore-multiple');
     
-    // Permanent delete for archived applications
     Route::delete('/applications/{id}/permanent-delete', [App\Http\Controllers\Admin\ApplicationController::class, 'permanentDelete'])
         ->name('applications.permanent-delete');
     
-    // ========== ADMIN DASHBOARD API ROUTES ==========
     Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])
         ->name('dashboard.stats');
     
@@ -481,7 +510,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'store'])
         ->name('announcements.store');
     
-    // ========== ADMIN USER MANAGEMENT ROUTES ==========
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
     Route::get('/users/list', [App\Http\Controllers\Admin\UserController::class, 'getUsers'])->name('users.list');
     Route::get('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'getUser'])->name('users.get');
@@ -491,12 +519,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/users/{id}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
     
-    // ========== ADMIN USER APPROVAL ROUTES ==========
     Route::post('/users/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
     Route::post('/users/{id}/reject', [App\Http\Controllers\Admin\UserController::class, 'reject'])->name('users.reject');
     Route::get('/pending-applicants', [App\Http\Controllers\Admin\UserController::class, 'getPendingApplicants'])->name('pending-applicants');
     
-    // ========== ADMIN APPLICATION MANAGEMENT ROUTES ==========
     Route::get('/applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])
         ->name('applications.data');
     
@@ -515,7 +541,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'export'])
         ->name('applications.export');
     
-    // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
 });
@@ -526,6 +551,7 @@ Route::get('/profile/profile', function () {
 });
 
 Route::get('/profile/avatar-info', [App\Http\Controllers\ProfileController::class, 'getAvatarInfo'])->name('profile.avatar.info');
+
 Route::get('/test-gmail', function() {
     try {
         $refreshToken = env('GOOGLE_REFRESH_TOKEN');
@@ -542,17 +568,12 @@ Route::get('/test-gmail', function() {
             'refresh_token_prefix' => substr($refreshToken ?? '', 0, 10) . '...'
         ];
         
-        // Try to initialize Gmail service
         try {
             $client = new Google_Client();
             $client->setClientId($clientId);
             $client->setClientSecret($clientSecret);
             $client->setAccessType('offline');
-            
-            // Test setting refresh token
             $client->refreshToken($refreshToken);
-            
-            // Try to fetch access token
             $token = $client->fetchAccessTokenWithRefreshToken();
             
             if (isset($token['error'])) {

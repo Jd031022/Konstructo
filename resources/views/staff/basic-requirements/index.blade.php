@@ -69,7 +69,7 @@
                     办法
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
-                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application #</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Owner Status</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Documents</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -88,13 +88,16 @@
                                 </div>
                                 <div>
                                     <span class="font-medium text-gray-800">{{ $req->user->first_name }} {{ $req->user->last_name }}</span>
-                                    <p class="text-xs text-gray-500">{{ $req->user->username }}</p>
+                                    <p class="text-xs text-gray-500">{{ $req->user->email }}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="py-4 px-6">
-                            <div class="text-sm text-gray-600">{{ $req->user->email }}</div>
-                            <div class="text-xs text-gray-400">{{ $req->user->phone_number }}</div>
+                            @if($req->application && $req->application->application_number)
+                                <span class="font-mono text-sm text-gray-600">{{ $req->application->application_number }}</span>
+                            @else
+                                <span class="text-sm text-gray-400 italic">Pending</span>
+                            @endif
                         </td>
                         <td class="py-4 px-6 whitespace-nowrap">
                             @if($req->is_owner)
@@ -113,6 +116,7 @@
                             </button>
                         </td>
                         <td class="py-4 px-6 whitespace-nowrap">
+                            @if($req->status === 'pending')
                             <div class="flex gap-2">
                                 <button onclick="showApproveModal({{ $req->id }})" 
                                         class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
@@ -123,6 +127,11 @@
                                     Reject
                                 </button>
                             </div>
+                            @elseif($req->status === 'approved')
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Approved</span>
+                            @elseif($req->status === 'rejected')
+                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Rejected</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -198,6 +207,10 @@
                                     <p class="font-medium text-gray-800" id="doc-applicant-email"></p>
                                 </div>
                                 <div>
+                                    <p class="text-sm text-gray-500">Application Number</p>
+                                    <p class="font-medium text-gray-800 font-mono" id="doc-application-number"></p>
+                                </div>
+                                <div>
                                     <p class="text-sm text-gray-500">Submitted Date</p>
                                     <p class="font-medium text-gray-800" id="doc-submitted-date"></p>
                                 </div>
@@ -231,6 +244,19 @@
                             </h4>
                             <div class="space-y-3" id="auth-docs">
                                 <!-- Dynamic content -->
+                            </div>
+                        </div>
+                        
+                        <!-- Rejection Reason (if rejected) -->
+                        <div id="rejection-reason-section" class="mb-6 hidden">
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Rejection Reason
+                            </h4>
+                            <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                                <p id="rejection-reason-text" class="text-sm text-gray-700"></p>
                             </div>
                         </div>
                     </div>
@@ -380,6 +406,13 @@ function applyFilters() {
     window.location.href = url;
 }
 
+// Allow Enter key to trigger search
+document.getElementById('search-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        applyFilters();
+    }
+});
+
 async function viewDocuments(id) {
     currentRequirementId = id;
     
@@ -394,7 +427,6 @@ async function viewDocuments(id) {
     document.body.style.overflow = 'hidden';
     
     try {
-        // Use the correct URL with the ID
         const response = await fetch(`/staff/basic-requirements/${id}`, {
             headers: {
                 'Accept': 'application/json',
@@ -425,6 +457,7 @@ function renderDocuments(data) {
     // Applicant Info
     document.getElementById('doc-applicant-name').textContent = `${data.user.first_name} ${data.user.last_name}`;
     document.getElementById('doc-applicant-email').textContent = data.user.email;
+    document.getElementById('doc-application-number').textContent = data.application_number || 'Pending';
     document.getElementById('doc-submitted-date').textContent = new Date(data.submitted_at).toLocaleString();
     document.getElementById('doc-owner-status').innerHTML = data.is_owner 
         ? '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Owner</span>'
@@ -492,6 +525,15 @@ function renderDocuments(data) {
     } else {
         authSection.classList.add('hidden');
     }
+    
+    // Rejection Reason (if rejected)
+    const rejectionSection = document.getElementById('rejection-reason-section');
+    if (data.status === 'rejected' && data.rejection_reason) {
+        document.getElementById('rejection-reason-text').textContent = data.rejection_reason;
+        rejectionSection.classList.remove('hidden');
+    } else {
+        rejectionSection.classList.add('hidden');
+    }
 }
 
 function closeDocumentsModal() {
@@ -541,14 +583,14 @@ async function confirmApprove() {
                 window.location.reload();
             }, 1500);
         } else {
-            showError(data.message);
+            showError(data.message || 'Failed to approve');
             btnText.classList.remove('hidden');
             spinner.classList.add('hidden');
             btn.disabled = false;
         }
     } catch (error) {
         console.error('Error:', error);
-        showError('An error occurred');
+        showError('An error occurred. Please try again.');
         btnText.classList.remove('hidden');
         spinner.classList.add('hidden');
         btn.disabled = false;
@@ -606,14 +648,14 @@ async function confirmReject() {
                 window.location.reload();
             }, 1500);
         } else {
-            showError(data.message);
+            showError(data.message || 'Failed to reject');
             btnText.classList.remove('hidden');
             spinner.classList.add('hidden');
             btn.disabled = false;
         }
     } catch (error) {
         console.error('Error:', error);
-        showError('An error occurred');
+        showError('An error occurred. Please try again.');
         btnText.classList.remove('hidden');
         spinner.classList.add('hidden');
         btn.disabled = false;

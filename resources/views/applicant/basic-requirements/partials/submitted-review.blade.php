@@ -1,6 +1,7 @@
-<!-- Show submitted review for approved status -->
+{{-- resources/views/applicant/basic-requirements/partials/submitted-review.blade.php --}}
+
 <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
-    <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+    <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-4">
         <div class="flex items-center gap-3">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,7 +143,10 @@
                     <span class="text-sm font-semibold text-blue-800">Submission Information</span>
                 </div>
                 <p class="text-sm text-blue-700">Submitted on: {{ $basicRequirement->submitted_at->format('F d, Y h:i A') }}</p>
-                <p class="text-xs text-blue-600 mt-1">Status: Approved</p>
+                <p class="text-xs text-blue-600 mt-1">Status: {{ ucfirst($basicRequirement->status) }}</p>
+                @if($basicRequirement->status === 'approved' && $basicRequirement->approved_at)
+                    <p class="text-xs text-green-600 mt-1">Approved on: {{ $basicRequirement->approved_at->format('F d, Y h:i A') }}</p>
+                @endif
             </div>
         </div>
     </div>

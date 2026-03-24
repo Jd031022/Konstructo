@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
+use App\Models\BasicRequirement;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,28 +15,320 @@ use Illuminate\Support\Facades\Schema;
 
 class ApplicationDocumentController extends Controller
 {
-    /**
-     * The notification service instance.
-     */
     protected $notificationService;
 
-    /**
-     * Constructor - Inject NotificationService
-     */
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
     }
 
     /**
-     * Store or update Google Drive link
+     * Create a draft application (called from Step 1 when starting a new application)
+     */
+    public function createDraft(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            // Check if user has reached the application limit
+            if ($this->hasReachedApplicationLimit($user)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have reached the maximum limit of 3 submitted applications.',
+                    'limit_reached' => true
+                ], 403);
+            }
+            
+            // Check if there's already a draft for this user that doesn't have a number yet
+            $existingDraft = ApplicationDocument::where('user_id', $user->id)
+                ->where('status', 'draft')
+                ->whereNull('application_number')
+                ->first();
+            
+            if ($existingDraft) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $existingDraft->id,
+                        'application_number' => null,
+                        'status' => 'draft'
+                    ]
+                ]);
+            }
+            
+            // Create new draft WITHOUT application number
+            $draft = ApplicationDocument::create([
+                'user_id' => $user->id,
+                'application_number' => null,
+                'status' => 'draft',
+                'google_drive_link' => null
+            ]);
+            
+            Log::info('Draft application created', [
+                'application_id' => $draft->id,
+                'user_id' => $user->id
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $draft->id,
+                    'application_number' => null,
+                    'status' => 'draft'
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error creating draft: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating draft: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate application number when user downloads the form in Step 1
+     */
+    public function generateNumber(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $applicationId = $request->application_id;
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->where('status', 'draft')
+                ->first();
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found or not in draft status'
+                ], 404);
+            }
+            
+            // Check if basic requirements are approved for this application
+            $basicRequirement = BasicRequirement::where('application_id', $application->id)
+                ->where('status', 'approved')
+                ->first();
+                
+            if (!$basicRequirement) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Basic requirements must be approved before generating application number.',
+                    'requires_basic_requirements' => true
+                ], 403);
+            }
+            
+            // Generate application number only if it doesn't exist
+            if (empty($application->application_number)) {
+                $applicationNumber = $this->generateUniqueApplicationNumber();
+                $application->application_number = $applicationNumber;
+                $application->save();
+                
+                Log::info('Application number generated', [
+                    'application_id' => $application->id,
+                    'application_number' => $applicationNumber
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'status' => $application->status
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error generating application number: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating application number: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate a unique application number (private helper)
+     */
+    private function generateUniqueApplicationNumber()
+    {
+        $year = date('Y');
+        do {
+            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $applicationNumber = $year . $random;
+        } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
+
+        return $applicationNumber;
+    }
+
+    /**
+ * Store all document links (for step 2 - multiple documents)
+ */
+public function storeLinks(Request $request)
+{
+    try {
+        Log::info('storeLinks called', ['request_data' => $request->all()]);
+        
+        $validator = Validator::make($request->all(), [
+            'document_links' => 'required|array',
+            'application_id' => 'required|exists:application_documents,id'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Please provide valid Google Drive links for all required documents.'
+            ], 422);
+        }
+
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        $documentLinks = $request->document_links;
+        $applicationId = $request->application_id;
+        
+        // Check if we have an existing draft
+        $applicationDoc = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->where('status', 'draft')
+            ->first();
+        
+        if (!$applicationDoc) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No draft application found. Please start from Step 1 first.'
+            ], 404);
+        }
+        
+        // Store document links in the document_links JSON column
+        $applicationDoc->document_links = $documentLinks;
+        $applicationDoc->save();
+        
+        Log::info('Document links saved successfully', [
+            'application_id' => $applicationDoc->id,
+            'application_number' => $applicationDoc->application_number,
+            'user_id' => $user->id,
+            'documents_count' => count($documentLinks)
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All documents saved successfully!',
+            'data' => [
+                'id' => $applicationDoc->id,
+                'application_number' => $applicationDoc->application_number,
+                'status' => $applicationDoc->status
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error in storeLinks: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving documents: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Get application document details for a specific application
+     */
+    public function getApplicationDetails(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $applicationId = $request->application_id;
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            if (!$applicationId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application ID is required'
+                ], 422);
+            }
+            
+            $applicationDoc = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->first();
+            
+            if (!$applicationDoc) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $documentLinks = $applicationDoc->document_links;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $applicationDoc->id,
+                    'application_number' => $applicationDoc->application_number,
+                    'google_drive_link' => $applicationDoc->google_drive_link,
+                    'document_links' => $documentLinks,
+                    'status' => $applicationDoc->status,
+                    'rejection_reason' => $applicationDoc->rejection_reason,
+                    'submitted_at' => $applicationDoc->created_at ? $applicationDoc->created_at->format('Y-m-d H:i:s') : null
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in getApplicationDetails: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Database error occurred'
+            ], 500);
+        }
+    }
+
+    /**
+     * Store or update Google Drive link (single link)
      */
     public function storeLink(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'google_drive_link' => 'required|string',
-                'hardcopy_confirmed' => 'required|boolean'
+                'hardcopy_confirmed' => 'required|boolean',
+                'application_id' => 'required|exists:application_documents,id'
             ]);
 
             if ($validator->fails()) {
@@ -55,10 +348,18 @@ class ApplicationDocumentController extends Controller
                 ], 401);
             }
             
-            // Get or generate application number
-            $applicationNumber = $this->getApplicationNumber($user);
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $request->application_id)
+                ->where('status', 'draft')
+                ->first();
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found or not in draft status'
+                ], 404);
+            }
 
-            // Check if link is a valid Google Drive link
             if (!$this->isValidGoogleDriveLink($request->google_drive_link)) {
                 return response()->json([
                     'success' => false,
@@ -67,26 +368,17 @@ class ApplicationDocumentController extends Controller
             }
 
             try {
-                // Update or create application document
-                $applicationDoc = ApplicationDocument::updateOrCreate(
-                    ['user_id' => $user->id, 'status' => 'draft'],
-                    [
-                        'application_number' => $applicationNumber,
-                        'google_drive_link' => $request->google_drive_link,
-                        'status' => 'draft',
-                        'rejection_reason' => null,
-                        'verified_at' => null,
-                        'verified_by' => null
-                    ]
-                );
+                $application->google_drive_link = $request->google_drive_link;
+                $application->save();
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Google Drive link saved successfully',
                     'data' => [
-                        'application_number' => $applicationNumber,
-                        'status' => $applicationDoc->status,
-                        'google_drive_link' => $applicationDoc->google_drive_link
+                        'id' => $application->id,
+                        'application_number' => $application->application_number,
+                        'status' => $application->status,
+                        'google_drive_link' => $application->google_drive_link
                     ]
                 ]);
 
@@ -108,61 +400,13 @@ class ApplicationDocumentController extends Controller
     }
 
     /**
-     * Get application document details - get the most recent draft
-     */
-    public function getApplicationDetails()
-    {
-        try {
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
-            }
-            
-            // Get the most recent application (could be draft or pending)
-            $applicationDoc = ApplicationDocument::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->first();
-            
-            if (!$applicationDoc) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No application documents found'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $applicationDoc->id,
-                    'application_number' => $applicationDoc->application_number,
-                    'google_drive_link' => $applicationDoc->google_drive_link,
-                    'status' => $applicationDoc->status,
-                    'rejection_reason' => $applicationDoc->rejection_reason,
-                    'submitted_at' => $applicationDoc->created_at ? $applicationDoc->created_at->format('Y-m-d H:i:s') : null
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error in getApplicationDetails: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error occurred'
-            ], 500);
-        }
-    }
-
-    /**
      * Check application status
      */
-    public function checkStatus()
+    public function checkStatus(Request $request)
     {
         try {
             $user = Auth::user();
+            $applicationId = $request->application_id;
             
             if (!$user) {
                 return response()->json([
@@ -171,7 +415,13 @@ class ApplicationDocumentController extends Controller
                 ], 401);
             }
             
-            $applicationDoc = ApplicationDocument::where('user_id', $user->id)->first();
+            $query = ApplicationDocument::where('user_id', $user->id);
+            
+            if ($applicationId) {
+                $query->where('id', $applicationId);
+            }
+            
+            $applicationDoc = $query->first();
             
             if (!$applicationDoc) {
                 return response()->json([
@@ -212,21 +462,6 @@ class ApplicationDocumentController extends Controller
     }
 
     /**
-     * Generate or get existing application number
-     */
-    private function getApplicationNumber($user)
-    {
-        // Generate new application number: year + 6 random digits
-        $year = date('Y');
-        do {
-            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $applicationNumber = $year . $random;
-        } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
-
-        return $applicationNumber;
-    }
-
-    /**
      * Validate Google Drive link
      */
     private function isValidGoogleDriveLink($link)
@@ -248,7 +483,6 @@ class ApplicationDocumentController extends Controller
             }
         }
 
-        // Also accept any link that contains drive.google.com or docs.google.com
         if (strpos($link, 'drive.google.com') !== false || strpos($link, 'docs.google.com') !== false) {
             return true;
         }
@@ -256,169 +490,141 @@ class ApplicationDocumentController extends Controller
         return false;
     }
 
-    /**
-     * Create a draft application when application number is generated
-     */
-    public function createDraft(Request $request)
-    {
-        try {
-            $user = Auth::user();
+   /**
+ * Submit application (change status from draft to pending)
+ */
+public function submitApplication(Request $request)
+{
+    try {
+        $user = Auth::user();
+        $applicationId = $request->application_id;
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->where('status', 'draft')
+            ->first();
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No draft application found'
+            ], 404);
+        }
+        
+        // Check if application has a number
+        if (empty($application->application_number)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please generate application number first by downloading the form in Step 1.'
+            ], 403);
+        }
+        
+        // Check if document links are provided (from Step 2)
+        $documentLinks = $application->document_links;
+        $hasDocuments = $documentLinks && is_array($documentLinks) && count($documentLinks) > 0;
+        
+        // Also check if the older google_drive_link is provided (for backward compatibility)
+        $hasGoogleDriveLink = !empty($application->google_drive_link);
+        
+        if (!$hasDocuments && !$hasGoogleDriveLink) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please upload your documents in Step 2 before submitting.'
+            ], 403);
+        }
+        
+        // Check if at least some documents are uploaded
+        if ($hasDocuments) {
+            $requiredDocuments = [
+                'app_letter_link', 'bp_forms_link', 'arch_plans_link', 'structural_plans_link',
+                'electrical_plans_link', 'plumbing_plans_link', 'mechanical_plans_link',
+                'fencing_plans_link', 'ownership_link', 'bom_link', 'structural_analysis_link',
+                'barangay_clearance_link', 'valid_id_link'
+            ];
             
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
-            }
-            
-            // Check if user has reached the application limit (counts ONLY pending/verified)
-            if ($this->hasReachedApplicationLimit($user)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have reached the maximum limit of 3 submitted applications. Please complete or delete existing applications before creating a new one.',
-                    'limit_reached' => true
-                ], 403);
-            }
-            
-            // Generate new application number
-            $applicationNumber = $this->getApplicationNumber($user);
-            
-            // Create draft
-            $draft = ApplicationDocument::create([
-                'user_id' => $user->id,
-                'application_number' => $applicationNumber,
-                'status' => 'draft',
-                'google_drive_link' => null
-            ]);
-            
-            // Log the activity
-            try {
-                if (class_exists('App\Models\ApplicationReviewActivity')) {
-                    ApplicationReviewActivity::create([
-                        'application_id' => $draft->id,
-                        'reviewer_id' => $user->id,
-                        'action' => 'application_created',
-                        'old_status' => null,
-                        'new_status' => 'draft',
-                        'remarks' => 'Draft application created',
-                        'ip_address' => $request->ip(),
-                        'user_agent' => $request->userAgent()
-                    ]);
+            $missingDocs = [];
+            foreach ($requiredDocuments as $doc) {
+                if (empty($documentLinks[$doc])) {
+                    $missingDocs[] = $doc;
                 }
+            }
+            
+            if (count($missingDocs) > 0) {
+                // Don't block submission, just log and allow - user can still submit
+                Log::info('Missing some documents', [
+                    'application_id' => $application->id,
+                    'missing_docs' => $missingDocs
+                ]);
+            }
+        }
+        
+        if ($this->hasReachedApplicationLimit($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have reached the maximum limit of 3 applications.'
+            ], 403);
+        }
+        
+        $oldStatus = $application->status;
+        
+        $application->status = 'pending';
+        $application->save();
+
+        try {
+            $this->notificationService->notifyStaffNewApplication($application);
+        } catch (\Exception $e) {
+            Log::error('Failed to send notification: ' . $e->getMessage());
+        }
+
+        if (class_exists('App\Models\ApplicationReviewActivity')) {
+            try {
+                ApplicationReviewActivity::create([
+                    'application_id' => $application->id,
+                    'reviewer_id' => $user->id,
+                    'action' => 'application_submitted',
+                    'old_status' => $oldStatus,
+                    'new_status' => 'pending',
+                    'remarks' => 'Application submitted by applicant',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
             } catch (\Exception $e) {
                 Log::error('Failed to log activity: ' . $e->getMessage());
             }
-            
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $draft->id,
-                    'application_number' => $applicationNumber,
-                    'status' => 'draft'
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error creating draft: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error creating draft: ' . $e->getMessage()
-            ], 500);
         }
-    }
-
-    /**
-     * Submit application (change status from draft to pending)
-     */
-    public function submitApplication(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
-            }
-            
-            $application = ApplicationDocument::where('user_id', $user->id)
-                ->where('status', 'draft')
-                ->first();
-            
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No draft application found'
-                ], 404);
-            }
-            
-            // Check if they've reached the limit for submitted applications
-            if ($this->hasReachedApplicationLimit($user)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have reached the maximum limit of 3 applications.'
-                ], 403);
-            }
-            
-            // Store old status for logging
-            $oldStatus = $application->status;
-            
-            // Update status to pending
-            $application->status = 'pending';
-            $application->save();
-
-            // TRIGGER NOTIFICATION: Notify staff about new application submission
-            try {
-                $this->notificationService->notifyStaffNewApplication($application);
-            } catch (\Exception $e) {
-                Log::error('Failed to send notification: ' . $e->getMessage());
-                // Don't fail the request if notification fails
-            }
-
-            // Also log this activity
-            if (class_exists('App\Models\ApplicationReviewActivity')) {
-                try {
-                    ApplicationReviewActivity::create([
-                        'application_id' => $application->id,
-                        'reviewer_id' => $user->id,
-                        'action' => 'application_submitted',
-                        'old_status' => $oldStatus,
-                        'new_status' => 'pending',
-                        'remarks' => 'Application submitted by applicant',
-                        'ip_address' => $request->ip(),
-                        'user_agent' => $request->userAgent()
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error('Failed to log activity: ' . $e->getMessage());
-                }
-            }
-            
-            Log::info('Application submitted successfully', [
-                'application_id' => $application->id,
+        
+        Log::info('Application submitted successfully', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'user_id' => $user->id,
+            'has_document_links' => $hasDocuments
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Application submitted successfully',
+            'data' => [
                 'application_number' => $application->application_number,
-                'user_id' => $user->id
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Application submitted successfully',
-                'data' => [
-                    'application_number' => $application->application_number,
-                    'status' => 'pending'
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error submitting application: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error submitting application: ' . $e->getMessage()
-            ], 500);
-        }
+                'status' => 'pending'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error submitting application: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error submitting application: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Get user's application limit info
@@ -438,7 +644,6 @@ class ApplicationDocumentController extends Controller
                 ], 401);
             }
             
-            // Check if table exists
             if (!Schema::hasTable('application_documents')) {
                 Log::error('application_documents table does not exist');
                 return response()->json([
@@ -455,12 +660,10 @@ class ApplicationDocumentController extends Controller
                 ]);
             }
             
-            // Count ONLY submitted applications (pending, under-review, document-verification, approved, for-release, verified)
             $submittedCount = ApplicationDocument::where('user_id', $user->id)
                 ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
                 ->count();
                 
-            // Count drafts separately
             $draftCount = ApplicationDocument::where('user_id', $user->id)
                 ->where('status', 'draft')
                 ->count();
@@ -506,7 +709,7 @@ class ApplicationDocumentController extends Controller
     }
 
     /**
-     * Check if user has reached the application limit (only count submitted applications)
+     * Check if user has reached the application limit
      */
     private function hasReachedApplicationLimit($user)
     {
@@ -532,7 +735,6 @@ class ApplicationDocumentController extends Controller
                 ]);
             }
             
-            // Check if table exists
             $tableExists = Schema::hasTable('application_documents');
             
             $applications = [];
@@ -567,19 +769,5 @@ class ApplicationDocumentController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Generate application number (static method for use in other controllers)
-     */
-    public static function generateApplicationNumber()
-    {
-        $year = date('Y');
-        do {
-            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $applicationNumber = $year . $random;
-        } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
-
-        return $applicationNumber;
     }
 }

@@ -15,6 +15,7 @@ class ApplicationDocument extends Model
         'user_id',
         'application_number',
         'google_drive_link',
+        'document_links',
         'status',
         'admin_notes',
         'verified_at',
@@ -34,14 +35,10 @@ class ApplicationDocument extends Model
         'hard_copy_received_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'hard_copy_received' => 'boolean'
+        'hard_copy_received' => 'boolean',
+        'archived_at' => 'datetime',
+        'document_links' => 'array'
     ];
-
-    // Add relationships
-    public function archivedBy()
-    {
-        return $this->belongsTo(User::class, 'archived_by');
-    }
 
     /**
      * Get the user that owns the application documents
@@ -68,6 +65,22 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Get the user who archived the application
+     */
+    public function archivedBy()
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
+
+    /**
+     * Get the basic requirements for this application
+     */
+    public function basicRequirement()
+    {
+        return $this->hasOne(BasicRequirement::class, 'application_id');
+    }
+
+    /**
      * Get the review activities for this application
      */
     public function reviewActivities()
@@ -81,6 +94,71 @@ class ApplicationDocument extends Model
     public function latestReviewActivity()
     {
         return $this->hasOne(ApplicationReviewActivity::class, 'application_id')->latestOfMany();
+    }
+
+    /**
+     * Check if basic requirements are approved for this application
+     */
+    public function hasApprovedBasicRequirements()
+    {
+        return $this->basicRequirement && $this->basicRequirement->status === 'approved';
+    }
+
+    /**
+     * Check if basic requirements are pending for this application
+     */
+    public function hasPendingBasicRequirements()
+    {
+        return $this->basicRequirement && $this->basicRequirement->status === 'pending';
+    }
+
+    /**
+     * Check if basic requirements are rejected for this application
+     */
+    public function hasRejectedBasicRequirements()
+    {
+        return $this->basicRequirement && $this->basicRequirement->status === 'rejected';
+    }
+
+    /**
+     * Check if basic requirements are not submitted for this application
+     */
+    public function hasNoBasicRequirements()
+    {
+        return !$this->basicRequirement;
+    }
+
+    /**
+     * Get basic requirements status for display
+     */
+    public function getBasicRequirementsStatus()
+    {
+        if (!$this->basicRequirement) {
+            return 'not_submitted';
+        }
+        return $this->basicRequirement->status;
+    }
+
+    /**
+     * Get basic requirements status text for display
+     */
+    public function getBasicRequirementsStatusText()
+    {
+        if (!$this->basicRequirement) {
+            return 'Not Submitted';
+        }
+        return $this->basicRequirement->getStatusDisplayAttribute();
+    }
+
+    /**
+     * Get basic requirements status color for display
+     */
+    public function getBasicRequirementsStatusColor()
+    {
+        if (!$this->basicRequirement) {
+            return 'bg-gray-100 text-gray-600';
+        }
+        return $this->basicRequirement->getStatusColorAttribute();
     }
 
     /**
@@ -179,6 +257,34 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Scope a query to only include applications with approved basic requirements
+     */
+    public function scopeWithApprovedBasicRequirements($query)
+    {
+        return $query->whereHas('basicRequirement', function($q) {
+            $q->where('status', 'approved');
+        });
+    }
+
+    /**
+     * Scope a query to only include applications with pending basic requirements
+     */
+    public function scopeWithPendingBasicRequirements($query)
+    {
+        return $query->whereHas('basicRequirement', function($q) {
+            $q->where('status', 'pending');
+        });
+    }
+
+    /**
+     * Scope a query to only include applications without basic requirements
+     */
+    public function scopeWithoutBasicRequirements($query)
+    {
+        return $query->whereDoesntHave('basicRequirement');
+    }
+
+    /**
      * Check if application is verified
      */
     public function isVerified()
@@ -272,6 +378,14 @@ class ApplicationDocument extends Model
     public function isDeletable()
     {
         return $this->status === 'draft';
+    }
+
+    /**
+     * Check if user can proceed to application steps
+     */
+    public function canProceedToSteps()
+    {
+        return $this->hasApprovedBasicRequirements();
     }
 
     /**
@@ -544,5 +658,21 @@ class ApplicationDocument extends Model
             'for-release' => ['verified'],
             default => []
         };
+    }
+    
+    /**
+     * Set document links as JSON
+     */
+    public function setDocumentLinksAttribute($value)
+    {
+        $this->attributes['document_links'] = json_encode($value);
+    }
+
+    /**
+     * Get document links as array
+     */
+    public function getDocumentLinksAttribute($value)
+    {
+        return json_decode($value, true) ?? [];
     }
 }
