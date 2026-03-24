@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageController;
+
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -574,3 +577,25 @@ Route::get('/test-gmail', function() {
 Route::get('/chat', function () {
     return view('chat.index');
 })->middleware(['auth'])->name('chat');
+
+Route::get('/conversations', [ConversationController::class, 'index']);
+Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
+Route::post('/conversations', [ConversationController::class, 'store']);
+Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
+Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
+Route::post('/conversations/create', [ConversationController::class, 'createOnly'])->middleware('auth');
+
+Route::get('/users/list', function() {
+    return App\Models\User::where('id', '!=', auth()->id())
+        ->select('id', 'first_name', 'last_name', 'email')
+        ->get()
+        ->map(function($user) {
+            return [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'initials' => $user->initials,
+                'avatar_url' => $user->avatar_url
+            ];
+        });
+})->middleware('auth');

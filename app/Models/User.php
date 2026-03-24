@@ -10,6 +10,7 @@ use App\Traits\LogActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
@@ -63,7 +64,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, LogActivity;
+     use HasApiTokens, HasFactory, Notifiable, LogActivity; 
 
     /**
      * The attributes that are mass assignable.
@@ -872,4 +873,38 @@ class User extends Authenticatable
             }
         });
     }
+
+    /**
+ * Get conversations for the user.
+ */
+public function conversations()
+{
+    return $this->belongsToMany(Conversation::class, 'conversation_participants')
+                ->withPivot('last_read_at')
+                ->withTimestamps();
+}
+
+/**
+ * Get messages sent by the user.
+ */
+public function messages()
+{
+    return $this->hasMany(Message::class);
+}
+
+/**
+ * Get the user's full name for chat display.
+ */
+public function getChatNameAttribute(): string
+{
+    return $this->full_name; // This uses your existing full_name accessor
+}
+
+/**
+ * Get the user's avatar initial for chat.
+ */
+public function getChatAvatarAttribute(): string
+{
+    return $this->initials; // This uses your existing initials accessor
+}
 }
