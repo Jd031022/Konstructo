@@ -54,6 +54,15 @@
                 <option value="verified">Completed</option>
             </select>
             
+            <!-- Aging Filter -->
+            <select id="aging-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[180px]">
+                <option value="">All Aging Status</option>
+                <option value="new">New (0-2 days)</option>
+                <option value="warning">Warning (3-5 days)</option>
+                <option value="critical">Critical (6-10 days)</option>
+                <option value="overdue">Overdue (10+ days)</option>
+            </select>
+            
             <!-- Filter Button -->
             <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm">
                 Apply Filters
@@ -63,6 +72,27 @@
             <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
                 Reset
             </button>
+        </div>
+        
+        <!-- Aging Legend -->
+        <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-4">
+            <span class="text-xs text-gray-500">Aging Legend:</span>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-xs text-gray-600">0-2 days (New)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span class="text-xs text-gray-600">3-5 days (Warning)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span class="text-xs text-gray-600">6-10 days (Critical)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span class="text-xs text-gray-600">10+ days (Overdue)</span>
+            </div>
         </div>
     </div>
 
@@ -92,11 +122,12 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application #</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aging</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Updated</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -296,7 +327,13 @@
                     <h3 class="text-xl font-bold">Archive Application</h3>
                 </div>
                 <div class="p-6">
-                    <p class="text-gray-700 mb-6">Are you sure you want to archive this application? Archived applications can be restored later.</p>
+                    <p class="text-gray-700 mb-4">Are you sure you want to archive this application? Archived applications can be restored later from the Archive page.</p>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Archiving (Optional)</label>
+                        <textarea id="archive-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent" 
+                            placeholder="Enter reason for archiving..."></textarea>
+                    </div>
                     
                     <div class="flex justify-end gap-3">
                         <button onclick="closeArchiveModal()" 
@@ -392,7 +429,168 @@
     </div>
 </div>
 
-<!-- JavaScript -->
+<!-- Aging Tooltip Styles -->
+<style>
+    /* Modal animations */
+    #new-application-modal,
+    #edit-status-modal,
+    #archive-modal,
+    #delete-modal,
+    #error-modal,
+    #success-modal {
+        transition: opacity 0.2s ease-in-out;
+    }
+    
+    #new-application-modal .bg-white,
+    #edit-status-modal .bg-white,
+    #archive-modal .bg-white,
+    #delete-modal .bg-white,
+    #error-modal .bg-white,
+    #success-modal .bg-white {
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Spinner animation */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Custom scrollbar for modals */
+    .overflow-y-auto::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background: #155386;
+        border-radius: 10px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+        background: #40798C;
+    }
+
+    /* Pagination button styles */
+    #pagination-controls button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    /* Aging row colors */
+    .aging-new {
+        background-color: rgba(34, 197, 94, 0.05);
+        border-left: 3px solid #22c55e;
+    }
+    
+    .aging-warning {
+        background-color: rgba(234, 179, 8, 0.05);
+        border-left: 3px solid #eab308;
+    }
+    
+    .aging-critical {
+        background-color: rgba(249, 115, 22, 0.05);
+        border-left: 3px solid #f97316;
+    }
+    
+    .aging-overdue {
+        background-color: rgba(239, 68, 68, 0.05);
+        border-left: 3px solid #ef4444;
+        animation: pulseRed 1s ease-in-out infinite;
+    }
+    
+    @keyframes pulseRed {
+        0%, 100% {
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+        50% {
+            background-color: rgba(239, 68, 68, 0.15);
+        }
+    }
+    
+    /* Aging badge styles */
+    .aging-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .aging-badge-new {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    
+    .aging-badge-warning {
+        background-color: #fef9c3;
+        color: #854d0e;
+    }
+    
+    .aging-badge-critical {
+        background-color: #ffedd5;
+        color: #9a3412;
+    }
+    
+    .aging-badge-overdue {
+        background-color: #fee2e2;
+        color: #991b1b;
+        animation: pulseBadge 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulseBadge {
+        0%, 100% {
+            background-color: #fee2e2;
+        }
+        50% {
+            background-color: #fecaca;
+        }
+    }
+    
+    /* Tooltip */
+    .aging-tooltip {
+        position: relative;
+        cursor: help;
+    }
+    
+    .aging-tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #1f2937;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 10;
+        margin-bottom: 5px;
+    }
+</style>
+
 <script>
     let applications = [];
     let filteredApplications = [];
@@ -405,7 +603,64 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadApplications();
         setupModals();
+        // Auto-refresh every 60 seconds to update aging
+        setInterval(loadApplications, 60000);
     });
+
+    // Calculate aging days since submission
+    function calculateAgingDays(submittedAt, lastUpdatedAt) {
+        const submittedDate = new Date(submittedAt);
+        const currentDate = new Date();
+        const daysDiff = Math.floor((currentDate - submittedDate) / (1000 * 60 * 60 * 24));
+        return daysDiff;
+    }
+    
+    // Get aging status based on days
+    function getAgingStatus(days) {
+        if (days <= 2) return { status: 'new', text: 'New', color: 'green', days: days };
+        if (days <= 5) return { status: 'warning', text: 'Warning', color: 'yellow', days: days };
+        if (days <= 10) return { status: 'critical', text: 'Critical', color: 'orange', days: days };
+        return { status: 'overdue', text: 'Overdue', color: 'red', days: days };
+    }
+    
+    // Get aging badge HTML
+    function getAgingBadge(days) {
+        const aging = getAgingStatus(days);
+        let badgeClass = 'aging-badge-';
+        let icon = '';
+        
+        switch(aging.status) {
+            case 'new':
+                badgeClass += 'new';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+            case 'warning':
+                badgeClass += 'warning';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
+                break;
+            case 'critical':
+                badgeClass += 'critical';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+            case 'overdue':
+                badgeClass += 'overdue';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+        }
+        
+        return `
+            <div class="aging-badge ${badgeClass} aging-tooltip" data-tooltip="Application submitted ${days} day${days !== 1 ? 's' : ''} ago">
+                ${icon}
+                <span>${aging.text} (${days} day${days !== 1 ? 's' : ''})</span>
+            </div>
+        `;
+    }
+    
+    // Get row class based on aging status
+    function getRowClass(days) {
+        const aging = getAgingStatus(days);
+        return `aging-${aging.status}`;
+    }
 
     // Load applications from API
     async function loadApplications() {
@@ -440,6 +695,13 @@
             
             if (data.success) {
                 applications = data.applications || [];
+                // Add aging calculation to each application
+                applications = applications.map(app => {
+                    const days = calculateAgingDays(app.created_at, app.updated_at);
+                    app.aging_days = days;
+                    app.aging_status = getAgingStatus(days);
+                    return app;
+                });
                 applyFilters();
             } else {
                 showErrorModal(data.message || 'Failed to load applications');
@@ -469,12 +731,33 @@
     function applyFilters() {
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
         const statusFilter = document.getElementById('status-filter').value;
+        const agingFilter = document.getElementById('aging-filter').value;
         
         filteredApplications = applications.filter(app => {
             const matchesSearch = app.application_number.toLowerCase().includes(searchTerm) || 
                                  (app.applicant_name && app.applicant_name.toLowerCase().includes(searchTerm));
             const matchesStatus = !statusFilter || app.status === statusFilter;
-            return matchesSearch && matchesStatus;
+            
+            let matchesAging = true;
+            if (agingFilter) {
+                const days = app.aging_days;
+                switch(agingFilter) {
+                    case 'new':
+                        matchesAging = days <= 2;
+                        break;
+                    case 'warning':
+                        matchesAging = days >= 3 && days <= 5;
+                        break;
+                    case 'critical':
+                        matchesAging = days >= 6 && days <= 10;
+                        break;
+                    case 'overdue':
+                        matchesAging = days >= 11;
+                        break;
+                }
+            }
+            
+            return matchesSearch && matchesStatus && matchesAging;
         });
         
         currentPage = 1;
@@ -485,6 +768,7 @@
     function resetFilters() {
         document.getElementById('search-input').value = '';
         document.getElementById('status-filter').value = '';
+        document.getElementById('aging-filter').value = '';
         applyFilters();
     }
 
@@ -512,7 +796,7 @@
         updatePagination();
     }
 
-    // Create application table row
+    // Create application table row with aging colors
     function createApplicationRow(app) {
         const initials = app.applicant_name ? 
             app.applicant_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 
@@ -536,12 +820,21 @@
             'verified': 'Completed'
         };
         
-        const date = new Date(app.created_at);
-        const formattedDate = date.toLocaleDateString('en-US', { 
+        const submittedDate = new Date(app.created_at);
+        const formattedSubmittedDate = submittedDate.toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'short', 
             day: 'numeric' 
         });
+        
+        const updatedDate = app.updated_at ? new Date(app.updated_at) : null;
+        const formattedUpdatedDate = updatedDate ? updatedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : 'N/A';
         
         const gradientColors = [
             'from-[#155386] to-[#40798C]',
@@ -551,9 +844,10 @@
         ];
         
         const randomGradient = gradientColors[app.id % gradientColors.length];
+        const rowClass = getRowClass(app.aging_days);
         
         return `
-            <tr class="hover:bg-gray-50 transition">
+            <tr class="hover:bg-gray-50 transition ${rowClass}">
                 <td class="py-4 px-6">
                     <span class="font-mono text-sm font-medium text-[#155386]">${app.application_number}</span>
                 </td>
@@ -568,11 +862,22 @@
                         </div>
                     </div>
                 </td>
-                <td class="py-4 px-6 text-sm text-gray-500">${formattedDate}</td>
+                <td class="py-4 px-6">
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-700">${formattedSubmittedDate}</span>
+                        <span class="text-xs text-gray-400">${app.aging_days} day${app.aging_days !== 1 ? 's' : ''} ago</span>
+                    </div>
+                </td>
+                <td class="py-4 px-6">
+                    ${getAgingBadge(app.aging_days)}
+                </td>
                 <td class="py-4 px-6">
                     <span class="px-3 py-1 ${statusColors[app.status] || 'bg-gray-100 text-gray-600'} rounded-full text-xs font-medium whitespace-nowrap">
                         ${statusText[app.status] || app.status}
                     </span>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500">
+                    ${formattedUpdatedDate}
                 </td>
                 <td class="py-4 px-6">
                     <div class="flex items-center gap-2">
@@ -727,6 +1032,7 @@
         const btn = document.getElementById('confirm-archive-btn');
         const btnText = document.getElementById('archive-btn-text');
         const spinner = document.getElementById('archive-btn-spinner');
+        const reason = document.getElementById('archive-reason')?.value || '';
         
         btnText.classList.add('hidden');
         spinner.classList.remove('hidden');
@@ -736,9 +1042,11 @@
             const response = await fetch(`/staff/applications/${archiveId}/archive`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
-                }
+                },
+                body: JSON.stringify({ reason: reason })
             });
             
             const data = await response.json();
@@ -752,11 +1060,14 @@
             }
         } catch (error) {
             console.error('Error archiving application:', error);
-            showErrorModal('Failed to archive application');
+            showErrorModal('Failed to archive application: ' + error.message);
         } finally {
             btnText.classList.remove('hidden');
             spinner.classList.add('hidden');
             btn.disabled = false;
+            if (document.getElementById('archive-reason')) {
+                document.getElementById('archive-reason').value = '';
+            }
         }
     }
 
@@ -926,66 +1237,4 @@
         });
     }
 </script>
-
-<!-- Styles -->
-<style>
-    /* Modal animations */
-    #new-application-modal,
-    #edit-status-modal,
-    #archive-modal,
-    #delete-modal,
-    #error-modal,
-    #success-modal {
-        transition: opacity 0.2s ease-in-out;
-    }
-    
-    #new-application-modal .bg-white,
-    #edit-status-modal .bg-white,
-    #archive-modal .bg-white,
-    #delete-modal .bg-white,
-    #error-modal .bg-white,
-    #success-modal .bg-white {
-        animation: modalSlideIn 0.3s ease-out;
-    }
-    
-    @keyframes modalSlideIn {
-        from {
-            transform: translateY(-20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    /* Spinner animation */
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-
-    /* Custom scrollbar for modals */
-    .overflow-y-auto::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-        background: #155386;
-        border-radius: 10px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-        background: #40798C;
-    }
-</style>
 @endsection
