@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
 
+
 class ApplicationController extends Controller
 {
     /**
@@ -36,7 +37,6 @@ class ApplicationController extends Controller
         $this->notificationService = $notificationService;
         $this->gmailService = $gmailService;
         
-        // Log that services are injected
         Log::info('ApplicationController initialized', [
             'notification_service' => get_class($notificationService),
             'gmail_service' => get_class($gmailService)
@@ -44,170 +44,163 @@ class ApplicationController extends Controller
     }
 
     /**
- * Display a listing of all submitted applications (excluding drafts and archived)
- */
-public function index()
-{
-    try {
-        Log::info('Fetching all staff applications (excluding drafts and archived)');
-        
-        // Get all applications EXCLUDING drafts AND archived
-        $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-            ->where('is_archived', false) // Add this line to exclude archived applications
-            ->whereIn('status', [
-                'pending', 
-                'under-review', 
-                'document-verification',
-                'approved', 
-                'rejected', 
-                'for-release', 
-                'verified'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+     * Display a listing of all submitted applications (excluding drafts and archived)
+     */
+    public function index()
+    {
+        try {
+            Log::info('Fetching all staff applications (excluding drafts and archived)');
+            
+            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+                ->where('is_archived', false)
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        $formattedApplications = [];
-        foreach ($applications as $app) {
-            // Safely get applicant name
-            $applicantName = 'Unknown';
-            if ($app->user) {
-                $firstName = $app->user->first_name ?? '';
-                $lastName = $app->user->last_name ?? '';
-                $applicantName = trim($firstName . ' ' . $lastName);
-                if (empty($applicantName)) {
-                    $applicantName = 'Unknown';
+            $formattedApplications = [];
+            foreach ($applications as $app) {
+                $applicantName = 'Unknown';
+                if ($app->user) {
+                    $firstName = $app->user->first_name ?? '';
+                    $lastName = $app->user->last_name ?? '';
+                    $applicantName = trim($firstName . ' ' . $lastName);
+                    if (empty($applicantName)) {
+                        $applicantName = 'Unknown';
+                    }
                 }
+                
+                $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
+                $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
+                
+                $lastUpdatedByName = null;
+                if ($app->lastUpdatedBy) {
+                    $firstName = $app->lastUpdatedBy->first_name ?? '';
+                    $lastName = $app->lastUpdatedBy->last_name ?? '';
+                    $lastUpdatedByName = trim($firstName . ' ' . $lastName);
+                    if (empty($lastUpdatedByName)) {
+                        $lastUpdatedByName = null;
+                    }
+                }
+                
+                $formattedApplications[] = [
+                    'id' => $app->id,
+                    'application_number' => $app->application_number ?? 'N/A',
+                    'applicant_name' => $applicantName,
+                    'email' => $app->user ? ($app->user->email ?? null) : null,
+                    'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
+                    'address' => $app->user ? ($app->user->address ?? null) : null,
+                    'google_drive_link' => $app->google_drive_link,
+                    'status' => $app->status ?? 'unknown',
+                    'rejection_reason' => $app->rejection_reason,
+                    'admin_notes' => $app->admin_notes,
+                    'created_at' => $createdAt,
+                    'updated_at' => $updatedAt,
+                    'hard_copy_received' => $app->hard_copy_received ?? false,
+                    'last_updated_by' => $app->last_updated_by,
+                    'last_updated_by_name' => $lastUpdatedByName,
+                    'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
+                    'is_archived' => $app->is_archived ?? false
+                ];
             }
             
-            // Safely format dates
-            $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
-            $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
+            return response()->json([
+                'success' => true,
+                'applications' => $formattedApplications,
+                'total' => count($formattedApplications)
+            ]);
             
-            // Safely get last updated by name
-            $lastUpdatedByName = null;
-            if ($app->lastUpdatedBy) {
-                $firstName = $app->lastUpdatedBy->first_name ?? '';
-                $lastName = $app->lastUpdatedBy->last_name ?? '';
-                $lastUpdatedByName = trim($firstName . ' ' . $lastName);
-                if (empty($lastUpdatedByName)) {
-                    $lastUpdatedByName = null;
-                }
-            }
+        } catch (\Exception $e) {
+            Log::error('Error loading staff applications: ' . $e->getMessage());
+            Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            $formattedApplications[] = [
-                'id' => $app->id,
-                'application_number' => $app->application_number ?? 'N/A',
-                'applicant_name' => $applicantName,
-                'email' => $app->user ? ($app->user->email ?? null) : null,
-                'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
-                'address' => $app->user ? ($app->user->address ?? null) : null,
-                'google_drive_link' => $app->google_drive_link,
-                'status' => $app->status ?? 'unknown',
-                'rejection_reason' => $app->rejection_reason,
-                'admin_notes' => $app->admin_notes,
-                'created_at' => $createdAt,
-                'updated_at' => $updatedAt,
-                'hard_copy_received' => $app->hard_copy_received ?? false,
-                'last_updated_by' => $app->last_updated_by,
-                'last_updated_by_name' => $lastUpdatedByName,
-                'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
-                'is_archived' => $app->is_archived ?? false // Add this field for frontend filtering if needed
-            ];
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading applications: ' . $e->getMessage(),
+                'applications' => []
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'applications' => $formattedApplications,
-            'total' => count($formattedApplications)
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error loading staff applications: ' . $e->getMessage());
-        Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
-        Log::error('Stack trace: ' . $e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading applications: ' . $e->getMessage(),
-            'applications' => []
-        ], 500);
     }
-}
 
     /**
      * Get a single application details
      */
-    /**
- * Get a single application details
- */
-public function show($id)
-{
-    try {
-        Log::info('Fetching application details for ID: ' . $id);
-        
-        $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-            ->where('is_archived', false) // Add this to exclude archived
-            ->whereIn('status', [
-                'pending', 
-                'under-review', 
-                'document-verification',
-                'approved', 
-                'rejected', 
-                'for-release', 
-                'verified'
-            ])
-            ->find($id);
-        
-        if (!$application) {
-            Log::error('Application not found for ID: ' . $id);
+    public function show($id)
+    {
+        try {
+            Log::info('Fetching application details for ID: ' . $id);
+            
+            $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+                ->where('is_archived', false)
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
+                ->find($id);
+            
+            if (!$application) {
+                Log::error('Application not found for ID: ' . $id);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $lastUpdatedBy = null;
+            if ($application->last_updated_by) {
+                $lastUpdatedBy = User::find($application->last_updated_by);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown',
+                    'email' => $application->user ? $application->user->email : null,
+                    'phone' => $application->user ? $application->user->phone_number : null,
+                    'address' => $application->user ? $application->user->address : null,
+                    'google_drive_link' => $application->google_drive_link,
+                    'document_links' => $application->document_links,
+                    'status' => $application->status,
+                    'rejection_reason' => $application->rejection_reason,
+                    'admin_notes' => $application->admin_notes,
+                    'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
+                    'hard_copy_received' => $application->hard_copy_received ?? false,
+                    'last_updated_by' => $application->last_updated_by,
+                    'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
+                    'last_updated_by_role' => $lastUpdatedBy ? $lastUpdatedBy->role : null,
+                    'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
+                    'last_updated_by_initials' => $lastUpdatedBy ? 
+                        strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST',
+                    'is_archived' => $application->is_archived
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error loading application details: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Application not found'
-            ], 404);
+                'message' => 'Error loading application details: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Get last updated by user if exists
-        $lastUpdatedBy = null;
-        if ($application->last_updated_by) {
-            $lastUpdatedBy = User::find($application->last_updated_by);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $application->id,
-                'application_number' => $application->application_number,
-                'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown',
-                'email' => $application->user ? $application->user->email : null,
-                'phone' => $application->user ? $application->user->phone_number : null,
-                'address' => $application->user ? $application->user->address : null,
-                'google_drive_link' => $application->google_drive_link,
-                'status' => $application->status,
-                'rejection_reason' => $application->rejection_reason,
-                'admin_notes' => $application->admin_notes,
-                'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
-                'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
-                'hard_copy_received' => $application->hard_copy_received ?? false,
-                'last_updated_by' => $application->last_updated_by,
-                'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
-                'last_updated_by_role' => $lastUpdatedBy ? $lastUpdatedBy->role : null,
-                'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
-                'last_updated_by_initials' => $lastUpdatedBy ? 
-                    strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST',
-                'is_archived' => $application->is_archived
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error loading application details: ' . $e->getMessage());
-        Log::error('Stack trace: ' . $e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading application details: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     /**
      * Store a new application (created by staff)
@@ -231,7 +224,6 @@ public function show($id)
         }
 
         try {
-            // Create user first
             $user = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -244,14 +236,12 @@ public function show($id)
                 'email_verified_at' => now(),
             ]);
             
-            // Generate application number
             $year = date('Y');
             do {
                 $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
                 $applicationNumber = $year . $random;
             } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
             
-            // Create application
             $application = ApplicationDocument::create([
                 'user_id' => $user->id,
                 'application_number' => $applicationNumber,
@@ -263,7 +253,6 @@ public function show($id)
                 'hard_copy_received' => false
             ]);
             
-            // Log the creation
             $this->logReviewActivity(
                 $application->id,
                 auth()->id(),
@@ -275,14 +264,11 @@ public function show($id)
                 $request->userAgent()
             );
 
-            // TRIGGER NOTIFICATION: Notify staff about new application
             $this->notificationService->notifyStaffNewApplication($application);
             
-            // Send email to applicant about new application
             try {
                 Log::info('📧 Attempting to send PENDING email to: ' . $user->email);
                 
-                // Check if Gmail service is configured
                 if (method_exists($this->gmailService, 'isConfigured')) {
                     $isConfigured = $this->gmailService->isConfigured();
                     Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
@@ -299,11 +285,10 @@ public function show($id)
                 if ($emailSent) {
                     Log::info('✓✓✓ PENDING EMAIL SENT SUCCESSFULLY TO ' . $user->email);
                 } else {
-                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email . ' - sendStatusEmail returned false');
+                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email);
                 }
             } catch (\Exception $e) {
                 Log::error('✗✗✗ EXCEPTION when sending pending email: ' . $e->getMessage());
-                Log::error($e->getTraceAsString());
             }
             
             return response()->json([
@@ -393,16 +378,13 @@ public function show($id)
                 'changed' => ($oldHardCopyStatus != $newHardCopyStatus) ? 'YES' : 'NO'
             ]);
             
-            // Update application
             $application->status = $newStatus;
             $application->admin_notes = $request->remarks ?? $application->admin_notes;
             $application->last_updated_by = $staff->id;
             
-            // Handle hard copy status
             if ($request->has('hardcopy_received')) {
                 $application->hard_copy_received = $newHardCopyStatus;
                 
-                // If hard copy is being marked as received for the first time
                 if ($newHardCopyStatus && !$oldHardCopyStatus) {
                     $application->hard_copy_received_at = now();
                     Log::info('Setting hard_copy_received_at to now');
@@ -427,7 +409,6 @@ public function show($id)
                 'new_hardcopy_status' => $application->hard_copy_received
             ]);
 
-            // Send status change notification if status changed
             if ($oldStatus !== $newStatus) {
                 Log::info('ATTEMPTING TO SEND STATUS CHANGE NOTIFICATION');
                 
@@ -440,11 +421,9 @@ public function show($id)
                     );
                     Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
                     
-                    // SEND EMAIL NOTIFICATIONS FOR ALL STATUSES USING GMAIL SERVICE
                     if ($application->user && $application->user->email) {
                         Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
                         
-                        // Check if Gmail service is configured
                         if (method_exists($this->gmailService, 'isConfigured')) {
                             $isConfigured = $this->gmailService->isConfigured();
                             Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
@@ -461,7 +440,7 @@ public function show($id)
                         if ($emailSent) {
                             Log::info("✓✓✓ {$newStatus} EMAIL SENT SUCCESSFULLY TO {$application->user->email}");
                         } else {
-                            Log::error("✗✗✗ FAILED TO SEND {$newStatus} EMAIL TO {$application->user->email} - sendStatusEmail returned false");
+                            Log::error("✗✗✗ FAILED TO SEND {$newStatus} EMAIL TO {$application->user->email}");
                         }
                     } else {
                         Log::error('Cannot send email: Applicant email not found');
@@ -469,11 +448,9 @@ public function show($id)
                     
                 } catch (\Exception $e) {
                     Log::error('✗✗✗ EXCEPTION when sending status email: ' . $e->getMessage());
-                    Log::error($e->getTraceAsString());
                 }
             }
 
-            // Send hard copy received notification if hard copy status changed to received
             if ($newHardCopyStatus && !$oldHardCopyStatus) {
                 Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
                 
@@ -481,7 +458,6 @@ public function show($id)
                     $this->notificationService->notifyHardCopyReceived($application, $staff);
                     Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
                     
-                    // Also send email for hard copy received
                     if ($application->user && $application->user->email) {
                         Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL VIA GMAIL SERVICE");
                         
@@ -500,11 +476,9 @@ public function show($id)
                     
                 } catch (\Exception $e) {
                     Log::error('✗✗✗ EXCEPTION when sending hard copy notification: ' . $e->getMessage());
-                    Log::error($e->getTraceAsString());
                 }
             }
 
-            // Log activity
             try {
                 Log::info('Creating review activity');
                 $activity = ApplicationReviewActivity::create([
@@ -575,7 +549,6 @@ public function show($id)
 
             $staff = auth()->user();
 
-            // Append new note to existing notes
             $existingNotes = $application->admin_notes;
             $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . ": " . $request->note;
             $application->admin_notes = $existingNotes 
@@ -585,14 +558,12 @@ public function show($id)
             $application->last_updated_by = $staff->id;
             $application->save();
 
-            // TRIGGER NOTIFICATION: Notify applicant about new note
             $this->notificationService->notifyApplicantOfNote(
                 $application,
                 $request->note,
                 $staff
             );
 
-            // Send email about new note
             try {
                 if ($application->user && $application->user->email) {
                     Log::info("📧 ATTEMPTING TO SEND NOTE ADDED EMAIL TO {$application->user->email}");
@@ -613,7 +584,6 @@ public function show($id)
                 Log::error('Failed to send note email: ' . $e->getMessage());
             }
 
-            // Log the note activity
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
@@ -675,7 +645,6 @@ public function show($id)
 
             $staff = auth()->user();
 
-            // Update hard copy status
             $application->hard_copy_received = true;
             $application->hard_copy_received_at = now();
             $application->last_updated_by = $staff->id;
@@ -687,14 +656,12 @@ public function show($id)
                 'last_updated_by' => $application->last_updated_by
             ]);
 
-            // TRIGGER NOTIFICATION: Hard copy received
             Log::info('Calling notification service...');
             
             try {
                 $this->notificationService->notifyHardCopyReceived($application, $staff);
                 Log::info('✅ Notification service called successfully');
                 
-                // Send email about hard copy received
                 if ($application->user && $application->user->email) {
                     try {
                         Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL TO {$application->user->email}");
@@ -720,7 +687,6 @@ public function show($id)
                 Log::error($e->getTraceAsString());
             }
 
-            // Log the activity
             try {
                 $activity = $this->logReviewActivity(
                     $application->id,
@@ -806,19 +772,16 @@ public function show($id)
 
             $staff = auth()->user();
             
-            // Format the missing documents list
             $documentList = implode("\n", array_map(function($doc) {
                 return "• " . $doc;
             }, $request->documents));
             
-            // Create the note message
             $noteMessage = "Missing documents requested:\n\n" . $documentList;
             
             if ($request->remarks) {
                 $noteMessage .= "\n\nRemarks: " . $request->remarks;
             }
             
-            // Add note to application
             $existingNotes = $application->admin_notes;
             $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " requested missing documents:\n" . $documentList;
             
@@ -833,11 +796,9 @@ public function show($id)
             $application->last_updated_by = $staff->id;
             $application->save();
 
-            // SEND EMAIL NOTIFICATION
             if ($application->user && $application->user->email) {
                 Log::info('📧 ATTEMPTING TO SEND MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE TO ' . $application->user->email);
                 
-                // Check if Gmail service is configured
                 if (method_exists($this->gmailService, 'isConfigured')) {
                     $isConfigured = $this->gmailService->isConfigured();
                     Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
@@ -855,13 +816,12 @@ public function show($id)
                 if ($emailSent) {
                     Log::info('✓✓✓ MISSING DOCUMENTS EMAIL SENT SUCCESSFULLY TO ' . $application->user->email);
                 } else {
-                    Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL TO ' . $application->user->email . ' - sendMissingDocumentsEmail returned false');
+                    Log::error('✗✗✗ FAILED TO SEND MISSING DOCUMENTS EMAIL TO ' . $application->user->email);
                 }
             } else {
                 Log::error('Cannot send email: Applicant email not found');
             }
 
-            // Log the activity
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
@@ -912,7 +872,6 @@ public function show($id)
             
             $staff = auth()->user();
             
-            // Log before deleting
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
@@ -942,82 +901,80 @@ public function show($id)
     }
 
     /**
- * Export applications (CSV) - excluding archived
- */
-public function export()
-{
-    try {
-        $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-            ->where('is_archived', false) // Add this to exclude archived
-            ->whereIn('status', [
-                'pending', 
-                'under-review', 
-                'document-verification',
-                'approved', 
-                'rejected', 
-                'for-release', 
-                'verified'
-            ])
-            ->get();
-        
-        $filename = 'applications_' . date('Y-m-d') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-        
-        $callback = function() use ($applications) {
-            $handle = fopen('php://output', 'w');
+     * Export applications (CSV) - excluding archived
+     */
+    public function export()
+    {
+        try {
+            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+                ->where('is_archived', false)
+                ->whereIn('status', [
+                    'pending', 
+                    'under-review', 
+                    'document-verification',
+                    'approved', 
+                    'rejected', 
+                    'for-release', 
+                    'verified'
+                ])
+                ->get();
             
-            // Add CSV headers
-            fputcsv($handle, [
-                'Application Number',
-                'Applicant Name',
-                'Email',
-                'Phone',
-                'Status',
-                'Hard Copy Received',
-                'Date Submitted',
-                'Last Updated By',
-                'Google Drive Link'
-            ]);
+            $filename = 'applications_' . date('Y-m-d') . '.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
             
-            // Add data rows
-            foreach ($applications as $app) {
+            $callback = function() use ($applications) {
+                $handle = fopen('php://output', 'w');
+                
                 fputcsv($handle, [
-                    $app->application_number,
-                    $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'Unknown',
-                    $app->user ? $app->user->email : '',
-                    $app->user ? $app->user->phone_number : '',
-                    ucfirst(str_replace('-', ' ', $app->status)),
-                    $app->hard_copy_received ? 'Yes' : 'No',
-                    $app->created_at ? $app->created_at->format('Y-m-d') : '',
-                    $app->lastUpdatedBy ? $app->lastUpdatedBy->first_name . ' ' . $app->lastUpdatedBy->last_name : 'N/A',
-                    $app->google_drive_link
+                    'Application Number',
+                    'Applicant Name',
+                    'Email',
+                    'Phone',
+                    'Status',
+                    'Hard Copy Received',
+                    'Date Submitted',
+                    'Last Updated By',
+                    'Google Drive Link'
                 ]);
-            }
+                
+                foreach ($applications as $app) {
+                    fputcsv($handle, [
+                        $app->application_number,
+                        $app->user ? $app->user->first_name . ' ' . $app->user->last_name : 'Unknown',
+                        $app->user ? $app->user->email : '',
+                        $app->user ? $app->user->phone_number : '',
+                        ucfirst(str_replace('-', ' ', $app->status)),
+                        $app->hard_copy_received ? 'Yes' : 'No',
+                        $app->created_at ? $app->created_at->format('Y-m-d') : '',
+                        $app->lastUpdatedBy ? $app->lastUpdatedBy->first_name . ' ' . $app->lastUpdatedBy->last_name : 'N/A',
+                        $app->google_drive_link
+                    ]);
+                }
+                
+                fclose($handle);
+            };
             
-            fclose($handle);
-        };
-        
-        return response()->stream($callback, 200, $headers);
-        
-    } catch (\Exception $e) {
-        Log::error('Error exporting applications: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error exporting applications'
-        ], 500);
+            return response()->stream($callback, 200, $headers);
+            
+        } catch (\Exception $e) {
+            Log::error('Error exporting applications: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting applications'
+            ], 500);
+        }
     }
-}
+    
     /**
      * Log review activity for an application
      */
     private function logReviewActivity($applicationId, $reviewerId, $action, $oldStatus = null, $newStatus = null, $remarks = null, $ipAddress = null, $userAgent = null)
     {
         try {
-            // Check if ApplicationReviewActivity table exists
             if (!Schema::hasTable('application_review_activities')) {
                 Log::warning('Application review activities table does not exist');
                 return null;
@@ -1055,7 +1012,8 @@ public function export()
         
         return $username;
     }
- /**
+    
+    /**
      * Archive an application
      */
     public function archive($id)
@@ -1063,7 +1021,6 @@ public function export()
         try {
             $application = ApplicationDocument::findOrFail($id);
             
-            // Check if already archived
             if ($application->is_archived) {
                 return response()->json([
                     'success' => false,
@@ -1073,7 +1030,6 @@ public function export()
             
             DB::beginTransaction();
             
-            // Update the application to archived
             $application->update([
                 'is_archived' => true,
                 'archived_at' => now(),
@@ -1081,7 +1037,6 @@ public function export()
                 'archive_reason' => request('reason', 'Archived by staff')
             ]);
             
-            // Log the activity
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'application_archived',
@@ -1230,7 +1185,6 @@ public function export()
                 ->where('is_archived', true)
                 ->where('archived_at', '!=', null);
             
-            // Apply search filter
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
@@ -1239,12 +1193,10 @@ public function export()
                           $userQuery->where('first_name', 'LIKE', "%{$search}%")
                                     ->orWhere('last_name', 'LIKE', "%{$search}%")
                                     ->orWhere('email', 'LIKE', "%{$search}%");
-                      })
-                      ->orWhere('project_address', 'LIKE', "%{$search}%");
+                      });
                 });
             }
             
-            // Apply date filter
             if ($request->filled('date')) {
                 switch ($request->date) {
                     case 'today':
@@ -1263,15 +1215,8 @@ public function export()
                 }
             }
             
-            // Apply type filter
-            if ($request->filled('type') && $request->type !== 'all') {
-                $query->where('application_type', $request->type);
-            }
-            
-            // Order by archived date (most recent first)
             $query->orderBy('archived_at', 'desc');
             
-            // Get stats before pagination
             $stats = [
                 'total' => ApplicationDocument::where('is_archived', true)->count(),
                 'this_month' => ApplicationDocument::where('is_archived', true)
@@ -1280,11 +1225,9 @@ public function export()
                     ->count()
             ];
             
-            // Paginate results
             $perPage = $request->get('per_page', 10);
             $applications = $query->paginate($perPage);
             
-            // Transform the data
             $applications->getCollection()->transform(function($app) {
                 return [
                     'id' => $app->id,

@@ -28,8 +28,6 @@ class ApplicationController extends Controller
     public function index()
     {
         try {
-            Log::info('ApplicationController@index started');
-            
             $user = Auth::user();
 
             if (!$user) {
@@ -48,7 +46,6 @@ class ApplicationController extends Controller
                 ], 500);
             }
 
-            // Get all applications for the user with their basic requirements
             $applications = ApplicationDocument::with('basicRequirement')
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
@@ -57,24 +54,15 @@ class ApplicationController extends Controller
             $formattedApplications = [];
             foreach ($applications as $app) {
                 try {
-                    // Get basic requirements status for this application
-                    $basicRequirement = $app->basicRequirement;
-                    $basicRequirementStatus = $basicRequirement ? $basicRequirement->status : 'not_submitted';
-                    $basicRequirementRejectionReason = $basicRequirement ? $basicRequirement->rejection_reason : null;
-                    
-                    // Log for debugging
-                    Log::info('Application data', [
-                        'app_id' => $app->id,
-                        'app_number' => $app->application_number,
-                        'has_basic_requirement' => $basicRequirement ? true : false,
-                        'basic_requirement_status' => $basicRequirementStatus
-                    ]);
+                    $basicRequirementStatus = $app->basicRequirement ? $app->basicRequirement->status : 'not_submitted';
+                    $basicRequirementRejectionReason = $app->basicRequirement ? $app->basicRequirement->rejection_reason : null;
                     
                     $formattedApplications[] = [
                         'id' => $app->id,
                         'application_number' => $app->application_number ?? 'Pending',
                         'has_application_number' => !is_null($app->application_number),
                         'google_drive_link' => $app->google_drive_link,
+                        'document_links' => $app->document_links, // Add this line
                         'status' => $app->status,
                         'status_display' => $this->formatStatus($app->status),
                         'rejection_reason' => $app->rejection_reason,
@@ -223,6 +211,7 @@ class ApplicationController extends Controller
                     'id' => $application->id,
                     'application_number' => $application->application_number,
                     'google_drive_link' => $application->google_drive_link,
+                    'document_links' => $application->document_links, // Add this line
                     'status' => $application->status,
                     'status_display' => $this->formatStatus($application->status),
                     'rejection_reason' => $application->rejection_reason,

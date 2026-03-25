@@ -98,7 +98,6 @@
                             <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                         </div>
                         
-                        <!-- Application Meta Information -->
                         <div class="flex items-center gap-4 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400">Application Number</span>
@@ -130,7 +129,6 @@
                 </div>
             </div>
             
-            <!-- Progress Bar with Loading Animation -->
             <div class="mb-8">
                 <div class="flex items-center justify-between text-sm mb-2">
                     <span class="text-gray-600">Overall Completion</span>
@@ -144,7 +142,6 @@
                     </div>
                 </div>
                 
-                <!-- Progress Bar Container -->
                 <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
                     <div id="progress-bar" class="absolute inset-0 bg-gradient-to-r from-[#155386] to-[#40798C] h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                     <div class="absolute inset-0 h-full w-full overflow-hidden">
@@ -153,20 +150,13 @@
                 </div>
             </div>
 
-            <!-- Timeline Steps -->
             <div class="relative">
-                <!-- Progress Line (background) -->
                 <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
-                
-                <!-- Active Progress Line -->
                 <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
-                
-                <!-- Animated Progress Line Overlay -->
                 <div class="absolute top-5 left-0 w-full h-0.5 overflow-hidden">
                     <div class="w-full h-full loading-line-animation"></div>
                 </div>
                 
-                <!-- Steps -->
                 <div class="relative flex justify-between">
                     @php
                         $steps = [
@@ -203,7 +193,6 @@
                 </div>
             </div>
 
-            <!-- Estimated Completion -->
             <div class="mt-6 pt-4 border-t border-gray-100">
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-gray-600">Estimated Review Completion:</span>
@@ -249,209 +238,224 @@
                     </div>
                 </div>
 
-               <!-- Google Drive Documents Card -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">Google Drive Documents</h2>
-        <span id="drive-status" class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Working</span>
-    </div>
-    
-    <!-- Google Drive Link Section -->
-    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <div class="flex items-start gap-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-800">Google Drive Folder</p>
-                <div class="flex items-center gap-2 mt-1">
-                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1" target="_blank">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        View Folder
-                    </a>
-                    <span class="text-gray-300">|</span>
-                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Copy Link
-                    </button>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Last accessed: <span id="last-accessed">Today</span></p>
-            </div>
-        </div>
-    </div>
+                <!-- Google Drive Documents Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Google Drive Documents</h2>
+                        <span id="drive-status" class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Working</span>
+                    </div>
+                    
+                    <!-- Main Google Drive Folder Link -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-800">Main Google Drive Folder</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
+                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        <span id="drive-link-text">View Folder</span>
+                                    </a>
+                                    <span class="text-gray-300">|</span>
+                                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        Copy Link
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">All required documents should be uploaded to this folder</p>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Document Actions -->
-    <div class="flex justify-end gap-3">
-        <div class="relative">
-            <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Request Missing Documents
-                <svg class="w-4 h-4 ml-2 transition-transform" id="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            
-            <!-- Missing Documents Dropdown -->
-            <div id="missing-documents-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-semibold text-gray-800">Select Missing Documents</h3>
-                        <button onclick="toggleMissingDocumentsDropdown()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                    <!-- Individual Document Links -->
+                    <div class="space-y-4">
+                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Submitted Documents</h3>
+                        <div id="documents-list" class="space-y-3">
+                            <!-- Documents will be loaded dynamically -->
+                            <div class="text-center py-8 text-gray-500">
+                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-sm">Loading documents...</p>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Search Box -->
-                    <div class="mb-3">
-                        <input type="text" id="document-search" placeholder="Search documents..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" onkeyup="filterDocuments()">
-                    </div>
-                    
-                    <!-- Document Categories -->
-                    <div class="space-y-3 max-h-96 overflow-y-auto">
-                        <!-- Application Forms -->
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Application Forms</p>
-                            <div class="space-y-2">
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Application for Building Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Sign Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Application for Architectural Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Mechanical Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Application for Electrical Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Electronics Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Application for Sanitary/Plumbing Permit</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Demolition Permit Form</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Application for Civil/Structural</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Fencing Permit</span>
-                                </label>
+
+                    <!-- Document Actions -->
+                    <div class="mt-6 flex justify-end gap-3">
+                        <div class="relative">
+                            <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Request Missing Documents
+                                <svg class="w-4 h-4 ml-2 transition-transform" id="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Missing Documents Dropdown -->
+                            <div id="missing-documents-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-800">Select Missing Documents</h3>
+                                        <button onclick="toggleMissingDocumentsDropdown()" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Search Box -->
+                                    <div class="mb-3">
+                                        <input type="text" id="document-search" placeholder="Search documents..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" onkeyup="filterDocuments()">
+                                    </div>
+                                    
+                                    <!-- Document Categories -->
+                                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                                        <!-- Application Forms -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Application Forms</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Building Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Sign Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Architectural Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Electrical Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Electronics Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Sanitary/Plumbing Permit</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Demolition Permit Form</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Application for Civil/Structural</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Fencing Permit</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Plans and Specifications -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Plans and Specifications</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Architectural Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Civil/Structural Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Electrical Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Sanitary/Plumbing Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Fencing Plans and Specifications (5 sets)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Bill of Materials (5 copies)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Supporting Documents -->
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Supporting Documents</p>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Proof of Ownership (2 copies)</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Structural Design Analysis</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Locational/Zoning Clearance</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Barangay Clearance</span>
+                                                </label>
+                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+                                                    <span class="ml-3 text-sm text-gray-700">Certificate of Construction Safety and Health Program (CSHP) from DOLE (for Contractors w/ PCAB)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Remarks Field -->
+                                    <div class="mt-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks (Optional)</label>
+                                        <textarea id="document-request-remarks" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" placeholder="Add any additional instructions or notes for the applicant..."></textarea>
+                                    </div>
+                                    
+                                    <!-- Dropdown Actions -->
+                                    <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end gap-2">
+                                        <button onclick="clearSelectedDocuments()" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">
+                                            Clear All
+                                        </button>
+                                        <button onclick="sendDocumentRequest()" class="px-4 py-1.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                                            Send Request
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Plans and Specifications -->
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Plans and Specifications</p>
-                            <div class="space-y-2">
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Architectural Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Civil/Structural Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Electrical Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Sanitary/Plumbing Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Mechanical Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Fencing Plans and Specifications (5 sets)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Bill of Materials (5 copies)</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Supporting Documents -->
-                        <div>
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Supporting Documents</p>
-                            <div class="space-y-2">
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Proof of Ownership (2 copies)</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Structural Design Analysis</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Locational/Zoning Clearance</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Barangay Clearance</span>
-                                </label>
-                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm text-gray-700">Certificate of Construction Safety and Health Program (CSHP) from DOLE (for Contractors w/ PCAB)</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Remarks Field -->
-                    <div class="mt-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks (Optional)</label>
-                        <textarea id="document-request-remarks" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" placeholder="Add any additional instructions or notes for the applicant..."></textarea>
-                    </div>
-                    
-                    <!-- Dropdown Actions -->
-                    <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end gap-2">
-                        <button onclick="clearSelectedDocuments()" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">
-                            Clear All
-                        </button>
-                        <button onclick="sendDocumentRequest()" class="px-4 py-1.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-                            Send Request
+                        <button onclick="showVerifyModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                            Verify Documents
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <button onclick="showVerifyModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-            Verify Documents
-        </button>
-    </div>
-</div>
 
                 <!-- Staff Guidelines Card -->
                 <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 animate-fade-in">
@@ -612,6 +616,33 @@
     </div>
 </div>
 
+<!-- Archive Confirmation Modal -->
+<div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+                    <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Archive Application</h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    Are you sure you want to archive this application? It will be moved to the archive and won't appear in the main list.
+                </p>
+                <div class="flex gap-3">
+                    <button onclick="closeArchiveModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="confirmArchive()" id="confirm-archive-btn" class="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium">
+                        Archive
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Success Message Modal -->
 <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
@@ -658,7 +689,6 @@
     </div>
 </div>
 
-<!-- JavaScript -->
 <script>
     // Get application ID from URL path
     function getApplicationIdFromUrl() {
@@ -671,16 +701,24 @@
     let previousStatus = null;
     let selectedDocuments = [];
     let updateCheckInterval = null;
-    let requiredDocuments = [
-        'Application for Building Permit',
-        'Architectural Plans and Specifications (5 sets)',
-        'Civil/Structural Plans and Specifications (5 sets)',
-        'Electrical Plans and Specifications (5 sets)',
-        'Sanitary/Plumbing Plans and Specifications (5 sets)',
-        'Proof of Ownership (2 copies)',
-        'Locational/Zoning Clearance',
-        'Barangay Clearance'
-    ];
+
+    // Document names mapping
+    const documentNames = {
+        'app_letter_link': 'Application Letter',
+        'bp_forms_link': 'Building Permit Forms',
+        'arch_plans_link': 'Architectural Plans',
+        'structural_plans_link': 'Civil/Structural Plans',
+        'electrical_plans_link': 'Electrical Plans',
+        'plumbing_plans_link': 'Sanitary/Plumbing Plans',
+        'mechanical_plans_link': 'Mechanical Plans',
+        'fencing_plans_link': 'Fencing Plans',
+        'ownership_link': 'Proof of Ownership',
+        'bom_link': 'Bill of Materials',
+        'structural_analysis_link': 'Structural Design Analysis',
+        'barangay_clearance_link': 'Barangay Clearance',
+        'valid_id_link': 'Valid ID',
+        'cshp_link': 'CSHP from DOLE (Optional)'
+    };
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -690,7 +728,6 @@
             loadReviewActivities();
             loadQueuePosition();
             calculateEstimatedTime();
-            // Start checking for updates every 15 seconds
             startRealTimeUpdates();
         } else {
             showError();
@@ -711,7 +748,6 @@
 
     // Start real-time updates
     function startRealTimeUpdates() {
-        // Check for updates every 15 seconds
         updateCheckInterval = setInterval(checkForUpdates, 15000);
     }
 
@@ -730,25 +766,26 @@
                 if (data.success) {
                     const newApplication = data.data;
                     
-                    // Check if status changed
                     if (previousStatus && previousStatus !== newApplication.status) {
                         showUpdateNotification('Application status updated to ' + formatStatus(newApplication.status));
                         animateStatusChange();
-                        
-                        // Save timestamp for the new status
                         saveStatusTimestamp(newApplication.status);
                     }
                     
-                    // Check if hard copy status changed
                     if (currentApplication && currentApplication.hard_copy_received !== newApplication.hard_copy_received) {
                         updateHardCopyStatus(newApplication.hard_copy_received);
                     }
                     
-                    // Update the application data
                     currentApplication = newApplication;
                     displayApplicationDetails();
                     
-                    // Reload activities if needed
+                    // Display documents from document_links
+                    if (currentApplication.document_links) {
+                        displayDocumentsList(currentApplication.document_links);
+                    } else {
+                        showEmptyDocuments();
+                    }
+                    
                     if (previousStatus !== newApplication.status) {
                         loadReviewActivities();
                     }
@@ -759,6 +796,72 @@
         } catch (error) {
             console.error('Error checking for updates:', error);
         }
+    }
+
+    // Display documents list
+    function displayDocumentsList(documents) {
+        const container = document.getElementById('documents-list');
+        
+        if (!documents || Object.keys(documents).length === 0) {
+            showEmptyDocuments();
+            return;
+        }
+        
+        let html = '';
+        let hasDocuments = false;
+        
+        for (const [key, value] of Object.entries(documents)) {
+            if (value && value.trim() !== '') {
+                hasDocuments = true;
+                const docName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition group">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">${docName}</p>
+                                <p class="text-xs text-gray-400 truncate">${value.length > 60 ? value.substring(0, 60) + '...' : value}</p>
+                            </div>
+                        </div>
+                        <a href="${value}" target="_blank" class="text-[#155386] hover:text-[#1F363D] text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span class="hidden sm:inline">View</span>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        if (!hasDocuments) {
+            showEmptyDocuments();
+        } else {
+            container.innerHTML = html;
+            document.getElementById('drive-status').textContent = 'Documents Available';
+            document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        }
+    }
+
+    // Show empty documents state
+    function showEmptyDocuments() {
+        const container = document.getElementById('documents-list');
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500 animate-fade-in">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-sm">No documents uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">Documents will appear here once uploaded</p>
+            </div>
+        `;
+        document.getElementById('drive-status').textContent = 'No Documents';
+        document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
     }
 
     // Save timestamp for status changes
@@ -855,7 +958,6 @@
             month: 'long', day: 'numeric', year: 'numeric' 
         });
         
-        // Calculate target release (add 7 days for release processing)
         const releaseDate = new Date(estimatedDate);
         releaseDate.setDate(estimatedDate.getDate() + 7);
         
@@ -891,6 +993,13 @@
                 updateProgress(currentApplication.status);
                 updateHardCopyStatus(currentApplication.hard_copy_received);
                 calculateEstimatedTime();
+                
+                // Display documents from document_links
+                if (currentApplication.document_links) {
+                    displayDocumentsList(currentApplication.document_links);
+                } else {
+                    showEmptyDocuments();
+                }
             } else {
                 showError();
             }
@@ -898,28 +1007,6 @@
             console.error('Error loading application:', error);
             showError();
         }
-    }
-
-    // Load document checklist
-    function loadDocumentChecklist() {
-        const checklist = document.getElementById('document-checklist');
-        
-        // In a real implementation, this would come from the API
-        // For now, we'll simulate with sample data
-        let html = '';
-        requiredDocuments.forEach((doc, index) => {
-            const verified = Math.random() > 0.5; // Simulate verification status
-            html += `
-                <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100">
-                    <span class="text-sm text-gray-700">${doc}</span>
-                    <span class="text-xs px-2 py-1 ${verified ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'} rounded-full">
-                        ${verified ? 'Verified ✓' : 'Pending'}
-                    </span>
-                </div>
-            `;
-        });
-        
-        checklist.innerHTML = html;
     }
 
     // Load review activities
@@ -966,7 +1053,6 @@
             const date = new Date(activity.created_at);
             const timeAgo = getTimeAgo(date);
             
-            // Determine icon based on action
             let iconColor = 'bg-blue-100';
             let iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
             
@@ -1019,11 +1105,9 @@
 
     // Display application details
     function displayApplicationDetails() {
-        // Hide loading, show content
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('application-content').classList.remove('hidden');
 
-        // Update application number and dates
         document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
         
         if (currentApplication.created_at) {
@@ -1043,26 +1127,22 @@
             });
         }
 
-        // Update status badge
         updateStatusUI(currentApplication.status);
 
-        // Update applicant information
         document.getElementById('applicant-name').textContent = currentApplication.applicant_name || 'N/A';
         document.getElementById('applicant-email').textContent = currentApplication.email || 'N/A';
         document.getElementById('applicant-phone').textContent = currentApplication.phone || 'N/A';
         document.getElementById('applicant-address').textContent = currentApplication.address || 'N/A';
 
-        // Update Google Drive link
         if (currentApplication.google_drive_link) {
             const driveLink = document.getElementById('drive-link');
             driveLink.href = currentApplication.google_drive_link;
-            driveLink.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg> View Folder';
+            document.getElementById('drive-link-text').textContent = currentApplication.google_drive_link.length > 50 ? 
+                currentApplication.google_drive_link.substring(0, 50) + '...' : 
+                currentApplication.google_drive_link;
             driveLink.classList.remove('pointer-events-none', 'text-gray-500');
             driveLink.classList.add('text-[#155386]');
             driveLink.setAttribute('target', '_blank');
-            
-            document.getElementById('drive-status').textContent = 'Active';
-            document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
         } else {
             const driveLink = document.getElementById('drive-link');
             driveLink.innerHTML = '<span class="text-gray-500">No link provided</span>';
@@ -1070,12 +1150,8 @@
             driveLink.classList.add('pointer-events-none', 'text-gray-500');
             driveLink.classList.remove('text-[#155386]');
             driveLink.removeAttribute('target');
-            
-            document.getElementById('drive-status').textContent = 'No Link';
-            document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
         }
 
-        // Set current status in radio buttons
         const radios = document.querySelectorAll('.status-radio');
         radios.forEach(radio => {
             if (radio.value === currentApplication.status) {
@@ -1128,7 +1204,6 @@
             const dateElement = document.getElementById(`step-${step}-date`);
             
             if (index <= currentStepIndex) {
-                // Completed step
                 if (circle) {
                     circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500';
                     circle.innerHTML = '<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
@@ -1136,14 +1211,12 @@
                 if (text) text.className = 'text-sm font-medium text-gray-800 transition-all duration-500';
                 
                 if (index === currentStepIndex && currentApplication) {
-                    // Current step - show "In Progress"
                     dateElement.textContent = 'In Progress';
                     dateElement.className = 'text-xs text-[#155386] font-medium animate-pulse';
                     stepElement.classList.add('step-processing');
                 } else {
                     stepElement.classList.remove('step-processing');
                     
-                    // Show actual date if available
                     const dateField = {
                         0: 'created_at',
                         1: 'under_review_at',
@@ -1159,7 +1232,6 @@
                     }
                 }
             } else {
-                // Future step
                 if (circle) {
                     circle.className = 'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500';
                     circle.innerHTML = `<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1173,7 +1245,6 @@
             }
         });
 
-        // Update progress line width
         const progressLine = document.getElementById('progress-line');
         if (progressLine) {
             const width = currentStepIndex >= 0 ? ((currentStepIndex + 1) / steps.length) * 100 : 0;
@@ -1181,7 +1252,6 @@
         }
     }
 
-    // Get step index from status
     function getStepIndex(status) {
         const stepMap = {
             'draft': -1,
@@ -1196,7 +1266,6 @@
         return stepMap[status] !== undefined ? stepMap[status] : -1;
     }
 
-    // Update progress based on status
     function updateProgress(status) {
         const progressMap = {
             'draft': 0,
@@ -1214,7 +1283,6 @@
         document.getElementById('progress-bar').style.width = progress + '%';
     }
 
-    // Update hard copy status
     function updateHardCopyStatus(received) {
         const hardcopyNotice = document.getElementById('hardcopy-notice');
         const hardcopyReceivedNotice = document.getElementById('hardcopy-received-notice');
@@ -1243,7 +1311,6 @@
         const remarks = document.getElementById('status-remarks').value;
         const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
 
-        // Show loading state on button
         const updateBtn = event.target;
         const originalText = updateBtn.innerHTML;
         updateBtn.innerHTML = 'Updating...';
@@ -1272,14 +1339,8 @@
                 updateTimeline(status);
                 updateProgress(status);
                 updateHardCopyStatus(hardcopyReceived);
-                
-                // Save timestamp
                 saveStatusTimestamp(status);
-                
-                // Clear remarks field
                 document.getElementById('status-remarks').value = '';
-                
-                // Reload activities
                 loadReviewActivities();
             } else {
                 showErrorModal(data.message || 'Failed to update status');
@@ -1288,7 +1349,6 @@
             console.error('Error updating status:', error);
             showErrorModal('Failed to update status. Please try again.');
         } finally {
-            // Restore button
             updateBtn.innerHTML = originalText;
             updateBtn.disabled = false;
         }
@@ -1317,7 +1377,6 @@
             }
         });
         
-        // Hide empty categories
         const categories = document.querySelectorAll('#missing-documents-dropdown .space-y-3 > div');
         categories.forEach(category => {
             const visibleItems = category.querySelectorAll('label[style="display: flex;"]').length;
@@ -1396,8 +1455,18 @@
 
     // Show verify modal
     function showVerifyModal() {
-        // Load documents for verification list
         const documentList = document.getElementById('verification-document-list');
+        const requiredDocuments = [
+            'Application for Building Permit',
+            'Architectural Plans and Specifications (5 sets)',
+            'Civil/Structural Plans and Specifications (5 sets)',
+            'Electrical Plans and Specifications (5 sets)',
+            'Sanitary/Plumbing Plans and Specifications (5 sets)',
+            'Proof of Ownership (2 copies)',
+            'Locational/Zoning Clearance',
+            'Barangay Clearance'
+        ];
+        
         let docHtml = '<ul class="list-disc list-inside text-sm">';
         requiredDocuments.forEach(doc => {
             docHtml += `<li>${doc}</li>`;
@@ -1452,7 +1521,6 @@
                 updateProgress(status);
                 saveStatusTimestamp(status);
                 
-                // Update radio button
                 const radios = document.querySelectorAll('.status-radio');
                 radios.forEach(radio => {
                     if (radio.value === status) {
@@ -1471,13 +1539,11 @@
         }
     }
 
-    // Format status for display
     function formatStatus(status) {
         if (!status) return '';
         return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
-    // Get time ago string
     function getTimeAgo(date) {
         const now = new Date();
         const diffMs = now - date;
@@ -1493,7 +1559,6 @@
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    // Copy drive link
     function copyDriveLink() {
         const link = currentApplication?.google_drive_link;
         if (link) {
@@ -1507,12 +1572,10 @@
         }
     }
 
-    // Export as PDF
     function exportAsPDF() {
         window.location.href = `/staff/applications/${applicationId}/export-pdf`;
     }
 
-    // Archive functions
     function archiveApplication() {
         document.getElementById('archive-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -1557,13 +1620,11 @@
         }
     }
 
-    // Show error state
     function showError() {
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('error-state').classList.remove('hidden');
     }
 
-    // Modal functions
     function showSuccessModal(message) {
         document.getElementById('success-modal-message').textContent = message;
         document.getElementById('success-modal').classList.remove('hidden');
@@ -1590,7 +1651,6 @@
         document.body.style.overflow = 'auto';
     }
 
-    // Setup modals
     function setupModals() {
         const archiveModal = document.getElementById('archive-modal');
         const errorModal = document.getElementById('error-modal');
@@ -1631,7 +1691,6 @@
         });
     }
 
-    // Clean up interval when leaving the page
     window.addEventListener('beforeunload', function() {
         if (updateCheckInterval) {
             clearInterval(updateCheckInterval);
@@ -1644,7 +1703,6 @@
         transform: rotate(180deg);
     }
 
-    /* Modal animations */
     #archive-modal, #error-modal, #success-modal, #missing-documents-dropdown, #verify-modal {
         transition: opacity 0.2s ease-in-out;
     }
@@ -1664,97 +1722,45 @@
         }
     }
 
-    /* Spinner animation */
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
 
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-
-    /* Progress Bar Loading Animation */
     @keyframes progressLoading {
-        0% {
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, 
-                transparent 0%,
-                rgba(255, 255, 255, 0.1) 25%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0.1) 75%,
-                transparent 100%
-            );
-        }
-        100% {
-            transform: translateX(100%);
-            background: linear-gradient(90deg, 
-                transparent 0%,
-                rgba(255, 255, 255, 0.1) 25%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0.1) 75%,
-                transparent 100%
-            );
-        }
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
     }
 
     .loading-progress-animation {
         position: relative;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, 
-            transparent 0%,
-            rgba(255, 255, 255, 0.2) 25%,
-            rgba(255, 255, 255, 0.6) 50%,
-            rgba(255, 255, 255, 0.2) 75%,
-            transparent 100%
-        );
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%);
         background-size: 200% 100%;
         animation: progressLoading 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         mix-blend-mode: overlay;
     }
 
-    /* Line Loading Animation */
     @keyframes lineLoading {
-        0% {
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, 
-                transparent 0%,
-                rgba(255, 255, 255, 0.1) 25%,
-                rgba(255, 255, 255, 0.4) 50%,
-                rgba(255, 255, 255, 0.1) 75%,
-                transparent 100%
-            );
-        }
-        100% {
-            transform: translateX(100%);
-            background: linear-gradient(90deg, 
-                transparent 0%,
-                rgba(255, 255, 255, 0.1) 25%,
-                rgba(255, 255, 255, 0.4) 50%,
-                rgba(255, 255, 255, 0.1) 75%,
-                transparent 100%
-            );
-        }
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
     }
 
     .loading-line-animation {
         position: relative;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, 
-            transparent 0%,
-            rgba(255, 255, 255, 0.2) 25%,
-            rgba(255, 255, 255, 0.6) 50%,
-            rgba(255, 255, 255, 0.2) 75%,
-            transparent 100%
-        );
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%);
         background-size: 200% 100%;
         animation: lineLoading 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         mix-blend-mode: overlay;
     }
 
-    /* Ping animation for live indicator */
     @keyframes ping {
         75%, 100% {
             transform: scale(2);
@@ -1766,24 +1772,22 @@
         animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
-    /* Step glow for current step */
     @keyframes stepGlow {
         0%, 100% {
-            box-shadow: 0 0 5px rgba(21, 83, 134, 0.3);
+            box-shadow: 0 0 5px rgba(21,83,134,0.3);
             transform: scale(1);
         }
         50% {
-            box-shadow: 0 0 20px rgba(64, 121, 140, 0.6);
+            box-shadow: 0 0 20px rgba(64,121,140,0.6);
             transform: scale(1.05);
         }
     }
 
     .step-processing .w-10 {
         animation: stepGlow 2s ease-in-out infinite;
-        border: 2px solid rgba(21, 83, 134, 0.3);
+        border: 2px solid rgba(21,83,134,0.3);
     }
 
-    /* Fade in animation */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -1799,7 +1803,6 @@
         animation: fadeIn 0.5s ease-out;
     }
 
-    /* Slide down animation */
     @keyframes slideDown {
         from {
             opacity: 0;
@@ -1815,52 +1818,34 @@
         animation: slideDown 0.3s ease-out;
     }
 
-    /* Scale animation */
     @keyframes scalePulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        100% {
-            transform: scale(1);
-        }
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
 
     .scale-animation {
         animation: scalePulse 0.5s ease-in-out;
     }
 
-    /* Bounce animation */
     @keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-5px);
-        }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
     }
 
     .animate-bounce {
         animation: bounce 1s infinite;
     }
 
-    /* Pulse animation */
     @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.7;
-        }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
 
     .animate-pulse {
         animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
-    /* Step item hover effect */
     .step-item {
         transition: transform 0.3s ease;
     }
@@ -1869,12 +1854,10 @@
         transform: translateY(-2px);
     }
 
-    /* Disable pointer events */
     .pointer-events-none {
         pointer-events: none;
     }
 
-    /* Transition for smooth updates */
     .transition-all {
         transition-property: all;
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1890,6 +1873,20 @@
 
     .ease-out {
         transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .min-w-0 {
+        min-width: 0;
+    }
+
+    .break-all {
+        word-break: break-all;
     }
 </style>
 @endsection
