@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Konstructo')</title>
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    
 
     @auth
     @php
@@ -85,6 +86,7 @@
     <!-- ALPINE.JS - For interactivity               -->
     <!-- ========================================== -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
     <!-- ========================================== -->
     <!-- VITE - For Laravel Vite                     -->

@@ -236,11 +236,17 @@
 </div>
 
 <script>
+// Isolate chat functionality to prevent conflicts with other pages
+(function() {
+    'use strict';
+    
     let currentConversation = null;
     let echo = null;
     let currentUserId = {{ auth()->id() }};
     let allUsers = [];
     let pusherChannel = null;
+    let pollingInterval = null;
+    let lastMessageCount = 0;
     
     // Initialize Echo and Pusher for real-time
     function initializeEcho() {
@@ -254,7 +260,6 @@
     }
     
     // Fallback polling for real-time if Pusher not configured
-    let pollingInterval = null;
     function setupPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(() => {
@@ -264,7 +269,6 @@
         }, 3000);
     }
     
-    let lastMessageCount = 0;
     async function checkForNewMessages(conversationId) {
         try {
             const response = await fetch(`/conversations/${conversationId}`, {
@@ -320,28 +324,43 @@
     
     // Show new conversation modal
     function showNewConversationModal() {
-        document.getElementById('newConversationModal').classList.remove('hidden');
-        document.getElementById('user-search').focus();
-        searchUsers();
+        const modal = document.getElementById('newConversationModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            const searchInput = document.getElementById('user-search');
+            if (searchInput) searchInput.focus();
+            searchUsers();
+        }
     }
     
     function closeNewConversationModal() {
-        document.getElementById('newConversationModal').classList.add('hidden');
-        document.getElementById('user-search').value = '';
-        document.getElementById('user-search-results').innerHTML = '';
+        const modal = document.getElementById('newConversationModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            const searchInput = document.getElementById('user-search');
+            if (searchInput) searchInput.value = '';
+            const results = document.getElementById('user-search-results');
+            if (results) results.innerHTML = '';
+        }
     }
     
     // Search users with profile pictures
     function searchUsers() {
-        const searchTerm = document.getElementById('user-search').value.toLowerCase();
+        const searchInput = document.getElementById('user-search');
+        if (!searchInput) return;
+        
+        const searchTerm = searchInput.value.toLowerCase();
         const results = allUsers.filter(user => 
             user.id !== currentUserId && 
             (user.full_name.toLowerCase().includes(searchTerm) || 
              user.email.toLowerCase().includes(searchTerm))
         );
         
+        const resultsContainer = document.getElementById('user-search-results');
+        if (!resultsContainer) return;
+        
         const resultsHtml = results.map(user => `
-            <div onclick="startConversationWithUser(${user.id}, '${escapeHtml(user.full_name)}', '${escapeHtml(user.avatar_url || '')}', '${escapeHtml(user.initials || user.full_name.charAt(0))}')" 
+            <div onclick="window.startConversationWithUser(${user.id}, '${escapeHtml(user.full_name)}', '${escapeHtml(user.avatar_url || '')}', '${escapeHtml(user.initials || user.full_name.charAt(0))}')" 
                  class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 flex items-center gap-3">
                 <div class="relative">
                     ${user.avatar_url ? 
@@ -358,7 +377,7 @@
             </div>
         `).join('');
         
-        document.getElementById('user-search-results').innerHTML = resultsHtml || '<div class="text-center text-gray-500 py-4">No users found</div>';
+        resultsContainer.innerHTML = resultsHtml || '<div class="text-center text-gray-500 py-4">No users found</div>';
     }
     
     // Update avatar display
@@ -366,14 +385,16 @@
         const imgElement = document.getElementById(`${elementPrefix}-avatar-img`);
         const placeholderElement = document.getElementById(`${elementPrefix}-avatar-placeholder`);
         
-        if (avatarUrl && avatarUrl !== '') {
-            imgElement.src = avatarUrl;
-            imgElement.classList.remove('hidden');
-            placeholderElement.classList.add('hidden');
-        } else {
-            placeholderElement.innerHTML = initials;
-            placeholderElement.classList.remove('hidden');
-            imgElement.classList.add('hidden');
+        if (imgElement && placeholderElement) {
+            if (avatarUrl && avatarUrl !== '') {
+                imgElement.src = avatarUrl;
+                imgElement.classList.remove('hidden');
+                placeholderElement.classList.add('hidden');
+            } else {
+                placeholderElement.innerHTML = initials;
+                placeholderElement.classList.remove('hidden');
+                imgElement.classList.add('hidden');
+            }
         }
     }
     
@@ -442,7 +463,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p>${message}</p>
-                        <button onclick="fetchConversations()" class="mt-3 px-4 py-2 bg-[#155386] text-white rounded-lg text-sm">Retry</button>
+                        <button onclick="window.fetchConversations()" class="mt-3 px-4 py-2 bg-[#155386] text-white rounded-lg text-sm">Retry</button>
                     </div>
                 </div>
             `;
@@ -463,7 +484,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                         <p>No conversations yet</p>
-                        <button onclick="showNewConversationModal()" class="mt-3 px-4 py-2 bg-[#155386] text-white rounded-lg text-sm">Start a new conversation</button>
+                        <button onclick="window.showNewConversationModal()" class="mt-3 px-4 py-2 bg-[#155386] text-white rounded-lg text-sm">Start a new conversation</button>
                     </div>
                 </div>
             `;
@@ -539,8 +560,10 @@
         if (messagesContainer) messagesContainer.classList.remove('hidden');
         if (messageInputContainer) messageInputContainer.classList.remove('hidden');
         
-        document.getElementById('chat-name').textContent = name;
-        document.getElementById('mobile-chat-name').textContent = name;
+        const chatName = document.getElementById('chat-name');
+        const mobileChatName = document.getElementById('mobile-chat-name');
+        if (chatName) chatName.textContent = name;
+        if (mobileChatName) mobileChatName.textContent = name;
         
         // Update avatars
         updateAvatar(avatarUrl, avatarInitials, 'chat');
@@ -572,8 +595,10 @@
         subscribeToConversation(conversationId);
         
         if (window.innerWidth < 768) {
-            document.getElementById('mobile-conversation-list').classList.add('hidden');
-            document.getElementById('mobile-chat-view').classList.remove('hidden');
+            const mobileList = document.getElementById('mobile-conversation-list');
+            const mobileView = document.getElementById('mobile-chat-view');
+            if (mobileList) mobileList.classList.add('hidden');
+            if (mobileView) mobileView.classList.remove('hidden');
         }
     }
     
@@ -606,6 +631,8 @@
     
     async function sendMessage() {
         const input = document.getElementById('message-input');
+        if (!input) return;
+        
         const content = input.value.trim();
         
         if (content === '' || !currentConversation) return;
@@ -629,6 +656,8 @@
     
     async function sendMobileMessage() {
         const input = document.getElementById('mobile-message-input');
+        if (!input) return;
+        
         const content = input.value.trim();
         
         if (content === '' || !currentConversation) return;
@@ -784,6 +813,13 @@
         }
     }
     
+    function backToConversations() {
+        const mobileList = document.getElementById('mobile-conversation-list');
+        const mobileView = document.getElementById('mobile-chat-view');
+        if (mobileList) mobileList.classList.remove('hidden');
+        if (mobileView) mobileView.classList.add('hidden');
+    }
+    
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
         initializeEcho();
@@ -795,19 +831,32 @@
         setupTextarea(document.getElementById('mobile-message-input'), sendMobileMessage);
     });
     
-    // Global functions
+    // Attach functions to window with unique names to avoid conflicts
+    window.chat = {
+        sendMessage: sendMessage,
+        sendMobileMessage: sendMobileMessage,
+        backToConversations: backToConversations,
+        showNewConversationModal: showNewConversationModal,
+        closeNewConversationModal: closeNewConversationModal,
+        startConversationWithUser: startConversationWithUser,
+        fetchConversations: fetchConversations,
+        showConversationInfo: function() {
+            alert('Conversation details coming soon');
+        }
+    };
+    
+    // Also attach individual functions for onclick handlers (keeping compatibility)
     window.sendMessage = sendMessage;
     window.sendMobileMessage = sendMobileMessage;
-    window.backToConversations = function() {
-        document.getElementById('mobile-conversation-list').classList.remove('hidden');
-        document.getElementById('mobile-chat-view').classList.add('hidden');
-    };
+    window.backToConversations = backToConversations;
     window.showNewConversationModal = showNewConversationModal;
     window.closeNewConversationModal = closeNewConversationModal;
     window.startConversationWithUser = startConversationWithUser;
+    window.fetchConversations = fetchConversations;
     window.showConversationInfo = function() {
         alert('Conversation details coming soon');
     };
+})();
 </script>
 
 <style>

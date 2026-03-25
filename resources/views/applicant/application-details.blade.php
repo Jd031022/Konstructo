@@ -275,55 +275,78 @@
                 </div>
 
                 <!-- Google Drive Documents Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Google Drive Documents</h2>
-                    
-                    <!-- Google Drive Link Section -->
-                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-800">Google Drive Folder</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
-                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                        <span id="drive-link-text">View Folder</span>
-                                    </a>
-                                    <span class="text-gray-300">|</span>
-                                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        Copy Link
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">All required documents should be uploaded to this folder</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Document Status -->
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Document Status:</span>
-                        <span id="document-status" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500">Not Available</span>
-                    </div>
-
-                    <!-- Document Verification Status -->
-                    <div id="document-verification-status" class="mt-4 p-3 bg-purple-50 rounded-lg hidden">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
-                            <span class="text-xs font-medium text-gray-700">Verification Status:</span>
-                            <span id="verification-badge" class="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">In Progress</span>
-                        </div>
-                        <p id="verification-message" class="text-xs text-gray-500 mt-1">Documents are being verified by staff</p>
-                    </div>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Google Drive Documents
+    </h2>
+    
+    <!-- Main Google Drive Folder Link -->
+    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-gray-800">Main Google Drive Folder</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span id="drive-link-text">View Folder</span>
+                    </a>
+                    <span class="text-gray-300">|</span>
+                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Copy Link
+                    </button>
                 </div>
+                <p class="text-xs text-gray-500 mt-2">All required documents should be uploaded to this folder</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Document Links -->
+    <div class="space-y-4">
+        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Submitted Documents</h3>
+        
+        <div id="documents-list" class="space-y-3">
+            <!-- Documents will be loaded dynamically -->
+            <div class="text-center py-8 text-gray-500">
+                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-sm">Loading documents...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Status -->
+    <div class="mt-6 pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Document Status:</span>
+            <span id="document-status" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500">Not Available</span>
+        </div>
+
+        <!-- Document Verification Status -->
+        <div id="document-verification-status" class="mt-4 p-3 bg-purple-50 rounded-lg hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
+                <span class="text-xs font-medium text-gray-700">Verification Status:</span>
+                <span id="verification-badge" class="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">In Progress</span>
+            </div>
+            <p id="verification-message" class="text-xs text-gray-500 mt-1">Documents are being verified by staff</p>
+        </div>
+    </div>
+</div>
 
                 <!-- Important Notes Card - Moved here below Google Drive -->
                 <div class="bg-yellow-50 rounded-2xl p-6 border border-yellow-100 animate-fade-in">
@@ -611,46 +634,53 @@
         }, 1000);
     }
 
-    // Load application details from API
-    async function loadApplicationDetails() {
-        try {
-            console.log('Fetching application details for ID:', applicationId);
-            
-            const response = await fetch(`/applicant/applications/${applicationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
-            
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                throw new Error(`Network response was not ok: ${response.status}`);
+// Load application details from API
+async function loadApplicationDetails() {
+    try {
+        console.log('Fetching application details for ID:', applicationId);
+        
+        const response = await fetch(`/applicant/applications/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`Network response was not ok: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Application data:', data);
+        
+        if (data.success) {
+            currentApplication = data.data;
+            previousStatus = currentApplication.status;
+            displayApplicationDetails();
             
-            const data = await response.json();
-            console.log('Application data:', data);
+            // Load review activities
+            loadReviewActivities();
             
-            if (data.success) {
-                currentApplication = data.data;
-                previousStatus = currentApplication.status;
-                displayApplicationDetails();
-                
-                // Load review activities
-                loadReviewActivities();
+            // Load individual documents
+            if (currentApplication.document_links) {
+                displayDocumentsList(currentApplication.document_links);
             } else {
-                showErrorModal(data.message || 'Application not found');
-                showError();
+                showEmptyDocuments();
             }
-        } catch (error) {
-            console.error('Error loading application:', error);
-            showErrorModal('Failed to load application details: ' + error.message);
+        } else {
+            showErrorModal(data.message || 'Application not found');
             showError();
         }
+    } catch (error) {
+        console.error('Error loading application:', error);
+        showErrorModal('Failed to load application details: ' + error.message);
+        showError();
     }
+}
 
     // Load review activities
     async function loadReviewActivities() {
@@ -1063,6 +1093,8 @@ function displayReviewActivities(activities) {
         } else {
             showDocumentVerificationStatus(false);
         }
+
+        loadIndividualDocuments();
     }
 
     // Show/hide document verification status
@@ -1380,6 +1412,127 @@ function displayReviewActivities(activities) {
             clearInterval(updateCheckInterval);
         }
     });
+    // Load and display individual documents
+async function loadIndividualDocuments() {
+    try {
+        const response = await fetch(`/applicant/application-details/${applicationId}/documents`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.documents) {
+            displayDocumentsList(data.documents);
+        } else {
+            showEmptyDocuments();
+        }
+    } catch (error) {
+        console.error('Error loading documents:', error);
+        showEmptyDocuments();
+    }
+}
+
+// Display documents list
+function displayDocumentsList(documents) {
+    const container = document.getElementById('documents-list');
+    
+    if (!documents || Object.keys(documents).length === 0) {
+        showEmptyDocuments();
+        return;
+    }
+    
+    // Document names mapping
+    const documentNames = {
+        'app_letter_link': 'Application Letter',
+        'bp_forms_link': 'Building Permit Forms',
+        'arch_plans_link': 'Architectural Plans',
+        'structural_plans_link': 'Civil/Structural Plans',
+        'electrical_plans_link': 'Electrical Plans',
+        'plumbing_plans_link': 'Sanitary/Plumbing Plans',
+        'mechanical_plans_link': 'Mechanical Plans',
+        'fencing_plans_link': 'Fencing Plans',
+        'ownership_link': 'Proof of Ownership',
+        'bom_link': 'Bill of Materials',
+        'structural_analysis_link': 'Structural Design Analysis',
+        'barangay_clearance_link': 'Barangay Clearance',
+        'valid_id_link': 'Valid ID',
+        'cshp_link': 'CSHP from DOLE (Optional)'
+    };
+    
+    // Document icons mapping
+    const documentIcons = {
+        'app_letter_link': 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+        'bp_forms_link': 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+        'arch_plans_link': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+        'structural_plans_link': 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+        'electrical_plans_link': 'M13 10V3L4 14h7v7l9-11h-7z',
+        'plumbing_plans_link': 'M5 3v4M3 5h4M6 17v4m-2-2h4M5 3v4M3 5h4M6 17v4m-2-2h4M12 2v20M2 12h20',
+        'mechanical_plans_link': 'M12 4v16m8-8H4M12 4L8 8m4-4l4 4m-4 4l4 4m-4-4l-4 4',
+        'fencing_plans_link': 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
+        'ownership_link': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+        'bom_link': 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+        'structural_analysis_link': 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+        'barangay_clearance_link': 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+        'valid_id_link': 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        'cshp_link': 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z'
+    };
+    
+    let html = '';
+    let hasDocuments = false;
+    
+    for (const [key, value] of Object.entries(documents)) {
+        if (value && value.trim() !== '') {
+            hasDocuments = true;
+            const docName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+            const iconPath = documentIcons[key] || 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z';
+            
+            html += `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition group">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">${docName}</p>
+                            <p class="text-xs text-gray-400 truncate">${value.length > 60 ? value.substring(0, 60) + '...' : value}</p>
+                        </div>
+                    </div>
+                    <a href="${value}" target="_blank" class="text-[#155386] hover:text-[#1F363D] text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span class="hidden sm:inline">View</span>
+                    </a>
+                </div>
+            `;
+        }
+    }
+    
+    if (!hasDocuments) {
+        showEmptyDocuments();
+    } else {
+        container.innerHTML = html;
+    }
+}
+
+// Show empty documents state
+function showEmptyDocuments() {
+    const container = document.getElementById('documents-list');
+    container.innerHTML = `
+        <div class="text-center py-8 text-gray-500 animate-fade-in">
+            <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-sm">No documents uploaded yet</p>
+            <p class="text-xs text-gray-400 mt-1">Please upload your documents in Step 2</p>
+        </div>
+    `;
+}
 </script>
 
 <style>
