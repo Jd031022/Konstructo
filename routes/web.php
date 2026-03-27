@@ -15,7 +15,6 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Http\Request;
 
-
 Route::get('/', function () {
     return view('applicant.welcome');
 });
@@ -147,7 +146,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/archived-applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getArchivedApplications'])
         ->name('archived-applications.data');
-    
 });
 
 // Applicant UI Routes
@@ -187,7 +185,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         $applicationId = $request->get('id');
         
         if ($applicationId) {
-            // Check if application exists and belongs to user
             $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
                 ->where('id', $applicationId)
                 ->first();
@@ -197,7 +194,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                     ->with('error', 'Application not found.');
             }
             
-            // Check if basic requirements are approved for this application
             $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
                 ->where('status', 'approved')
                 ->first();
@@ -209,7 +205,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
             
             return view('applicant.application.step1', compact('application'));
         } else {
-            // Creating new application - check if user has reached limit
             $submittedCount = \App\Models\ApplicationDocument::where('user_id', $user->id)
                 ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
                 ->count();
@@ -219,7 +214,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                     ->with('error', 'You have reached the maximum limit of 3 applications.');
             }
             
-            // Create new draft application WITHOUT application number
             $application = \App\Models\ApplicationDocument::create([
                 'user_id' => $user->id,
                 'application_number' => null,
@@ -227,7 +221,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 'google_drive_link' => null
             ]);
             
-            // Redirect to basic requirements for this new application
             return redirect()->route('applicant.basic-requirements.index', ['application_id' => $application->id])
                 ->with('info', 'Please complete the basic requirements first.');
         }
@@ -251,7 +244,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        // Check if basic requirements are approved for this application
         $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
             ->where('status', 'approved')
             ->first();
@@ -282,7 +274,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        // Check if basic requirements are approved for this application
         $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
             ->where('status', 'approved')
             ->first();
@@ -317,9 +308,21 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::post('/application/submit', [App\Http\Controllers\ApplicationDocumentController::class, 'submitApplication'])
         ->name('application.submit');
     
-// In the applicant routes group, make sure this route exists:
-Route::post('/application/generate-number', [App\Http\Controllers\ApplicationDocumentController::class, 'generateNumber'])
-    ->name('application.generate-number');
+    Route::post('/application/generate-number', [App\Http\Controllers\ApplicationDocumentController::class, 'generateNumber'])
+        ->name('application.generate-number');
+    
+    // PDF Editor Routes - Application Controller
+    Route::post('/application/create-draft', [App\Http\Controllers\Applicant\ApplicationController::class, 'createDraft'])
+        ->name('application.create-draft');
+    
+    Route::post('/application/generate-number', [App\Http\Controllers\Applicant\ApplicationController::class, 'generateApplicationNumber'])
+        ->name('application.generate-number');
+    
+    Route::get('/application/limit-info', [App\Http\Controllers\Applicant\ApplicationController::class, 'getLimitInfo'])
+        ->name('application.limit-info');
+    
+    Route::post('/application/save-edited-pdf', [App\Http\Controllers\Applicant\ApplicationController::class, 'saveEditedPdf'])
+        ->name('application.save-edited-pdf');
     
     // Applications Management API Routes
     Route::get('/applications/data', [App\Http\Controllers\Applicant\ApplicationController::class, 'index'])
@@ -620,3 +623,39 @@ Route::get('/users/list', function() {
             ];
         });
 })->middleware('auth');
+
+Route::get('/test-fpdf', function() {
+    try {
+        // Check if FPDF class exists
+        $fpdfExists = class_exists('FPDF');
+        $fpdiExists = class_exists('setasign\Fpdi\Fpdi');
+        
+        $result = [
+            'fpdf_class_exists' => $fpdfExists,
+            'fpdi_class_exists' => $fpdiExists,
+            'fpdf_file_exists' => file_exists('vendor/setasign/fpdf/fpdf.php'),
+            'fpdi_file_exists' => file_exists('vendor/setasign/fpdi/src/Fpdi.php')
+        ];
+        
+        // Try to create a simple PDF
+        if ($fpdfExists) {
+            $pdf = new FPDF();
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(40, 10, 'Hello World!');
+            
+            $outputPath = storage_path('app/temp/test.pdf');
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0777, true);
+            }
+            $pdf->Output('F', $outputPath);
+            $result['pdf_created'] = file_exists($outputPath);
+        }
+        
+        return response()->json($result);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+    }
+});
+

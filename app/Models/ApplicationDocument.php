@@ -27,6 +27,7 @@ class ApplicationDocument extends Model
         'is_archived',
         'archived_at',
         'archived_by',
+        'pdf_annotations',
         'archive_reason'
     ];
 

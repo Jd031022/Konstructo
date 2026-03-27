@@ -78,6 +78,8 @@
         "mini-svg-data-uri": "^1.4.4",
         "nanoid": "^3.3.11",
         "node-releases": "^2.0.27",
+        "pdf-lib": "^1.17.1",
+        "pdfjs-dist": "^5.5.207",
         "picocolors": "^1.1.1",
         "picomatch": "^4.0.3",
         "postcss-value-parser": "^4.2.0",

@@ -770,4 +770,6 @@ public function submitApplication(Request $request)
             ], 500);
         }
     }
+
+    
 }
