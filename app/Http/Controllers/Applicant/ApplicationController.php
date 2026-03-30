@@ -553,136 +553,99 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
+public function saveEditedPdf(Request $request)
+{
+    try {
+        $textElements     = $request->input('text_elements', []);
+        $applicationNumber= $request->input('application_number', '');
+        $iframeWidth      = (float)$request->input('iframe_width',  800);
+        $iframeHeight     = (float)$request->input('iframe_height', 1100);
 
-    /**
-     * Save edited PDF with text overlays - FIXED COORDINATE MAPPING
-     */
-    public function saveEditedPdf(Request $request)
-    {
-        try {
-            Log::info('saveEditedPdf called');
-            
-            $textElements = $request->input('text_elements', []);
-            $applicationNumber = $request->input('application_number', '');
-            
-            Log::info('Text elements count: ' . count($textElements));
-            
-            // Path to your original PDF template
-            $templatePath = public_path('downloads/application-letter.pdf');
-            
-            if (!file_exists($templatePath)) {
-                Log::error('PDF template not found at: ' . $templatePath);
-                return response()->json(['error' => 'PDF template not found'], 404);
-            }
-            
-            // Create new PDF with FPDI TCPDF
-            $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
-            
-            // Set document information
-            $pdf->SetCreator('Konstructo');
-            $pdf->SetAuthor('Konstructo BPO');
-            $pdf->SetTitle('Application Letter - ' . $applicationNumber);
-            $pdf->SetSubject('Building Permit Application');
-            
-            // Remove default header/footer
-            $pdf->setPrintHeader(false);
-            $pdf->setPrintFooter(false);
-            
-            // Set margins to 0
-            $pdf->SetMargins(0, 0, 0);
-            $pdf->SetAutoPageBreak(false, 0);
-            
-            // Import the template page
-            $pageCount = $pdf->setSourceFile($templatePath);
-            Log::info('Page count: ' . $pageCount);
-            
-            if ($pageCount > 0) {
-                $templateId = $pdf->importPage(1);
-                $size = $pdf->getTemplateSize($templateId);
-                
-                Log::info('Template size: width=' . $size['width'] . ', height=' . $size['height']);
-                
-                // Add a page with the same size as the template
-                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-                $pdf->useTemplate($templateId);
-                
-                // Set font for text overlay
-                $pdf->SetFont('helvetica', '', 12);
-                
-                // Iframe dimensions (must match the iframe in the blade)
-                $iframeWidth = 800;
-                $iframeHeight = 1100;
-                
-                // Calculate scale factors
-                $scaleX = $size['width'] / $iframeWidth;
-                $scaleY = $size['height'] / $iframeHeight;
-                
-                Log::info("Scale factors: X={$scaleX}, Y={$scaleY}");
-                
-                // Add each text element to the PDF
-                foreach ($textElements as $index => $text) {
-                    $fontSize = isset($text['fontSize']) ? (int)$text['fontSize'] : 12;
-                    $pdf->SetFont('helvetica', '', $fontSize);
-                    
-                    // Convert hex color to RGB
-                    $color = $text['color'] ?? '#000000';
-                    $r = hexdec(substr($color, 1, 2));
-                    $g = hexdec(substr($color, 3, 2));
-                    $b = hexdec(substr($color, 5, 2));
-                    $pdf->SetTextColor($r, $g, $b);
-                    
-                    // Get position from overlay (in pixels)
-                    $overlayX = isset($text['x']) ? (float)$text['x'] : 50;
-                    $overlayY = isset($text['y']) ? (float)$text['y'] : 50;
-                    
-                    // Map to PDF coordinates
-                    $pdfX = $overlayX * $scaleX;
-                    $pdfY = $overlayY * $scaleY;
-                    
-                    // Ensure coordinates are within page bounds
-                    $pdfX = max(5, min($pdfX, $size['width'] - 10));
-                    $pdfY = max(5, min($pdfY, $size['height'] - 10));
-                    
-                    Log::info("Text '{$text['content']}' - Overlay: ($overlayX, $overlayY) -> PDF: ($pdfX, $pdfY)");
-                    
-                    $pdf->SetXY($pdfX, $pdfY);
-                    $pdf->Write(0, $text['content']);
-                }
-            } else {
-                // Fallback - create a blank page
-                $pdf->AddPage();
-                $pdf->SetFont('helvetica', '', 12);
-                $pdf->SetXY(50, 50);
-                $pdf->Write(0, 'Error: Could not load PDF template');
-                $pdf->SetXY(50, 70);
-                $pdf->Write(0, 'Application Number: ' . $applicationNumber);
-            }
-            
-            // Output the PDF
-            $outputPath = storage_path('app/temp/application-letter-' . time() . '.pdf');
-            
-            // Create directory if it doesn't exist
-            if (!file_exists(storage_path('app/temp'))) {
-                mkdir(storage_path('app/temp'), 0777, true);
-            }
-            
-            $pdf->Output($outputPath, 'F');
-            
-            Log::info('PDF saved to: ' . $outputPath);
-            Log::info('File size: ' . filesize($outputPath) . ' bytes');
-            
-            if (!file_exists($outputPath) || filesize($outputPath) === 0) {
-                throw new \Exception('PDF file was not created or is empty');
-            }
-            
-            return response()->download($outputPath)->deleteFileAfterSend(true);
-            
-        } catch (\Exception $e) {
-            \Log::error('Error saving edited PDF: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => $e->getMessage()], 500);
+        $templatePath = public_path('downloads/application-letter.pdf');
+        if (!file_exists($templatePath)) {
+            return response()->json(['error' => 'PDF template not found'], 404);
         }
+
+        $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
+        $pdf->SetCreator('Konstructo');
+        $pdf->SetAuthor('Konstructo BPO');
+        $pdf->SetTitle('Application Letter - ' . $applicationNumber);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(0, 0, 0);
+        $pdf->SetAutoPageBreak(false, 0);
+
+        $pageCount  = $pdf->setSourceFile($templatePath);
+        $templateId = $pdf->importPage(1);
+        $size       = $pdf->getTemplateSize($templateId);
+
+        $pdfW = $size['width'];   // in mm (TCPDF always works in mm)
+        $pdfH = $size['height'];  // in mm
+
+        $pdf->AddPage('P', [$pdfW, $pdfH]);
+        $pdf->useTemplate($templateId, 0, 0, $pdfW, $pdfH);
+
+        // Scale: 1 overlay-pixel = how many mm in the PDF
+        $scaleX = $pdfW / $iframeWidth;
+        $scaleY = $pdfH / $iframeHeight;
+
+        foreach ($textElements as $text) {
+            if (empty(trim($text['content'] ?? ''))) continue;
+
+            // Screen px → PDF pt (screen is 96dpi, PDF is 72dpi)
+            $fontSizePx = (int)($text['fontSize'] ?? 12);
+            $fontSizePt = $fontSizePx * 0.75;   // px → pt
+
+            $pdf->SetFont('helvetica', '', $fontSizePt);
+
+            // Colour
+            $color = $text['color'] ?? '#000000';
+            // Accept named colours
+            $namedColors = ['black'=>'#000000','blue'=>'#0000FF','red'=>'#FF0000'];
+            if (isset($namedColors[$color])) $color = $namedColors[$color];
+            $hex = ltrim($color, '#');
+            $r = hexdec(substr($hex,0,2));
+            $g = hexdec(substr($hex,2,2));
+            $b = hexdec(substr($hex,4,2));
+            $pdf->SetTextColor($r, $g, $b);
+
+            // Convert overlay pixel coords → PDF mm coords
+            $overlayX = (float)($text['x'] ?? 0);
+            $overlayY = (float)($text['y'] ?? 0);
+
+            $pdfX = $overlayX * $scaleX;
+            $pdfY = $overlayY * $scaleY;
+
+            // Clamp to page
+            $pdfX = max(0, min($pdfX, $pdfW - 1));
+            $pdfY = max(0, min($pdfY, $pdfH - 1));
+
+            /*
+             * Cell height in mm = font size in pt × 0.3528 (1pt = 0.3528mm).
+             * This makes the cell exactly as tall as the text, so SetXY($x,$y)
+             * + Cell(...) renders text whose TOP aligns with $pdfY —
+             * matching where the browser div's top-left sits on the overlay.
+             */
+            $cellH = $fontSizePt * 0.3528;
+
+            $pdf->SetXY($pdfX, $pdfY);
+            $pdf->Cell(0, $cellH, $text['content'], 0, 0, 'L');
+        }
+
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
+
+        $outputPath = $tempDir . '/application-letter-' . time() . '.pdf';
+        $pdf->Output($outputPath, 'F');
+
+        return response()->download($outputPath)->deleteFileAfterSend(true);
+
+    } catch (\Exception $e) {
+        Log::error('Error saving edited PDF: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
 
     /**
      * Calculate progress percentage based on status
