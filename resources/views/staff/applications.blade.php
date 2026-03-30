@@ -1165,7 +1165,13 @@
 
     // Export applications
     function exportApplications() {
-        window.location.href = '/staff/applications/export';
+        console.log('Export button clicked');
+        try {
+            window.location.href = '/staff/applications/export';
+            console.log('Redirect initiated to:', '/staff/applications/export');
+        } catch (error) {
+            console.error('Error during export:', error);
+        }
     }
 
     // Modal functions

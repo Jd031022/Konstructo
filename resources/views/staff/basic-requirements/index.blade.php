@@ -58,6 +58,14 @@
                 </svg>
                 Reset
             </a>
+            
+            <!-- Export Button -->
+            <button onclick="exportBasicRequirements()" class="px-6 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#0d3a5c] transition font-medium text-sm inline-flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export CSV
+            </button>
         </div>
     </div>
 
@@ -708,6 +716,29 @@ document.addEventListener('keydown', function(e) {
         closeDocumentsModal();
     }
 });
+
+function exportBasicRequirements() {
+    const search = document.getElementById('search-input').value;
+    const status = document.getElementById('status-filter').value;
+    
+    let url = '{{ route("staff.basic-requirements.export") }}';
+    const params = [];
+    
+    if (search) params.push(`search=${encodeURIComponent(search)}`);
+    if (status && status !== 'pending') params.push(`status=${status}`);
+    
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+    
+    // Create a temporary link and click it to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 
 <style>

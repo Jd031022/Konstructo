@@ -143,14 +143,6 @@
 
             <!-- BAR GRAPH with Y-axis -->
             <div class="relative h-72">
-                <!-- Y-axis lines and labels -->
-                <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2">
-                    <span>80</span>
-                    <span>60</span>
-                    <span>40</span>
-                    <span>20</span>
-                    <span>0</span>
-                </div>
                 
                 <!-- Grid lines -->
                 <div class="absolute left-8 right-0 top-0 h-full">

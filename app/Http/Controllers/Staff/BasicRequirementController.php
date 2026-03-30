@@ -387,4 +387,90 @@ class BasicRequirementController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Export basic requirements to CSV
+     */
+    public function export(Request $request)
+    {
+        try {
+            Log::info('Exporting basic requirements', [
+                'user_id' => Auth::id(),
+                'user_email' => Auth::user() ? Auth::user()->email : 'unknown',
+                'filters' => $request->all()
+            ]);
+
+            $query = BasicRequirement::with(['user', 'application'])
+                ->orderBy('submitted_at', 'desc');
+
+            // Apply status filter
+            if ($request->has('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+
+            // Apply search filter
+            if ($request->has('search') && $request->search) {
+                $search = $request->search;
+                $query->whereHas('user', function($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            $requirements = $query->get();
+
+            $filename = 'basic-requirements-' . now()->format('Y-m-d-H-i-s') . '.csv';
+
+            return response()->streamDownload(function () use ($requirements) {
+                $handle = fopen('php://output', 'w');
+
+                // Write CSV headers
+                fputcsv($handle, [
+                    'ID',
+                    'Submitted Date',
+                    'Applicant Name',
+                    'Email',
+                    'Application Number',
+                    'Owner Status',
+                    'Status',
+                    'Reviewed Date',
+                    'Reviewed By',
+                    'Rejection Reason',
+                    'Admin Notes'
+                ]);
+
+                // Write data rows
+                foreach ($requirements as $req) {
+                    fputcsv($handle, [
+                        $req->id,
+                        $req->submitted_at ? $req->submitted_at->format('Y-m-d H:i:s') : '',
+                        $req->user->first_name . ' ' . $req->user->last_name,
+                        $req->user->email,
+                        $req->application ? $req->application->application_number : 'N/A',
+                        $req->is_owner ? 'Owner' : 'Authorized Rep',
+                        ucfirst($req->status),
+                        $req->reviewed_at ? $req->reviewed_at->format('Y-m-d H:i:s') : '',
+                        $req->reviewed_by ? ($req->reviewer ? $req->reviewer->first_name . ' ' . $req->reviewer->last_name : 'N/A') : '',
+                        $req->rejection_reason ?: '',
+                        $req->admin_notes ?: ''
+                    ]);
+                }
+
+                fclose($handle);
+            }, $filename, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting basic requirements: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to export basic requirements: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -65,14 +65,16 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     // ========== BASIC REQUIREMENTS REVIEW ROUTES ==========
     Route::get('/basic-requirements', [App\Http\Controllers\Staff\BasicRequirementController::class, 'index'])
         ->name('basic-requirements.index');
+    Route::get('/basic-requirements/export', [App\Http\Controllers\Staff\BasicRequirementController::class, 'export'])
+        ->name('basic-requirements.export');
+    Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
+        ->name('basic-requirements.stats');
     Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
         ->name('basic-requirements.show');
     Route::post('/basic-requirements/{id}/approve', [App\Http\Controllers\Staff\BasicRequirementController::class, 'approve'])
         ->name('basic-requirements.approve');
     Route::post('/basic-requirements/{id}/reject', [App\Http\Controllers\Staff\BasicRequirementController::class, 'reject'])
         ->name('basic-requirements.reject');
-    Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
-        ->name('basic-requirements.stats');
     
     // View routes (return HTML)
     Route::get('/dashboard', function () {
@@ -104,6 +106,9 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'index'])
         ->name('applications.data');
     
+    Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
+        ->name('applications.export');
+    
     Route::get('/applications/{id}', [App\Http\Controllers\Staff\ApplicationController::class, 'show'])
         ->name('applications.show');
     
@@ -115,9 +120,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::delete('/applications/{id}', [App\Http\Controllers\Staff\ApplicationController::class, 'destroy'])
         ->name('applications.destroy');
-    
-    Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])
-        ->name('applications.export');
     
     Route::post('/applications/{id}/request-missing-documents', [App\Http\Controllers\Staff\ApplicationController::class, 'requestMissingDocuments']);
     
@@ -146,6 +148,9 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/archived-applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getArchivedApplications'])
         ->name('archived-applications.data');
+    
+    Route::get('/archived-applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportArchived'])
+        ->name('archived-applications.export');
 });
 
 // Applicant UI Routes
@@ -486,6 +491,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/archived-applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'getArchivedApplications'])
         ->name('archived-applications.data');
     
+    Route::get('/archived-applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'exportArchived'])
+        ->name('archived-applications.export');
+    
     Route::post('/applications/{id}/restore', [App\Http\Controllers\Admin\ApplicationController::class, 'restoreArchivedApplication'])
         ->name('applications.restore');
     
@@ -529,6 +537,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/applications/data', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])
         ->name('applications.data');
     
+    Route::get('/applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'export'])
+        ->name('applications.export');
+    
     Route::get('/applications/{id}', [App\Http\Controllers\Admin\ApplicationController::class, 'show'])
         ->name('applications.show');
     
@@ -540,9 +551,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     
     Route::post('/applications/{id}/archive', [App\Http\Controllers\Admin\ApplicationController::class, 'archive'])
         ->name('applications.archive');
-    
-    Route::get('/applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'export'])
-        ->name('applications.export');
     
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');

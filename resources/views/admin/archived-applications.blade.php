@@ -10,6 +10,16 @@
             <h1 class="text-2xl font-bold text-gray-800">Archived Applications</h1>
             <p class="text-sm text-gray-500 mt-1">View and manage archived building permit applications</p>
         </div>
+        
+        <!-- Action Buttons -->
+        <div class="mt-4 md:mt-0 flex items-center gap-3">
+            <button onclick="exportArchivedApplications()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export Report
+            </button>
+        </div>
     </div>
 
     <!-- Filters and Search -->
@@ -696,6 +706,17 @@ function closeErrorModal() {
     const modal = document.getElementById('error-modal');
     if (modal) modal.classList.add('hidden');
     document.body.style.overflow = 'auto';
+}
+
+// Export archived applications
+function exportArchivedApplications() {
+    console.log('Export archived applications button clicked');
+    try {
+        window.location.href = '/admin/archived-applications/export';
+        console.log('Redirect initiated to:', '/admin/archived-applications/export');
+    } catch (error) {
+        console.error('Error during archived export:', error);
+    }
 }
 
 // Helper functions
