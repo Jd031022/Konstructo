@@ -18,7 +18,6 @@
                     </div>
                     <h2 class="text-xl font-bold text-gray-800">What is your position?</h2>
                 </div>
-                <!-- Small close button (optional - user can also click outside) -->
                 <button onclick="hidePositionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -175,39 +174,39 @@
                 </div>
             </div>
 
-    <!-- BAR GRAPH with Y-axis -->
-    <div class="relative h-72">
-        <!-- Y-axis lines and labels (dynamic) -->
-        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2" id="y-axis-labels">
-            <span>80</span>
-            <span>60</span>
-            <span>40</span>
-            <span>20</span>
-            <span>0</span>
-        </div>
-        
-        <!-- Grid lines -->
-        <div class="absolute left-8 right-0 top-0 h-full">
-            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-            <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-        </div>
-        
-        <!-- Bars container with loading state -->
-        <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10">
-            <!-- Initial loading state -->
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-center">
-                    <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
+            <!-- BAR GRAPH with Y-axis -->
+            <div class="relative h-72">
+                <!-- Y-axis lines and labels (dynamic) -->
+                <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 py-2" id="y-axis-labels">
+                    <span>80</span>
+                    <span>60</span>
+                    <span>40</span>
+                    <span>20</span>
+                    <span>0</span>
+                </div>
+                
+                <!-- Grid lines -->
+                <div class="absolute left-8 right-0 top-0 h-full">
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+                </div>
+                
+                <!-- Bars container with loading state -->
+                <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10">
+                    <!-- Initial loading state -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
             <!-- Summary Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-4 border-t border-gray-100" id="summary-stats">
@@ -239,11 +238,7 @@
 
             <!-- Donut Chart Container -->
             <div class="relative w-48 h-48 mb-6">
-                <!-- Dynamic donut chart using conic-gradient -->
-                <div id="donut-chart" class="w-full h-full rounded-full shadow-inner">
-                </div>
-                
-                <!-- Center hole for donut effect -->
+                <div id="donut-chart" class="w-full h-full rounded-full shadow-inner"></div>
                 <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
                     <span class="text-xl font-bold text-gray-700" id="completion-percentage">0%</span>
                     <span class="text-[10px] text-gray-500">complete</span>
@@ -251,9 +246,7 @@
             </div>
 
             <!-- Legend with progress bars -->
-            <div class="w-full space-y-4 mt-2" id="status-legend">
-                <!-- Dynamic status legend will be inserted here -->
-            </div>
+            <div class="w-full space-y-4 mt-2" id="status-legend"></div>
 
             <!-- Stats Summary -->
             <div class="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-gray-100">
@@ -293,44 +286,41 @@
         </div>
 
         <!-- UPCOMING DEADLINES -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Upcoming Deadlines</h3>
-                    <p class="text-xs text-gray-500 mt-1">Applications needing attention</p>
-                </div>
-                <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium" id="deadline-count">0 due soon</span>
-            </div>
+<div class="bg-white rounded-xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-700">Upcoming Deadlines</h3>
+            <p class="text-xs text-gray-500 mt-1">Applications needing attention</p>
+        </div>
+        <div class="flex items-center gap-3">
+                        <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium" id="deadline-count">0 due soon</span>
+            <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">
+                View all
+            </a>
+        </div>
+    </div>
 
-            <div id="deadline-list" class="space-y-4">
-                <!-- Deadlines will be loaded dynamically -->
-                <div class="flex items-center justify-center p-4">
-                    <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- View All Link -->
-            <div class="mt-6 pt-4 border-t border-gray-100">
-                <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center block">
-                    View all deadlines →
-                </a>
-            </div>
+    <div id="deadline-list" class="space-y-4">
+        <!-- Deadlines will be loaded dynamically -->
+        <div class="flex items-center justify-center p-4">
+            <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
         </div>
     </div>
 </div>
+    </div>
+</div>
 
-<!-- JavaScript for dynamic data loading AND POSITION MODAL -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, checking position...');
         
-        // Check if user needs to set position - this runs on EVERY page load
+        // Check if user needs to set position
         setTimeout(() => {
             checkPositionNeeded();
-        }, 500); // Small delay to ensure everything is loaded
+        }, 500);
         
         // Load dashboard data
         loadDashboardData();
@@ -345,14 +335,13 @@
         
         // Close modal when clicking outside
         document.getElementById('positionModal').addEventListener('click', function(e) {
-            // If clicking the modal container (not the content), hide the modal
             if (e.target === this) {
                 hidePositionModal();
             }
         });
     });
 
-    // POSITION MODAL FUNCTIONS
+    // POSITION MODAL FUNCTIONS (keep existing)
     async function checkPositionNeeded() {
         try {
             console.log('Checking if position needed...');
@@ -362,7 +351,6 @@
             
             if (data.needs_position) {
                 console.log('Position needed, showing modal');
-                // Show modal as overlay on top of dashboard
                 showPositionModal();
             } else {
                 console.log('Position already set');
@@ -375,49 +363,21 @@
     function showPositionModal() {
         const modal = document.getElementById('positionModal');
         const modalContent = document.getElementById('modalContent');
-        
-        // Show modal
         modal.style.display = 'flex';
-        
-        // Small delay for animation
         setTimeout(() => {
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 50);
-        
-        // Don't disable scrolling - user can still scroll dashboard
-        // Don't disable dashboard interactions - user can still click dashboard
     }
 
     function hidePositionModal() {
         const modal = document.getElementById('positionModal');
         const modalContent = document.getElementById('modalContent');
-        
         modalContent.classList.remove('scale-100');
         modalContent.classList.add('scale-95');
-        
         setTimeout(() => {
             modal.style.display = 'none';
         }, 300);
-    }
-
-    function selectPosition(value) {
-        console.log('Selecting position:', value);
-        const radio = document.querySelector(`input[name="position"][value="${value}"]`);
-        if (radio) {
-            radio.checked = true;
-            
-            // Remove highlight from all labels
-            document.querySelectorAll('label').forEach(label => {
-                label.classList.remove('border-[#155386]', 'bg-blue-50');
-            });
-            
-            // Highlight selected label
-            const selectedLabel = radio.closest('label');
-            if (selectedLabel) {
-                selectedLabel.classList.add('border-[#155386]', 'bg-blue-50');
-            }
-        }
     }
 
     function setupPositionForm() {
@@ -434,24 +394,16 @@
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('Form submitted');
-            
-            // Get selected position
             const selectedPosition = document.querySelector('input[name="position"]:checked')?.value;
             
             if (!selectedPosition) {
                 errorDiv.textContent = 'Please select a position';
                 errorDiv.classList.remove('hidden');
-                
-                // Shake animation for error
                 form.classList.add('animate-shake');
                 setTimeout(() => form.classList.remove('animate-shake'), 500);
                 return;
             }
             
-            console.log('Selected position:', selectedPosition);
-            
-            // Disable form
             submitBtn.disabled = true;
             submitBtn.innerHTML = `
                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -465,10 +417,7 @@
             
             try {
                 const csrfToken = document.querySelector('input[name="_token"]')?.value;
-                
-                if (!csrfToken) {
-                    throw new Error('CSRF token not found');
-                }
+                if (!csrfToken) throw new Error('CSRF token not found');
                 
                 const response = await fetch('/staff/position/update', {
                     method: 'POST',
@@ -481,30 +430,20 @@
                 });
                 
                 const data = await response.json();
-                console.log('Response:', data);
                 
                 if (!response.ok) {
                     throw new Error(data.errors?.position?.[0] || data.error || 'Failed to save position');
                 }
                 
-                // Show success message
                 showToast('Position saved successfully!', 'success');
-                
-                // Hide modal
                 hidePositionModal();
-                
-                // Update header with position
                 updateHeaderWithPosition(selectedPosition);
-                
-                // Reload dashboard data to reflect position-based features
                 await loadDashboardData();
                 
             } catch (error) {
                 console.error('Error saving position:', error);
                 errorDiv.textContent = error.message;
                 errorDiv.classList.remove('hidden');
-                
-                // Re-enable form
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `
                     <span>Save Position</span>
@@ -517,9 +456,7 @@
     }
 
     function updateHeaderWithPosition(position) {
-        // Update the header to show the user's position
         const headerRight = document.querySelector('.flex.flex-col.md\\:flex-row.md\\:items-center.md\\:justify-between.mb-6 .mt-2.md\\:mt-0');
-        
         if (headerRight) {
             const positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP');
             headerRight.innerHTML = `
@@ -533,13 +470,11 @@
         }
     }
 
-    // Toast notification function
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `fixed top-4 right-4 z-[60] px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 translate-x-0 ${
             type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
         }`;
-        
         toast.innerHTML = `
             <svg class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 ${type === 'success' 
@@ -549,30 +484,20 @@
             </svg>
             <span class="text-sm font-medium">${message}</span>
         `;
-        
         document.body.appendChild(toast);
-        
         setTimeout(() => {
             toast.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
 
-    // EXISTING DASHBOARD FUNCTIONS (keep all your existing functions)
+    // DASHBOARD FUNCTIONS
     async function loadDashboardData(period = 'this_month') {
         try {
-            // Load statistics
             await loadStats();
-            
-            // Load weekly trend data
             await loadWeeklyTrend(period);
-            
-            // Load recent activities
             await loadRecentActivities();
-            
-            // Load upcoming deadlines
             await loadDeadlines();
-            
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         }
@@ -583,10 +508,7 @@
             const response = await fetch('/staff/applications/stats');
             const stats = await response.json();
             
-            // Update stats cards
             const statsContainer = document.getElementById('stats-container');
-            
-            // Calculate percentages for growth
             const lastMonthTotal = stats.last_month_total || 0;
             const thisMonthTotal = stats.this_month_total || 0;
             const growthPercent = lastMonthTotal > 0 
@@ -594,7 +516,6 @@
                 : 0;
             
             statsContainer.innerHTML = `
-                <!-- Total Applications -->
                 <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-orange-500 group">
                     <div class="flex items-center justify-between">
                         <div>
@@ -615,8 +536,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Pending Review -->
                 <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-green-500 group">
                     <div class="flex items-center justify-between">
                         <div>
@@ -637,8 +556,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Completed -->
                 <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-blue-500 group">
                     <div class="flex items-center justify-between">
                         <div>
@@ -659,8 +576,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- For Releasing -->
                 <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-red-500 group">
                     <div class="flex items-center justify-between">
                         <div>
@@ -682,13 +597,9 @@
                 </div>
             `;
 
-            // Update summary stats
             document.getElementById('total-all-apps').textContent = stats.total || 0;
             document.getElementById('monthly-apps').textContent = stats.this_month_total || 0;
-
-            // Update donut chart
             updateDonutChart(stats);
-
         } catch (error) {
             console.error('Error loading stats:', error);
         }
@@ -698,28 +609,18 @@
         try {
             const response = await fetch(`/staff/applications/weekly-trend?period=${period}`);
             const data = await response.json();
-            
             const barsContainer = document.getElementById('weekly-bars');
             const weeks = data.weeks || ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
             const values = data.values || [45, 62, 58, 71];
-            const colors = [
-                'from-[#155386] to-[#40798C]',
-                'from-[#40798C] to-[#70A9A1]',
-                'from-[#70A9A1] to-[#9EC5CB]',
-                'from-[#0F3B5A] to-[#155386]'
-            ];
-            
-            // Calculate max for scaling (max bar height 160px)
+            const colors = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#0F3B5A] to-[#155386]'];
             const maxValue = Math.max(...values);
             const scaleFactor = maxValue > 0 ? 160 / maxValue : 1;
-            
             let barsHtml = '';
             let total = 0;
             
             weeks.forEach((week, index) => {
-                const height = Math.max(20, values[index] * scaleFactor); // Minimum height of 20px for visibility
+                const height = Math.max(20, values[index] * scaleFactor);
                 total += values[index];
-                
                 barsHtml += `
                     <div class="flex flex-col items-center w-16 group">
                         <div class="relative">
@@ -733,8 +634,6 @@
             });
             
             barsContainer.innerHTML = barsHtml;
-            
-            // Update summary stats
             const avg = Math.round(total / weeks.length);
             const peak = Math.max(...values);
             
@@ -742,13 +641,11 @@
             document.getElementById('avg-apps').textContent = avg;
             document.getElementById('peak-apps').textContent = peak;
             
-            // Calculate growth (compare last week to first week)
             if (values.length >= 2) {
                 const growth = ((values[values.length-1] - values[0]) / values[0] * 100).toFixed(1);
                 document.getElementById('growth-rate').textContent = (growth > 0 ? '+' : '') + growth + '%';
                 document.getElementById('growth-rate').className = growth >= 0 ? 'text-lg font-bold text-green-600' : 'text-lg font-bold text-red-600';
             }
-            
         } catch (error) {
             console.error('Error loading weekly trend:', error);
         }
@@ -763,7 +660,6 @@
         const verified = stats.verified || 0;
         const rejected = stats.rejected || 0;
         
-        // Calculate percentages
         const pendingPercent = total > 0 ? (pending / total * 100).toFixed(1) : 0;
         const underReviewPercent = total > 0 ? (underReview / total * 100).toFixed(1) : 0;
         const approvedPercent = total > 0 ? (approved / total * 100).toFixed(1) : 0;
@@ -771,15 +667,12 @@
         const verifiedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
         const rejectedPercent = total > 0 ? (rejected / total * 100).toFixed(1) : 0;
         
-        // Update completion percentage
         document.getElementById('completion-percentage').textContent = verifiedPercent + '%';
         
-        // Create donut chart - simplified for demo, showing only pending and completed
         const completedPercent = verifiedPercent;
         const pendingTotal = (parseFloat(pendingPercent) + parseFloat(underReviewPercent)).toFixed(1);
         const otherTotal = (parseFloat(approvedPercent) + parseFloat(forReleasePercent) + parseFloat(rejectedPercent)).toFixed(1);
-        
-        const pendingAngle = pendingTotal * 3.6; // Convert percent to degrees (360/100 = 3.6)
+        const pendingAngle = pendingTotal * 3.6;
         const completedAngle = completedPercent * 3.6;
         
         const donutChart = document.getElementById('donut-chart');
@@ -789,7 +682,6 @@
             #94A3B8 ${pendingAngle + completedAngle}deg 360deg
         )`;
         
-        // Update legend
         const legend = document.getElementById('status-legend');
         legend.innerHTML = `
             <div>
@@ -804,7 +696,6 @@
                     <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingTotal}%"></div>
                 </div>
             </div>
-            
             <div>
                 <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
@@ -817,7 +708,6 @@
                     <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${completedPercent}%"></div>
                 </div>
             </div>
-            
             <div>
                 <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-2">
@@ -842,10 +732,8 @@
             }
             
             const activities = await response.json();
-            
             const listContainer = document.getElementById('recent-activity-list');
             
-            // Check if activities is an array
             if (!Array.isArray(activities)) {
                 console.error('Activities is not an array:', activities);
                 listContainer.innerHTML = `
@@ -871,11 +759,13 @@
                 return;
             }
             
+            // Limit to 5 most recent activities
+            const recentActivities = activities.slice(0, 5);
             let activitiesHtml = '';
-            activities.forEach(activity => {
+            
+            recentActivities.forEach(activity => {
                 const timeAgo = getTimeAgo(activity.created_at);
                 
-                // Determine icon and color based on action type
                 let iconColor = 'bg-blue-100 text-blue-600';
                 let icon = `
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -940,11 +830,9 @@
             }
             
             const deadlines = await response.json();
-            
             const listContainer = document.getElementById('deadline-list');
             const deadlineCount = document.getElementById('deadline-count');
             
-            // Check if deadlines is an array
             if (!Array.isArray(deadlines)) {
                 console.error('Deadlines is not an array:', deadlines);
                 listContainer.innerHTML = `
@@ -973,8 +861,11 @@
                 return;
             }
             
+            // Limit to 5 deadlines (they already are from the API, but just to be safe)
+            const recentDeadlines = deadlines.slice(0, 5);
             let deadlinesHtml = '';
-            deadlines.forEach(deadline => {
+            
+            recentDeadlines.forEach(deadline => {
                 const daysLeft = deadline.days_left;
                 let colorClass = 'text-red-600';
                 let bgColor = 'bg-red-100';
@@ -1031,184 +922,142 @@
         if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
         return Math.floor(seconds / 86400) + ' days ago';
     }
+    
+    // Load trend data functions
     document.addEventListener('DOMContentLoaded', function() {
-    // Load initial data
-    loadTrendData();
-    
-    // Add event listener for period change
-    document.getElementById('trend-period').addEventListener('change', function() {
         loadTrendData();
+        document.getElementById('trend-period').addEventListener('change', function() {
+            loadTrendData();
+        });
     });
-});
 
-async function loadTrendData() {
-    const period = document.getElementById('trend-period').value;
-    const barsContainer = document.getElementById('weekly-bars');
-    
-    // Show loading state
-    barsContainer.innerHTML = `
-        <div class="absolute inset-0 flex items-center justify-center">
-            <div class="text-center">
-                <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
-            </div>
-        </div>
-    `;
-    
-    try {
-        // Fetch data from your API endpoint
-        const response = await fetch(`/staff/applications/trend?period=${period}`);
+    async function loadTrendData() {
+        const period = document.getElementById('trend-period').value;
+        const barsContainer = document.getElementById('weekly-bars');
         
-        if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            renderTrendChart(data);
-        } else {
-            showErrorState('No data available');
-        }
-    } catch (error) {
-        console.error('Error loading trend data:', error);
-        showErrorState('Failed to load data');
-    }
-}
-
-function renderTrendChart(data) {
-    const barsContainer = document.getElementById('weekly-bars');
-    const values = data.values || [];
-    const labels = data.labels || [];
-    
-    if (values.length === 0) {
-        showErrorState('No data available');
-        return;
-    }
-    
-    // Calculate max value for scaling
-    const maxValue = Math.max(...values, 1);
-    
-    // Generate Y-axis labels dynamically
-    updateYAxisLabels(maxValue);
-    
-    // Generate bars HTML
-    let barsHtml = '';
-    const gradientColors = [
-        'from-[#155386] to-[#40798C]',
-        'from-[#40798C] to-[#70A9A1]',
-        'from-[#70A9A1] to-[#9EC5CB]',
-        'from-[#9EC5CB] to-[#B8D8E3]'
-    ];
-    
-    values.forEach((value, index) => {
-        const percentage = (value / maxValue) * 100;
-        const colorIndex = index % gradientColors.length;
-        const formattedValue = value.toLocaleString();
-        
-        barsHtml += `
-            <div class="group relative flex flex-col items-center justify-end h-full w-16">
-                <!-- Bar -->
-                <div class="relative w-10 bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
-                     style="height: ${percentage}%; min-height: 4px;">
-                    
-                    <!-- Tooltip -->
-                    <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
-                        ${formattedValue} applications
-                    </div>
-                    
-                    <!-- Value label on bar (shown on hover) -->
-                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full text-xs font-medium text-[#155386] opacity-0 group-hover:opacity-100 transition">
-                        ${value}
-                    </div>
+        barsContainer.innerHTML = `
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
                 </div>
-                
-                <!-- Label -->
-                <span class="mt-2 text-xs font-medium text-gray-600 truncate w-full text-center" title="${labels[index]}">
-                    ${labels[index]}
-                </span>
             </div>
         `;
-    });
-    
-    barsContainer.innerHTML = barsHtml;
-    
-    // Update summary stats
-    updateSummaryStats(values);
-}
-
-function updateYAxisLabels(maxValue) {
-    const yAxisLabels = document.getElementById('y-axis-labels');
-    const step = Math.ceil(maxValue / 4);
-    
-    // Generate labels in multiples of step
-    const labels = [
-        Math.ceil(maxValue),
-        Math.ceil(maxValue * 0.75),
-        Math.ceil(maxValue * 0.5),
-        Math.ceil(maxValue * 0.25),
-        0
-    ];
-    
-    yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
-}
-
-function updateSummaryStats(values) {
-    const total = values.reduce((a, b) => a + b, 0);
-    const avg = Math.round(total / values.length);
-    const peak = Math.max(...values);
-    
-    // Calculate growth (compare first half vs second half)
-    const half = Math.floor(values.length / 2);
-    const firstHalf = values.slice(0, half);
-    const secondHalf = values.slice(half);
-    
-    const firstHalfAvg = firstHalf.length > 0 ? firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length : 0;
-    const secondHalfAvg = secondHalf.length > 0 ? secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length : 0;
-    
-    let growth = 0;
-    let growthClass = 'text-gray-800';
-    
-    if (firstHalfAvg > 0) {
-        growth = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg * 100).toFixed(1);
-        growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
+        
+        try {
+            const response = await fetch(`/staff/applications/trend?period=${period}`);
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            const data = await response.json();
+            if (data.success) {
+                renderTrendChart(data);
+            } else {
+                showErrorState('No data available');
+            }
+        } catch (error) {
+            console.error('Error loading trend data:', error);
+            showErrorState('Failed to load data');
+        }
     }
-    
-    // Update DOM
-    document.getElementById('total-apps').textContent = total.toLocaleString();
-    document.getElementById('avg-apps').textContent = avg.toLocaleString();
-    document.getElementById('peak-apps').textContent = peak.toLocaleString();
-    
-    const growthElement = document.getElementById('growth-rate');
-    growthElement.textContent = growth > 0 ? `+${growth}%` : `${growth}%`;
-    growthElement.className = `text-lg font-bold ${growthClass}`;
-}
 
-function showErrorState(message) {
-    const barsContainer = document.getElementById('weekly-bars');
-    barsContainer.innerHTML = `
-        <div class="absolute inset-0 flex items-center justify-center">
-            <div class="text-center">
-                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-gray-500">${message}</p>
-                <button onclick="loadTrendData()" class="mt-3 text-xs text-[#155386] hover:underline">
-                    Try again
-                </button>
+    function renderTrendChart(data) {
+        const barsContainer = document.getElementById('weekly-bars');
+        const values = data.values || [];
+        const labels = data.labels || [];
+        
+        if (values.length === 0) {
+            showErrorState('No data available');
+            return;
+        }
+        
+        const maxValue = Math.max(...values, 1);
+        updateYAxisLabels(maxValue);
+        
+        let barsHtml = '';
+        const gradientColors = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#9EC5CB] to-[#B8D8E3]'];
+        
+        values.forEach((value, index) => {
+            const percentage = (value / maxValue) * 100;
+            const colorIndex = index % gradientColors.length;
+            const formattedValue = value.toLocaleString();
+            
+            barsHtml += `
+                <div class="group relative flex flex-col items-center justify-end h-full w-16">
+                    <div class="relative w-10 bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
+                         style="height: ${percentage}%; min-height: 4px;">
+                        <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
+                            ${formattedValue} applications
+                        </div>
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full text-xs font-medium text-[#155386] opacity-0 group-hover:opacity-100 transition">
+                            ${value}
+                        </div>
+                    </div>
+                    <span class="mt-2 text-xs font-medium text-gray-600 truncate w-full text-center" title="${labels[index]}">
+                        ${labels[index]}
+                    </span>
+                </div>
+            `;
+        });
+        
+        barsContainer.innerHTML = barsHtml;
+        updateSummaryStats(values);
+    }
+
+    function updateYAxisLabels(maxValue) {
+        const yAxisLabels = document.getElementById('y-axis-labels');
+        const labels = [Math.ceil(maxValue), Math.ceil(maxValue * 0.75), Math.ceil(maxValue * 0.5), Math.ceil(maxValue * 0.25), 0];
+        yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
+    }
+
+    function updateSummaryStats(values) {
+        const total = values.reduce((a, b) => a + b, 0);
+        const avg = Math.round(total / values.length);
+        const peak = Math.max(...values);
+        
+        const half = Math.floor(values.length / 2);
+        const firstHalf = values.slice(0, half);
+        const secondHalf = values.slice(half);
+        const firstHalfAvg = firstHalf.length > 0 ? firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length : 0;
+        const secondHalfAvg = secondHalf.length > 0 ? secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length : 0;
+        
+        let growth = 0;
+        let growthClass = 'text-gray-800';
+        
+        if (firstHalfAvg > 0) {
+            growth = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg * 100).toFixed(1);
+            growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
+        }
+        
+        document.getElementById('total-apps').textContent = total.toLocaleString();
+        document.getElementById('avg-apps').textContent = avg.toLocaleString();
+        document.getElementById('peak-apps').textContent = peak.toLocaleString();
+        
+        const growthElement = document.getElementById('growth-rate');
+        growthElement.textContent = growth > 0 ? `+${growth}%` : `${growth}%`;
+        growthElement.className = `text-lg font-bold ${growthClass}`;
+    }
+
+    function showErrorState(message) {
+        const barsContainer = document.getElementById('weekly-bars');
+        barsContainer.innerHTML = `
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm text-gray-500">${message}</p>
+                    <button onclick="loadTrendData()" class="mt-3 text-xs text-[#155386] hover:underline">Try again</button>
+                </div>
             </div>
-        </div>
-    `;
-    
-    // Reset summary stats
-    document.getElementById('total-apps').textContent = '-';
-    document.getElementById('avg-apps').textContent = '-';
-    document.getElementById('peak-apps').textContent = '-';
-    document.getElementById('growth-rate').textContent = '-';
-}
+        `;
+        
+        document.getElementById('total-apps').textContent = '-';
+        document.getElementById('avg-apps').textContent = '-';
+        document.getElementById('peak-apps').textContent = '-';
+        document.getElementById('growth-rate').textContent = '-';
+    }
 </script>
 
 <style>
@@ -1217,12 +1066,8 @@ function showErrorState(message) {
     }
     
     @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: .5;
-        }
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
     }
 
     .animate-spin {
@@ -1234,11 +1079,10 @@ function showErrorState(message) {
         to { transform: rotate(360deg); }
     }
 
-    /* Modal animation */
     #positionModal {
         transition: opacity 0.3s ease;
         background-color: transparent;
-        pointer-events: none; /* Allow clicking through to dashboard */
+        pointer-events: none;
     }
     
     #positionModal.hidden {
@@ -1246,14 +1090,12 @@ function showErrorState(message) {
         pointer-events: none;
     }
 
-    /* Modal content is clickable */
     #modalContent {
-        pointer-events: auto !important; /* Make modal content clickable */
+        pointer-events: auto !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         border: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* Shake animation for error */
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
         10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -1264,19 +1106,16 @@ function showErrorState(message) {
         animation: shake 0.5s ease-in-out;
     }
 
-    /* Ensure form elements are clickable */
     #positionForm label,
     #positionForm button,
     #positionForm input {
         cursor: pointer;
     }
 
-    /* Make close button visible */
     #modalContent button {
         cursor: pointer;
     }
 
-    /* Add a subtle backdrop blur effect */
     #positionModal::before {
         content: '';
         position: absolute;
@@ -1286,7 +1125,7 @@ function showErrorState(message) {
         bottom: 0;
         backdrop-filter: blur(2px);
         background-color: rgba(0,0,0,0.1);
-        pointer-events: none; /* Allow clicking through to dashboard */
+        pointer-events: none;
     }
 </style>
 @endsection

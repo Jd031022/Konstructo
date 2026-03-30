@@ -418,10 +418,41 @@ function showRejectedModal(reason) {
     document.body.style.overflow = 'hidden';
 }
 
+function refreshLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.reset();
+    }
+
+    const errorDiv = document.getElementById('error-message');
+    const warningDiv = document.getElementById('warning-message');
+    const successDiv = document.getElementById('success-message');
+
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+    }
+    if (warningDiv) {
+        warningDiv.classList.add('hidden');
+        warningDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('hidden');
+        successDiv.textContent = '';
+    }
+
+    const loginBtn = document.getElementById('login-button');
+    if (loginBtn) {
+        loginBtn.disabled = false;
+    }
+}
+
 function closeRejectedModal() {
     const modal = document.getElementById('rejected-modal');
     modal.classList.add('hidden');
     document.body.style.overflow = 'auto';
+    refreshLoginForm();
+    window.location.reload();
 }
 
 // Pending Approval Modal functions
@@ -435,6 +466,8 @@ function closePendingApprovalModal() {
     const modal = document.getElementById('pending-approval-modal');
     modal.classList.add('hidden');
     document.body.style.overflow = 'auto';
+    refreshLoginForm();
+    window.location.reload();
 }
 
 // Password visibility toggle
