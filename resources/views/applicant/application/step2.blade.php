@@ -7,7 +7,7 @@
 
     <!-- Back Button -->
     <div class="mb-8">
-        <a href="/applicant/application/step1" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+        <a href="javascript:void(0)" onclick="goBackToStep1()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -45,8 +45,8 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <span class="text-sm font-medium text-gray-600">Download Forms</span>
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                <span class="text-sm font-medium text-gray-400">Download Forms</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
@@ -425,13 +425,13 @@
 
         <!-- Navigation Buttons -->
         <div class="p-6 pt-0 flex justify-between items-center">
-            <a href="/applicant/application/step1" 
-               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+            <button onclick="goBackToStep1()" 
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
                 <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Previous: Download Forms
-            </a>
+            </button>
             
             <button onclick="saveAllDocumentLinks()" 
                     id="proceed-btn"
@@ -483,6 +483,10 @@
 </div>
 
 <script>
+    // Get application ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const applicationId = urlParams.get('id');
+    
     // Define all document fields
     const documentFields = [
         'app_letter_link',
@@ -502,6 +506,18 @@
     
     const optionalFields = ['cshp_link'];
     
+    // Go back to Step 1 with the application ID
+    function goBackToStep1() {
+        if (applicationId) {
+            window.location.href = `/applicant/application/step1?id=${applicationId}`;
+        } else {
+            showErrorModal('Application ID not found. Please go back to applications.');
+            setTimeout(() => {
+                window.location.href = '/applicant/applications';
+            }, 2000);
+        }
+    }
+    
     // Update progress bar
     function updateProgress() {
         let filledCount = 0;
@@ -515,13 +531,19 @@
         const totalRequired = documentFields.length;
         const percentage = (filledCount / totalRequired) * 100;
         
-        document.getElementById('upload-progress').textContent = `${filledCount}/${totalRequired}`;
-        document.getElementById('progress-bar').style.width = `${percentage}%`;
+        const progressSpan = document.getElementById('upload-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressMessage = document.getElementById('progress-message');
         
-        if (filledCount === totalRequired) {
-            document.getElementById('progress-message').innerHTML = '<span class="text-green-600">✓ All required documents have links! You can now proceed.</span>';
-        } else {
-            document.getElementById('progress-message').innerHTML = `<span class="text-yellow-600">⚠️ Please provide links for ${totalRequired - filledCount} more document(s)</span>`;
+        if (progressSpan) progressSpan.textContent = `${filledCount}/${totalRequired}`;
+        if (progressBar) progressBar.style.width = `${percentage}%`;
+        
+        if (progressMessage) {
+            if (filledCount === totalRequired) {
+                progressMessage.innerHTML = '<span class="text-green-600">✓ All required documents have links! You can now proceed.</span>';
+            } else {
+                progressMessage.innerHTML = `<span class="text-yellow-600">⚠️ Please provide links for ${totalRequired - filledCount} more document(s)</span>`;
+            }
         }
     }
     
@@ -586,15 +608,11 @@
         proceedBtn.disabled = true;
         
         try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const applicationId = urlParams.get('id');
-            
             const requestData = {
                 document_links: documentLinks,
                 application_id: applicationId || null
             };
             
-            // Use the correct route - either direct URL or route name
             const response = await fetch('/applicant/application/store-links', {
                 method: 'POST',
                 headers: {
@@ -643,18 +661,16 @@
         
         updateProgress();
         
-        // Load existing application data
-        const urlParams = new URLSearchParams(window.location.search);
-        const applicationId = urlParams.get('id');
-        
         if (applicationId) {
             loadExistingData(applicationId);
+        } else {
+            console.warn('No application ID found in URL');
         }
     });
     
-    async function loadExistingData(applicationId) {
+    async function loadExistingData(appId) {
         try {
-            const response = await fetch(`/applicant/application-details/${applicationId}`, {
+            const response = await fetch(`/applicant/application-details/${appId}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -663,28 +679,35 @@
             
             const data = await response.json();
             
-            if (data.success && data.data && data.data.document_links) {
-                const links = data.data.document_links;
-                
-                // Populate all fields
-                documentFields.forEach(field => {
-                    if (links[field]) {
-                        document.getElementById(field).value = links[field];
-                    }
-                });
-                optionalFields.forEach(field => {
-                    if (links[field]) {
-                        document.getElementById(field).value = links[field];
-                    }
-                });
-                
-                updateProgress();
+            if (data.success && data.data) {
+                // Populate document links if they exist
+                if (data.data.document_links) {
+                    const links = data.data.document_links;
+                    
+                    documentFields.forEach(field => {
+                        if (links[field]) {
+                            const element = document.getElementById(field);
+                            if (element) element.value = links[field];
+                        }
+                    });
+                    optionalFields.forEach(field => {
+                        if (links[field]) {
+                            const element = document.getElementById(field);
+                            if (element) element.value = links[field];
+                        }
+                    });
+                    
+                    updateProgress();
+                }
                 
                 // Show application number
                 if (data.data.application_number) {
                     const appNumberDisplay = document.getElementById('application-number-display');
-                    document.getElementById('display-application-number').textContent = data.data.application_number;
-                    appNumberDisplay.classList.remove('hidden');
+                    const displayNumber = document.getElementById('display-application-number');
+                    if (appNumberDisplay && displayNumber) {
+                        displayNumber.textContent = data.data.application_number;
+                        appNumberDisplay.classList.remove('hidden');
+                    }
                 }
             }
         } catch (error) {
@@ -694,29 +717,47 @@
     
     // Modal functions
     function showErrorModal(message) {
-        document.getElementById('error-modal-message').textContent = message;
-        document.getElementById('error-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        const modal = document.getElementById('error-modal');
+        const messageEl = document.getElementById('error-modal-message');
+        if (modal && messageEl) {
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            alert(message);
+        }
     }
     
     function closeErrorModal() {
-        document.getElementById('error-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        const modal = document.getElementById('error-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
     
     function showSuccessModal(message) {
-        document.getElementById('success-modal-message').textContent = message;
-        document.getElementById('success-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        setTimeout(() => {
-            closeSuccessModal();
-        }, 3000);
+        const modal = document.getElementById('success-modal');
+        const messageEl = document.getElementById('success-modal-message');
+        if (modal && messageEl) {
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            setTimeout(() => {
+                closeSuccessModal();
+            }, 3000);
+        } else {
+            alert(message);
+        }
     }
     
     function closeSuccessModal() {
-        document.getElementById('success-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        const modal = document.getElementById('success-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
 </script>
 

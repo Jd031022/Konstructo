@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
 
-
 class ApplicationController extends Controller
 {
     /**
@@ -958,6 +957,125 @@ class ApplicationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error adding note: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Verify documents for an application
+     */
+    public function verifyDocuments(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'verified' => 'required|boolean',
+            'remarks' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            if ($request->verified) {
+                $action = 'document_verified';
+                $message = 'Documents verified successfully';
+                $newStatus = 'approved';
+                
+                // Update application status to approved
+                $application->status = 'approved';
+                $application->verified_at = now();
+                $application->verified_by = $staff->id;
+            } else {
+                $action = 'document_rejected';
+                $message = 'Documents rejected';
+                $newStatus = 'rejected';
+                
+                // Update application status to rejected
+                $application->status = 'rejected';
+                if ($request->has('remarks')) {
+                    $application->rejection_reason = $request->remarks;
+                }
+            }
+            
+            $application->last_updated_by = $staff->id;
+            
+            if ($request->has('remarks')) {
+                $existingNotes = $application->admin_notes;
+                $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . ": " . $request->remarks;
+                $application->admin_notes = $existingNotes 
+                    ? $existingNotes . "\n\n" . $newNote 
+                    : $newNote;
+            }
+            
+            $application->save();
+            
+            // Log the activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                $action,
+                null,
+                $newStatus,
+                $request->remarks ?? null,
+                $request->ip(),
+                $request->userAgent()
+            );
+            
+            // Send notification to applicant
+            try {
+                $this->notificationService->notifyApplicantStatusChange(
+                    $application,
+                    $application->status,
+                    $newStatus,
+                    $staff
+                );
+                
+                if ($application->user && $application->user->email) {
+                    $emailSent = $this->gmailService->sendStatusEmail(
+                        $application->user->email,
+                        $newStatus,
+                        $application->application_number,
+                        $application->user->first_name,
+                        $application->id
+                    );
+                    
+                    if ($emailSent) {
+                        Log::info("✓✓✓ DOCUMENT VERIFICATION EMAIL SENT TO {$application->user->email}");
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send document verification email: ' . $e->getMessage());
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => [
+                    'status' => $newStatus,
+                    'verified' => $request->verified
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error verifying documents: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error verifying documents: ' . $e->getMessage()
             ], 500);
         }
     }

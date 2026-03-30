@@ -239,6 +239,35 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Check if application number exists
+     */
+    public function checkApplicationNumber(Request $request)
+    {
+        try {
+            $number = $request->query('number');
+            
+            if (!$number) {
+                return response()->json([
+                    'exists' => false
+                ]);
+            }
+            
+            $exists = ApplicationDocument::where('application_number', $number)->exists();
+            
+            return response()->json([
+                'exists' => $exists
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error checking application number: ' . $e->getMessage());
+            return response()->json([
+                'exists' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Delete a draft application
      */
     public function destroy($id)
@@ -466,7 +495,7 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Generate application number
+     * Generate application number (10-digit sequential: YYYY + 6-digit sequence)
      */
     public function generateApplicationNumber(Request $request)
     {
@@ -485,14 +514,46 @@ class ApplicationController extends Controller
                 ], 403);
             }
             
-            // Generate application number (format: YYYY-XXXXX)
-            $year = date('Y');
-            $lastNumber = ApplicationDocument::whereYear('created_at', $year)
-                ->whereNotNull('application_number')
-                ->count();
+            // Check if application already has a number
+            if (!is_null($application->application_number)) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'application_number' => $application->application_number,
+                        'application_id' => $application->id,
+                        'already_exists' => true
+                    ]
+                ]);
+            }
             
-            $sequentialNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-            $applicationNumber = $year . '-' . $sequentialNumber;
+            // Generate 10-digit sequential number: Year + 6-digit sequence
+            $year = date('Y');
+            
+            // Get the latest application number for this year
+            $lastApplication = ApplicationDocument::whereYear('created_at', $year)
+                ->whereNotNull('application_number')
+                ->orderBy('id', 'desc')
+                ->first();
+            
+            $sequence = 1;
+            
+            if ($lastApplication && $lastApplication->application_number) {
+                // Extract the sequence part (last 6 digits)
+                $lastNumber = $lastApplication->application_number;
+                $lastSequence = (int) substr($lastNumber, -6);
+                $sequence = $lastSequence + 1;
+            }
+            
+            // Format as 6-digit with leading zeros
+            $sequenceFormatted = str_pad($sequence, 6, '0', STR_PAD_LEFT);
+            $applicationNumber = $year . $sequenceFormatted;
+            
+            // Ensure uniqueness (just in case)
+            while (ApplicationDocument::where('application_number', $applicationNumber)->exists()) {
+                $sequence++;
+                $sequenceFormatted = str_pad($sequence, 6, '0', STR_PAD_LEFT);
+                $applicationNumber = $year . $sequenceFormatted;
+            }
             
             $application->application_number = $applicationNumber;
             $application->save();
@@ -504,7 +565,8 @@ class ApplicationController extends Controller
                 'success' => true,
                 'data' => [
                     'application_number' => $applicationNumber,
-                    'application_id' => $application->id
+                    'application_id' => $application->id,
+                    'already_exists' => false
                 ]
             ]);
             
@@ -553,99 +615,248 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-public function saveEditedPdf(Request $request)
-{
-    try {
-        $textElements     = $request->input('text_elements', []);
-        $applicationNumber= $request->input('application_number', '');
-        $iframeWidth      = (float)$request->input('iframe_width',  800);
-        $iframeHeight     = (float)$request->input('iframe_height', 1100);
 
-        $templatePath = public_path('downloads/application-letter.pdf');
-        if (!file_exists($templatePath)) {
-            return response()->json(['error' => 'PDF template not found'], 404);
+    /**
+     * Save edited PDF with text elements
+     */
+    public function saveEditedPdf(Request $request)
+    {
+        try {
+            $textElements     = $request->input('text_elements', []);
+            $applicationNumber= $request->input('application_number', '');
+            $iframeWidth      = (float)$request->input('iframe_width',  800);
+            $iframeHeight     = (float)$request->input('iframe_height', 1100);
+
+            $templatePath = public_path('downloads/building-permit-application.pdf');
+            if (!file_exists($templatePath)) {
+                return response()->json(['error' => 'PDF template not found'], 404);
+            }
+
+            $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
+            $pdf->SetCreator('Konstructo');
+            $pdf->SetAuthor('Konstructo BPO');
+            $pdf->SetTitle('Application Letter - ' . $applicationNumber);
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+            $pdf->SetMargins(0, 0, 0);
+            $pdf->SetAutoPageBreak(false, 0);
+
+            $pageCount  = $pdf->setSourceFile($templatePath);
+            $templateId = $pdf->importPage(1);
+            $size       = $pdf->getTemplateSize($templateId);
+
+            $pdfW = $size['width'];   // in mm (TCPDF always works in mm)
+            $pdfH = $size['height'];  // in mm
+
+            $pdf->AddPage('P', [$pdfW, $pdfH]);
+            $pdf->useTemplate($templateId, 0, 0, $pdfW, $pdfH);
+
+            // Scale: 1 overlay-pixel = how many mm in the PDF
+            $scaleX = $pdfW / $iframeWidth;
+            $scaleY = $pdfH / $iframeHeight;
+
+            foreach ($textElements as $text) {
+                if (empty(trim($text['content'] ?? ''))) continue;
+
+                // Screen px → PDF pt (screen is 96dpi, PDF is 72dpi)
+                $fontSizePx = (int)($text['fontSize'] ?? 12);
+                $fontSizePt = $fontSizePx * 0.75;   // px → pt
+
+                $pdf->SetFont('helvetica', '', $fontSizePt);
+
+                // Colour
+                $color = $text['color'] ?? '#000000';
+                // Accept named colours
+                $namedColors = ['black'=>'#000000','blue'=>'#0000FF','red'=>'#FF0000'];
+                if (isset($namedColors[$color])) $color = $namedColors[$color];
+                $hex = ltrim($color, '#');
+                $r = hexdec(substr($hex,0,2));
+                $g = hexdec(substr($hex,2,2));
+                $b = hexdec(substr($hex,4,2));
+                $pdf->SetTextColor($r, $g, $b);
+
+                // Convert overlay pixel coords → PDF mm coords
+                $overlayX = (float)($text['x'] ?? 0);
+                $overlayY = (float)($text['y'] ?? 0);
+
+                $pdfX = $overlayX * $scaleX;
+                $pdfY = $overlayY * $scaleY;
+
+                // Clamp to page
+                $pdfX = max(0, min($pdfX, $pdfW - 1));
+                $pdfY = max(0, min($pdfY, $pdfH - 1));
+
+                /*
+                 * Cell height in mm = font size in pt × 0.3528 (1pt = 0.3528mm).
+                 * This makes the cell exactly as tall as the text, so SetXY($x,$y)
+                 * + Cell(...) renders text whose TOP aligns with $pdfY —
+                 * matching where the browser div's top-left sits on the overlay.
+                 */
+                $cellH = $fontSizePt * 0.3528;
+
+                $pdf->SetXY($pdfX, $pdfY);
+                $pdf->Cell(0, $cellH, $text['content'], 0, 0, 'L');
+            }
+
+            $tempDir = storage_path('app/temp');
+            if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
+
+            $outputPath = $tempDir . '/application-letter-' . time() . '.pdf';
+            $pdf->Output($outputPath, 'F');
+
+            return response()->download($outputPath)->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving edited PDF: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
-        $pdf->SetCreator('Konstructo');
-        $pdf->SetAuthor('Konstructo BPO');
-        $pdf->SetTitle('Application Letter - ' . $applicationNumber);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->SetMargins(0, 0, 0);
-        $pdf->SetAutoPageBreak(false, 0);
-
-        $pageCount  = $pdf->setSourceFile($templatePath);
-        $templateId = $pdf->importPage(1);
-        $size       = $pdf->getTemplateSize($templateId);
-
-        $pdfW = $size['width'];   // in mm (TCPDF always works in mm)
-        $pdfH = $size['height'];  // in mm
-
-        $pdf->AddPage('P', [$pdfW, $pdfH]);
-        $pdf->useTemplate($templateId, 0, 0, $pdfW, $pdfH);
-
-        // Scale: 1 overlay-pixel = how many mm in the PDF
-        $scaleX = $pdfW / $iframeWidth;
-        $scaleY = $pdfH / $iframeHeight;
-
-        foreach ($textElements as $text) {
-            if (empty(trim($text['content'] ?? ''))) continue;
-
-            // Screen px → PDF pt (screen is 96dpi, PDF is 72dpi)
-            $fontSizePx = (int)($text['fontSize'] ?? 12);
-            $fontSizePt = $fontSizePx * 0.75;   // px → pt
-
-            $pdf->SetFont('helvetica', '', $fontSizePt);
-
-            // Colour
-            $color = $text['color'] ?? '#000000';
-            // Accept named colours
-            $namedColors = ['black'=>'#000000','blue'=>'#0000FF','red'=>'#FF0000'];
-            if (isset($namedColors[$color])) $color = $namedColors[$color];
-            $hex = ltrim($color, '#');
-            $r = hexdec(substr($hex,0,2));
-            $g = hexdec(substr($hex,2,2));
-            $b = hexdec(substr($hex,4,2));
-            $pdf->SetTextColor($r, $g, $b);
-
-            // Convert overlay pixel coords → PDF mm coords
-            $overlayX = (float)($text['x'] ?? 0);
-            $overlayY = (float)($text['y'] ?? 0);
-
-            $pdfX = $overlayX * $scaleX;
-            $pdfY = $overlayY * $scaleY;
-
-            // Clamp to page
-            $pdfX = max(0, min($pdfX, $pdfW - 1));
-            $pdfY = max(0, min($pdfY, $pdfH - 1));
-
-            /*
-             * Cell height in mm = font size in pt × 0.3528 (1pt = 0.3528mm).
-             * This makes the cell exactly as tall as the text, so SetXY($x,$y)
-             * + Cell(...) renders text whose TOP aligns with $pdfY —
-             * matching where the browser div's top-left sits on the overlay.
-             */
-            $cellH = $fontSizePt * 0.3528;
-
-            $pdf->SetXY($pdfX, $pdfY);
-            $pdf->Cell(0, $cellH, $text['content'], 0, 0, 'L');
-        }
-
-        $tempDir = storage_path('app/temp');
-        if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
-
-        $outputPath = $tempDir . '/application-letter-' . time() . '.pdf';
-        $pdf->Output($outputPath, 'F');
-
-        return response()->download($outputPath)->deleteFileAfterSend(true);
-
-    } catch (\Exception $e) {
-        Log::error('Error saving edited PDF: ' . $e->getMessage());
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 
+    /**
+     * Show step 1 - only if basic requirements are approved
+     */
+    public function step1(Request $request)
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        // If there's an application ID, check if basic requirements are approved
+        if ($applicationId) {
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->first();
+                
+            if (!$application) {
+                return redirect()->route('applicant.basic-requirements.index')
+                    ->with('error', 'Application not found.');
+            }
+            
+            // Check if basic requirements are approved for this application
+            $basicRequirement = BasicRequirement::where('application_id', $applicationId)
+                ->where('status', 'approved')
+                ->first();
+                
+            if (!$basicRequirement) {
+                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                    ->with('error', 'Please complete and get approval for your basic requirements first.');
+            }
+            
+            // Pass the application to the view WITH the existing application number
+            // CORRECT VIEW PATH: applicant.application.step1
+            return view('applicant.application.step1', compact('application'));
+            
+        } else {
+            // No application ID - redirect to basic requirements
+            return redirect()->route('applicant.basic-requirements.index')
+                ->with('error', 'Please complete your basic requirements first.');
+        }
+    }
+
+    /**
+     * Show step 2
+     */
+    public function step2(Request $request)
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if basic requirements are approved
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        // CORRECT VIEW PATH: applicant.application.step2
+        return view('applicant.application.step2', compact('application'));
+    }
+
+    /**
+     * Show step 3
+     */
+    public function step3(Request $request)
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if basic requirements are approved
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        // CORRECT VIEW PATH: applicant.application.step3
+        return view('applicant.application.step3', compact('application'));
+    }
+
+    /**
+     * Check if an application already has a number
+     */
+    public function checkApplicationHasNumber($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $id)
+                ->first();
+                
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'has_number' => !is_null($application->application_number),
+                'application_number' => $application->application_number
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error checking application number: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error checking application number'
+            ], 500);
+        }
+    }
 
     /**
      * Calculate progress percentage based on status

@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Applicant\ApplicationController;
+use App\Http\Controllers\Applicant\BasicRequirementController;
+use App\Http\Controllers\ApplicationDocumentController;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -156,15 +159,15 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
 // Applicant UI Routes
 Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(function () {
     // ========== BASIC REQUIREMENTS ROUTES ==========
-    Route::get('/basic-requirements', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'index'])
+    Route::get('/basic-requirements', [BasicRequirementController::class, 'index'])
         ->name('basic-requirements.index');
-    Route::post('/basic-requirements', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'store'])
+    Route::post('/basic-requirements', [BasicRequirementController::class, 'store'])
         ->name('basic-requirements.store');
-    Route::get('/basic-requirements/status', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'checkStatus'])
+    Route::get('/basic-requirements/status', [BasicRequirementController::class, 'checkStatus'])
         ->name('basic-requirements.status');
-    Route::get('/basic-requirements/can-proceed', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'canProceed'])
+    Route::get('/basic-requirements/can-proceed', [BasicRequirementController::class, 'canProceed'])
         ->name('basic-requirements.can-proceed');
-    Route::get('/basic-requirements/{applicationId}/details', [App\Http\Controllers\Applicant\BasicRequirementController::class, 'getDetails'])
+    Route::get('/basic-requirements/{applicationId}/details', [BasicRequirementController::class, 'getDetails'])
         ->name('basic-requirements.details');
     
     // View routes
@@ -184,173 +187,71 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
-    // Step routes with per-application basic requirements check
-    Route::get('/application/step1', function (Request $request) {
-        $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if ($applicationId) {
-            $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
-                ->where('id', $applicationId)
-                ->first();
-                
-            if (!$application) {
-                return redirect()->route('applicant.applications')
-                    ->with('error', 'Application not found.');
-            }
-            
-            $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
-                ->where('status', 'approved')
-                ->first();
-                
-            if (!$basicRequirement) {
-                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                    ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-            }
-            
-            return view('applicant.application.step1', compact('application'));
-        } else {
-            $submittedCount = \App\Models\ApplicationDocument::where('user_id', $user->id)
-                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
-                ->count();
-                
-            if ($submittedCount >= 3) {
-                return redirect()->route('applicant.applications')
-                    ->with('error', 'You have reached the maximum limit of 3 applications.');
-            }
-            
-            $application = \App\Models\ApplicationDocument::create([
-                'user_id' => $user->id,
-                'application_number' => null,
-                'status' => 'draft',
-                'google_drive_link' => null
-            ]);
-            
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $application->id])
-                ->with('info', 'Please complete the basic requirements first.');
-        }
-    })->name('application.step1');
-    
-    Route::get('/application/step2', function (Request $request) {
-        $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if (!$applicationId) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application ID is required.');
-        }
-        
-        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $applicationId)
-            ->first();
-            
-        if (!$application) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application not found.');
-        }
-        
-        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
-        return view('applicant.application.step2', compact('application'));
-    })->name('application.step2');
-    
-    Route::get('/application/step3', function (Request $request) {
-        $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if (!$applicationId) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application ID is required.');
-        }
-        
-        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $applicationId)
-            ->first();
-            
-        if (!$application) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application not found.');
-        }
-        
-        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
-        return view('applicant.application.step3', compact('application'));
-    })->name('application.step3');
+    // ========== APPLICATION STEP ROUTES - USING CONTROLLER ==========
+    Route::get('/application/step1', [ApplicationController::class, 'step1'])->name('application.step1');
+    Route::get('/application/step2', [ApplicationController::class, 'step2'])->name('application.step2');
+    Route::get('/application/step3', [ApplicationController::class, 'step3'])->name('application.step3');
     
     // Application Document API Routes
-    Route::post('/application/store-link', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLink'])
+    Route::post('/application/store-link', [ApplicationDocumentController::class, 'storeLink'])
         ->name('application.store-link');
     
-    Route::get('/application/status', [App\Http\Controllers\ApplicationDocumentController::class, 'checkStatus'])
+    Route::get('/application/status', [ApplicationDocumentController::class, 'checkStatus'])
         ->name('application.status');
 
-    Route::get('/application/limit-info', [App\Http\Controllers\ApplicationDocumentController::class, 'getApplicationLimitInfo'])
+    Route::get('/application/limit-info', [ApplicationController::class, 'getLimitInfo'])
         ->name('application.limit-info');
     
-    Route::get('/application/details', [App\Http\Controllers\ApplicationDocumentController::class, 'getApplicationDetails'])
+    Route::get('/application/details', [ApplicationDocumentController::class, 'getApplicationDetails'])
         ->name('application.details');
     
-    Route::get('/application/debug', [App\Http\Controllers\ApplicationDocumentController::class, 'debug'])
+    Route::get('/application/debug', [ApplicationDocumentController::class, 'debug'])
         ->name('application.debug');
     
-    Route::post('/application/create-draft', [App\Http\Controllers\ApplicationDocumentController::class, 'createDraft'])
+    Route::post('/application/create-draft', [ApplicationController::class, 'createDraft'])
         ->name('application.create-draft');
     
-    Route::post('/application/submit', [App\Http\Controllers\ApplicationDocumentController::class, 'submitApplication'])
+    Route::post('/application/submit', [ApplicationDocumentController::class, 'submitApplication'])
         ->name('application.submit');
     
-    Route::post('/application/generate-number', [App\Http\Controllers\ApplicationDocumentController::class, 'generateNumber'])
+    // Generate number route
+    Route::post('/application/generate-number', [ApplicationController::class, 'generateApplicationNumber'])
         ->name('application.generate-number');
     
-    // PDF Editor Routes - Application Controller
-    Route::post('/application/create-draft', [App\Http\Controllers\Applicant\ApplicationController::class, 'createDraft'])
-        ->name('application.create-draft');
+    // Check if application has a number
+    Route::get('/application/{id}/check-number', [ApplicationController::class, 'checkApplicationHasNumber'])
+        ->name('application.check-number');
     
-    Route::post('/application/generate-number', [App\Http\Controllers\Applicant\ApplicationController::class, 'generateApplicationNumber'])
-        ->name('application.generate-number');
-    
-    Route::get('/application/limit-info', [App\Http\Controllers\Applicant\ApplicationController::class, 'getLimitInfo'])
-        ->name('application.limit-info');
-    
-    Route::post('/application/save-edited-pdf', [App\Http\Controllers\Applicant\ApplicationController::class, 'saveEditedPdf'])
+    // PDF Editor Routes
+    Route::post('/application/save-edited-pdf', [ApplicationController::class, 'saveEditedPdf'])
         ->name('application.save-edited-pdf');
     
     // Applications Management API Routes
-    Route::get('/applications/data', [App\Http\Controllers\Applicant\ApplicationController::class, 'index'])
+    Route::get('/applications/data', [ApplicationController::class, 'index'])
         ->name('applications.data');
     
-    Route::get('/applications/{id}', [App\Http\Controllers\Applicant\ApplicationController::class, 'show'])
+    Route::get('/applications/{id}', [ApplicationController::class, 'show'])
         ->name('applications.show');
     
-    Route::delete('/applications/{id}', [App\Http\Controllers\Applicant\ApplicationController::class, 'destroy'])
+    Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])
         ->name('applications.destroy');
     
-    Route::get('/applications/stats', [App\Http\Controllers\Applicant\ApplicationController::class, 'getStats'])
+    Route::get('/applications/stats', [ApplicationController::class, 'getStats'])
         ->name('applications.stats');
     
-    Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Applicant\ApplicationController::class, 'getReviewActivities'])
+    Route::get('/applications/{id}/review-activities', [ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
     
-    Route::get('/applications/{id}/debug-review', [App\Http\Controllers\Applicant\ApplicationController::class, 'debugReviewActivities'])
+    Route::get('/applications/{id}/debug-review', [ApplicationController::class, 'debugReviewActivities'])
         ->name('applications.debug-review');
 
     Route::get('/applications/{id}/activity-history', function ($id) {
         return view('applicant.activity-history', ['applicationId' => $id]);
     })->name('applicant.activity-history');
+    
+    // Check application number uniqueness
+    Route::get('/applications/check-number', [ApplicationController::class, 'checkApplicationNumber'])
+        ->name('applications.check-number');
     
     // Debug Routes
     Route::get('/applications/debug-db', function() {
@@ -434,7 +335,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return redirect()->route('dashboard');
     })->name('account-status');
 
-    Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])
+    Route::post('/application/store-links', [ApplicationDocumentController::class, 'storeLinks'])
         ->name('application.store-links');
 });
 
@@ -666,4 +567,3 @@ Route::get('/test-fpdf', function() {
         return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
     }
 });
-
