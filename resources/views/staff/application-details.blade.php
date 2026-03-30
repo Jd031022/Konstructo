@@ -123,10 +123,6 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-lg font-semibold text-gray-800">Application Progress</h2>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-400">Queue Position:</span>
-                    <span id="queue-position" class="text-sm font-semibold text-[#155386]">-</span>
-                </div>
             </div>
             
             <div class="mb-8">
@@ -238,60 +234,31 @@
                     </div>
                 </div>
 
-                <!-- Google Drive Documents Card -->
+                <!-- Document Checklist Card with Request Missing Documents -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Google Drive Documents</h2>
-                        <span id="drive-status" class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Working</span>
+                        <h2 class="text-lg font-semibold text-gray-800">Document Verification Checklist</h2>
+                        <div class="flex items-center gap-2">
+                            <span id="verified-count" class="text-sm font-semibold text-green-600">0</span>
+                            <span class="text-sm text-gray-400">/</span>
+                            <span id="total-count" class="text-sm font-semibold text-gray-600">0</span>
+                            <span class="text-xs text-gray-500">verified</span>
+                        </div>
                     </div>
                     
-                    <!-- Main Google Drive Folder Link -->
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-800">Main Google Drive Folder</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
-                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                        <span id="drive-link-text">View Folder</span>
-                                    </a>
-                                    <span class="text-gray-300">|</span>
-                                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        Copy Link
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">All required documents should be uploaded to this folder</p>
-                            </div>
+                    <div id="documents-checklist" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 mb-4">
+                        <!-- Documents will be loaded dynamically with checkboxes -->
+                        <div class="text-center py-8 text-gray-500">
+                            <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-sm">Loading documents...</p>
                         </div>
                     </div>
 
-                    <!-- Individual Document Links -->
-                    <div class="space-y-4">
-                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Submitted Documents</h3>
-                        <div id="documents-list" class="space-y-3">
-                            <!-- Documents will be loaded dynamically -->
-                            <div class="text-center py-8 text-gray-500">
-                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <p class="text-sm">Loading documents...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Document Actions -->
-                    <div class="mt-6 flex justify-end gap-3">
+                    <!-- Document Actions Buttons -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between gap-3">
                         <div class="relative">
                             <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,7 +271,7 @@
                             </button>
                             
                             <!-- Missing Documents Dropdown -->
-                            <div id="missing-documents-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+                            <div id="missing-documents-dropdown" class="hidden absolute left-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
                                 <div class="p-4">
                                     <div class="flex items-center justify-between mb-3">
                                         <h3 class="font-semibold text-gray-800">Select Missing Documents</h3>
@@ -317,119 +284,12 @@
                                     
                                     <!-- Search Box -->
                                     <div class="mb-3">
-                                        <input type="text" id="document-search" placeholder="Search documents..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" onkeyup="filterDocuments()">
+                                        <input type="text" id="document-search" placeholder="Search documents..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent" onkeyup="filterMissingDocuments()">
                                     </div>
                                     
                                     <!-- Document Categories -->
-                                    <div class="space-y-3 max-h-96 overflow-y-auto">
-                                        <!-- Application Forms -->
-                                        <div>
-                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Application Forms</p>
-                                            <div class="space-y-2">
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Application for Building Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Sign Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Application for Architectural Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Application for Electrical Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Electronics Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Application for Sanitary/Plumbing Permit</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Demolition Permit Form</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Application for Civil/Structural</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Fencing Permit</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Plans and Specifications -->
-                                        <div>
-                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Plans and Specifications</p>
-                                            <div class="space-y-2">
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Architectural Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Civil/Structural Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Electrical Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Sanitary/Plumbing Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Mechanical Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Fencing Plans and Specifications (5 sets)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Bill of Materials (5 copies)</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Supporting Documents -->
-                                        <div>
-                                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Supporting Documents</p>
-                                            <div class="space-y-2">
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Proof of Ownership (2 copies)</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Structural Design Analysis</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Locational/Zoning Clearance</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Barangay Clearance</span>
-                                                </label>
-                                                <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                                    <input type="checkbox" class="document-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                                    <span class="ml-3 text-sm text-gray-700">Certificate of Construction Safety and Health Program (CSHP) from DOLE (for Contractors w/ PCAB)</span>
-                                                </label>
-                                            </div>
-                                        </div>
+                                    <div id="missing-docs-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                        <!-- Dynamic content from JS -->
                                     </div>
                                     
                                     <!-- Remarks Field -->
@@ -440,7 +300,7 @@
                                     
                                     <!-- Dropdown Actions -->
                                     <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end gap-2">
-                                        <button onclick="clearSelectedDocuments()" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">
+                                        <button onclick="clearSelectedMissingDocuments()" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">
                                             Clear All
                                         </button>
                                         <button onclick="sendDocumentRequest()" class="px-4 py-1.5 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
@@ -451,9 +311,14 @@
                             </div>
                         </div>
                         
-                        <button onclick="showVerifyModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-                            Verify Documents
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="resetDocumentVerification()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Reset All
+                            </button>
+                            <button onclick="saveDocumentVerification()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                                Save Progress
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -468,7 +333,8 @@
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
                             <p class="text-sm text-gray-600">
-                                Access the Google Drive folder to review documents. Update status as you review. Check the "Hard Copy Received" box when physical documents are submitted.
+                                Click "View" to review each document. Once viewed, the document becomes verified and cannot be clicked again. 
+                                Check the checkbox next to each document to mark it as verified. Use "Request Missing Documents" to ask for additional documents.
                             </p>
                         </div>
                     </div>
@@ -498,15 +364,19 @@
                                 <p class="text-xs text-gray-500 mt-1">Check this box when physical documents are received</p>
                             </div>
 
-                            <!-- Queue Information -->
-                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+
+                            <!-- Verification Summary -->
+                            <div class="p-3 bg-green-50 rounded-lg border border-green-200">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm text-gray-600">Queue Position:</span>
-                                    <span id="sidebar-queue" class="text-sm font-semibold text-[#155386]">-</span>
+                                    <span class="text-sm text-gray-600">Documents Verified:</span>
+                                    <span id="summary-verified" class="text-sm font-semibold text-green-600">0</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Ahead in Queue:</span>
-                                    <span id="queue-ahead" class="text-sm font-semibold text-gray-700">-</span>
+                                    <span class="text-sm text-gray-600">Pending Verification:</span>
+                                    <span id="summary-pending" class="text-sm font-semibold text-yellow-600">0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div id="verification-progress-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
                                 </div>
                             </div>
 
@@ -548,23 +418,23 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-semibold text-gray-800">Activity Log</h2>
-                            <span class="text-xs text-gray-400">Last 3 activities</span>
+                            <span class="text-xs text-gray-400">Last 5 activities</span>
                         </div>
                         
-                        <div id="activity-log" class="space-y-4 min-h-[200px]">
+                        <div id="activity-log" class="space-y-3 min-h-[250px]">
                             <!-- Activities will be loaded dynamically -->
                             <div class="text-center py-8 text-gray-500">
-                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 <p class="text-sm">Loading activities...</p>
                             </div>
                         </div>
                         
-                        <a href="/staff/applications/{{ $applicationId }}/activity-history" 
-                           class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
+                        <button onclick="loadFullActivityHistory()" class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
                             View Full History →
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -589,15 +459,13 @@
                     and notify the applicant.
                 </p>
                 
-                <!-- Document Verification Checklist Summary -->
                 <div class="mb-4 p-3 bg-gray-50 rounded-lg text-left">
-                    <p class="text-xs font-semibold text-gray-500 mb-2">Documents to verify:</p>
-                    <div id="verification-document-list" class="max-h-32 overflow-y-auto text-sm text-gray-600">
-                        Loading documents...
+                    <p class="text-xs font-semibold text-gray-500 mb-2">Verification Summary:</p>
+                    <div id="verification-summary" class="text-sm text-gray-600">
+                        Loading...
                     </div>
                 </div>
                 
-                <!-- Optional remarks field -->
                 <div class="mb-6 text-left">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Remarks (Optional)</label>
                     <textarea id="verify-remarks" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add any notes about document verification..."></textarea>
@@ -699,26 +567,28 @@
     let applicationId = getApplicationIdFromUrl();
     let currentApplication = null;
     let previousStatus = null;
-    let selectedDocuments = [];
     let updateCheckInterval = null;
-
-    // Document names mapping
-    const documentNames = {
-        'app_letter_link': 'Application Letter',
-        'bp_forms_link': 'Building Permit Forms',
-        'arch_plans_link': 'Architectural Plans',
-        'structural_plans_link': 'Civil/Structural Plans',
-        'electrical_plans_link': 'Electrical Plans',
-        'plumbing_plans_link': 'Sanitary/Plumbing Plans',
-        'mechanical_plans_link': 'Mechanical Plans',
-        'fencing_plans_link': 'Fencing Plans',
-        'ownership_link': 'Proof of Ownership',
-        'bom_link': 'Bill of Materials',
-        'structural_analysis_link': 'Structural Design Analysis',
-        'barangay_clearance_link': 'Barangay Clearance',
-        'valid_id_link': 'Valid ID',
-        'cshp_link': 'CSHP from DOLE (Optional)'
-    };
+    
+    // Document verification tracking
+    let documentVerificationStatus = {};
+    let selectedMissingDocuments = [];
+    
+    // Document names mapping with categories
+    const documentsList = [
+        { key: 'app_letter_link', name: 'Application for Building Permit', category: 'Application Forms' },
+        { key: 'bp_forms_link', name: 'Building Permit Forms', category: 'Application Forms' },
+        { key: 'arch_plans_link', name: 'Architectural Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'structural_plans_link', name: 'Civil/Structural Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'electrical_plans_link', name: 'Electrical Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'plumbing_plans_link', name: 'Sanitary/Plumbing Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'mechanical_plans_link', name: 'Mechanical Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'fencing_plans_link', name: 'Fencing Plans and Specifications', category: 'Plans and Specifications' },
+        { key: 'ownership_link', name: 'Proof of Ownership', category: 'Supporting Documents' },
+        { key: 'bom_link', name: 'Bill of Materials', category: 'Supporting Documents' },
+        { key: 'structural_analysis_link', name: 'Structural Design Analysis', category: 'Supporting Documents' },
+        { key: 'barangay_clearance_link', name: 'Barangay Clearance', category: 'Supporting Documents' },
+        { key: 'valid_id_link', name: 'Valid ID', category: 'Supporting Documents' }
+    ];
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -726,9 +596,9 @@
         if (applicationId && applicationId !== 'application-details' && !isNaN(applicationId)) {
             loadApplicationDetails();
             loadReviewActivities();
-            loadQueuePosition();
             calculateEstimatedTime();
             startRealTimeUpdates();
+            loadDocumentVerificationStatus();
         } else {
             showError();
         }
@@ -779,9 +649,8 @@
                     currentApplication = newApplication;
                     displayApplicationDetails();
                     
-                    // Display documents from document_links
                     if (currentApplication.document_links) {
-                        displayDocumentsList(currentApplication.document_links);
+                        displayDocumentChecklist(currentApplication.document_links);
                     } else {
                         showEmptyDocuments();
                     }
@@ -798,59 +667,434 @@
         }
     }
 
-    // Display documents list
-    function displayDocumentsList(documents) {
-        const container = document.getElementById('documents-list');
+    // Load document verification status from localStorage
+    function loadDocumentVerificationStatus() {
+        const saved = localStorage.getItem(`doc_verification_${applicationId}`);
+        if (saved) {
+            try {
+                documentVerificationStatus = JSON.parse(saved);
+            } catch(e) {
+                documentVerificationStatus = {};
+            }
+        }
+    }
+
+    // Save document verification status
+    function saveDocumentVerificationStatus() {
+        localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
+        updateVerificationStats();
+    }
+
+    // Save verification progress to backend
+    async function saveDocumentVerification() {
+        try {
+            const verifiedCount = Object.keys(documentVerificationStatus).length;
+            const totalCount = documentsList.length;
+            
+            const response = await fetch(`/staff/applications/${applicationId}/add-note`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    note: `Document verification progress saved: ${verifiedCount}/${totalCount} documents verified.`
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Document verification progress saved successfully');
+                loadReviewActivities();
+            } else {
+                showErrorModal(data.message || 'Failed to save verification progress');
+                saveDocumentVerificationStatus();
+            }
+        } catch (error) {
+            console.error('Error saving verification:', error);
+            saveDocumentVerificationStatus();
+            showSuccessModal('Verification progress saved locally');
+        }
+    }
+
+    // Reset document verification
+    function resetDocumentVerification() {
+        if (confirm('Are you sure you want to reset all document verification statuses?')) {
+            documentVerificationStatus = {};
+            saveDocumentVerificationStatus();
+            
+            if (currentApplication && currentApplication.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            showSuccessModal('Document verification status reset successfully');
+        }
+    }
+
+    // Update verification statistics
+    function updateVerificationStats() {
+        const total = documentsList.length;
+        let verified = 0;
+        
+        documentsList.forEach(doc => {
+            if (documentVerificationStatus[doc.key]) {
+                verified++;
+            }
+        });
+        
+        document.getElementById('verified-count').textContent = verified;
+        document.getElementById('total-count').textContent = total;
+        document.getElementById('summary-verified').textContent = verified;
+        document.getElementById('summary-pending').textContent = total - verified;
+        
+        const progressPercent = (verified / total) * 100;
+        document.getElementById('verification-progress-bar').style.width = progressPercent + '%';
+    }
+
+    // Display document checklist with verification checkboxes
+    function displayDocumentChecklist(documents) {
+        const container = document.getElementById('documents-checklist');
         
         if (!documents || Object.keys(documents).length === 0) {
-            showEmptyDocuments();
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500 animate-fade-in">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="text-sm">No documents uploaded yet</p>
+                    <p class="text-xs text-gray-400 mt-1">Documents will appear here once uploaded</p>
+                </div>
+            `;
             return;
         }
         
         let html = '';
-        let hasDocuments = false;
+        let categories = {};
         
-        for (const [key, value] of Object.entries(documents)) {
-            if (value && value.trim() !== '') {
-                hasDocuments = true;
-                const docName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+        // Group documents by category
+        documentsList.forEach(doc => {
+            if (documents[doc.key] && documents[doc.key].trim() !== '') {
+                if (!categories[doc.category]) {
+                    categories[doc.category] = [];
+                }
+                categories[doc.category].push({
+                    ...doc,
+                    link: documents[doc.key],
+                    isVerified: documentVerificationStatus[doc.key]?.verified || false
+                });
+            }
+        });
+        
+        // Build HTML with categories
+        for (const [category, docs] of Object.entries(categories)) {
+            html += `
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2 border-b pb-1">${category}</h3>
+                    <div class="space-y-2">
+            `;
+            
+            docs.forEach(doc => {
+                const isVerified = doc.isVerified;
                 
                 html += `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition group">
+                    <div data-doc-key="${doc.key}" class="flex items-center justify-between p-3 rounded-lg transition ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-gray-50 hover:bg-gray-100'} border border-gray-100">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
+                            <input type="checkbox" 
+                                   class="doc-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]" 
+                                   data-doc-key="${doc.key}"
+                                   onchange="toggleDocumentVerification('${doc.key}', this.checked)"
+                                   ${isVerified ? 'checked disabled' : ''}>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 truncate">${docName}</p>
-                                <p class="text-xs text-gray-400 truncate">${value.length > 60 ? value.substring(0, 60) + '...' : value}</p>
+                                <p class="text-sm font-medium text-gray-800 truncate">${escapeHtml(doc.name)}</p>
+                                ${doc.link ? `<p class="text-xs text-gray-400 truncate mt-0.5">${escapeHtml(doc.link.length > 50 ? doc.link.substring(0, 50) + '...' : doc.link)}</p>` : ''}
                             </div>
                         </div>
-                        <a href="${value}" target="_blank" class="text-[#155386] hover:text-[#1F363D] text-sm flex items-center gap-1 flex-shrink-0 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            <span class="hidden sm:inline">View</span>
-                        </a>
+                        <div class="flex items-center gap-2 ml-2">
+                            ${doc.link ? `
+                                <button onclick="openDocumentLink('${doc.key}', '${escapeHtml(doc.link).replace(/'/g, "\\'")}')" 
+                                        class="view-doc-btn inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium transition ${isVerified ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#155386] text-white hover:bg-[#40798C]'}"
+                                        ${isVerified ? 'disabled' : ''}>
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    ${isVerified ? 'Viewed' : 'View'}
+                                </button>
+                            ` : `
+                                <span class="text-xs text-gray-400 italic">No file uploaded</span>
+                            `}
+                        </div>
                     </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+        }
+        
+        if (Object.keys(categories).length === 0) {
+            html = `
+                <div class="text-center py-8 text-gray-500 animate-fade-in">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="text-sm">No valid documents uploaded yet</p>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+        updateVerificationStats();
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Toggle document verification
+    function toggleDocumentVerification(documentKey, isChecked) {
+        if (isChecked) {
+            documentVerificationStatus[documentKey] = {
+                verified: true,
+                verified_at: new Date().toISOString(),
+                viewed: true
+            };
+        } else {
+            delete documentVerificationStatus[documentKey];
+        }
+        saveDocumentVerificationStatus();
+        
+        // Update UI for the document item
+        const docElement = document.querySelector(`[data-doc-key="${documentKey}"]`);
+        if (docElement) {
+            if (isChecked) {
+                docElement.classList.add('bg-green-50', 'border-green-200');
+                docElement.classList.remove('bg-gray-50', 'hover:bg-gray-100');
+                
+                const viewBtn = docElement.querySelector('.view-doc-btn');
+                if (viewBtn) {
+                    viewBtn.disabled = true;
+                    viewBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+                    viewBtn.classList.remove('bg-[#155386]', 'hover:bg-[#40798C]');
+                    viewBtn.innerHTML = `
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Viewed
+                    `;
+                }
+            } else {
+                docElement.classList.add('bg-gray-50', 'hover:bg-gray-100');
+                docElement.classList.remove('bg-green-50', 'border-green-200');
+                
+                const viewBtn = docElement.querySelector('.view-doc-btn');
+                if (viewBtn) {
+                    viewBtn.disabled = false;
+                    viewBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+                    viewBtn.classList.add('bg-[#155386]', 'hover:bg-[#40798C]');
+                    viewBtn.innerHTML = `
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        View
+                    `;
+                }
+            }
+        }
+    }
+
+    // Open document link and mark as viewed
+    function openDocumentLink(documentKey, link) {
+        if (documentVerificationStatus[documentKey]?.verified) {
+            window.open(link, '_blank');
+            return;
+        }
+        
+        documentVerificationStatus[documentKey] = {
+            verified: true,
+            verified_at: new Date().toISOString(),
+            viewed: true
+        };
+        saveDocumentVerificationStatus();
+        
+        const docElement = document.querySelector(`[data-doc-key="${documentKey}"]`);
+        if (docElement) {
+            docElement.classList.add('bg-green-50', 'border-green-200');
+            docElement.classList.remove('bg-gray-50', 'hover:bg-gray-100');
+            
+            const checkbox = docElement.querySelector('.doc-checkbox');
+            if (checkbox) {
+                checkbox.checked = true;
+                checkbox.disabled = true;
+            }
+            
+            const viewBtn = docElement.querySelector('.view-doc-btn');
+            if (viewBtn) {
+                viewBtn.disabled = true;
+                viewBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+                viewBtn.classList.remove('bg-[#155386]', 'hover:bg-[#40798C]');
+                viewBtn.innerHTML = `
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Viewed
                 `;
             }
         }
         
-        if (!hasDocuments) {
-            showEmptyDocuments();
-        } else {
-            container.innerHTML = html;
-            document.getElementById('drive-status').textContent = 'Documents Available';
-            document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        updateVerificationStats();
+        window.open(link, '_blank');
+        showSuccessModal('Document marked as verified');
+    }
+
+    // Toggle missing documents dropdown
+    function toggleMissingDocumentsDropdown() {
+        const dropdown = document.getElementById('missing-documents-dropdown');
+        const arrow = document.getElementById('dropdown-arrow');
+        
+        dropdown.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+        
+        if (!dropdown.classList.contains('hidden')) {
+            loadMissingDocumentsList();
+        }
+    }
+
+    // Load missing documents list
+    function loadMissingDocumentsList() {
+        const container = document.getElementById('missing-docs-list');
+        let html = '';
+        let categories = {};
+        
+        documentsList.forEach(doc => {
+            if (!categories[doc.category]) {
+                categories[doc.category] = [];
+            }
+            categories[doc.category].push(doc);
+        });
+        
+        for (const [category, docs] of Object.entries(categories)) {
+            html += `
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">${category}</p>
+                    <div class="space-y-2">
+            `;
+            
+            docs.forEach(doc => {
+                html += `
+                    <label class="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="missing-doc-checkbox h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]" data-doc-name="${escapeHtml(doc.name)}" data-doc-key="${doc.key}">
+                        <span class="ml-3 text-sm text-gray-700">${escapeHtml(doc.name)}</span>
+                    </label>
+                `;
+            });
+            
+            html += `</div></div>`;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    // Filter missing documents
+    function filterMissingDocuments() {
+        const searchTerm = document.getElementById('document-search').value.toLowerCase();
+        const labels = document.querySelectorAll('#missing-docs-list .space-y-2 label');
+        
+        labels.forEach(label => {
+            const text = label.querySelector('span').textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                label.style.display = 'flex';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+        
+        const categories = document.querySelectorAll('#missing-docs-list > div');
+        categories.forEach(category => {
+            const visibleItems = category.querySelectorAll('label[style="display: flex;"]').length;
+            if (visibleItems === 0) {
+                category.style.display = 'none';
+            } else {
+                category.style.display = 'block';
+            }
+        });
+    }
+
+    // Clear selected missing documents
+    function clearSelectedMissingDocuments() {
+        const checkboxes = document.querySelectorAll('.missing-doc-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectedMissingDocuments = [];
+    }
+
+    // Send document request
+    async function sendDocumentRequest() {
+        selectedMissingDocuments = [];
+        const checkboxes = document.querySelectorAll('.missing-doc-checkbox:checked');
+        
+        checkboxes.forEach(checkbox => {
+            const docName = checkbox.getAttribute('data-doc-name');
+            if (docName) {
+                selectedMissingDocuments.push(docName);
+            }
+        });
+        
+        if (selectedMissingDocuments.length === 0) {
+            showErrorModal('Please select at least one document to request');
+            return;
+        }
+        
+        const remarks = document.getElementById('document-request-remarks')?.value || '';
+        
+        const requestBtn = event.target;
+        const originalText = requestBtn.innerHTML;
+        requestBtn.innerHTML = 'Sending...';
+        requestBtn.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    documents: selectedMissingDocuments,
+                    remarks: remarks
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal(`Request sent for ${selectedMissingDocuments.length} document(s).`);
+                clearSelectedMissingDocuments();
+                toggleMissingDocumentsDropdown();
+                document.getElementById('document-request-remarks').value = '';
+                loadReviewActivities();
+            } else {
+                showErrorModal(data.message || 'Failed to send request');
+            }
+        } catch (error) {
+            console.error('Error sending document request:', error);
+            showErrorModal('Failed to send request. Please try again.');
+        } finally {
+            requestBtn.innerHTML = originalText;
+            requestBtn.disabled = false;
         }
     }
 
     // Show empty documents state
     function showEmptyDocuments() {
-        const container = document.getElementById('documents-list');
+        const container = document.getElementById('documents-checklist');
         container.innerHTML = `
             <div class="text-center py-8 text-gray-500 animate-fade-in">
                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -860,8 +1104,6 @@
                 <p class="text-xs text-gray-400 mt-1">Documents will appear here once uploaded</p>
             </div>
         `;
-        document.getElementById('drive-status').textContent = 'No Documents';
-        document.getElementById('drive-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
     }
 
     // Save timestamp for status changes
@@ -910,29 +1152,7 @@
         }, 1000);
     }
 
-    // Load queue position
-    async function loadQueuePosition() {
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/queue-position`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('queue-position').textContent = data.position || '-';
-                    document.getElementById('sidebar-queue').textContent = data.position || '-';
-                    document.getElementById('queue-ahead').textContent = data.ahead || '0';
-                }
-            }
-        } catch (error) {
-            console.error('Error loading queue position:', error);
-        }
-    }
-
+   
     // Calculate estimated completion time
     function calculateEstimatedTime() {
         const averageProcessingDays = {
@@ -994,9 +1214,8 @@
                 updateHardCopyStatus(currentApplication.hard_copy_received);
                 calculateEstimatedTime();
                 
-                // Display documents from document_links
                 if (currentApplication.document_links) {
-                    displayDocumentsList(currentApplication.document_links);
+                    displayDocumentChecklist(currentApplication.document_links);
                 } else {
                     showEmptyDocuments();
                 }
@@ -1035,7 +1254,12 @@
         }
     }
 
-    // Display review activities
+    // Load full activity history
+    function loadFullActivityHistory() {
+        window.location.href = `/staff/applications/${applicationId}/activity-history`;
+    }
+
+    // Display review activities - FIXED: No duplication
     function displayReviewActivities(activities) {
         const activityLog = document.getElementById('activity-log');
         
@@ -1046,7 +1270,7 @@
         
         const sortedActivities = [...activities].sort((a, b) => 
             new Date(b.created_at) - new Date(a.created_at)
-        ).slice(0, 3);
+        ).slice(0, 5);
         
         let html = '';
         sortedActivities.forEach(activity => {
@@ -1056,6 +1280,10 @@
             let iconColor = 'bg-blue-100';
             let iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
             
+            // Use action_display only - this is the formatted text without duplication
+            let actionText = activity.action_display || 'Activity';
+            
+            // Customize icon based on action type
             if (activity.action === 'status_updated') {
                 if (activity.new_status === 'approved') {
                     iconColor = 'bg-green-100';
@@ -1063,13 +1291,32 @@
                 } else if (activity.new_status === 'rejected') {
                     iconColor = 'bg-red-100';
                     iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />`;
+                } else if (activity.new_status === 'document-verification') {
+                    iconColor = 'bg-purple-100';
+                    iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />`;
+                } else if (activity.new_status === 'under-review') {
+                    iconColor = 'bg-yellow-100';
+                    iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+                } else if (activity.new_status === 'for-release') {
+                    iconColor = 'bg-blue-100';
+                    iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />`;
                 }
             } else if (activity.action === 'hard_copy_received') {
                 iconColor = 'bg-indigo-100';
                 iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />`;
+            } else if (activity.action === 'missing_documents_requested') {
+                iconColor = 'bg-yellow-100';
+                iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+            } else if (activity.action === 'note_added') {
+                iconColor = 'bg-gray-100';
+                iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />`;
+            } else if (activity.action === 'application_created') {
+                iconColor = 'bg-green-100';
+                iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />`;
             }
             
-            const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
+            const reviewerName = activity.reviewer_name || activity.reviewer?.name || 'System';
+            const remarksHtml = activity.remarks ? `<p class="text-xs text-gray-500 mt-1 truncate">${escapeHtml(activity.remarks.substring(0, 100))}${activity.remarks.length > 100 ? '...' : ''}</p>` : '';
             
             html += `
                 <div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in">
@@ -1078,10 +1325,10 @@
                             ${iconSvg}
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-800">${activity.action_display || activity.action}</p>
-                        <p class="text-xs text-gray-500 mt-1">by ${reviewerName}</p>
-                        <p class="text-xs text-gray-400 mt-1">${timeAgo}</p>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-800">${escapeHtml(actionText)}</p>
+                        ${remarksHtml}
+                        <p class="text-xs text-gray-400 mt-1">by ${escapeHtml(reviewerName)} • ${timeAgo}</p>
                     </div>
                 </div>
             `;
@@ -1115,9 +1362,12 @@
             document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
                 year: 'numeric', month: 'long', day: 'numeric' 
             });
-            document.getElementById('step-submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
-                month: 'short', day: 'numeric' 
-            });
+            const stepSubmittedDate = document.getElementById('step-submitted-date');
+            if (stepSubmittedDate) {
+                stepSubmittedDate.textContent = submittedDate.toLocaleDateString('en-US', { 
+                    month: 'short', day: 'numeric' 
+                });
+            }
         }
         
         if (currentApplication.updated_at) {
@@ -1133,24 +1383,6 @@
         document.getElementById('applicant-email').textContent = currentApplication.email || 'N/A';
         document.getElementById('applicant-phone').textContent = currentApplication.phone || 'N/A';
         document.getElementById('applicant-address').textContent = currentApplication.address || 'N/A';
-
-        if (currentApplication.google_drive_link) {
-            const driveLink = document.getElementById('drive-link');
-            driveLink.href = currentApplication.google_drive_link;
-            document.getElementById('drive-link-text').textContent = currentApplication.google_drive_link.length > 50 ? 
-                currentApplication.google_drive_link.substring(0, 50) + '...' : 
-                currentApplication.google_drive_link;
-            driveLink.classList.remove('pointer-events-none', 'text-gray-500');
-            driveLink.classList.add('text-[#155386]');
-            driveLink.setAttribute('target', '_blank');
-        } else {
-            const driveLink = document.getElementById('drive-link');
-            driveLink.innerHTML = '<span class="text-gray-500">No link provided</span>';
-            driveLink.href = '#';
-            driveLink.classList.add('pointer-events-none', 'text-gray-500');
-            driveLink.classList.remove('text-[#155386]');
-            driveLink.removeAttribute('target');
-        }
 
         const radios = document.querySelectorAll('.status-radio');
         radios.forEach(radio => {
@@ -1211,8 +1443,10 @@
                 if (text) text.className = 'text-sm font-medium text-gray-800 transition-all duration-500';
                 
                 if (index === currentStepIndex && currentApplication) {
-                    dateElement.textContent = 'In Progress';
-                    dateElement.className = 'text-xs text-[#155386] font-medium animate-pulse';
+                    if (dateElement) {
+                        dateElement.textContent = 'In Progress';
+                        dateElement.className = 'text-xs text-[#155386] font-medium animate-pulse';
+                    }
                     stepElement.classList.add('step-processing');
                 } else {
                     stepElement.classList.remove('step-processing');
@@ -1225,7 +1459,7 @@
                         4: 'release_at'
                     }[index];
                     
-                    if (currentApplication && currentApplication[dateField]) {
+                    if (currentApplication && currentApplication[dateField] && dateElement) {
                         const date = new Date(currentApplication[dateField]);
                         dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                         dateElement.className = 'text-xs text-gray-500';
@@ -1239,8 +1473,10 @@
                     </svg>`;
                 }
                 if (text) text.className = 'text-sm font-medium text-gray-400 transition-all duration-500';
-                dateElement.textContent = '';
-                dateElement.className = 'text-xs text-gray-400';
+                if (dateElement) {
+                    dateElement.textContent = '';
+                    dateElement.className = 'text-xs text-gray-400';
+                }
                 stepElement.classList.remove('step-processing');
             }
         });
@@ -1354,191 +1590,6 @@
         }
     }
 
-    // Toggle missing documents dropdown
-    function toggleMissingDocumentsDropdown() {
-        const dropdown = document.getElementById('missing-documents-dropdown');
-        const arrow = document.getElementById('dropdown-arrow');
-        
-        dropdown.classList.toggle('hidden');
-        arrow.classList.toggle('rotate-180');
-    }
-
-    // Filter documents by search
-    function filterDocuments() {
-        const searchTerm = document.getElementById('document-search').value.toLowerCase();
-        const labels = document.querySelectorAll('#missing-documents-dropdown .space-y-2 label');
-        
-        labels.forEach(label => {
-            const text = label.querySelector('span').textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                label.style.display = 'flex';
-            } else {
-                label.style.display = 'none';
-            }
-        });
-        
-        const categories = document.querySelectorAll('#missing-documents-dropdown .space-y-3 > div');
-        categories.forEach(category => {
-            const visibleItems = category.querySelectorAll('label[style="display: flex;"]').length;
-            if (visibleItems === 0) {
-                category.style.display = 'none';
-            } else {
-                category.style.display = 'block';
-            }
-        });
-    }
-
-    // Clear all selected documents
-    function clearSelectedDocuments() {
-        const checkboxes = document.querySelectorAll('.document-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        selectedDocuments = [];
-    }
-
-    // Send document request
-    async function sendDocumentRequest() {
-        selectedDocuments = [];
-        const checkboxes = document.querySelectorAll('.document-checkbox:checked');
-        
-        checkboxes.forEach(checkbox => {
-            const label = checkbox.closest('label');
-            const documentName = label.querySelector('span').textContent;
-            selectedDocuments.push(documentName);
-        });
-        
-        if (selectedDocuments.length === 0) {
-            showErrorModal('Please select at least one document to request');
-            return;
-        }
-        
-        const remarks = document.getElementById('document-request-remarks')?.value || '';
-        
-        const requestBtn = event.target;
-        const originalText = requestBtn.innerHTML;
-        requestBtn.innerHTML = 'Sending...';
-        requestBtn.disabled = true;
-        
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    documents: selectedDocuments,
-                    remarks: remarks
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal(`Request sent for ${selectedDocuments.length} document(s).`);
-                clearSelectedDocuments();
-                toggleMissingDocumentsDropdown();
-                document.getElementById('document-request-remarks').value = '';
-            } else {
-                showErrorModal(data.message || 'Failed to send request');
-            }
-        } catch (error) {
-            console.error('Error sending document request:', error);
-            showErrorModal('Failed to send request. Please try again.');
-        } finally {
-            requestBtn.innerHTML = originalText;
-            requestBtn.disabled = false;
-        }
-    }
-
-    // Show verify modal
-    function showVerifyModal() {
-        const documentList = document.getElementById('verification-document-list');
-        const requiredDocuments = [
-            'Application for Building Permit',
-            'Architectural Plans and Specifications (5 sets)',
-            'Civil/Structural Plans and Specifications (5 sets)',
-            'Electrical Plans and Specifications (5 sets)',
-            'Sanitary/Plumbing Plans and Specifications (5 sets)',
-            'Proof of Ownership (2 copies)',
-            'Locational/Zoning Clearance',
-            'Barangay Clearance'
-        ];
-        
-        let docHtml = '<ul class="list-disc list-inside text-sm">';
-        requiredDocuments.forEach(doc => {
-            docHtml += `<li>${doc}</li>`;
-        });
-        docHtml += '</ul>';
-        documentList.innerHTML = docHtml;
-        
-        document.getElementById('verify-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    // Close verify modal
-    function closeVerifyModal() {
-        document.getElementById('verify-modal').classList.add('hidden');
-        document.getElementById('verify-remarks').value = '';
-        document.body.style.overflow = 'auto';
-    }
-
-    // Confirm verify
-    async function confirmVerify() {
-        const verifyBtn = document.getElementById('confirm-verify-btn');
-        const originalText = verifyBtn.innerHTML;
-        verifyBtn.innerHTML = 'Verifying...';
-        verifyBtn.disabled = true;
-        
-        try {
-            const status = 'document-verification';
-            const remarks = document.getElementById('verify-remarks').value || 'Documents verified by staff';
-            const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
-            
-            const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    status: status,
-                    remarks: remarks,
-                    hardcopy_received: hardcopyReceived
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                closeVerifyModal();
-                showSuccessModal('Documents verification started. Status updated to Document Verification.');
-                updateStatusUI(status);
-                updateTimeline(status);
-                updateProgress(status);
-                saveStatusTimestamp(status);
-                
-                const radios = document.querySelectorAll('.status-radio');
-                radios.forEach(radio => {
-                    if (radio.value === status) {
-                        radio.checked = true;
-                    }
-                });
-            } else {
-                showErrorModal(data.message || 'Failed to verify documents');
-            }
-        } catch (error) {
-            console.error('Error verifying documents:', error);
-            showErrorModal('Failed to verify documents. Please try again.');
-        } finally {
-            verifyBtn.innerHTML = originalText;
-            verifyBtn.disabled = false;
-        }
-    }
-
     function formatStatus(status) {
         if (!status) return '';
         return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -1557,19 +1608,6 @@
         if (diffDays < 7) return diffDays + ' day' + (diffDays > 1 ? 's' : '') + ' ago';
         
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-
-    function copyDriveLink() {
-        const link = currentApplication?.google_drive_link;
-        if (link) {
-            navigator.clipboard.writeText(link).then(() => {
-                showSuccessModal('Link copied to clipboard!');
-            }).catch(() => {
-                showErrorModal('Failed to copy link');
-            });
-        } else {
-            showErrorModal('No link to copy');
-        }
     }
 
     function exportAsPDF() {
@@ -1649,6 +1687,84 @@
     function closeErrorModal() {
         document.getElementById('error-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+    }
+
+    function closeVerifyModal() {
+        document.getElementById('verify-modal').classList.add('hidden');
+        document.getElementById('verify-remarks').value = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    function showVerifyModal() {
+        const verifiedCount = document.getElementById('verified-count').textContent;
+        const totalCount = document.getElementById('total-count').textContent;
+        const summaryDiv = document.getElementById('verification-summary');
+        
+        summaryDiv.innerHTML = `
+            <p class="font-medium">${verifiedCount} out of ${totalCount} documents verified</p>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2 mb-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: ${(parseInt(verifiedCount) / parseInt(totalCount)) * 100}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">All documents must be reviewed and verified before proceeding.</p>
+        `;
+        
+        document.getElementById('verify-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    async function confirmVerify() {
+        const verifyBtn = document.getElementById('confirm-verify-btn');
+        const originalText = verifyBtn.innerHTML;
+        verifyBtn.innerHTML = 'Verifying...';
+        verifyBtn.disabled = true;
+        
+        try {
+            const status = 'document-verification';
+            const remarks = document.getElementById('verify-remarks').value || 'Documents verified by staff';
+            const hardcopyReceived = document.getElementById('hardcopy-checkbox').checked;
+            
+            const response = await fetch(`/staff/applications/${applicationId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    status: status,
+                    remarks: remarks,
+                    hardcopy_received: hardcopyReceived
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                closeVerifyModal();
+                showSuccessModal('Documents verification started. Status updated to Document Verification.');
+                updateStatusUI(status);
+                updateTimeline(status);
+                updateProgress(status);
+                saveStatusTimestamp(status);
+                
+                const radios = document.querySelectorAll('.status-radio');
+                radios.forEach(radio => {
+                    if (radio.value === status) {
+                        radio.checked = true;
+                    }
+                });
+                
+                loadReviewActivities();
+            } else {
+                showErrorModal(data.message || 'Failed to verify documents');
+            }
+        } catch (error) {
+            console.error('Error verifying documents:', error);
+            showErrorModal('Failed to verify documents. Please try again.');
+        } finally {
+            verifyBtn.innerHTML = originalText;
+            verifyBtn.disabled = false;
+        }
     }
 
     function setupModals() {

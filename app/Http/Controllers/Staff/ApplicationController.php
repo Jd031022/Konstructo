@@ -203,6 +203,316 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Get review activities for an application - FIXED to remove duplicates
+     */
+    public function getReviewActivities($id)
+    {
+        try {
+            Log::info('Fetching review activities for application ID: ' . $id);
+            
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $activities = [];
+            
+            if (class_exists('App\Models\ApplicationReviewActivity')) {
+                // Get distinct activities - if there are duplicates by timestamp, keep only one
+                $rawActivities = ApplicationReviewActivity::with('reviewer')
+                    ->where('application_id', $id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                
+                // Remove duplicates based on action and timestamp within 1 second
+                $uniqueActivities = [];
+                foreach ($rawActivities as $activity) {
+                    $key = $activity->action . '_' . $activity->created_at->format('Y-m-d H:i:s');
+                    if (!isset($uniqueActivities[$key])) {
+                        $uniqueActivities[$key] = $activity;
+                    }
+                }
+                
+                $activities = collect(array_values($uniqueActivities))->map(function($activity) {
+                    return [
+                        'id' => $activity->id,
+                        'action' => $activity->action,
+                        'action_display' => $this->getActionDisplayText($activity),
+                        'old_status' => $activity->old_status,
+                        'new_status' => $activity->new_status,
+                        'remarks' => $activity->remarks,
+                        'reviewer_id' => $activity->reviewer_id,
+                        'reviewer_name' => $activity->reviewer ? 
+                            ($activity->reviewer->first_name . ' ' . $activity->reviewer->last_name) : 
+                            'System',
+                        'reviewer_role' => $activity->reviewer ? $activity->reviewer->role : null,
+                        'created_at' => $activity->created_at,
+                        'ip_address' => $activity->ip_address,
+                        'user_agent' => $activity->user_agent
+                    ];
+                });
+            }
+            
+            Log::info('Found ' . count($activities) . ' unique review activities');
+            
+            return response()->json([
+                'success' => true,
+                'activities' => $activities
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching review activities: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching activities: ' . $e->getMessage(),
+                'activities' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Get human-readable action display text
+     */
+    private function getActionDisplayText($activity)
+    {
+        $actionText = '';
+        
+        switch ($activity->action) {
+            case 'application_submitted':
+                $actionText = 'Application Submitted';
+                break;
+            case 'status_updated':
+                $old = $activity->old_status ? $this->formatStatusForDisplay($activity->old_status) : 'Unknown';
+                $new = $activity->new_status ? $this->formatStatusForDisplay($activity->new_status) : 'Unknown';
+                $actionText = "Status changed from {$old} to {$new}";
+                break;
+            case 'document_verified':
+                $actionText = 'Documents Verified';
+                break;
+            case 'document_rejected':
+                $actionText = 'Documents Rejected';
+                break;
+            case 'hard_copy_received':
+                $actionText = 'Hard Copy Received';
+                break;
+            case 'missing_documents_requested':
+                $actionText = 'Missing Documents Requested';
+                break;
+            case 'note_added':
+                $actionText = 'Note Added';
+                break;
+            case 'application_created':
+                $actionText = 'Application Created';
+                break;
+            case 'application_deleted':
+                $actionText = 'Application Deleted';
+                break;
+            case 'application_archived':
+                $actionText = 'Application Archived';
+                break;
+            case 'application_restored':
+                $actionText = 'Application Restored';
+                break;
+            default:
+                $actionText = ucfirst(str_replace('_', ' ', $activity->action));
+                break;
+        }
+        
+        return $actionText;
+    }
+
+    /**
+     * Format status for display (e.g., 'under-review' -> 'Under Review')
+     */
+    private function formatStatusForDisplay($status)
+    {
+        if (!$status) return 'Unknown';
+        return ucfirst(str_replace('-', ' ', $status));
+    }
+
+    /**
+     * Add verification note (for saving document verification progress)
+     */
+    public function addVerificationNote(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'note' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+
+            $existingNotes = $application->admin_notes;
+            $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . ": " . $request->note;
+            $application->admin_notes = $existingNotes 
+                ? $existingNotes . "\n\n" . $newNote 
+                : $newNote;
+            
+            $application->last_updated_by = $staff->id;
+            $application->save();
+
+            // Log the activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'note_added',
+                null,
+                null,
+                $request->note,
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            Log::info('Verification note added', [
+                'application_id' => $application->id,
+                'staff_id' => $staff->id,
+                'note' => $request->note
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Note added successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error adding verification note: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error adding note: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get queue position for an application
+     */
+    public function getQueuePosition($id)
+    {
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            // Count applications in queue with status 'pending' or 'under-review' that are older than this one
+            $position = ApplicationDocument::whereIn('status', ['pending', 'under-review'])
+                ->where('created_at', '<', $application->created_at)
+                ->count() + 1;
+            
+            $ahead = ApplicationDocument::whereIn('status', ['pending', 'under-review'])
+                ->where('created_at', '<', $application->created_at)
+                ->count();
+            
+            return response()->json([
+                'success' => true,
+                'position' => $position,
+                'ahead' => $ahead
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error getting queue position: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error getting queue position'
+            ], 500);
+        }
+    }
+
+    /**
+     * Export single application as PDF
+     */
+    public function exportPDF($id)
+    {
+        try {
+            $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])->find($id);
+            
+            if (!$application) {
+                return redirect()->back()->with('error', 'Application not found');
+            }
+            
+            $pdfContent = $this->generatePDFContent($application);
+            
+            $filename = 'application_' . $application->application_number . '_' . date('Y-m-d') . '.pdf';
+            
+            return response($pdfContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            
+        } catch (\Exception $e) {
+            Log::error('Error exporting PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error exporting PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate PDF content (placeholder)
+     */
+    private function generatePDFContent($application)
+    {
+        $content = "Application Details\n";
+        $content .= "==================\n\n";
+        $content .= "Application Number: " . $application->application_number . "\n";
+        $content .= "Applicant Name: " . ($application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown') . "\n";
+        $content .= "Status: " . $application->status . "\n";
+        $content .= "Date Submitted: " . ($application->created_at ? $application->created_at->format('Y-m-d H:i:s') : 'N/A') . "\n";
+        
+        return $content;
+    }
+
+    /**
+     * View full activity history
+     */
+    public function activityHistory($id)
+    {
+        try {
+            $application = ApplicationDocument::with(['user'])->find($id);
+            
+            if (!$application) {
+                return redirect()->back()->with('error', 'Application not found');
+            }
+            
+            $activities = ApplicationReviewActivity::with('reviewer')
+                ->where('application_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            return view('staff.applications.activity-history', compact('application', 'activities'));
+            
+        } catch (\Exception $e) {
+            Log::error('Error loading activity history: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading activity history');
+        }
+    }
+
+    /**
      * Store a new application (created by staff)
      */
     public function store(Request $request)
@@ -311,7 +621,7 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Update application status
+     * Update application status - FIXED to prevent duplicate entries
      */
     public function updateStatus(Request $request, $id)
     {
@@ -366,20 +676,29 @@ class ApplicationController extends Controller
             $oldHardCopyStatus = $application->hard_copy_received;
             $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
             
+            // Check if status actually changed
+            $statusChanged = ($oldStatus !== $newStatus);
+            $hardCopyChanged = ($oldHardCopyStatus != $newHardCopyStatus);
+            
             Log::info('Status change', [
                 'old' => $oldStatus,
                 'new' => $newStatus,
-                'changed' => ($oldStatus !== $newStatus) ? 'YES' : 'NO'
+                'changed' => $statusChanged ? 'YES' : 'NO'
             ]);
             
             Log::info('Hard copy status change', [
                 'old' => $oldHardCopyStatus,
                 'new' => $newHardCopyStatus,
-                'changed' => ($oldHardCopyStatus != $newHardCopyStatus) ? 'YES' : 'NO'
+                'changed' => $hardCopyChanged ? 'YES' : 'NO'
             ]);
             
+            // Update application
             $application->status = $newStatus;
-            $application->admin_notes = $request->remarks ?? $application->admin_notes;
+            
+            if ($request->has('remarks') && $request->remarks) {
+                $application->admin_notes = $request->remarks;
+            }
+            
             $application->last_updated_by = $staff->id;
             
             if ($request->has('hardcopy_received')) {
@@ -409,9 +728,39 @@ class ApplicationController extends Controller
                 'new_hardcopy_status' => $application->hard_copy_received
             ]);
 
-            if ($oldStatus !== $newStatus) {
-                Log::info('ATTEMPTING TO SEND STATUS CHANGE NOTIFICATION');
+            // ONLY create activity if status actually changed
+            if ($statusChanged) {
+                Log::info('Creating review activity for status change');
                 
+                // Check if duplicate was just created (within last 2 seconds)
+                $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                    ->where('action', 'status_updated')
+                    ->where('old_status', $oldStatus)
+                    ->where('new_status', $newStatus)
+                    ->where('created_at', '>=', now()->subSeconds(2))
+                    ->exists();
+                
+                if (!$existingDuplicate) {
+                    try {
+                        $activity = ApplicationReviewActivity::create([
+                            'application_id' => $application->id,
+                            'reviewer_id' => $staff->id,
+                            'action' => 'status_updated',
+                            'old_status' => $oldStatus,
+                            'new_status' => $newStatus,
+                            'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent()
+                        ]);
+                        Log::info('Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
+                    } catch (\Exception $e) {
+                        Log::error('Failed to log activity: ' . $e->getMessage());
+                    }
+                } else {
+                    Log::info('Skipped duplicate activity creation');
+                }
+                
+                // Send notifications
                 try {
                     $this->notificationService->notifyApplicantStatusChange(
                         $application,
@@ -451,8 +800,28 @@ class ApplicationController extends Controller
                 }
             }
 
-            if ($newHardCopyStatus && !$oldHardCopyStatus) {
+            // Hard copy notification (separate from status change)
+            if ($hardCopyChanged && $newHardCopyStatus) {
                 Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
+                
+                // Check for duplicate hard copy activity
+                $existingHardCopyDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                    ->where('action', 'hard_copy_received')
+                    ->where('created_at', '>=', now()->subSeconds(2))
+                    ->exists();
+                
+                if (!$existingHardCopyDuplicate) {
+                    $this->logReviewActivity(
+                        $application->id,
+                        $staff->id,
+                        'hard_copy_received',
+                        null,
+                        null,
+                        'Hard copies marked as received',
+                        $request->ip(),
+                        $request->userAgent()
+                    );
+                }
                 
                 try {
                     $this->notificationService->notifyHardCopyReceived($application, $staff);
@@ -477,23 +846,6 @@ class ApplicationController extends Controller
                 } catch (\Exception $e) {
                     Log::error('✗✗✗ EXCEPTION when sending hard copy notification: ' . $e->getMessage());
                 }
-            }
-
-            try {
-                Log::info('Creating review activity');
-                $activity = ApplicationReviewActivity::create([
-                    'application_id' => $application->id,
-                    'reviewer_id' => $staff->id,
-                    'action' => 'status_updated',
-                    'old_status' => $oldStatus,
-                    'new_status' => $newStatus,
-                    'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ]);
-                Log::info('Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
-            } catch (\Exception $e) {
-                Log::error('Failed to log activity: ' . $e->getMessage());
             }
 
             Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
@@ -645,6 +997,19 @@ class ApplicationController extends Controller
 
             $staff = auth()->user();
 
+            // Check if already marked
+            if ($application->hard_copy_received) {
+                Log::info('Hard copy already marked as received');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Hard copies already marked as received',
+                    'data' => [
+                        'hard_copy_received' => true,
+                        'hard_copy_received_at' => $application->hard_copy_received_at
+                    ]
+                ]);
+            }
+
             $application->hard_copy_received = true;
             $application->hard_copy_received_at = now();
             $application->last_updated_by = $staff->id;
@@ -656,8 +1021,28 @@ class ApplicationController extends Controller
                 'last_updated_by' => $application->last_updated_by
             ]);
 
-            Log::info('Calling notification service...');
+            // Check for duplicate hard copy activity
+            $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                ->where('action', 'hard_copy_received')
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
             
+            if (!$existingDuplicate) {
+                $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'hard_copy_received',
+                    null,
+                    null,
+                    'Hard copies marked as received',
+                    $request->ip(),
+                    $request->userAgent()
+                );
+                Log::info('✅ Review activity logged');
+            } else {
+                Log::info('Skipped duplicate hard copy activity');
+            }
+
             try {
                 $this->notificationService->notifyHardCopyReceived($application, $staff);
                 Log::info('✅ Notification service called successfully');
@@ -685,27 +1070,6 @@ class ApplicationController extends Controller
             } catch (\Exception $e) {
                 Log::error('❌ Error calling notification service: ' . $e->getMessage());
                 Log::error($e->getTraceAsString());
-            }
-
-            try {
-                $activity = $this->logReviewActivity(
-                    $application->id,
-                    $staff->id,
-                    'hard_copy_received',
-                    null,
-                    null,
-                    'Hard copies marked as received',
-                    $request->ip(),
-                    $request->userAgent()
-                );
-                
-                if ($activity) {
-                    Log::info('✅ Review activity logged with ID: ' . $activity->id);
-                } else {
-                    Log::warning('⚠️ Review activity not logged');
-                }
-            } catch (\Exception $e) {
-                Log::error('❌ Error logging review activity: ' . $e->getMessage());
             }
 
             Log::info('========== MARK HARD COPY RECEIVED COMPLETED ==========');
@@ -822,16 +1186,24 @@ class ApplicationController extends Controller
                 Log::error('Cannot send email: Applicant email not found');
             }
 
-            $this->logReviewActivity(
-                $application->id,
-                $staff->id,
-                'missing_documents_requested',
-                $application->status,
-                $application->status,
-                "Requested missing documents: " . implode(", ", $request->documents),
-                $request->ip(),
-                $request->userAgent()
-            );
+            // Check for duplicate missing documents request
+            $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                ->where('action', 'missing_documents_requested')
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
+            
+            if (!$existingDuplicate) {
+                $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'missing_documents_requested',
+                    $application->status,
+                    $application->status,
+                    "Requested missing documents: " . implode(", ", $request->documents),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+            }
 
             Log::info('========== REQUEST MISSING DOCUMENTS END (SUCCESS) ==========');
 
@@ -1054,6 +1426,17 @@ class ApplicationController extends Controller
                 return null;
             }
             
+            // Check for duplicate within last 2 seconds
+            $duplicate = ApplicationReviewActivity::where('application_id', $applicationId)
+                ->where('action', $action)
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
+            
+            if ($duplicate) {
+                Log::info('Skipping duplicate activity: ' . $action);
+                return null;
+            }
+            
             return ApplicationReviewActivity::create([
                 'application_id' => $applicationId,
                 'reviewer_id' => $reviewerId,
@@ -1111,6 +1494,18 @@ class ApplicationController extends Controller
                 'archive_reason' => request('reason', 'Archived by staff')
             ]);
             
+            // Log the archive activity
+            $this->logReviewActivity(
+                $application->id,
+                Auth::id(),
+                'application_archived',
+                $application->status,
+                null,
+                'Application archived: ' . request('reason', 'Archived by staff'),
+                request()->ip(),
+                request()->userAgent()
+            );
+            
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'application_archived',
@@ -1135,7 +1530,7 @@ class ApplicationController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error archiving application: ' . $e->getMessage());
+            Log::error('Error archiving application: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -1163,6 +1558,18 @@ class ApplicationController extends Controller
                 'archive_reason' => null
             ]);
             
+            // Log the restore activity
+            $this->logReviewActivity(
+                $application->id,
+                Auth::id(),
+                'application_restored',
+                null,
+                $application->status,
+                'Application restored from archive',
+                request()->ip(),
+                request()->userAgent()
+            );
+            
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'application_restored',
@@ -1186,7 +1593,7 @@ class ApplicationController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error restoring application: ' . $e->getMessage());
+            Log::error('Error restoring application: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -1240,7 +1647,7 @@ class ApplicationController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error restoring multiple applications: ' . $e->getMessage());
+            Log::error('Error restoring multiple applications: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -1330,7 +1737,7 @@ class ApplicationController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error fetching archived applications: ' . $e->getMessage());
+            Log::error('Error fetching archived applications: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch archived applications'
