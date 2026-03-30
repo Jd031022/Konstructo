@@ -175,46 +175,35 @@
                 <div class="relative flex justify-between">
                     <div id="step-submitted" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
+                            <span class="text-lg font-bold text-gray-400 step-icon">1</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
                         <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     <div id="step-under-review" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
+                            <span class="text-lg font-bold text-gray-400 step-icon">2</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
                         <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     <div id="step-verification" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            <span class="text-lg font-bold text-gray-400 step-icon">3</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
                         <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     <div id="step-approval" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <span class="text-lg font-bold text-gray-400 step-icon">4</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
                         <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     <div id="step-release" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <svg class="h-5 w-5 text-gray-400 step-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
+                            <span class="text-lg font-bold text-gray-400 step-icon">5</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
                         <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
@@ -1145,13 +1134,16 @@
             if (!stepElement) return;
             
             const circle = stepElement.querySelector('.w-10.h-10');
+            const icon = stepElement.querySelector('.step-icon');
             const text = stepElement.querySelector('.text-sm');
             const dateElement = document.getElementById(`step-${step}-date`);
             
             if (index <= currentStepIndex) {
                 if (circle) {
                     circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500 transform scale-animation';
-                    circle.innerHTML = '<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                }
+                if (icon) {
+                    icon.className = 'text-lg font-bold text-white step-icon';
                 }
                 if (text) text.className = 'text-sm font-medium text-gray-800 transition-all duration-500';
                 
@@ -1173,9 +1165,9 @@
             } else {
                 if (circle) {
                     circle.className = 'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500';
-                    circle.innerHTML = `<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
+                }
+                if (icon) {
+                    icon.className = 'text-lg font-bold text-gray-400 step-icon';
                 }
                 if (text) text.className = 'text-sm font-medium text-gray-400 transition-all duration-500';
                 if (dateElement) {

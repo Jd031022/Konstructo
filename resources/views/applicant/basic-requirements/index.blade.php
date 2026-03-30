@@ -14,6 +14,14 @@
             </div>
             <h1 class="text-3xl font-bold text-gray-900">Basic Requirements</h1>
             <p class="text-gray-600 mt-2 max-w-2xl mx-auto">Please submit the required documents to proceed with your application. All documents must be in Google Drive with sharing set to "Anyone with the link can view".</p>
+            <div class="mt-4">
+                <a href="/applicant/applications" class="inline-flex items-center gap-2 px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    View My Applications
+                </a>
+            </div>
         </div>
 
         <!-- Hidden Application ID -->
