@@ -6,41 +6,12 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Back Button -->
     <div class="mb-8">
-        <a href="javascript:void(0)" onclick="handleBackNavigation(event)" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group" id="back-button">
+        <a href="/applicant/applications" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back
+            Back to My Applications
         </a>
-    </div>
-
-    <div id="limit-warning-container"></div>
-
-    <!-- Application Number Banner -->
-    <div id="application-number-banner" class="mb-6 hidden">
-        <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <div>
-                        <p class="text-white/80 text-sm">Your Application Number</p>
-                        <p class="text-2xl font-bold text-white font-mono" id="application-number">2025000001</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                        Copy Number
-                    </button>
-                    <span class="text-white/60 text-sm">Keep this for reference</span>
-                </div>
-            </div>
-            <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
-                <span class="font-medium">Important:</span> Use this number when submitting hard copies to OBO.
-            </div>
-        </div>
     </div>
 
     <!-- Step Indicator -->
@@ -74,6 +45,59 @@
         </div>
     </div>
 
+    <!-- Application Number Banner - Will show if application already has a number -->
+    @if($application->application_number)
+    <div id="application-number-banner" class="mb-6">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-white/80 text-sm">Your Application Number</p>
+                        <p class="text-2xl font-bold text-white font-mono" id="application-number">{{ $application->application_number }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                        Copy Number
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
+                <span class="font-medium">Important:</span> Keep this number for reference when submitting hard copies.
+            </div>
+        </div>
+    </div>
+    @else
+    <div id="application-number-banner" class="mb-6 hidden">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-white/80 text-sm">Your Application Number</p>
+                        <p class="text-2xl font-bold text-white font-mono" id="application-number">2026000000</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                        Copy Number
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
+                <span class="font-medium">Important:</span> Keep this number for reference when submitting hard copies.
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <!-- Instructions -->
@@ -88,8 +112,9 @@
                         <h4 class="font-medium text-gray-700 mb-2">Step-by-Step Guide:</h4>
                         <ol class="space-y-3 text-sm text-gray-600">
                             <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span><span>Select the forms you need from the checklist below</span></li>
-                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">2</span><span>Click "Edit PDF" on the Application Letter to type on it</span></li>
-                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">3</span><span>Click on the document to place text, drag to move</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">2</span><span>Click "Edit PDF" on the Building Permit Application to type on it</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">3</span><span>Your application number will be automatically generated when you open the PDF editor (if not already generated)</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">4</span><span>After editing, click "Save & Download PDF" to save your filled form</span></li>
                         </ol>
                     </div>
                     <div>
@@ -118,10 +143,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg border-2 border-[#155386] transition relative overflow-hidden">
                     <div class="absolute top-0 right-0 bg-[#155386] text-white text-xs px-3 py-1 rounded-bl-lg font-medium">Interactive PDF</div>
-                    <input type="checkbox" id="form-appletter" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <input type="checkbox" id="form-building-permit-app" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1">
-                        <label for="form-appletter" class="font-medium text-gray-800 cursor-pointer">Application Letter</label>
-                        <p class="text-xs text-gray-500">Click "Edit PDF" to type directly on the document</p>
+                        <label for="form-building-permit-app" class="font-medium text-gray-800 cursor-pointer">Building Permit Application</label>
+                        <p class="text-xs text-gray-500">Click "Edit PDF" to type directly on the document. Your application number will be generated here.</p>
                         <div class="mt-2">
                             <button type="button" onclick="openPdfEditor()" class="inline-flex items-center text-sm bg-[#155386] text-white px-3 py-1.5 rounded-lg hover:bg-[#1F363D] transition">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -132,11 +157,6 @@
                     <span class="text-xs text-gray-400">PDF Form</span>
                 </div>
 
-                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
-                    <input type="checkbox" id="form-building-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
-                    <div class="flex-1"><label for="form-building-permit" class="font-medium text-gray-800 cursor-pointer">Building Permit Application</label><p class="text-xs text-gray-500">Main application form</p></div>
-                    <span class="text-xs text-gray-400">PDF</span>
-                </div>
                 <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
                     <input type="checkbox" id="form-sign-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1"><label for="form-sign-permit" class="font-medium text-gray-800 cursor-pointer">Sign Permit Application</label><p class="text-xs text-gray-500">For signage and billboards</p></div>
@@ -200,21 +220,21 @@
 
         <!-- Next Step -->
         <div class="p-8 pt-0 flex justify-end">
-            <a href="#" id="next-step-btn" onclick="goToStep2(event)"
-               class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md">
+            <button onclick="goToStep2()" id="next-step-btn"
+                    class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md">
                 Next Step: Upload Documents
                 <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </a>
+            </button>
         </div>
     </div>
 </div>
 
 {{-- ══════════ MODALS ══════════ --}}
 
-<!-- DPA -->
-<div id="dpa-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 px-4 py-8 hidden" style="backdrop-filter:blur(4px);">
-    <div class="relative min-h-full flex items-center justify-center">
-        <div class="mx-auto w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+<!-- DPA Modal -->
+<div id="dpa-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center px-4 py-8" style="backdrop-filter:blur(4px);">
+    <div class="relative w-full max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white flex items-center gap-3">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 <h3 class="text-xl font-bold">Data Privacy Act Compliance</h3>
@@ -232,22 +252,7 @@
     </div>
 </div>
 
-<!-- Save Draft -->
-<div id="save-draft-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
-    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
-        <div class="bg-white rounded-2xl shadow-xl p-6 text-center">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Save as Draft?</h3>
-            <p class="text-sm text-gray-600 mb-6">Application <span id="draft-app-number" class="font-mono font-bold text-blue-600"></span> will be saved. Continue later from your applications page.</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="saveDraftAndContinue()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition text-sm">Yes, Save as Draft</button>
-                <button onclick="discardDraftAndContinue()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-medium transition text-sm">No, Discard Progress</button>
-                <button onclick="closeDraftModal()" class="text-sm text-gray-500 hover:text-gray-700">Cancel, Stay on this page</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Error -->
+<!-- Error Modal -->
 <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
         <div class="bg-white rounded-2xl shadow-xl p-6 text-center">
@@ -261,7 +266,7 @@
     </div>
 </div>
 
-<!-- Success -->
+<!-- Success Modal -->
 <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
         <div class="bg-white rounded-2xl shadow-xl p-6 text-center">
@@ -276,31 +281,7 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════════
-     PDF EDITOR MODAL
-
-     HOW ACCURATE COORDINATES WORK:
-     ────────────────────────────────
-     Browser side:
-       • #pdf-viewer-wrapper is exactly IFRAME_W × IFRAME_H px (800×1100).
-       • #text-overlay is absolutely positioned inset-0 over the iframe.
-       • pointer-events:none on the iframe so ALL clicks reach the overlay.
-       • We use e.offsetX / e.offsetY which give px relative to the overlay
-         element's own top-left — scroll-independent and exact.
-       • Text divs use line-height:1, padding:0, margin:0 so the div's
-         top-left == where the text visually starts.
-       • We store x,y as the div's top-left in overlay pixels.
-
-     PHP side (ApplicationController@saveEditedPdf):
-       • Receives iframe_width=800, iframe_height=1100.
-       • Gets actual PDF mm dims from FPDI getTemplateSize().
-       • scaleX = pdfW_mm / 800,  scaleY = pdfH_mm / 1100
-       • pdfX = overlayX * scaleX
-       • pdfY = overlayY * scaleY
-       • Font px → pt: fontSize_pt = fontSize_px * 0.75  (96dpi→72dpi)
-       • Uses SetXY($pdfX, $pdfY) then Cell(0, cellH, text)
-         where cellH = fontSize_pt * 0.3528  (pt→mm, 1pt=0.3528mm)
-         This makes TCPDF render text whose top-of-cell aligns with pdfY,
-         matching where the browser div's top-of-text is.
+     PDF EDITOR MODAL - Building Permit Application with Pagination
 ══════════════════════════════════════════════════════════════════ --}}
 <div id="pdf-editor-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:50; flex-direction:column;">
 
@@ -308,7 +289,7 @@
     <div style="flex-shrink:0; background:linear-gradient(to right,#155386,#1F363D); color:#fff; padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,.4);">
         <div style="display:flex;align-items:center;gap:.75rem;">
             <svg style="width:1.5rem;height:1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            <span style="font-size:1.1rem;font-weight:700;">PDF Editor — click on the document to place text</span>
+            <span style="font-size:1.1rem;font-weight:700;">PDF Editor — Building Permit Application</span>
         </div>
         <div style="display:flex;gap:.75rem;">
             <button onclick="saveEditedPDF()" id="save-pdf-btn" style="background:#16a34a;color:#fff;border:none;padding:.5rem 1rem;border-radius:.5rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;font-size:.9rem;">
@@ -317,6 +298,21 @@
             </button>
             <button onclick="closePdfEditor()" style="background:#4b5563;color:#fff;border:none;padding:.5rem 1rem;border-radius:.5rem;cursor:pointer;font-size:.9rem;">Close</button>
         </div>
+    </div>
+
+    <!-- Page Navigation Toolbar -->
+    <div style="flex-shrink:0; background:#1f2937; color:#fff; padding:.5rem 1.5rem; display:flex; align-items:center; justify-content:center; gap:1rem; border-bottom:1px solid #374151;">
+        <button onclick="previousPage()" id="prev-page-btn" style="background:#374151; color:#fff; border:none; padding:.4rem 1rem; border-radius:.5rem; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.85rem; transition:all 0.2s;">
+            <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Previous
+        </button>
+        <span style="font-size:.9rem; font-weight:500;">
+            Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+        </span>
+        <button onclick="nextPage()" id="next-page-btn" style="background:#374151; color:#fff; border:none; padding:.4rem 1rem; border-radius:.5rem; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.85rem; transition:all 0.2s;">
+            Next
+            <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </button>
     </div>
 
     <!-- Toolbar -->
@@ -339,23 +335,14 @@
         <span style="margin-left:auto;font-size:.75rem;color:#9ca3af;">Selected: <span id="selected-text-label" style="color:#fff;font-family:monospace;">none</span></span>
     </div>
 
-    <!-- Scroll area -->
+    <!-- Scroll area with PDF viewer -->
     <div style="flex:1; overflow:auto; background:#374151; display:flex; align-items:flex-start; justify-content:center; padding:2rem;" id="pdf-scroll-area">
-        <!--
-            CRITICAL: wrapper is EXACTLY 800×1100px — no padding, no border.
-            The overlay (inset-0 absolute) captures clicks via offsetX/offsetY
-            which are coords relative to the overlay's own origin (= PDF top-left).
-        -->
         <div id="pdf-viewer-wrapper" style="position:relative; width:800px; height:1100px; flex-shrink:0; box-shadow:0 25px 60px rgba(0,0,0,.6);">
-
-            <!-- PDF iframe: pointer-events:none so clicks go to overlay -->
             <iframe id="pdf-iframe"
-                src="/downloads/application-letter.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
+                src="/downloads/building-permit-application.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
                 style="position:absolute; top:0; left:0; width:800px; height:1100px; border:none; pointer-events:none; display:block; background:#fff;"
                 tabindex="-1">
             </iframe>
-
-            <!-- Overlay: crosshair cursor, captures all clicks -->
             <div id="text-overlay"
                 style="position:absolute; top:0; left:0; width:800px; height:1100px; cursor:crosshair; z-index:10; overflow:hidden;">
             </div>
@@ -366,13 +353,21 @@
 <script>
 'use strict';
 
-// ─── Constants (must match iframe dimensions above) ───────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────
 const IFRAME_W = 800;
 const IFRAME_H = 1100;
 
+// Get application data from server
+const existingApplicationNumber = @json($application->application_number);
+const applicationId = @json($application->id);
+
+// PDF Pagination
+let currentPage = 1;
+let totalPages = 1;
+let pdfDoc = null;
+
 const formCheckboxes = [
-    { id:'form-appletter',            name:'Application Letter',          file:'application-letter.pdf',          isAppLetter:true, isInteractive:true },
-    { id:'form-building-permit',      name:'Building Permit Application', file:'building-permit-application.pdf' },
+    { id:'form-building-permit-app',  name:'Building Permit Application', file:'building-permit-application-form.pdf', isInteractive:true },
     { id:'form-sign-permit',          name:'Sign Permit Application',     file:'sign-permit-application.pdf' },
     { id:'form-architectural-permit', name:'Architectural Permit',        file:'architectural-permit.pdf' },
     { id:'form-mechanical-permit',    name:'Mechanical Permit',           file:'mechanical-permit.pdf' },
@@ -393,394 +388,604 @@ let currentColor   = '#000000';
 let currentFontSize= 12;
 
 let applicationNumberGenerated = false;
-let currentApplicationId       = null;
-let currentApplicationNumber   = null;
-let pendingNavigationUrl       = null;
+let currentApplicationId       = applicationId;
+let currentApplicationNumber   = existingApplicationNumber;
 let dpaAccepted                = false;
 
-// ─── DPA ─────────────────────────────────────────────────────────────────────
-function checkDPAStatus(){ dpaAccepted = localStorage.getItem('dpa_consent')==='accepted'; return dpaAccepted; }
-function showDPAModalIfNeeded(){ 
-    if(!checkDPAStatus() && !localStorage.getItem('dpa_modal_shown')){ 
-        document.getElementById('dpa-modal').classList.remove('hidden'); 
-        document.body.style.overflow='hidden'; 
-        localStorage.setItem('dpa_modal_shown', 'true');
-    } 
+// Set flag if number exists
+if (existingApplicationNumber) {
+    applicationNumberGenerated = true;
+    console.log('Application number loaded from server:', existingApplicationNumber);
 }
-function acceptDPA(){ localStorage.setItem('dpa_consent','accepted'); dpaAccepted=true; document.getElementById('dpa-modal').classList.add('hidden'); document.body.style.overflow='auto'; showSuccessModal('Thank you. You may now proceed.'); }
-function declineDPA(){ localStorage.removeItem('dpa_consent'); localStorage.removeItem('dpa_modal_shown'); document.getElementById('dpa-modal').classList.add('hidden'); document.body.style.overflow='auto'; showErrorModal('You must accept the Data Privacy Act terms to proceed.'); setTimeout(()=>{ window.location.href='/applicant/dashboard'; },3000); }
+
+// ─── DPA FUNCTIONS ────────────────────────────────────────────────────────────
+function checkDPAStatus(){ 
+    dpaAccepted = localStorage.getItem('dpa_consent') === 'accepted'; 
+    return dpaAccepted; 
+}
+
+function showDPAModalIfNeeded(){ 
+    const modal = document.getElementById('dpa-modal');
+    if(modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function acceptDPA(){ 
+    localStorage.setItem('dpa_consent','accepted'); 
+    dpaAccepted=true; 
+    const modal = document.getElementById('dpa-modal');
+    if(modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow='auto';
+    }
+    showSuccessModal('Thank you. You may now proceed.'); 
+}
+
+function declineDPA(){ 
+    localStorage.removeItem('dpa_consent'); 
+    dpaAccepted=false; 
+    const modal = document.getElementById('dpa-modal');
+    if(modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow='auto';
+    }
+    showErrorModal('You must accept the Data Privacy Act terms to proceed.'); 
+    setTimeout(()=>{ 
+        window.location.href='/applicant/dashboard'; 
+    },3000); 
+}
 
 // ─── CSRF ─────────────────────────────────────────────────────────────────────
 function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'; }
 
-// ─── Application number ───────────────────────────────────────────────────────
+// ─── PDF Pagination Functions ─────────────────────────────────────────────────
+function initPDFPagination() {
+    const pdfUrl = '/downloads/building-permit-application.pdf';
+    
+    if (typeof pdfjsLib === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+        script.onload = () => {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            loadPDF(pdfUrl);
+        };
+        document.head.appendChild(script);
+    } else {
+        loadPDF(pdfUrl);
+    }
+}
+
+function loadPDF(url) {
+    pdfjsLib.getDocument(url).promise.then(function(doc) {
+        pdfDoc = doc;
+        totalPages = doc.numPages;
+        document.getElementById('total-pages').textContent = totalPages;
+        updatePageButtons();
+        loadPage(currentPage);
+    }).catch(function(error) {
+        console.error('Error loading PDF:', error);
+        totalPages = 1;
+        document.getElementById('total-pages').textContent = '?';
+    });
+}
+
+function loadPage(pageNum) {
+    if (!pdfDoc) return;
+    
+    pdfDoc.getPage(pageNum).then(function(page) {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+        };
+        
+        page.render(renderContext).promise.then(function() {
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            const iframe = document.getElementById('pdf-iframe');
+            if (iframe) {
+                const tempHtml = `<!DOCTYPE html><html><body style="margin:0;padding:0;"><img src="${dataUrl}" style="width:100%;height:auto;"></body></html>`;
+                const blob = new Blob([tempHtml], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                iframe.src = blobUrl;
+            }
+        });
+    });
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        document.getElementById('current-page').textContent = currentPage;
+        updatePageButtons();
+        loadPage(currentPage);
+        loadTextElementsForPage(currentPage);
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        document.getElementById('current-page').textContent = currentPage;
+        updatePageButtons();
+        loadPage(currentPage);
+        loadTextElementsForPage(currentPage);
+    }
+}
+
+function updatePageButtons() {
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+}
+
+function loadTextElementsForPage(pageNum) {
+    const pageKey = `page_${pageNum}`;
+    if (textElementsByPage && textElementsByPage[pageKey]) {
+        textElements = textElementsByPage[pageKey];
+    } else {
+        textElements = [];
+    }
+    refreshTextOverlay();
+}
+
+let textElementsByPage = {};
+
+function saveTextElements() {
+    const pageKey = `page_${currentPage}`;
+    textElementsByPage[pageKey] = textElements;
+    localStorage.setItem('pdf_text_elements_building_permit', JSON.stringify(textElementsByPage));
+}
+
+function loadSavedTextElements() {
+    try {
+        const saved = localStorage.getItem('pdf_text_elements_building_permit');
+        if (saved) {
+            textElementsByPage = JSON.parse(saved);
+            const pageKey = `page_${currentPage}`;
+            textElements = textElementsByPage[pageKey] || [];
+        } else {
+            textElementsByPage = {};
+            textElements = [];
+        }
+    } catch(e) {
+        textElementsByPage = {};
+        textElements = [];
+    }
+}
+
+// ─── Generate application number (ONLY if no existing number) ──────────
 async function generateAndSaveApplicationNumber(){
-    if(applicationNumberGenerated) return currentApplicationNumber;
-    try{
-        const dr=await fetch('/applicant/application/create-draft',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf(),'Accept':'application/json'}});
-        const dd=await dr.json();
-        if(dd.limit_reached){showErrorModal(dd.message);return null;}
-        if(!dd.success){throw new Error(dd.message);}
-        currentApplicationId=dd.data.id;
-        const gr=await fetch('/applicant/application/generate-number',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf(),'Accept':'application/json'},body:JSON.stringify({application_id:currentApplicationId})});
-        const gd=await gr.json();
-        if(!gd.success){throw new Error(gd.message);}
-        currentApplicationNumber=gd.data.application_number;
-        applicationNumberGenerated=true;
-        document.getElementById('application-number').textContent=currentApplicationNumber;
-        document.getElementById('application-number-banner').classList.remove('hidden');
-        sessionStorage.setItem('konstructo_current_app_id',currentApplicationId);
-        sessionStorage.setItem('konstructo_current_app_number',currentApplicationNumber);
+    // If already have a number, just return it
+    if(applicationNumberGenerated && currentApplicationId && currentApplicationNumber) {
+        console.log('Already have application number:', currentApplicationNumber);
         return currentApplicationNumber;
-    }catch(e){ showErrorModal('Failed to generate application number: '+e.message); return null; }
+    }
+    
+    try {
+        if (!currentApplicationId) {
+            showErrorModal('Application ID is missing.');
+            return null;
+        }
+        
+        // Generate new application number
+        const gr = await fetch('/applicant/application/generate-number', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json','X-CSRF-TOKEN':csrf(),'Accept':'application/json'},
+            body: JSON.stringify({
+                application_id: currentApplicationId
+            })
+        });
+        const gd = await gr.json();
+        
+        if(!gd.success){
+            throw new Error(gd.message);
+        }
+        
+        currentApplicationNumber = gd.data.application_number;
+        applicationNumberGenerated = true;
+        
+        // Show the banner
+        const banner = document.getElementById('application-number-banner');
+        const numberEl = document.getElementById('application-number');
+        if (banner && numberEl) {
+            numberEl.textContent = currentApplicationNumber;
+            banner.classList.remove('hidden');
+        }
+        
+        showSuccessModal(`Application number ${currentApplicationNumber} has been generated!`);
+        
+        return currentApplicationNumber;
+    } catch(e){ 
+        showErrorModal('Failed to generate application number: '+e.message); 
+        return null; 
+    }
 }
 
 // ─── Editor open/close ────────────────────────────────────────────────────────
 async function openPdfEditor(){
-    if(!applicationNumberGenerated){ const n=await generateAndSaveApplicationNumber(); if(!n) return; }
+    if(!checkDPAStatus()){
+        showErrorModal('Please accept the Data Privacy Act terms first.');
+        showDPAModalIfNeeded();
+        return;
+    }
+    
+    // Generate or get existing application number when opening the editor
+    const appNumber = await generateAndSaveApplicationNumber();
+    if(!appNumber) return;
+    
+    // Reset to page 1
+    currentPage = 1;
+    document.getElementById('current-page').textContent = '1';
+    
     loadSavedTextElements();
-    const m=document.getElementById('pdf-editor-modal');
-    m.style.display='flex';
-    document.body.style.overflow='hidden';
+    const m = document.getElementById('pdf-editor-modal');
+    m.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    initPDFPagination();
     refreshTextOverlay();
 }
+
 function closePdfEditor(){
     if(editingInput) finishEditing(null);
-    document.getElementById('pdf-editor-modal').style.display='none';
-    document.body.style.overflow='auto';
+    document.getElementById('pdf-editor-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
-// ─── Render overlay ──────────────────────────────────────────────────────────
+// ─── Render overlay functions (keep the same as before) ────────────────────────
 function refreshTextOverlay(){
-    const overlay=document.getElementById('text-overlay');
+    const overlay = document.getElementById('text-overlay');
     if(!overlay) return;
-    overlay.querySelectorAll('.pdf-text-el').forEach(el=>el.remove());
-    textElements.forEach(t=>mountTextEl(t));
+    overlay.querySelectorAll('.pdf-text-el').forEach(el => el.remove());
+    textElements.forEach(t => mountTextEl(t));
     updateSelectedLabel();
 }
 
 function mountTextEl(text){
-    const overlay=document.getElementById('text-overlay');
-    const div=document.createElement('div');
-    div.className='pdf-text-el';
-    div.setAttribute('data-id',text.id);
-    div.textContent=text.content;
-    const sel=(text.id===selectedTextId);
+    const overlay = document.getElementById('text-overlay');
+    const div = document.createElement('div');
+    div.className = 'pdf-text-el';
+    div.setAttribute('data-id', text.id);
+    div.textContent = text.content;
+    const sel = (text.id === selectedTextId);
 
-    /*
-     * CRITICAL CSS for accurate positioning:
-     * - line-height:1          → div height = font px, no extra leading
-     * - padding:0; margin:0    → top of div = top of rendered text
-     * - white-space:nowrap     → single-line, width follows content
-     * These ensure the visual top-left of the text matches text.x / text.y
-     * which is what PHP uses for SetXY().
-     */
-    div.style.cssText=
+    div.style.cssText =
         'position:absolute;'
-       +'left:'+text.x+'px;'
-       +'top:'+text.y+'px;'
-       +'color:'+text.color+';'
-       +'font-size:'+text.fontSize+'px;'
-       +'font-family:Arial,Helvetica,sans-serif;'
-       +'line-height:1;'
-       +'padding:0;'
-       +'margin:0;'
-       +'border:1px solid '+(sel?'#3b82f6':'transparent')+';'
-       +'border-radius:2px;'
-       +'white-space:nowrap;'
-       +'user-select:none;'
-       +'cursor:move;'
-       +'z-index:20;'
-       +'background:'+(sel?'rgba(59,130,246,.08)':'transparent')+';';
+       + 'left:' + text.x + 'px;'
+       + 'top:' + text.y + 'px;'
+       + 'color:' + text.color + ';'
+       + 'font-size:' + text.fontSize + 'px;'
+       + 'font-family:Arial,Helvetica,sans-serif;'
+       + 'line-height:1;'
+       + 'padding:0;'
+       + 'margin:0;'
+       + 'border:1px solid ' + (sel ? '#3b82f6' : 'transparent') + ';'
+       + 'border-radius:2px;'
+       + 'white-space:nowrap;'
+       + 'user-select:none;'
+       + 'cursor:move;'
+       + 'z-index:20;'
+       + 'background:' + (sel ? 'rgba(59,130,246,.08)' : 'transparent') + ';';
 
-    div.addEventListener('click',e=>{ e.stopPropagation(); selectedTextId=text.id; refreshTextOverlay(); startEditing(text.id); });
+    div.addEventListener('click', e => { e.stopPropagation(); selectedTextId = text.id; refreshTextOverlay(); startEditing(text.id); });
 
-    // Drag
-    let drag=false,ox,oy,sx,sy;
-    div.addEventListener('mousedown',e=>{
+    let drag = false, ox, oy, sx, sy;
+    div.addEventListener('mousedown', e => {
         if(editingInput) return;
         e.preventDefault(); e.stopPropagation();
-        drag=true; ox=e.clientX; oy=e.clientY; sx=text.x; sy=text.y;
-        div.style.opacity='0.5';
+        drag = true; ox = e.clientX; oy = e.clientY; sx = text.x; sy = text.y;
+        div.style.opacity = '0.5';
     });
-    document.addEventListener('mousemove',e=>{
+    document.addEventListener('mousemove', e => {
         if(!drag) return;
-        text.x=Math.max(0,Math.min(sx+(e.clientX-ox),IFRAME_W-2));
-        text.y=Math.max(0,Math.min(sy+(e.clientY-oy),IFRAME_H-2));
-        div.style.left=text.x+'px';
-        div.style.top=text.y+'px';
+        text.x = Math.max(0, Math.min(sx + (e.clientX - ox), IFRAME_W - 2));
+        text.y = Math.max(0, Math.min(sy + (e.clientY - oy), IFRAME_H - 2));
+        div.style.left = text.x + 'px';
+        div.style.top = text.y + 'px';
     });
-    document.addEventListener('mouseup',()=>{ if(!drag) return; drag=false; div.style.opacity='1'; saveTextElements(); });
+    document.addEventListener('mouseup', () => { if(!drag) return; drag = false; div.style.opacity = '1'; saveTextElements(); });
 
     overlay.appendChild(div);
 }
 
-// ─── Inline edit ─────────────────────────────────────────────────────────────
 function startEditing(id){
     if(editingInput) finishEditing();
-    const text=textElements.find(t=>t.id===id);
+    const text = textElements.find(t => t.id === id);
     if(!text) return;
-    const div=document.querySelector(`.pdf-text-el[data-id="${id}"]`);
-    if(!div)  return;
-    editingTextId=id;
-    div.style.visibility='hidden';
+    const div = document.querySelector(`.pdf-text-el[data-id="${id}"]`);
+    if(!div) return;
+    editingTextId = id;
+    div.style.visibility = 'hidden';
 
-    const inp=document.createElement('input');
-    inp.type='text';
-    inp.value=(text.content==='Click to edit')?'':text.content;
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = (text.content === 'Click to edit') ? '' : text.content;
 
-    /*
-     * Input CSS mirrors the div CSS exactly:
-     * same font-size, font-family, line-height:1, padding:0
-     * so the input visually overlays the div at the same position.
-     */
-    inp.style.cssText=
+    inp.style.cssText =
         'position:absolute;'
-       +'left:'+text.x+'px;'
-       +'top:'+text.y+'px;'
-       +'font-size:'+text.fontSize+'px;'
-       +'font-family:Arial,Helvetica,sans-serif;'
-       +'line-height:1;'
-       +'color:'+text.color+';'
-       +'padding:0;'
-       +'margin:0;'
-       +'border:0;'
-       +'border-bottom:2px solid #3b82f6;'
-       +'background:rgba(255,255,255,0.92);'
-       +'z-index:30;'
-       +'outline:none;'
-       +'min-width:80px;'
-       +'box-sizing:content-box;';
+       + 'left:' + text.x + 'px;'
+       + 'top:' + text.y + 'px;'
+       + 'font-size:' + text.fontSize + 'px;'
+       + 'font-family:Arial,Helvetica,sans-serif;'
+       + 'line-height:1;'
+       + 'color:' + text.color + ';'
+       + 'padding:0;'
+       + 'margin:0;'
+       + 'border:0;'
+       + 'border-bottom:2px solid #3b82f6;'
+       + 'background:rgba(255,255,255,0.92);'
+       + 'z-index:30;'
+       + 'outline:none;'
+       + 'min-width:80px;'
+       + 'box-sizing:content-box;';
 
-    const autoSize=()=>{
-        const s=document.createElement('span');
-        s.style.cssText='visibility:hidden;position:fixed;white-space:pre;font-size:'+text.fontSize+'px;font-family:Arial,Helvetica,sans-serif;line-height:1;';
-        s.textContent=inp.value||'M';
+    const autoSize = () => {
+        const s = document.createElement('span');
+        s.style.cssText = 'visibility:hidden;position:fixed;white-space:pre;font-size:' + text.fontSize + 'px;font-family:Arial,Helvetica,sans-serif;line-height:1;';
+        s.textContent = inp.value || 'M';
         document.body.appendChild(s);
-        inp.style.width=Math.max(80,s.offsetWidth+20)+'px';
+        inp.style.width = Math.max(80, s.offsetWidth + 20) + 'px';
         document.body.removeChild(s);
     };
     autoSize();
-    inp.addEventListener('input',autoSize);
-    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();finishEditing(inp.value);} if(e.key==='Escape') finishEditing(null); });
-    inp.addEventListener('blur',()=>setTimeout(()=>finishEditing(inp.value),80));
+    inp.addEventListener('input', autoSize);
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); finishEditing(inp.value); } if(e.key === 'Escape') finishEditing(null); });
+    inp.addEventListener('blur', () => setTimeout(() => finishEditing(inp.value), 80));
 
     document.getElementById('text-overlay').appendChild(inp);
-    editingInput=inp;
+    editingInput = inp;
     inp.focus(); inp.select();
 }
 
 function finishEditing(newValue){
     if(!editingInput) return;
-    const text=textElements.find(t=>t.id===editingTextId);
-    if(newValue!==null && typeof newValue==='string' && newValue.trim()!==''){
-        if(text) text.content=newValue.trim();
+    const text = textElements.find(t => t.id === editingTextId);
+    if(newValue !== null && typeof newValue === 'string' && newValue.trim() !== ''){
+        if(text) text.content = newValue.trim();
     } else {
-        textElements=textElements.filter(t=>t.id!==editingTextId);
-        if(selectedTextId===editingTextId) selectedTextId=null;
+        textElements = textElements.filter(t => t.id !== editingTextId);
+        if(selectedTextId === editingTextId) selectedTextId = null;
     }
-    editingInput.remove(); editingInput=null; editingTextId=null;
+    editingInput.remove(); editingInput = null; editingTextId = null;
     saveTextElements(); refreshTextOverlay();
 }
 
-// ─── Create text on click ─────────────────────────────────────────────────────
 function handleOverlayClick(e){
-    if(e.target.id!=='text-overlay') return;  // ignore clicks on child text divs
+    if(e.target.id !== 'text-overlay') return;
     if(editingInput) return;
 
-    /*
-     * e.offsetX / e.offsetY = px from the overlay element's OWN top-left.
-     * Because the overlay is position:absolute, top:0, left:0 over the
-     * 800×1100 wrapper, these values directly equal the PDF pixel coordinates.
-     * No viewport math, no scroll adjustment needed.
-     */
-    const x=Math.round(e.offsetX);
-    const y=Math.round(e.offsetY);
+    const x = Math.round(e.offsetX);
+    const y = Math.round(e.offsetY);
 
-    const t={
-        id:Date.now(),
-        content:'Click to edit',
-        x:Math.max(0,Math.min(x,IFRAME_W-10)),
-        y:Math.max(0,Math.min(y,IFRAME_H-10)),
-        color:currentColor,
-        fontSize:currentFontSize,
+    const t = {
+        id: Date.now(),
+        content: 'Click to edit',
+        x: Math.max(0, Math.min(x, IFRAME_W - 10)),
+        y: Math.max(0, Math.min(y, IFRAME_H - 10)),
+        color: currentColor,
+        fontSize: currentFontSize,
+        page: currentPage
     };
     textElements.push(t);
-    selectedTextId=t.id;
+    selectedTextId = t.id;
     saveTextElements();
     refreshTextOverlay();
-    setTimeout(()=>startEditing(t.id),20);
+    setTimeout(() => startEditing(t.id), 20);
 }
 
-// ─── Toolbar ─────────────────────────────────────────────────────────────────
 function setTextColor(c){
-    currentColor=c;
-    if(selectedTextId){ const t=textElements.find(t=>t.id===selectedTextId); if(t){t.color=c;saveTextElements();refreshTextOverlay();} }
+    currentColor = c;
+    if(selectedTextId){ const t = textElements.find(t => t.id === selectedTextId); if(t){ t.color = c; saveTextElements(); refreshTextOverlay(); } }
 }
 function setFontSize(s){
-    currentFontSize=s;
-    document.querySelectorAll('.fs-btn').forEach(b=>{
-        const active=parseInt(b.textContent)===s;
-        b.style.background=active?'#6b7280':'#374151';
-        b.style.border=active?'2px solid #fff':'none';
+    currentFontSize = s;
+    document.querySelectorAll('.fs-btn').forEach(b => {
+        const active = parseInt(b.textContent) === s;
+        b.style.background = active ? '#6b7280' : '#374151';
+        b.style.border = active ? '2px solid #fff' : 'none';
     });
-    if(selectedTextId){ const t=textElements.find(t=>t.id===selectedTextId); if(t){t.fontSize=s;saveTextElements();refreshTextOverlay();} }
+    if(selectedTextId){ const t = textElements.find(t => t.id === selectedTextId); if(t){ t.fontSize = s; saveTextElements(); refreshTextOverlay(); } }
 }
 function deleteSelectedText(){
-    if(!selectedTextId){showErrorModal('Click a text element first to select it.');return;}
+    if(!selectedTextId){ showErrorModal('Click a text element first to select it.'); return; }
     if(editingInput) finishEditing(null);
-    textElements=textElements.filter(t=>t.id!==selectedTextId);
-    selectedTextId=null; saveTextElements(); refreshTextOverlay();
+    textElements = textElements.filter(t => t.id !== selectedTextId);
+    selectedTextId = null; saveTextElements(); refreshTextOverlay();
 }
 function clearAllText(){
-    if(!confirm('Clear all text?')) return;
+    if(!confirm('Clear all text on current page?')) return;
     if(editingInput) finishEditing(null);
-    textElements=[]; selectedTextId=null; saveTextElements(); refreshTextOverlay();
+    textElements = []; 
+    selectedTextId = null; 
+    saveTextElements(); 
+    refreshTextOverlay();
 }
 function updateSelectedLabel(){
-    const el=document.getElementById('selected-text-label');
+    const el = document.getElementById('selected-text-label');
     if(!el) return;
-    const t=selectedTextId?textElements.find(t=>t.id===selectedTextId):null;
-    el.textContent=t?'"'+t.content.substring(0,22)+(t.content.length>22?'…':'')+'"':'none';
+    const t = selectedTextId ? textElements.find(t => t.id === selectedTextId) : null;
+    el.textContent = t ? '"' + t.content.substring(0,22) + (t.content.length > 22 ? '…' : '') + '"' : 'none';
 }
 
-// ─── Persistence ──────────────────────────────────────────────────────────────
-function saveTextElements(){ try{localStorage.setItem('pdf_text_elements',JSON.stringify(textElements));}catch(_){} }
-function loadSavedTextElements(){ try{const s=localStorage.getItem('pdf_text_elements');textElements=s?JSON.parse(s):[];}catch(_){textElements=[];} }
-
-// ─── Save / download PDF ──────────────────────────────────────────────────────
 async function callSaveEndpoint(){
-    const res=await fetch('/applicant/application/save-edited-pdf',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf(),'Accept':'application/json'},
-        body:JSON.stringify({
-            text_elements:textElements,
-            application_number:currentApplicationNumber,
-            iframe_width:IFRAME_W,
-            iframe_height:IFRAME_H,
+    const allTextElements = [];
+    for (const pageKey in textElementsByPage) {
+        const pageTexts = textElementsByPage[pageKey];
+        if (pageTexts && pageTexts.length) {
+            allTextElements.push(...pageTexts);
+        }
+    }
+    
+    const res = await fetch('/applicant/application/save-edited-pdf', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':csrf(),'Accept':'application/json'},
+        body: JSON.stringify({
+            text_elements: allTextElements,
+            application_number: currentApplicationNumber,
+            iframe_width: IFRAME_W,
+            iframe_height: IFRAME_H,
+            total_pages: totalPages,
+            template: 'building-permit-application'
         }),
     });
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'Server error');}
+    if(!res.ok){ const e = await res.json().catch(()=>({})); throw new Error(e.error||'Server error'); }
     return res.blob();
 }
 function triggerDownload(blob,name){
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download=name;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
 async function saveEditedPDF(){
-    const btn=document.getElementById('save-pdf-btn');
-    const orig=btn.innerHTML;
-    btn.innerHTML='<svg class="animate-spin" style="width:1rem;height:1rem;display:inline;margin-right:.4rem;" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Saving…';
-    btn.disabled=true;
+    const btn = document.getElementById('save-pdf-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg class="animate-spin" style="width:1rem;height:1rem;display:inline;margin-right:.4rem;" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Saving…';
+    btn.disabled = true;
     try{
-        const blob=await callSaveEndpoint();
-        triggerDownload(blob,`application-letter-${currentApplicationNumber||'filled'}.pdf`);
+        const blob = await callSaveEndpoint();
+        triggerDownload(blob, `building-permit-application-${currentApplicationNumber || 'filled'}.pdf`);
         showSuccessModal('PDF downloaded successfully!');
     }catch(e){ showErrorModal('Failed to save PDF: '+e.message); }
-    finally{ btn.innerHTML=orig;btn.disabled=false; }
+    finally{ btn.innerHTML = orig; btn.disabled = false; }
 }
 
-// ─── Download forms ───────────────────────────────────────────────────────────
 async function downloadSelectedForms(){
-    if(!dpaAccepted){showErrorModal('Please accept the Data Privacy Act terms first.');return;}
-    if(!await checkApplicationLimit()) return;
-    const sel=[];let hasLetter=false;
-    document.querySelectorAll('.form-checkbox').forEach((cb,i)=>{ if(cb.checked){sel.push(formCheckboxes[i]);if(formCheckboxes[i].isAppLetter)hasLetter=true;} });
-    if(!sel.length){showErrorModal('Please select at least one form.');return;}
-    if(hasLetter&&!applicationNumberGenerated){ if(!await generateAndSaveApplicationNumber()) return; }
-    const btn=document.getElementById('download-btn');
-    if(btn) btn.disabled=true;
+    if(!dpaAccepted){
+        showErrorModal('Please accept the Data Privacy Act terms first.');
+        showDPAModalIfNeeded();
+        return;
+    }
+    
+    const sel = []; let hasInteractive = false;
+    document.querySelectorAll('.form-checkbox').forEach((cb,i)=>{ if(cb.checked){ sel.push(formCheckboxes[i]); if(formCheckboxes[i].isInteractive) hasInteractive = true; } });
+    if(!sel.length){ showErrorModal('Please select at least one form.'); return; }
+    
+    if(hasInteractive && !applicationNumberGenerated){ 
+        if(!await generateAndSaveApplicationNumber()) return; 
+    }
+    
+    const btn = document.getElementById('download-btn');
+    if(btn) btn.disabled = true;
     showSuccessModal(`Downloading ${sel.length} file(s)…`);
     for(const form of sel){
-        if(form.isInteractive&&textElements.length>0){
-            try{const blob=await callSaveEndpoint();triggerDownload(blob,`application-letter-${currentApplicationNumber||'filled'}.pdf`);}
-            catch{downloadFile(form.file);}
+        if(form.isInteractive){
+            try{ const blob = await callSaveEndpoint(); triggerDownload(blob, `building-permit-application-${currentApplicationNumber || 'filled'}.pdf`); }
+            catch{ downloadFile(form.file); }
         }else{ downloadFile(form.file); }
-        await new Promise(r=>setTimeout(r,600));
+        await new Promise(r => setTimeout(r, 600));
     }
-    setTimeout(()=>{ showSuccessModal('All files downloaded!'); if(btn) btn.disabled=false; },600);
+    setTimeout(()=>{ showSuccessModal('All files downloaded!'); if(btn) btn.disabled = false; }, 600);
 }
 function downloadFile(filename){
-    const a=document.createElement('a');
-    a.href=`/downloads/${filename}?t=${Date.now()}`;a.download=filename;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    const a = document.createElement('a');
+    a.href = `/downloads/${filename}?t=${Date.now()}`; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
-function selectAllForms(){ document.querySelectorAll('.form-checkbox').forEach(cb=>cb.checked=true); updateSelectedCount(); }
-function deselectAllForms(){ document.querySelectorAll('.form-checkbox').forEach(cb=>cb.checked=false); updateSelectedCount(); }
+function selectAllForms(){ document.querySelectorAll('.form-checkbox').forEach(cb => cb.checked = true); updateSelectedCount(); }
+function deselectAllForms(){ document.querySelectorAll('.form-checkbox').forEach(cb => cb.checked = false); updateSelectedCount(); }
 function updateSelectedCount(){
-    let n=0; document.querySelectorAll('.form-checkbox').forEach(cb=>{if(cb.checked)n++;});
-    document.getElementById('selected-count').textContent=`${n} form${n!==1?'s':''} selected`;
-    document.getElementById('download-count').textContent=n;
-    document.getElementById('download-btn').disabled=n===0;
+    let n = 0; document.querySelectorAll('.form-checkbox').forEach(cb => { if(cb.checked) n++; });
+    document.getElementById('selected-count').textContent = `${n} form${n !== 1 ? 's' : ''} selected`;
+    document.getElementById('download-count').textContent = n;
+    document.getElementById('download-btn').disabled = n === 0;
 }
 function copyApplicationNumber(){
-    const n=document.getElementById('application-number')?.textContent;
+    const n = document.getElementById('application-number')?.textContent;
     if(!n) return;
     navigator.clipboard.writeText(n).then(()=>showSuccessModal('Copied!')).catch(()=>showErrorModal('Copy failed.'));
 }
-function goToStep2(e){
-    e.preventDefault();
-    if(!applicationNumberGenerated||!currentApplicationId){ showErrorModal('Please fill out the Application Letter first to generate your application number.'); return; }
-    sessionStorage.setItem('konstructo_current_app_id',currentApplicationId);
-    sessionStorage.setItem('konstructo_current_app_number',currentApplicationNumber);
-    window.location.href=`/applicant/application/step2?id=${currentApplicationId}`;
+
+// ─── Go to Step 2 ────────────────────────────────────────────────────
+function goToStep2() {
+    if (!currentApplicationId) {
+        showErrorModal('Application ID not found. Please go back to applications.');
+        return;
+    }
+    
+    // Check if application number has been generated or loaded
+    if (!applicationNumberGenerated || !currentApplicationNumber) {
+        showErrorModal('Please open and edit the Building Permit Application form first to generate your application number.');
+        return;
+    }
+    
+    window.location.href = `/applicant/application/step2?id=${currentApplicationId}`;
 }
-function handleBackNavigation(e){
-    e.preventDefault();
-    if(applicationNumberGenerated&&currentApplicationId){ pendingNavigationUrl='/applicant/applications'; showDraftModal(); }
-    else window.history.back();
+
+function showErrorModal(message){
+    const modal = document.getElementById('error-modal');
+    const messageEl = document.getElementById('error-modal-message');
+    if(modal && messageEl){
+        messageEl.textContent = message;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    } else {
+        alert(message);
+    }
 }
-function showDraftModal(){
-    document.getElementById('draft-app-number').textContent=document.getElementById('application-number')?.textContent||'';
-    document.getElementById('save-draft-modal').classList.remove('hidden');
-    document.body.style.overflow='hidden';
+
+function closeErrorModal(){
+    const modal = document.getElementById('error-modal');
+    if(modal){
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
-function closeDraftModal(){ document.getElementById('save-draft-modal').classList.add('hidden'); document.body.style.overflow='auto'; pendingNavigationUrl=null; }
-async function saveDraftAndContinue(){ closeDraftModal(); showSuccessModal('Saved as draft!'); setTimeout(()=>{ window.location.href=pendingNavigationUrl||'/applicant/applications'; },1500); }
-async function discardDraftAndContinue(){
-    if(currentApplicationId){ await fetch(`/applicant/applications/${currentApplicationId}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':csrf(),'Accept':'application/json'}}).catch(()=>{}); }
-    closeDraftModal(); window.location.href=pendingNavigationUrl||'/applicant/applications';
+
+function showSuccessModal(message){
+    const modal = document.getElementById('success-modal');
+    const messageEl = document.getElementById('success-modal-message');
+    if(modal && messageEl){
+        messageEl.textContent = message;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => {
+            closeSuccessModal();
+        }, 3000);
+    } else {
+        alert(message);
+    }
 }
-async function checkApplicationLimit(){
-    try{
-        const r=await fetch('/applicant/application/limit-info',{headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf()}});
-        const d=await r.json();
-        if(d.success){
-            document.getElementById('application-stats-banner').classList.remove('hidden');
-            document.getElementById('stats-drafts').textContent=d.data.drafts;
-            document.getElementById('stats-remaining').textContent=d.data.remaining;
-            document.getElementById('draft-plural').textContent=d.data.drafts===1?'':'s';
-            document.getElementById('slot-plural').textContent=d.data.remaining===1?'':'s';
-            if(!d.data.can_apply){showErrorModal(`Maximum of ${d.data.limit} submitted applications reached.`);return false;}
-        }
-        return true;
-    }catch{return true;}
+
+function closeSuccessModal(){
+    const modal = document.getElementById('success-modal');
+    if(modal){
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
-function showErrorModal(msg){ document.getElementById('error-modal-message').textContent=msg; document.getElementById('error-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
-function closeErrorModal(){ document.getElementById('error-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
-function showSuccessModal(msg){ document.getElementById('success-modal-message').textContent=msg; document.getElementById('success-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; setTimeout(closeSuccessModal,3000); }
-function closeSuccessModal(){ document.getElementById('success-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', async () => {
+    // Show DPA modal if not accepted yet
     showDPAModalIfNeeded();
-    const sid=sessionStorage.getItem('konstructo_current_app_id');
-    const sn=sessionStorage.getItem('konstructo_current_app_number');
-    if(sid&&sn){
-        currentApplicationId=sid; currentApplicationNumber=sn; applicationNumberGenerated=true;
-        document.getElementById('application-number').textContent=sn;
-        document.getElementById('application-number-banner').classList.remove('hidden');
-    }
-    checkApplicationLimit();
-    document.querySelectorAll('.form-checkbox').forEach(cb=>cb.addEventListener('change',updateSelectedCount));
+    
+    document.querySelectorAll('.form-checkbox').forEach(cb => cb.addEventListener('change', updateSelectedCount));
     updateSelectedCount();
-    const overlay=document.getElementById('text-overlay');
-    if(overlay) overlay.addEventListener('click',handleOverlayClick);
+    const overlay = document.getElementById('text-overlay');
+    if(overlay) overlay.addEventListener('click', handleOverlayClick);
+    
+    // If application number exists from server, show the banner
+    if (existingApplicationNumber) {
+        const banner = document.getElementById('application-number-banner');
+        const numberEl = document.getElementById('application-number');
+        if (banner && numberEl) {
+            numberEl.textContent = existingApplicationNumber;
+            banner.classList.remove('hidden');
+        }
+        console.log('Application number loaded from server:', existingApplicationNumber);
+    }
 });
 </script>
 
@@ -789,5 +994,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 button:disabled{cursor:not-allowed;opacity:.65;}
 .pdf-text-el:hover{border-color:#3b82f6!important;}
+#prev-page-btn:disabled, #next-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 </style>
 @endsection
