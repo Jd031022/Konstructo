@@ -1,11 +1,18 @@
-<aside id="sidebar" class="w-20 bg-white min-h-screen h-full shadow-md fixed top-0 left-0 flex flex-col items-start py-6 overflow-y-auto transition-all duration-300 rounded-tr-2xl rounded-br-2xl scrollbar-hide">
+<aside id="sidebar" class="md:flex w-20 bg-white min-h-screen h-full shadow-md fixed top-0 left-0 flex flex-col items-start py-6 overflow-y-auto transition-all duration-300 rounded-tr-2xl rounded-br-2xl scrollbar-hide z-40 -translate-x-full md:translate-x-0 hidden md:flex sidebar-hover">
 
-    <!-- Burger Menu Logo with Konstructo Name -->
-    <div id="burger-menu" class="mb-10 cursor-pointer px-6 w-full flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#155386] hover:text-[#40798C] transition min-w-8" fill="none" stroke="currentColor">
+    <!-- Close button for mobile -->
+    <div id="mobile-close" class="md:hidden absolute top-4 right-4 cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </div>
+
+    <!-- Logo with Konstructo Name (hover to expand) -->
+    <div class="mb-10 px-6 w-full flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#155386] min-w-8" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-        <span class="text-lg font-bold whitespace-nowrap opacity-0 transition-opacity duration-300">
+        <span class="text-lg font-bold whitespace-nowrap sidebar-text transition-opacity duration-300">
             <span class="text-[#155386]">Konstr</span><span class="text-[rgb(64,121,140)]">ucto</span>
         </span>
     </div>
@@ -19,7 +26,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Dashboard</span>
+            <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Dashboard</span>
         </a>
 
         <!-- ROLE-SPECIFIC ROUTES -->
@@ -32,7 +39,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">User Management</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">User Management</span>
             </a>
 
             <!-- All Applications -->
@@ -41,7 +48,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">All Applications</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">All Applications</span>
             </a>
 
             <!-- Archive -->
@@ -49,7 +56,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
             </a>
 
             <!-- System Settings (Admin only) -->
@@ -59,7 +66,7 @@
                         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">System Settings</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
             </a>
 
         <!-- STAFF ROUTES -->
@@ -70,7 +77,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Basic Requirements</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Basic Requirements</span>
             </a>
 
             <!-- Assigned Applications -->
@@ -79,7 +86,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
             </a>
 
             <!-- Archive -->
@@ -87,7 +94,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Archive</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
             </a>
 
         <!-- APPLICANT ROUTES -->
@@ -99,7 +106,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Applications</span>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
             </a>
         @endif
 
@@ -107,14 +114,14 @@
         <div class="w-full border-t border-gray-200 my-2"></div>
 
         <!-- CHAT - Universal link for ALL ROLES -->
-        <a href="{{ route('chat') }}" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('chat') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition relative group">
+        <a href="{{ route('chat') }}" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('chat') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition relative">
             <div class="relative">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
             </div>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Messages</span>
+            <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Messages</span>
         </a>
 
         <!-- PROFILE - Universal link for ALL ROLES -->
@@ -123,7 +130,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Profile</span>
+            <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Profile</span>
         </a>
 
     </nav>
@@ -136,11 +143,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-            <span class="text-sm font-medium opacity-0 transition-opacity duration-300 whitespace-nowrap">Logout</span>
+            <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Logout</span>
         </button>
     </div>
 
 </aside>
+
+<!-- Mobile Overlay -->
+<div id="mobile-overlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
 
 
 <!-- Logout Confirmation Modal -->
@@ -184,62 +194,99 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
-        const burgerMenu = document.getElementById('burger-menu');
-        let isExpanded = false;
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileClose = document.getElementById('mobile-close');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        let isMobileOpen = false;
 
-        burgerMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            if (!isExpanded) {
-                // Expand sidebar
-                sidebar.classList.remove('w-20');
-                sidebar.classList.add('w-64');
-                
-                // Show all text labels with animation
-                const labels = sidebar.querySelectorAll('span');
-                labels.forEach(label => {
-                    label.classList.remove('opacity-0');
-                    label.classList.add('opacity-100');
-                });
-                
-                isExpanded = true;
+        // Check if we're on mobile
+        function isMobile() {
+            return window.innerWidth < 768; // md breakpoint
+        }
+
+        // Mobile menu toggle
+        function toggleMobileSidebar(e) {
+            if (e) e.stopPropagation(); // Prevent event bubbling
+            if (!isMobile()) return;
+
+            if (isMobileOpen) {
+                // Close mobile sidebar
+                sidebar.classList.remove('translate-x-0', 'flex', 'mobile-open');
+                sidebar.classList.add('hidden', '-translate-x-full');
+                mobileOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                isMobileOpen = false;
             } else {
-                // Collapse sidebar
-                sidebar.classList.remove('w-64'); 
-                sidebar.classList.add('w-20');
-                
-                // Hide all text labels
-                const labels = sidebar.querySelectorAll('span');
-                labels.forEach(label => {
-                    label.classList.remove('opacity-100');
-                    label.classList.add('opacity-0');
-                });
-                
-                isExpanded = false;
+                // Open mobile sidebar
+                sidebar.classList.remove('hidden', '-translate-x-full');
+                sidebar.classList.add('flex', 'translate-x-0', 'mobile-open');
+                mobileOverlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                isMobileOpen = true;
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileSidebar);
+        mobileClose.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMobileSidebar();
+        });
+        mobileOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMobileSidebar();
+        });
+
+        // Click outside to close mobile sidebar
+        document.addEventListener('click', function(e) {
+            if (isMobile()) {
+                // On mobile, clicking outside closes mobile sidebar
+                if (isMobileOpen && !sidebar.contains(e.target) && e.target !== mobileMenuBtn) {
+                    toggleMobileSidebar();
+                }
             }
         });
 
-        // Click outside to collapse
-        document.addEventListener('click', function(e) {
-            if (isExpanded && !sidebar.contains(e.target)) {
-                // Collapse sidebar
-                sidebar.classList.remove('w-64'); 
-                sidebar.classList.add('w-20');
-                
-                const labels = sidebar.querySelectorAll('span');
-                labels.forEach(label => {
-                    label.classList.remove('opacity-100');
-                    label.classList.add('opacity-0');
-                });
-                
-                isExpanded = false;
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const nowMobile = isMobile();
+
+            if (nowMobile) {
+                // Switching to mobile
+                if (!isMobileOpen) {
+                    sidebar.classList.add('hidden', '-translate-x-full');
+                    sidebar.classList.remove('flex', 'translate-x-0');
+                }
+            } else {
+                // Switching to desktop
+                sidebar.classList.add('flex', 'w-20');
+                sidebar.classList.remove('hidden', '-translate-x-full', 'translate-x-0');
+                // Close mobile overlay if open
+                if (isMobileOpen) {
+                    mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    isMobileOpen = false;
+                }
             }
         });
+
+        // Initialize on load
+        if (isMobile()) {
+            // Ensure mobile state is correct
+            sidebar.classList.add('hidden', '-translate-x-full');
+            sidebar.classList.remove('flex', 'translate-x-0');
+        } else {
+            // Ensure desktop state is correct
+            sidebar.classList.add('flex', 'w-20');
+            sidebar.classList.remove('hidden');
+        }
 
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeLogoutModal();
+                if (isMobile() && isMobileOpen) {
+                    toggleMobileSidebar();
+                }
             }
         });
 
@@ -292,13 +339,24 @@
 <style>
     /* Smooth transitions for width change */
     #sidebar {
-        transition: width 0.3s ease-in-out;
+        transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
     }
-    
+
     #sidebar span {
         transition: opacity 0.3s ease-in-out;
     }
-    
+
+    /* Mobile sidebar positioning */
+    @media (max-width: 767px) {
+        #sidebar {
+            z-index: 60; /* Higher than overlay */
+        }
+        
+        #sidebar.mobile-open {
+            width: 280px;
+        }
+    }
+
     /* Ensure icons don't shrink */
     .min-w-6 {
         min-width: 1.5rem;
@@ -327,6 +385,7 @@
     /* Modal animations */
     #logout-modal {
         transition: opacity 0.2s ease-in-out;
+        z-index: 70; /* Higher than mobile sidebar z-index of 60 */
     }
     
     #logout-modal .bg-white {

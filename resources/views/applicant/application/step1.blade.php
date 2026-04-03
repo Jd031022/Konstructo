@@ -14,29 +14,6 @@
         </a>
     </div>
 
-    <!-- Application Stats Banner -->
-    <div id="application-stats-banner" class="mb-6 hidden">
-        <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-xl p-4 text-white">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-white/80 text-sm">Application Status</p>
-                        <p class="text-lg font-semibold">
-                            <span id="stats-drafts">0</span> Draft<span id="draft-plural">s</span> •
-                            <span id="stats-remaining">3</span> Slot<span id="slot-plural">s</span> Remaining
-                        </p>
-                    </div>
-                </div>
-                <a href="/applicant/applications" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm">View My Applications</a>
-            </div>
-        </div>
-    </div>
-
     <div id="limit-warning-container"></div>
 
     <!-- Application Number Banner -->
@@ -423,9 +400,15 @@ let dpaAccepted                = false;
 
 // ─── DPA ─────────────────────────────────────────────────────────────────────
 function checkDPAStatus(){ dpaAccepted = localStorage.getItem('dpa_consent')==='accepted'; return dpaAccepted; }
-function showDPAModalIfNeeded(){ if(!checkDPAStatus()){ document.getElementById('dpa-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+function showDPAModalIfNeeded(){ 
+    if(!checkDPAStatus() && !localStorage.getItem('dpa_modal_shown')){ 
+        document.getElementById('dpa-modal').classList.remove('hidden'); 
+        document.body.style.overflow='hidden'; 
+        localStorage.setItem('dpa_modal_shown', 'true');
+    } 
+}
 function acceptDPA(){ localStorage.setItem('dpa_consent','accepted'); dpaAccepted=true; document.getElementById('dpa-modal').classList.add('hidden'); document.body.style.overflow='auto'; showSuccessModal('Thank you. You may now proceed.'); }
-function declineDPA(){ localStorage.removeItem('dpa_consent'); document.getElementById('dpa-modal').classList.add('hidden'); document.body.style.overflow='auto'; showErrorModal('You must accept the Data Privacy Act terms to proceed.'); setTimeout(()=>{ window.location.href='/applicant/dashboard'; },3000); }
+function declineDPA(){ localStorage.removeItem('dpa_consent'); localStorage.removeItem('dpa_modal_shown'); document.getElementById('dpa-modal').classList.add('hidden'); document.body.style.overflow='auto'; showErrorModal('You must accept the Data Privacy Act terms to proceed.'); setTimeout(()=>{ window.location.href='/applicant/dashboard'; },3000); }
 
 // ─── CSRF ─────────────────────────────────────────────────────────────────────
 function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'; }

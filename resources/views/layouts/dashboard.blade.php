@@ -46,12 +46,46 @@
         }
 
         /* Sidebar margin classes for main content */
-        .sidebar-collapsed {
-            margin-left: 5rem; /* w-20 = 5rem (80px) */
+        .sidebar-margin {
+            margin-left: 0; /* No margin on mobile */
         }
-        
-        .sidebar-expanded {
-            margin-left: 12rem; /* w-48 = 12rem (192px) */
+
+        @media (min-width: 768px) {
+            .sidebar-margin {
+                margin-left: 5rem; /* w-20 = 5rem (80px) on desktop */
+            }
+        }
+
+        /* Sidebar hover expansion */
+        .sidebar-hover {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .sidebar-hover:hover {
+            width: 16rem; /* w-64 = 16rem (256px) */
+        }
+
+        /* Sidebar text visibility */
+        .sidebar-text {
+            opacity: 1; /* default for mobile */
+        }
+
+        @media (min-width: 768px) {
+            .sidebar-text {
+                opacity: 0;
+            }
+        }
+
+        /* Show all sidebar text when sidebar is hovered */
+        .sidebar-hover:hover .sidebar-text {
+            opacity: 1;
+        }
+
+        /* Adjust main content margin on desktop hover */
+        @media (min-width: 768px) {
+            .sidebar-hover:hover ~ #main-content-wrapper {
+                margin-left: 16rem; /* w-64 = 16rem (256px) */
+            }
         }
 
         /* Smooth transition for margin */
@@ -110,7 +144,7 @@
     <x-sidebar />
 
     <!-- Main Content Area - Flex column with header and scrollable content -->
-    <div id="main-content-wrapper" class="flex-1 flex flex-col overflow-hidden sidebar-collapsed">
+    <div id="main-content-wrapper" class="flex-1 flex flex-col overflow-hidden sidebar-margin">
         <!-- Welcome Header Component -->
         <x-welcome-header :name="Auth::user()->first_name ?? 'Guest'" :role="Auth::user()->role ?? 'User'" />
         
@@ -191,77 +225,6 @@
                 url.searchParams.delete('clear_storage');
                 window.history.replaceState({}, '', url);
             }
-
-            const sidebar = document.getElementById('sidebar');
-            const burgerMenu = document.getElementById('burger-menu');
-            const mainContent = document.getElementById('main-content-wrapper');
-            let isExpanded = false;
-
-            if (!sidebar || !burgerMenu || !mainContent) {
-                console.error('Required elements not found');
-                return;
-            }
-
-            burgerMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                if (!isExpanded) {
-                    // Expand sidebar
-                    sidebar.classList.remove('w-20');
-                    sidebar.classList.add('w-48');
-                    
-                    // Adjust main content margin using classes
-                    mainContent.classList.remove('sidebar-collapsed');
-                    mainContent.classList.add('sidebar-expanded');
-                    
-                    // Show all text labels with animation
-                    const labels = sidebar.querySelectorAll('span');
-                    labels.forEach(label => {
-                        label.classList.remove('opacity-0');
-                        label.classList.add('opacity-100');
-                    });
-                    
-                    isExpanded = true;
-                } else {
-                    // Collapse sidebar
-                    sidebar.classList.remove('w-48');
-                    sidebar.classList.add('w-20');
-                    
-                    // Adjust main content margin using classes
-                    mainContent.classList.remove('sidebar-expanded');
-                    mainContent.classList.add('sidebar-collapsed');
-                    
-                    // Hide all text labels
-                    const labels = sidebar.querySelectorAll('span');
-                    labels.forEach(label => {
-                        label.classList.remove('opacity-100');
-                        label.classList.add('opacity-0');
-                    });
-                    
-                    isExpanded = false;
-                }
-            });
-
-            // Click outside to collapse
-            document.addEventListener('click', function(e) {
-                if (isExpanded && !sidebar.contains(e.target)) {
-                    // Collapse sidebar
-                    sidebar.classList.remove('w-48');
-                    sidebar.classList.add('w-20');
-                    
-                    // Adjust main content margin using classes
-                    mainContent.classList.remove('sidebar-expanded');
-                    mainContent.classList.add('sidebar-collapsed');
-                    
-                    const labels = sidebar.querySelectorAll('span');
-                    labels.forEach(label => {
-                        label.classList.remove('opacity-100');
-                        label.classList.add('opacity-0');
-                    });
-                    
-                    isExpanded = false;
-                }
-            });
 
             // Close modal with Escape key
             document.addEventListener('keydown', function(e) {
@@ -368,6 +331,36 @@
                 window.location.href = '/login';
             }
         };
+        
+        // Sidebar hover effect for main content margin adjustment
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content-wrapper');
+            
+            if (sidebar && mainContent) {
+                // Only apply hover effect on desktop (md and above)
+                if (window.innerWidth >= 768) {
+                    sidebar.addEventListener('mouseenter', function() {
+                        mainContent.style.marginLeft = '16rem'; // w-64
+                    });
+                    
+                    sidebar.addEventListener('mouseleave', function() {
+                        mainContent.style.marginLeft = '5rem'; // w-20
+                    });
+                }
+                
+                // Update on window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        // Reset to collapsed state
+                        mainContent.style.marginLeft = '5rem';
+                    } else {
+                        // Mobile: no margin
+                        mainContent.style.marginLeft = '0';
+                    }
+                });
+            }
+        });
     </script>
 
     @stack('scripts')
