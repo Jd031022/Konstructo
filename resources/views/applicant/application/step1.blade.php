@@ -367,7 +367,7 @@ let totalPages = 1;
 let pdfDoc = null;
 
 const formCheckboxes = [
-    { id:'form-building-permit-app',  name:'Building Permit Application', file:'building-permit-application-form.pdf', isInteractive:true },
+    { id:'form-building-permit-app',  name:'Building Permit Application', file:'building-permit-application.pdf', isInteractive:true },
     { id:'form-sign-permit',          name:'Sign Permit Application',     file:'sign-permit-application.pdf' },
     { id:'form-architectural-permit', name:'Architectural Permit',        file:'architectural-permit.pdf' },
     { id:'form-mechanical-permit',    name:'Mechanical Permit',           file:'mechanical-permit.pdf' },
