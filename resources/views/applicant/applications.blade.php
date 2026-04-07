@@ -64,6 +64,37 @@
         </div>
     </div>
 
+    <!-- Citizens Charter Aging Legend -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-6 border border-blue-200">
+        <div class="flex items-center gap-3 mb-3">
+            <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-semibold text-gray-800">Processing Time: 3 Days</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 text-xs">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-gray-600">0-2 days (On Track)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span class="text-gray-600">3 days (Due Today)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span class="text-gray-600">4-7 days (Warning)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                <span class="text-gray-600">8+ days (Overdue)</span>
+            </div>
+            <div class="border-l border-gray-300 pl-3 ml-1">
+                <span class="text-gray-500">Expected completion: <span class="font-semibold text-[#155386]">3 working days</span> from submission</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Search, Filter, View Toggle and Sort -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
         <div class="flex flex-col gap-4">
@@ -107,9 +138,19 @@
                     <option value="rejected">Rejected</option>
                 </select>
                 
+                <select id="aging-filter" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
+                    <option value="">All Aging Status</option>
+                    <option value="ontrack">On Track (0-2 days)</option>
+                    <option value="due">Due Today (3 days)</option>
+                    <option value="warning">Warning (4-7 days)</option>
+                    <option value="overdue">Overdue (8+ days)</option>
+                </select>
+                
                 <select id="sort-filter" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
+                    <option value="aging-asc">Aging (Oldest First)</option>
+                    <option value="aging-desc">Aging (Newest First)</option>
                     <option value="status-asc">Status (A-Z)</option>
                     <option value="status-desc">Status (Z-A)</option>
                     <option value="progress-asc">Progress (Low to High)</option>
@@ -169,6 +210,7 @@
             <div>
                 <h4 class="font-semibold text-gray-800 mb-1">Application Tips</h4>
                 <p class="text-sm text-gray-600">Your application number is generated when you download the application form in Step 1. Keep it for reference.</p>
+                <p class="text-sm text-gray-600 mt-1">Processing time is 3 working days from submission based on the Citizens Charter.</p>
             </div>
         </div>
     </div>
@@ -261,6 +303,62 @@
     let itemsPerPage = 5;
     let deleteId = null;
     const APPLICATION_LIMIT = 3;
+    const PROCESSING_DAYS = 3; // Based on Citizens Charter
+
+    // Calculate aging days since submission
+    function calculateAgingDays(submittedAt) {
+        const submittedDate = new Date(submittedAt);
+        const currentDate = new Date();
+        const daysDiff = Math.floor((currentDate - submittedDate) / (1000 * 60 * 60 * 24));
+        return daysDiff;
+    }
+    
+    // Get aging status based on Citizens Charter
+    function getAgingStatus(days) {
+        if (days <= 2) return { status: 'ontrack', text: 'On Track', color: 'green', days: days, description: 'Within processing timeframe' };
+        if (days === 3) return { status: 'due', text: 'Due Today', color: 'yellow', days: days, description: 'Expected completion today' };
+        if (days <= 7) return { status: 'warning', text: 'Warning', color: 'orange', days: days, description: 'Exceeding expected timeframe' };
+        return { status: 'overdue', text: 'Overdue', color: 'red', days: days, description: 'Significantly delayed' };
+    }
+    
+    // Get aging badge HTML
+    function getAgingBadge(days) {
+        const aging = getAgingStatus(days);
+        let badgeClass = 'aging-badge-';
+        let icon = '';
+        
+        switch(aging.status) {
+            case 'ontrack':
+                badgeClass += 'ontrack';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+            case 'due':
+                badgeClass += 'due';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+            case 'warning':
+                badgeClass += 'warning';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
+                break;
+            case 'overdue':
+                badgeClass += 'overdue';
+                icon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                break;
+        }
+        
+        return `
+            <div class="aging-badge ${badgeClass} aging-tooltip" data-tooltip="Submitted ${days} day${days !== 1 ? 's' : ''} ago. ${aging.description}">
+                ${icon}
+                <span>${aging.text} (${days} day${days !== 1 ? 's' : ''})</span>
+            </div>
+        `;
+    }
+    
+    // Get row class based on aging status
+    function getRowClass(days) {
+        const aging = getAgingStatus(days);
+        return `aging-${aging.status}`;
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         loadApplications();
@@ -344,6 +442,15 @@
             const data = await response.json();
             if (data.success) {
                 applications = data.applications;
+                // Add aging calculation to each application
+                applications = applications.map(app => {
+                    if (app.created_at) {
+                        const days = calculateAgingDays(app.created_at);
+                        app.aging_days = days;
+                        app.aging_status = getAgingStatus(days);
+                    }
+                    return app;
+                });
                 console.log('Applications loaded:', applications);
                 applyFilters();
             } else { showErrorModal('Failed to load applications'); }
@@ -376,21 +483,47 @@
     function applyFilters() {
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
         const statusFilter = document.getElementById('status-filter').value;
+        const agingFilter = document.getElementById('aging-filter').value;
         const sortFilter = document.getElementById('sort-filter').value;
         
         filteredApplications = [...applications];
         filteredApplications = filteredApplications.filter(app => {
-            const matchesSearch = app.application_number.toLowerCase().includes(searchTerm);
+            const matchesSearch = app.application_number && app.application_number.toLowerCase().includes(searchTerm);
             const matchesStatus = !statusFilter || app.status === statusFilter;
-            return matchesSearch && matchesStatus;
+            
+            let matchesAging = true;
+            if (agingFilter && app.aging_days !== undefined) {
+                const days = app.aging_days;
+                switch(agingFilter) {
+                    case 'ontrack':
+                        matchesAging = days <= 2;
+                        break;
+                    case 'due':
+                        matchesAging = days === 3;
+                        break;
+                    case 'warning':
+                        matchesAging = days >= 4 && days <= 7;
+                        break;
+                    case 'overdue':
+                        matchesAging = days >= 8;
+                        break;
+                }
+            }
+            
+            return matchesSearch && matchesStatus && matchesAging;
         });
         
         filteredApplications.sort((a, b) => {
             const dateA = new Date(a.created_at);
             const dateB = new Date(b.created_at);
+            const agingA = a.aging_days || 0;
+            const agingB = b.aging_days || 0;
+            
             switch(sortFilter) {
                 case 'newest': return dateB - dateA;
                 case 'oldest': return dateA - dateB;
+                case 'aging-asc': return agingB - agingA;
+                case 'aging-desc': return agingA - agingB;
                 case 'status-asc': return (a.status || '').localeCompare(b.status || '');
                 case 'status-desc': return (b.status || '').localeCompare(a.status || '');
                 case 'progress-asc': return getStatusProgress(a.status) - getStatusProgress(b.status);
@@ -438,6 +571,7 @@
                         <thead class="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application</th>
+                                <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aging</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Basic Requirements</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Progress</th>
@@ -529,6 +663,8 @@
         
         const date = new Date(app.created_at);
         const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const agingDays = app.aging_days || 0;
+        const rowClass = getRowClass(agingDays);
         
         let hardCopyStatus = 'Not Submitted';
         let hardCopyColor = 'bg-gray-100 text-gray-600';
@@ -557,13 +693,12 @@
                         </svg>
                         Delete Draft
                     </button>
-                  <!-- In the card view - this should already be correct -->
-<a href="/applicant/application/step1?id=${app.id}" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-    </svg>
-    Continue Application
-</a>
+                    <a href="/applicant/application/step1?id=${app.id}" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Continue Application
+                    </a>
                 </div>
             `;
         } else {
@@ -571,7 +706,7 @@
         }
         
         return `
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition ${rowClass}">
                 <div class="p-6">
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                         <div class="flex items-start gap-3">
@@ -587,7 +722,10 @@
                                 <p class="text-xs text-gray-400 mt-1">Created: ${formattedDate}</p>
                             </div>
                         </div>
-                        <span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs font-medium whitespace-nowrap">${statusConfig.text}</span>
+                        <div class="flex items-center gap-2">
+                            ${getAgingBadge(agingDays)}
+                            <span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs font-medium whitespace-nowrap">${statusConfig.text}</span>
+                        </div>
                     </div>
                     
                     ${basicReqDisplay.show ? `
@@ -635,6 +773,8 @@
         const basicReqDisplay = getBasicRequirementsDisplay(app.basic_requirements_status, app.basic_requirements_rejection_reason);
         const date = new Date(app.created_at);
         const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const agingDays = app.aging_days || 0;
+        const rowClass = getRowClass(agingDays);
         
         let hardCopyStatus = 'Not Submitted';
         let hardCopyColor = 'bg-gray-100 text-gray-600';
@@ -660,13 +800,14 @@
         }
         
         return `
-            <tr class="hover:bg-gray-50 transition">
+            <tr class="hover:bg-gray-50 transition ${rowClass}">
                 <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-r ${progressColor} rounded-full flex items-center justify-center text-white text-sm">${hasNumber ? displayNumber.substring(0, 2) : 'BR'}</div>
                         <div><p class="font-medium text-gray-800">${displayNumber}</p><p class="text-xs text-gray-500">${formattedDate}</p></div>
                     </div>
                 </td>
+                <td class="py-4 px-6">${getAgingBadge(agingDays)}</td>
                 <td class="py-4 px-6"><span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs">${statusConfig.text}</span></td>
                 <td class="py-4 px-6">${basicReqDisplay.show ? `<span class="px-3 py-1 ${basicReqDisplay.color} rounded-full text-xs">${basicReqDisplay.text}</span>` : '<span class="text-xs text-green-600">✓ Approved</span>'}</td>
                 <td class="py-4 px-6"><div class="w-20 bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r ${progressColor} h-2 rounded-full" style="width: ${statusConfig.progress}%"></div></div></td>
@@ -721,6 +862,7 @@
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', function() { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 300); });
         document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('aging-filter').addEventListener('change', applyFilters);
         document.getElementById('sort-filter').addEventListener('change', applyFilters);
     }
 
@@ -746,5 +888,88 @@
     button:disabled { cursor: not-allowed; opacity: 0.5; }
     #application-progress-bar { transition: width 0.5s ease-in-out; }
     .pointer-events-none { pointer-events: none; }
+    
+    /* Aging Styles */
+    .aging-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .aging-badge-ontrack {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    
+    .aging-badge-due {
+        background-color: #fef9c3;
+        color: #854d0e;
+    }
+    
+    .aging-badge-warning {
+        background-color: #ffedd5;
+        color: #9a3412;
+    }
+    
+    .aging-badge-overdue {
+        background-color: #fee2e2;
+        color: #991b1b;
+        animation: pulseRed 1.5s ease-in-out infinite;
+    }
+    
+    /* Row aging colors */
+    .aging-ontrack {
+        background-color: rgba(34, 197, 94, 0.02);
+        border-left: 3px solid #22c55e;
+    }
+    
+    .aging-due {
+        background-color: rgba(234, 179, 8, 0.03);
+        border-left: 3px solid #eab308;
+    }
+    
+    .aging-warning {
+        background-color: rgba(249, 115, 22, 0.03);
+        border-left: 3px solid #f97316;
+    }
+    
+    .aging-overdue {
+        background-color: rgba(239, 68, 68, 0.03);
+        border-left: 3px solid #ef4444;
+    }
+    
+    @keyframes pulseRed {
+        0%, 100% {
+            background-color: #fee2e2;
+        }
+        50% {
+            background-color: #fecaca;
+        }
+    }
+    
+    .aging-tooltip {
+        position: relative;
+        cursor: help;
+    }
+    
+    .aging-tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #1f2937;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 10;
+        margin-bottom: 5px;
+    }
 </style>
 @endsection
