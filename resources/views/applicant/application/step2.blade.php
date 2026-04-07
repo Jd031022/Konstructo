@@ -7,7 +7,11 @@
 
     <!-- Back Button -->
     <div class="mb-8">
+<<<<<<< HEAD
         <a href="javascript:void(0)" onclick="goBackToStep1()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+=======
+        <a href="/applicant/application/step1?id={{ $application->id }}" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+>>>>>>> f1e4a0eca46665403b060ec0bd432ad55bebf9a8
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

@@ -325,7 +325,7 @@
 
             <!-- Right Column -->
             <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-8">
+                <div class="sticky space-y-8">
                     <!-- Current Status Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>

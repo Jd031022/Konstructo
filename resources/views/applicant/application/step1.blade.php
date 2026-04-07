@@ -232,9 +232,15 @@
 {{-- ══════════ MODALS ══════════ --}}
 
 <!-- DPA Modal -->
+<<<<<<< HEAD
 <div id="dpa-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 px-4 py-8" style="backdrop-filter:blur(4px); display: flex;">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+=======
+<div id="dpa-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center px-4 py-8" style="backdrop-filter:blur(4px);">
+    <div class="relative w-full max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+>>>>>>> f1e4a0eca46665403b060ec0bd432ad55bebf9a8
             <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white flex items-center gap-3">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 <h3 class="text-xl font-bold">Data Privacy Act Compliance</h3>
@@ -405,6 +411,7 @@ function checkDPAStatus(){
 }
 
 function showDPAModalIfNeeded(){ 
+<<<<<<< HEAD
     if(!checkDPAStatus()){ 
         const modal = document.getElementById('dpa-modal');
         if(modal) {
@@ -417,6 +424,12 @@ function showDPAModalIfNeeded(){
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
+=======
+    const modal = document.getElementById('dpa-modal');
+    if(modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+>>>>>>> f1e4a0eca46665403b060ec0bd432ad55bebf9a8
     }
 }
 

@@ -2,6 +2,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
+                <!-- Mobile Menu Button - positioned beside avatar -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                
                 <!-- Profile Avatar - dynamically updates -->
                 <div id="header-avatar-container" class="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
                     @auth

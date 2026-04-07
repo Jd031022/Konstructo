@@ -4,9 +4,10 @@
     <button @click="open = !open"
         class="w-14 h-14 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition">
 
-        <!-- Blue Chat Icon -->
+        <!-- Konstructo Chat Icon -->
         <svg xmlns="http://www.w3.org/2000/svg"
-            class="w-7 h-7 text-blue-600"
+            class="w-7 h-7"
+            style="color: #155386;"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor">
@@ -30,7 +31,7 @@
         class="absolute bottom-16 right-0 w-96 bg-white rounded-2xl shadow-xl border overflow-hidden">
         
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-blue-600 to-blue-700">
+        <div class="flex items-center justify-between px-4 py-3 border-b" style="background: linear-gradient(to right, #155386, #1F363D);">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 <h3 class="font-semibold text-white">
@@ -59,9 +60,10 @@
                     <div 
                         class="max-w-xs px-4 py-2 rounded-lg shadow"
                         :class="{
-                            'bg-blue-600 text-white rounded-br-none': message.role === 'user',
+                            'text-white rounded-br-none': message.role === 'user',
                             'bg-gray-100 text-gray-800 rounded-bl-none': message.role === 'assistant'
                         }"
+                        :style="message.role === 'user' ? {backgroundColor: '#155386'} : {}"
                     >
                         <div class="text-sm whitespace-pre-wrap break-words" x-html="formatMessage(message.content)"></div>
                         <span class="text-xs opacity-75 mt-1 block" x-text="formatTime(message.timestamp)"></span>
@@ -88,9 +90,12 @@
                 <template x-for="question in suggestedQuestions" :key="question">
                     <button
                         @click="useSuggestedQuestion(question)"
-                        class="w-full text-left border rounded-lg px-3 py-2 text-sm hover:bg-gray-50 hover:border-blue-300 transition flex justify-between items-center group">
+                        class="w-full text-left border rounded-lg px-3 py-2 text-sm hover:bg-gray-50 transition flex justify-between items-center group"
+                        style="border-color: #e5e7eb;"
+                        @mouseenter="$el.style.borderColor = 'rgb(100, 135, 156)'"
+                        @mouseleave="$el.style.borderColor = '#e5e7eb'">
                         <span x-text="question"></span>
-                        <span class="text-blue-500 opacity-0 group-hover:opacity-100 transition">↑</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition" style="color: #155386;">↑</span>
                     </button>
                 </template>
             </div>
@@ -103,12 +108,16 @@
                     type="text"
                     x-model="newMessage"
                     placeholder="Type your message..."
-                    class="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2"
+                    style="--tw-ring-color: #155386;"
                     :disabled="isTyping"
                 >
                 <button
                     type="submit"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="text-white px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    style="background-color: #155386;"
+                    @mouseenter="$el.style.backgroundColor = '#1F363D'"
+                    @mouseleave="$el.style.backgroundColor = '#155386'"
                     :disabled="!newMessage.trim() || isTyping"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
