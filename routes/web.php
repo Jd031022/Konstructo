@@ -88,6 +88,11 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
+    // ========== ACTIVITY HISTORY ROUTE (STAFF) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('staff.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
+    
     Route::get('/applications', function () {
         return view('staff.applications');
     })->name('applications');
@@ -187,10 +192,124 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
+<<<<<<< HEAD
     // ========== APPLICATION STEP ROUTES - USING CONTROLLER ==========
     Route::get('/application/step1', [ApplicationController::class, 'step1'])->name('application.step1');
     Route::get('/application/step2', [ApplicationController::class, 'step2'])->name('application.step2');
     Route::get('/application/step3', [ApplicationController::class, 'step3'])->name('application.step3');
+=======
+    // ========== ACTIVITY HISTORY ROUTE (APPLICANT) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('applicant.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
+    
+    // Step routes with per-application basic requirements check
+    Route::get('/application/step1', function (Request $request) {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if ($applicationId) {
+            $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->first();
+                
+            if (!$application) {
+                return redirect()->route('applicant.applications')
+                    ->with('error', 'Application not found.');
+            }
+            
+            $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+                ->where('status', 'approved')
+                ->first();
+                
+            if (!$basicRequirement) {
+                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                    ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+            }
+            
+            return view('applicant.application.step1', compact('application'));
+        } else {
+            $submittedCount = \App\Models\ApplicationDocument::where('user_id', $user->id)
+                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
+                ->count();
+                
+            if ($submittedCount >= 3) {
+                return redirect()->route('applicant.applications')
+                    ->with('error', 'You have reached the maximum limit of 3 applications.');
+            }
+            
+            $application = \App\Models\ApplicationDocument::create([
+                'user_id' => $user->id,
+                'application_number' => null,
+                'status' => 'draft',
+                'google_drive_link' => null
+            ]);
+            
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $application->id])
+                ->with('info', 'Please complete the basic requirements first.');
+        }
+    })->name('application.step1');
+    
+    Route::get('/application/step2', function (Request $request) {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        return view('applicant.application.step2', compact('application'));
+    })->name('application.step2');
+    
+    Route::get('/application/step3', function (Request $request) {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        return view('applicant.application.step3', compact('application'));
+    })->name('application.step3');
+>>>>>>> 77c06bd9e4af11b63e19d71660a38b4a5c8c9ad0
     
     // Application Document API Routes
     Route::post('/application/store-link', [ApplicationDocumentController::class, 'storeLink'])
@@ -339,38 +458,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         ->name('application.store-links');
 });
 
-// Dashboard route with role-based redirect
-Route::get('/dashboard', function () {
-    /** @var \App\Models\User $user */
-    $user = auth()->user();
-    
-    if ($user) {
-        if ($user->isApplicant()) {
-            if (!$user->canLogin()) {
-                if ($user->isPending()) {
-                    return redirect()->route('applicant.account-status')
-                        ->with('warning', 'Your account is pending admin approval.');
-                } elseif ($user->isRejected()) {
-                    return redirect()->route('applicant.account-status')
-                        ->with('error', 'Your account has been rejected.');
-                } elseif (is_null($user->email_verified_at)) {
-                    return redirect()->route('login')
-                        ->with('error', 'Please verify your email address first.');
-                }
-            }
-        }
-        
-        return match($user->role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'staff' => redirect()->route('staff.dashboard'),
-            'applicant' => redirect()->route('applicant.dashboard'),
-            default => redirect()->route('login'),
-        };
-    }
-    
-    return redirect()->route('login');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
@@ -384,6 +471,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/applications', function () {
         return view('admin.applications');
     })->name('applications');
+    
+    // ========== ACTIVITY HISTORY ROUTE (ADMIN) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('admin.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
     
     Route::get('/archived-applications', function () {
         return view('admin.archived-applications');
@@ -456,6 +548,38 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
 });
+
+// Dashboard route with role-based redirect
+Route::get('/dashboard', function () {
+    /** @var \App\Models\User $user */
+    $user = auth()->user();
+    
+    if ($user) {
+        if ($user->isApplicant()) {
+            if (!$user->canLogin()) {
+                if ($user->isPending()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('warning', 'Your account is pending admin approval.');
+                } elseif ($user->isRejected()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('error', 'Your account has been rejected.');
+                } elseif (is_null($user->email_verified_at)) {
+                    return redirect()->route('login')
+                        ->with('error', 'Please verify your email address first.');
+                }
+            }
+        }
+        
+        return match($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'staff' => redirect()->route('staff.dashboard'),
+            'applicant' => redirect()->route('applicant.dashboard'),
+            default => redirect()->route('login'),
+        };
+    }
+    
+    return redirect()->route('login');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Profile routes
 Route::get('/profile/profile', function () {
