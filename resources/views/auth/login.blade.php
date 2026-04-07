@@ -117,7 +117,6 @@
 <div id="pending-approval-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <!-- Header -->
             <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -132,7 +131,6 @@
                 </div>
             </div>
             
-            <!-- Body -->
             <div class="p-6">
                 <div class="text-center mb-6">
                     <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -172,7 +170,6 @@
                 </div>
             </div>
             
-            <!-- Footer -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
                 <p class="text-xs text-gray-500">
                     Need help? Contact our support team at 
@@ -187,7 +184,6 @@
 <div id="rejected-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <!-- Header -->
             <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -202,7 +198,6 @@
                 </div>
             </div>
             
-            <!-- Body -->
             <div class="p-6">
                 <div class="text-center mb-6">
                     <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -257,7 +252,6 @@
 <div id="forgot-password-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-5 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <!-- Header with Close Button -->
             <div class="bg-gradient-to-r from-[#155386] to-[#40798C] px-6 py-4 flex justify-between items-center">
                 <h3 class="text-xl font-bold text-white">Reset Password</h3>
                 <button onclick="closeForgotPasswordModal()" class="text-white hover:text-gray-200 transition p-1 rounded-full hover:bg-white/10">
@@ -395,7 +389,6 @@
                     </button>
                 </div>
                 
-                <!-- Modal Message -->
                 <div id="modal-message" class="text-sm hidden"></div>
             </div>
         </div>
@@ -403,6 +396,12 @@
 </div>
 
 <script>
+// Get CSRF token helper function
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+           document.querySelector('input[name="_token"]')?.value;
+}
+
 // Rejected Modal functions
 let rejectionReason = '';
 
@@ -530,7 +529,7 @@ function showSuccess(message) {
     setTimeout(() => successDiv.classList.add('hidden'), 5000);
 }
 
-// Update the login form submission
+// Login form submission
 document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -547,7 +546,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
         const response = await fetch('{{ route("login") }}', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'X-CSRF-TOKEN': getCsrfToken(),
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
@@ -568,19 +567,16 @@ document.getElementById('login-form').addEventListener('submit', async function(
         } else {
             hideButtonLoading();
             
-            // Check for rejected account
             if (data.error && data.error.includes('rejected')) {
                 showRejectedModal(data.rejection_reason || null);
                 return;
             }
             
-            // Check if it's a pending approval error
             if (data.error && data.error.includes('pending admin approval')) {
                 showPendingApprovalModal();
                 return;
             }
             
-            // Check if there's a redirect URL in the response (for pending/rejected users)
             if (data.redirect) {
                 showWarning(data.error || 'Your account requires admin approval.');
                 setTimeout(() => {
@@ -623,13 +619,12 @@ document.getElementById('login-form').addEventListener('submit', async function(
     }
 });
 
-// Function to resend verification email
 async function resendVerification(email) {
     try {
         const response = await fetch('/resend-verification', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'X-CSRF-TOKEN': getCsrfToken(),
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
@@ -648,7 +643,6 @@ async function resendVerification(email) {
     }
 }
 
-// Button loading states
 function showButtonLoading() {
     document.getElementById('button-text').classList.add('hidden');
     document.getElementById('button-spinner').classList.remove('hidden');
@@ -661,7 +655,7 @@ function hideButtonLoading() {
     document.getElementById('login-button').disabled = false;
 }
 
-// Forgot Password Modal functions
+// Forgot Password Modal variables
 let resetEmail = '';
 let resetToken = '';
 
@@ -678,12 +672,10 @@ function closeForgotPasswordModal() {
     document.getElementById('forgot-password-modal').classList.add('hidden');
     document.body.style.overflow = 'auto';
     
-    // Reset all steps
     document.getElementById('step-email').classList.remove('hidden');
     document.getElementById('step-code').classList.add('hidden');
     document.getElementById('step-password').classList.add('hidden');
     
-    // Clear inputs
     document.getElementById('reset-email').value = '';
     for (let i = 1; i <= 6; i++) {
         const codeInput = document.getElementById(`code${i}`);
@@ -692,7 +684,6 @@ function closeForgotPasswordModal() {
     document.getElementById('new-password').value = '';
     document.getElementById('confirm-password').value = '';
     
-    // Reset message
     const modalMessage = document.getElementById('modal-message');
     modalMessage.classList.add('hidden');
     modalMessage.innerHTML = '';
@@ -717,11 +708,10 @@ function clearModalMessage() {
 function showModalMessage(message, isError = true) {
     const modalMsg = document.getElementById('modal-message');
     modalMsg.textContent = message;
-    modalMsg.className = `text-sm ${isError ? 'text-red-600' : 'text-green-600'} mt-2`;
+    modalMsg.className = `text-sm ${isError ? 'text-red-600' : 'text-green-600'} mt-2 text-center`;
     modalMsg.classList.remove('hidden');
 }
 
-// Step 1: Send reset code
 async function sendResetCode() {
     const email = document.getElementById('reset-email').value;
     
@@ -730,7 +720,12 @@ async function sendResetCode() {
         return;
     }
     
-    // Show loading
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        showModalMessage('Security token missing. Please refresh the page.');
+        return;
+    }
+    
     document.getElementById('send-code-text').classList.add('hidden');
     document.getElementById('send-code-spinner').classList.remove('hidden');
     document.getElementById('send-code-btn').disabled = true;
@@ -740,11 +735,12 @@ async function sendResetCode() {
         const response = await fetch('/forgot-password/send-code', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ email: email })
         });
         
         const data = await response.json();
@@ -760,11 +756,15 @@ async function sendResetCode() {
             document.getElementById('step-code').classList.remove('hidden');
             document.getElementById('code1').focus();
             showModalMessage('Code sent! Check your email.', false);
+        } else if (response.status === 419) {
+            showModalMessage('Session expired. Please refresh the page and try again.');
+            setTimeout(() => location.reload(), 2000);
         } else {
             const errorMsg = data.error || data.message || 'Failed to send code';
             showModalMessage(errorMsg, true);
         }
     } catch (error) {
+        console.error('Error:', error);
         document.getElementById('send-code-text').classList.remove('hidden');
         document.getElementById('send-code-spinner').classList.add('hidden');
         document.getElementById('send-code-btn').disabled = false;
@@ -772,7 +772,6 @@ async function sendResetCode() {
     }
 }
 
-// Step 2: Verify code
 async function verifyCode() {
     const code = 
         document.getElementById('code1').value +
@@ -787,7 +786,8 @@ async function verifyCode() {
         return;
     }
     
-    // Show loading
+    const csrfToken = getCsrfToken();
+    
     document.getElementById('verify-code-text').classList.add('hidden');
     document.getElementById('verify-code-spinner').classList.remove('hidden');
     document.getElementById('verify-code-btn').disabled = true;
@@ -797,13 +797,14 @@ async function verifyCode() {
         const response = await fetch('/forgot-password/verify-code', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ 
                 email: resetEmail, 
-                code 
+                code: code 
             })
         });
         
@@ -819,10 +820,14 @@ async function verifyCode() {
             document.getElementById('step-password').classList.remove('hidden');
             setupPasswordValidation();
             showModalMessage('Code verified! Enter your new password.', false);
+        } else if (response.status === 419) {
+            showModalMessage('Session expired. Please refresh the page and try again.');
+            setTimeout(() => location.reload(), 2000);
         } else {
             showModalMessage(data.error || 'Invalid or expired code');
         }
     } catch (error) {
+        console.error('Error:', error);
         document.getElementById('verify-code-text').classList.remove('hidden');
         document.getElementById('verify-code-spinner').classList.add('hidden');
         document.getElementById('verify-code-btn').disabled = false;
@@ -830,12 +835,57 @@ async function verifyCode() {
     }
 }
 
-// Step 3: Reset password
+async function resendCode() {
+    if (!resetEmail) return;
+    
+    const csrfToken = getCsrfToken();
+    
+    document.getElementById('verify-code-text').classList.add('hidden');
+    document.getElementById('verify-code-spinner').classList.remove('hidden');
+    document.getElementById('verify-code-btn').disabled = true;
+    clearModalMessage();
+    
+    try {
+        const response = await fetch('/forgot-password/resend-code', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ email: resetEmail })
+        });
+        
+        const data = await response.json();
+        
+        document.getElementById('verify-code-text').classList.remove('hidden');
+        document.getElementById('verify-code-spinner').classList.add('hidden');
+        document.getElementById('verify-code-btn').disabled = false;
+        
+        if (response.ok) {
+            clearCodeInputs();
+            document.getElementById('code1').focus();
+            showModalMessage('New code sent!', false);
+        } else if (response.status === 419) {
+            showModalMessage('Session expired. Please refresh the page and try again.');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showModalMessage(data.error || 'Failed to resend code');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('verify-code-text').classList.remove('hidden');
+        document.getElementById('verify-code-spinner').classList.add('hidden');
+        document.getElementById('verify-code-btn').disabled = false;
+        showModalMessage('An error occurred. Please try again.');
+    }
+}
+
 async function resetPassword() {
     const password = document.getElementById('new-password').value;
     const confirm = document.getElementById('confirm-password').value;
     
-    // Validation
     if (!password || !confirm) {
         showModalMessage('Please enter and confirm your new password');
         return;
@@ -866,7 +916,6 @@ async function resetPassword() {
         return;
     }
     
-    // Get the code from inputs
     const code = 
         document.getElementById('code1').value +
         document.getElementById('code2').value +
@@ -875,7 +924,8 @@ async function resetPassword() {
         document.getElementById('code5').value +
         document.getElementById('code6').value;
     
-    // Show loading
+    const csrfToken = getCsrfToken();
+    
     document.getElementById('reset-password-text').classList.add('hidden');
     document.getElementById('reset-password-spinner').classList.remove('hidden');
     document.getElementById('reset-password-btn').disabled = true;
@@ -885,9 +935,10 @@ async function resetPassword() {
         const response = await fetch('/forgot-password/reset', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 email: resetEmail,
@@ -906,11 +957,13 @@ async function resetPassword() {
         
         if (response.ok) {
             showModalMessage('Password reset successfully! Redirecting to login...', false);
-            
             setTimeout(() => {
                 closeForgotPasswordModal();
                 showSuccess('Password reset successful! You can now login with your new password.');
             }, 2000);
+        } else if (response.status === 419) {
+            showModalMessage('Session expired. Please refresh the page and try again.');
+            setTimeout(() => location.reload(), 2000);
         } else {
             if (data.errors) {
                 const errorMessages = Object.values(data.errors).flat().join(', ');
@@ -920,6 +973,7 @@ async function resetPassword() {
             }
         }
     } catch (error) {
+        console.error('Error:', error);
         document.getElementById('reset-password-text').classList.remove('hidden');
         document.getElementById('reset-password-spinner').classList.add('hidden');
         document.getElementById('reset-password-btn').disabled = false;
@@ -927,48 +981,6 @@ async function resetPassword() {
     }
 }
 
-// Resend code
-async function resendCode() {
-    if (!resetEmail) return;
-    
-    document.getElementById('verify-code-text').classList.add('hidden');
-    document.getElementById('verify-code-spinner').classList.remove('hidden');
-    document.getElementById('verify-code-btn').disabled = true;
-    clearModalMessage();
-    
-    try {
-        const response = await fetch('/forgot-password/resend-code', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ email: resetEmail })
-        });
-        
-        const data = await response.json();
-        
-        document.getElementById('verify-code-text').classList.remove('hidden');
-        document.getElementById('verify-code-spinner').classList.add('hidden');
-        document.getElementById('verify-code-btn').disabled = false;
-        
-        if (response.ok) {
-            clearCodeInputs();
-            document.getElementById('code1').focus();
-            showModalMessage('New code sent!', false);
-        } else {
-            showModalMessage(data.error || 'Failed to resend code');
-        }
-    } catch (error) {
-        document.getElementById('verify-code-text').classList.remove('hidden');
-        document.getElementById('verify-code-spinner').classList.add('hidden');
-        document.getElementById('verify-code-btn').disabled = false;
-        showModalMessage('An error occurred. Please try again.');
-    }
-}
-
-// Navigation
 function backToEmail() {
     document.getElementById('step-code').classList.add('hidden');
     document.getElementById('step-email').classList.remove('hidden');
@@ -976,14 +988,12 @@ function backToEmail() {
     clearModalMessage();
 }
 
-// Code input navigation
 function moveToNext(current, nextId) {
     if (current.value.length === 1) {
         document.getElementById(nextId)?.focus();
     }
 }
 
-// Password validation on input
 function setupPasswordValidation() {
     const password = document.getElementById('new-password');
     const confirm = document.getElementById('confirm-password');
@@ -1004,19 +1014,19 @@ function setupPasswordValidation() {
 }
 
 // Close modals when clicking outside
-document.getElementById('pending-approval-modal').addEventListener('click', function(e) {
+document.getElementById('pending-approval-modal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closePendingApprovalModal();
     }
 });
 
-document.getElementById('rejected-modal').addEventListener('click', function(e) {
+document.getElementById('rejected-modal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeRejectedModal();
     }
 });
 
-document.getElementById('forgot-password-modal').addEventListener('click', function(e) {
+document.getElementById('forgot-password-modal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeForgotPasswordModal();
     }
@@ -1034,11 +1044,9 @@ document.addEventListener('DOMContentLoaded', function() {
         showWarning('{{ session('warning') }}');
     @endif
 });
-
 </script>
 
 <style>
-/* Animation for spinner */
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -1048,13 +1056,11 @@ document.addEventListener('DOMContentLoaded', function() {
     animation: spin 1s linear infinite;
 }
 
-/* Disabled button styling */
 button:disabled {
     cursor: not-allowed;
     opacity: 0.75;
 }
 
-/* Code input styling */
 .code-input {   
     -moz-appearance: textfield;
 }
@@ -1064,12 +1070,10 @@ button:disabled {
     margin: 0;
 }
 
-/* Step transitions */
 .step {
     transition: all 0.3s ease;
 }
 
-/* Additional styling for messages */
 #warning-message {
     border-left: 4px solid #eab308;
 }
@@ -1082,7 +1086,6 @@ button:disabled {
     border-left: 4px solid #22c55e;
 }
 
-/* Modal animations */
 #pending-approval-modal,
 #rejected-modal {
     transition: opacity 0.2s ease-in-out;
