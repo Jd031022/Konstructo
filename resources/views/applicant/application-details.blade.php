@@ -84,6 +84,22 @@
             </div>
         </div>
 
+        <!-- Assessment Notice -->
+        <div id="assessment-notice" class="mb-6 p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Building Permit Fee Assessment</h4>
+                    <p id="assessment-total" class="text-sm text-gray-700 mt-1">Total Fee: ₱0.00</p>
+                    <p class="text-xs text-gray-500 mt-1">Please prepare the exact amount for payment</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Application Header -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -194,16 +210,23 @@
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
                         <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
-                    <div id="step-approval" class="text-center step-item">
+                    <div id="step-assessment" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
                             <span class="text-lg font-bold text-gray-400 step-icon">4</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Assessment</p>
+                        <p id="step-assessment-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+                    </div>
+                    <div id="step-approval" class="text-center step-item">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                            <span class="text-lg font-bold text-gray-400 step-icon">5</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
                         <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                     </div>
                     <div id="step-release" class="text-center step-item">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">5</span>
+                            <span class="text-lg font-bold text-gray-400 step-icon">6</span>
                         </div>
                         <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
                         <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
@@ -361,6 +384,21 @@
                             </div>
                         </div>
 
+                        <!-- Assessment Fee Card -->
+                        <div id="assessment-fee-card" class="mt-4 p-3 bg-indigo-50 rounded-lg hidden transition-all duration-500">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                                    <span class="text-xs font-medium text-gray-700">Building Permit Fee:</span>
+                                </div>
+                                <span id="assessment-fee-amount" class="text-sm font-bold text-indigo-700">₱0.00</span>
+                            </div>
+                            <div id="assessment-fee-details" class="mt-2 text-xs text-gray-500 space-y-1">
+                                <!-- Fee breakdown will be shown here -->
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Please prepare the exact amount for payment at the OBO.</p>
+                        </div>
+
                         <!-- Hard Copy Status in Sidebar -->
                         <div id="hardcopy-status-sidebar" class="mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500">
                             <div class="flex items-center gap-2">
@@ -470,6 +508,7 @@
     let currentApplication = null;
     let previousStatus = null;
     let updateCheckInterval = null;
+    let currentAssessment = null;
 
     // Document names mapping
     const documentNames = {
@@ -549,6 +588,67 @@
         }
     }
 
+    // Load assessment data
+    async function loadAssessmentData() {
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentAssessment = data.data;
+                    displayAssessmentInfo();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading assessment:', error);
+        }
+    }
+
+    // Display assessment information
+    function displayAssessmentInfo() {
+        if (currentAssessment && currentAssessment.total_amount) {
+            // Show assessment notice
+            const assessmentNotice = document.getElementById('assessment-notice');
+            const assessmentTotal = document.getElementById('assessment-total');
+            if (assessmentNotice && assessmentTotal) {
+                assessmentTotal.innerHTML = `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                assessmentNotice.classList.remove('hidden');
+            }
+            
+            // Show assessment fee card in sidebar
+            const assessmentCard = document.getElementById('assessment-fee-card');
+            const feeAmount = document.getElementById('assessment-fee-amount');
+            const feeDetails = document.getElementById('assessment-fee-details');
+            
+            if (assessmentCard && feeAmount) {
+                feeAmount.textContent = `₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                assessmentCard.classList.remove('hidden');
+                
+                // Build fee breakdown
+                let breakdownHtml = '';
+                if (currentAssessment.line_grade) breakdownHtml += `<div class="flex justify-between"><span>Line Grade:</span><span>₱${parseFloat(currentAssessment.line_grade).toLocaleString()}</span></div>`;
+                if (currentAssessment.building_fee) breakdownHtml += `<div class="flex justify-between"><span>Building Fee:</span><span>₱${parseFloat(currentAssessment.building_fee).toLocaleString()}</span></div>`;
+                if (currentAssessment.sanitary_fee) breakdownHtml += `<div class="flex justify-between"><span>Sanitary/Plumbing:</span><span>₱${parseFloat(currentAssessment.sanitary_fee).toLocaleString()}</span></div>`;
+                if (currentAssessment.mechanical_fee) breakdownHtml += `<div class="flex justify-between"><span>Mechanical Fee:</span><span>₱${parseFloat(currentAssessment.mechanical_fee).toLocaleString()}</span></div>`;
+                if (currentAssessment.electrical_fee) breakdownHtml += `<div class="flex justify-between"><span>Electrical Fee:</span><span>₱${parseFloat(currentAssessment.electrical_fee).toLocaleString()}</span></div>`;
+                if (currentAssessment.others_amount) breakdownHtml += `<div class="flex justify-between"><span>${currentAssessment.others_description || 'Others'}:</span><span>₱${parseFloat(currentAssessment.others_amount).toLocaleString()}</span></div>`;
+                if (currentAssessment.penalties_fines) breakdownHtml += `<div class="flex justify-between"><span>Penalties/Fines:</span><span>₱${parseFloat(currentAssessment.penalties_fines).toLocaleString()}</span></div>`;
+                
+                if (breakdownHtml) {
+                    feeDetails.innerHTML = breakdownHtml;
+                } else {
+                    feeDetails.innerHTML = '<div class="text-center text-gray-500">Fee breakdown not available</div>';
+                }
+            }
+        }
+    }
+
     // Show update notification
     function showUpdateNotification(message) {
         const notification = document.getElementById('update-notification');
@@ -615,6 +715,7 @@
                 previousStatus = currentApplication.status;
                 displayApplicationDetails();
                 loadReviewActivities();
+                loadAssessmentData();
                 
                 // Display documents from the document_links
                 console.log('Document links:', currentApplication.document_links);
@@ -923,6 +1024,10 @@
                     iconColor = 'bg-purple-100';
                     iconTextColor = 'text-purple-600';
                     iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (activity.new_status && activity.new_status === 'for-assessment') {
+                    iconColor = 'bg-indigo-100';
+                    iconTextColor = 'text-indigo-600';
+                    iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
                 } else {
                     iconColor = 'bg-purple-100';
                     iconTextColor = 'text-purple-600';
@@ -1083,6 +1188,10 @@
 
     function formatStatus(status) {
         if (!status) return '';
+        const statusMap = {
+            'for-assessment': 'For Assessment'
+        };
+        if (statusMap[status]) return statusMap[status];
         return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
@@ -1110,6 +1219,7 @@
             'pending': { color: 'yellow', text: 'Pending Review' },
             'under-review': { color: 'purple', text: 'Under Review' },
             'document-verification': { color: 'purple', text: 'Document Verification' },
+            'for-assessment': { color: 'indigo', text: 'For Assessment' },
             'approved': { color: 'green', text: 'Approved' },
             'for-release': { color: 'blue', text: 'For Release' },
             'verified': { color: 'emerald', text: 'Completed' },
@@ -1126,8 +1236,19 @@
     }
 
     function updateTimeline(status) {
-        const steps = ['submitted', 'under-review', 'verification', 'approval', 'release'];
-        const currentStepIndex = getStepIndex(status);
+        const steps = ['submitted', 'under-review', 'verification', 'assessment', 'approval', 'release'];
+        const stepMap = {
+            'draft': -1,
+            'pending': 0,
+            'under-review': 1,
+            'document-verification': 2,
+            'for-assessment': 3,
+            'approved': 4,
+            'for-release': 5,
+            'verified': 5,
+            'rejected': -1
+        };
+        const currentStepIndex = stepMap[status] !== undefined ? stepMap[status] : -1;
         
         steps.forEach((step, index) => {
             const stepElement = document.getElementById(`step-${step}`);
@@ -1185,28 +1306,15 @@
         }
     }
 
-    function getStepIndex(status) {
-        const stepMap = {
-            'draft': -1,
-            'pending': 0,
-            'under-review': 1,
-            'document-verification': 2,
-            'approved': 3,
-            'for-release': 4,
-            'verified': 4,
-            'rejected': -1
-        };
-        return stepMap[status] !== undefined ? stepMap[status] : -1;
-    }
-
     function updateProgress(status) {
         const progressMap = {
             'draft': 0,
             'pending': 20,
-            'under-review': 40,
-            'document-verification': 60,
+            'under-review': 35,
+            'document-verification': 50,
+            'for-assessment': 65,
             'approved': 80,
-            'for-release': 90,
+            'for-release': 95,
             'verified': 100,
             'rejected': 100
         };
@@ -1376,5 +1484,6 @@
     .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
     .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .min-w-0 { min-width: 0; }
+    .hidden { display: none; }
 </style>
 @endsection

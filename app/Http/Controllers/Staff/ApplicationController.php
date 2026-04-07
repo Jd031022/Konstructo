@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
+use App\Models\AssessmentFee; // ADD THIS IMPORT
 use App\Services\NotificationService;
 use App\Services\GmailService;
 use Illuminate\Http\Request;
@@ -56,6 +57,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
+                    'for-assessment', // ADDED for-assessment
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -143,6 +145,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
+                    'for-assessment', // ADDED for-assessment
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -318,6 +321,9 @@ class ApplicationController extends Controller
             case 'application_restored':
                 $actionText = 'Application Restored';
                 break;
+            case 'assessment_saved':
+                $actionText = 'Assessment Saved';
+                break;
             default:
                 $actionText = ucfirst(str_replace('_', ' ', $activity->action));
                 break;
@@ -332,7 +338,10 @@ class ApplicationController extends Controller
     private function formatStatusForDisplay($status)
     {
         if (!$status) return 'Unknown';
-        return ucfirst(str_replace('-', ' ', $status));
+        $statusMap = [
+            'for-assessment' => 'For Assessment'
+        ];
+        return $statusMap[$status] ?? ucfirst(str_replace('-', ' ', $status));
     }
 
     /**
@@ -635,7 +644,7 @@ class ApplicationController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pending,under-review,document-verification,approved,rejected,for-release,verified',
+            'status' => 'required|string|in:pending,under-review,document-verification,for-assessment,approved,rejected,for-release,verified',
             'remarks' => 'nullable|string',
             'hardcopy_received' => 'sometimes|boolean'
         ]);
@@ -1404,6 +1413,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
+                    'for-assessment', // ADDED for-assessment
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -1859,6 +1869,189 @@ class ApplicationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch archived applications'
+            ], 500);
+        }
+    }
+
+    /**
+     * Save assessment fees for an application
+     */
+    public function saveAssessment(Request $request, $id)
+    {
+        Log::info('========== SAVE ASSESSMENT START ==========');
+        Log::info('saveAssessment called', [
+            'application_id' => $id,
+            'data' => $request->all(),
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'line_grade' => 'nullable|numeric|min:0',
+            'building_fee' => 'nullable|numeric|min:0',
+            'sanitary_fee' => 'nullable|numeric|min:0',
+            'mechanical_fee' => 'nullable|numeric|min:0',
+            'electrical_fee' => 'nullable|numeric|min:0',
+            'others_amount' => 'nullable|numeric|min:0',
+            'others_description' => 'nullable|string|max:255',
+            'penalties_fines' => 'nullable|numeric|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
+            'assessment_notes' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            // Find or create assessment record
+            $assessment = AssessmentFee::where('application_id', $id)->first();
+            
+            if (!$assessment) {
+                $assessment = new AssessmentFee();
+                $assessment->application_id = $id;
+            }
+            
+            // Update assessment data
+            $assessment->line_grade = $request->line_grade;
+            $assessment->building_fee = $request->building_fee;
+            $assessment->sanitary_fee = $request->sanitary_fee;
+            $assessment->mechanical_fee = $request->mechanical_fee;
+            $assessment->electrical_fee = $request->electrical_fee;
+            $assessment->others_amount = $request->others_amount;
+            $assessment->others_description = $request->others_description;
+            $assessment->penalties_fines = $request->penalties_fines;
+            $assessment->total_amount = $request->total_amount;
+            $assessment->assessment_notes = $request->assessment_notes;
+            $assessment->assessed_by = $staff->id;
+            $assessment->assessed_at = now();
+            $assessment->save();
+            
+            Log::info('Assessment saved successfully', [
+                'application_id' => $id,
+                'assessment_id' => $assessment->id,
+                'total_amount' => $assessment->total_amount
+            ]);
+            
+            // Update application status to 'for-assessment' if not already
+            $oldStatus = $application->status;
+            if ($application->status !== 'for-assessment') {
+                $application->status = 'for-assessment';
+                $application->last_updated_by = $staff->id;
+                $application->save();
+                
+                // Log the activity
+                $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'status_updated',
+                    $oldStatus,
+                    'for-assessment',
+                    "Application marked for assessment. Total fee: ₱" . number_format($assessment->total_amount, 2),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+                
+                // Send notification
+                try {
+                    $this->notificationService->notifyApplicantStatusChange(
+                        $application,
+                        $oldStatus,
+                        'for-assessment',
+                        $staff
+                    );
+                    
+                    if ($application->user && $application->user->email) {
+                        $this->gmailService->sendStatusEmail(
+                            $application->user->email,
+                            'for-assessment',
+                            $application->application_number,
+                            $application->user->first_name,
+                            $application->id
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send assessment notification: ' . $e->getMessage());
+                }
+            }
+            
+            // Also log assessment saved activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'assessment_saved',
+                null,
+                $application->status,
+                "Assessment saved with total fee: ₱" . number_format($assessment->total_amount, 2),
+                $request->ip(),
+                $request->userAgent()
+            );
+            
+            Log::info('========== SAVE ASSESSMENT END (SUCCESS) ==========');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Assessment saved successfully',
+                'data' => [
+                    'assessment' => $assessment,
+                    'status' => $application->status
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('========== SAVE ASSESSMENT END (ERROR) ==========');
+            Log::error('Error in saveAssessment: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error saving assessment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get assessment data for an application
+     */
+    public function getAssessment($id)
+    {
+        try {
+            $assessment = AssessmentFee::where('application_id', $id)->first();
+            
+            if (!$assessment) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null,
+                    'message' => 'No assessment found for this application'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $assessment
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error getting assessment: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving assessment'
             ], 500);
         }
     }

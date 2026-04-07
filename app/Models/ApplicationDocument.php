@@ -98,6 +98,14 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Get the assessment fee for this application
+     */
+    public function assessmentFee()
+    {
+        return $this->hasOne(AssessmentFee::class, 'application_id');
+    }
+
+    /**
      * Check if basic requirements are approved for this application
      */
     public function hasApprovedBasicRequirements()
@@ -211,6 +219,14 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Scope a query to only include for assessment applications
+     */
+    public function scopeForAssessment($query)
+    {
+        return $query->where('status', 'for-assessment');
+    }
+
+    /**
      * Scope a query to only include approved applications
      */
     public function scopeApproved($query)
@@ -235,6 +251,7 @@ class ApplicationDocument extends Model
             'pending', 
             'under-review', 
             'document-verification', 
+            'for-assessment',
             'approved', 
             'for-release', 
             'verified', 
@@ -251,6 +268,7 @@ class ApplicationDocument extends Model
             'pending', 
             'under-review', 
             'document-verification', 
+            'for-assessment',
             'approved', 
             'for-release', 
             'verified'
@@ -334,6 +352,14 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Check if application is for assessment
+     */
+    public function isForAssessment()
+    {
+        return $this->status === 'for-assessment';
+    }
+
+    /**
      * Check if application is approved
      */
     public function isApproved()
@@ -401,6 +427,7 @@ class ApplicationDocument extends Model
             'draft' => 'bg-gray-100 text-gray-800',
             'under-review' => 'bg-purple-100 text-purple-800',
             'document-verification' => 'bg-indigo-100 text-indigo-800',
+            'for-assessment' => 'bg-indigo-100 text-indigo-800',
             'approved' => 'bg-emerald-100 text-emerald-800',
             'for-release' => 'bg-blue-100 text-blue-800',
             default => 'bg-gray-100 text-gray-800'
@@ -419,6 +446,7 @@ class ApplicationDocument extends Model
             'draft' => 'Draft',
             'under-review' => 'Under Review',
             'document-verification' => 'Document Verification',
+            'for-assessment' => 'For Assessment',
             'approved' => 'Approved',
             'for-release' => 'For Release',
             default => ucfirst(str_replace('-', ' ', $this->status))
@@ -437,6 +465,7 @@ class ApplicationDocument extends Model
             'draft' => 'gray',
             'under-review' => 'purple',
             'document-verification' => 'indigo',
+            'for-assessment' => 'indigo',
             'approved' => 'emerald',
             'for-release' => 'blue',
             default => 'gray'
@@ -451,10 +480,11 @@ class ApplicationDocument extends Model
         return match($this->status) {
             'draft' => 0,
             'pending' => 20,
-            'under-review' => 40,
-            'document-verification' => 60,
+            'under-review' => 35,
+            'document-verification' => 50,
+            'for-assessment' => 65,
             'approved' => 80,
-            'for-release' => 90,
+            'for-release' => 95,
             'verified' => 100,
             'rejected' => 100,
             default => 0
@@ -508,6 +538,22 @@ class ApplicationDocument extends Model
         
         $this->update([
             'status' => 'draft'
+        ]);
+
+        return $oldStatus;
+    }
+
+    /**
+     * Mark as for assessment
+     */
+    public function markAsForAssessment($userId = null, $remarks = null)
+    {
+        $oldStatus = $this->status;
+        
+        $this->update([
+            'status' => 'for-assessment',
+            'last_updated_by' => $userId,
+            'admin_notes' => $remarks ? $this->admin_notes . "\n\n" . $remarks : $this->admin_notes
         ]);
 
         return $oldStatus;
@@ -654,7 +700,8 @@ class ApplicationDocument extends Model
         return match($this->status) {
             'pending' => ['under-review', 'rejected'],
             'under-review' => ['document-verification', 'rejected'],
-            'document-verification' => ['approved', 'rejected'],
+            'document-verification' => ['for-assessment', 'rejected'],
+            'for-assessment' => ['approved', 'rejected'],
             'approved' => ['for-release'],
             'for-release' => ['verified'],
             default => []
@@ -675,5 +722,36 @@ class ApplicationDocument extends Model
     public function getDocumentLinksAttribute($value)
     {
         return json_decode($value, true) ?? [];
+    }
+
+    /**
+     * Get total assessment fee if exists
+     */
+    public function getTotalAssessmentFee()
+    {
+        if ($this->assessmentFee && $this->assessmentFee->total_amount) {
+            return $this->assessmentFee->total_amount;
+        }
+        return null;
+    }
+
+    /**
+     * Check if assessment has been completed
+     */
+    public function hasAssessment()
+    {
+        return $this->assessmentFee !== null && $this->assessmentFee->total_amount !== null;
+    }
+
+    /**
+     * Get formatted assessment total
+     */
+    public function getFormattedAssessmentTotal()
+    {
+        $total = $this->getTotalAssessmentFee();
+        if ($total) {
+            return '₱' . number_format($total, 2);
+        }
+        return 'Not assessed yet';
     }
 }

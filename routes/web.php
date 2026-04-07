@@ -140,6 +140,13 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/{id}/review-activities', [App\Http\Controllers\Staff\ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
 
+    // ========== ASSESSMENT ROUTES (STAFF) ==========
+    Route::post('/applications/{id}/assessment', [App\Http\Controllers\Staff\ApplicationController::class, 'saveAssessment'])
+        ->name('applications.save-assessment');
+    
+    Route::get('/applications/{id}/assessment', [App\Http\Controllers\Staff\ApplicationController::class, 'getAssessment'])
+        ->name('applications.get-assessment');
+
     // Archive routes
     Route::post('/applications/{id}/archive', [App\Http\Controllers\Staff\ApplicationController::class, 'archive'])
         ->name('applications.archive');
