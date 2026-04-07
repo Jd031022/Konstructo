@@ -192,12 +192,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
-<<<<<<< HEAD
-    // ========== APPLICATION STEP ROUTES - USING CONTROLLER ==========
-    Route::get('/application/step1', [ApplicationController::class, 'step1'])->name('application.step1');
-    Route::get('/application/step2', [ApplicationController::class, 'step2'])->name('application.step2');
-    Route::get('/application/step3', [ApplicationController::class, 'step3'])->name('application.step3');
-=======
     // ========== ACTIVITY HISTORY ROUTE (APPLICANT) ==========
     Route::get('/applications/{id}/activity-history', function ($id) {
         return view('applicant.activity-history', ['applicationId' => $id]);
@@ -309,7 +303,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         return view('applicant.application.step3', compact('application'));
     })->name('application.step3');
->>>>>>> 77c06bd9e4af11b63e19d71660a38b4a5c8c9ad0
     
     // Application Document API Routes
     Route::post('/application/store-link', [ApplicationDocumentController::class, 'storeLink'])
