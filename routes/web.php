@@ -85,6 +85,11 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         return view('staff.application-details', ['applicationId' => $id]);
     })->name('application.details');
     
+    // ========== ACTIVITY HISTORY ROUTE (STAFF) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('staff.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
+    
     Route::get('/applications', function () {
         return view('staff.applications');
     })->name('applications');
@@ -183,6 +188,11 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/application-details/{id}', function ($id) {
         return view('applicant.application-details', ['applicationId' => $id]);
     })->name('application.details');
+    
+    // ========== ACTIVITY HISTORY ROUTE (APPLICANT) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('applicant.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
     
     // Step routes with per-application basic requirements check
     Route::get('/application/step1', function (Request $request) {
@@ -438,38 +448,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         ->name('application.store-links');
 });
 
-// Dashboard route with role-based redirect
-Route::get('/dashboard', function () {
-    /** @var \App\Models\User $user */
-    $user = auth()->user();
-    
-    if ($user) {
-        if ($user->isApplicant()) {
-            if (!$user->canLogin()) {
-                if ($user->isPending()) {
-                    return redirect()->route('applicant.account-status')
-                        ->with('warning', 'Your account is pending admin approval.');
-                } elseif ($user->isRejected()) {
-                    return redirect()->route('applicant.account-status')
-                        ->with('error', 'Your account has been rejected.');
-                } elseif (is_null($user->email_verified_at)) {
-                    return redirect()->route('login')
-                        ->with('error', 'Please verify your email address first.');
-                }
-            }
-        }
-        
-        return match($user->role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'staff' => redirect()->route('staff.dashboard'),
-            'applicant' => redirect()->route('applicant.dashboard'),
-            default => redirect()->route('login'),
-        };
-    }
-    
-    return redirect()->route('login');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
@@ -483,6 +461,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/applications', function () {
         return view('admin.applications');
     })->name('applications');
+    
+    // ========== ACTIVITY HISTORY ROUTE (ADMIN) ==========
+    Route::get('/applications/{id}/activity-history', function ($id) {
+        return view('admin.activity-history', ['applicationId' => $id]);
+    })->name('activity-history');
     
     Route::get('/archived-applications', function () {
         return view('admin.archived-applications');
@@ -555,6 +538,38 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
 });
+
+// Dashboard route with role-based redirect
+Route::get('/dashboard', function () {
+    /** @var \App\Models\User $user */
+    $user = auth()->user();
+    
+    if ($user) {
+        if ($user->isApplicant()) {
+            if (!$user->canLogin()) {
+                if ($user->isPending()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('warning', 'Your account is pending admin approval.');
+                } elseif ($user->isRejected()) {
+                    return redirect()->route('applicant.account-status')
+                        ->with('error', 'Your account has been rejected.');
+                } elseif (is_null($user->email_verified_at)) {
+                    return redirect()->route('login')
+                        ->with('error', 'Please verify your email address first.');
+                }
+            }
+        }
+        
+        return match($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'staff' => redirect()->route('staff.dashboard'),
+            'applicant' => redirect()->route('applicant.dashboard'),
+            default => redirect()->route('login'),
+        };
+    }
+    
+    return redirect()->route('login');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Profile routes
 Route::get('/profile/profile', function () {
@@ -666,4 +681,3 @@ Route::get('/test-fpdf', function() {
         return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
     }
 });
-
