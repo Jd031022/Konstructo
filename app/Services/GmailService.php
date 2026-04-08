@@ -188,6 +188,33 @@ class GmailService
     }
 
     /**
+     * Send user credentials email (username and password) to newly created users
+     * 
+     * @param string $to Recipient email address
+     * @param string $name Recipient's full name
+     * @param string $username User's username
+     * @param string $password Plain text password
+     * @param bool $isReset Whether this is a password reset email
+     * @return bool
+     */
+    public function sendCredentialsEmail($to, $name, $username, $password, $isReset = false)
+    {
+        $subject = $isReset 
+            ? 'Your Password Has Been Reset - Konstructo' 
+            : 'Welcome to Konstructo - Your Account Credentials';
+        
+        $htmlContent = $this->getCredentialsEmailContent($name, $username, $password, $isReset);
+        
+        Log::info('📧 Sending credentials email', [
+            'to' => $to,
+            'is_reset' => $isReset,
+            'username' => $username
+        ]);
+        
+        return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
      * Send application submitted email with application number
      */
     public function sendApplicationSubmittedEmail($to, $applicationNumber, $applicantName, $applicationId)
@@ -338,6 +365,114 @@ class GmailService
         ]);
         
         return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Get credentials email content
+     */
+    private function getCredentialsEmailContent($name, $username, $password, $isReset = false)
+    {
+        $greeting = $name ? "Dear " . $name . "," : "Dear Valued User,";
+        $loginUrl = env('APP_URL') . '/login';
+        
+        $introText = $isReset 
+            ? "Your password has been reset by an administrator. Please find your new login credentials below:"
+            : "Welcome to Konstructo! Your account has been created successfully. Please find your login credentials below:";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .header p { margin: 10px 0 0 0; opacity: 0.9; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+                    .credentials-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #dee2e6; }
+                    .credential-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 8px; margin-bottom: 10px; }
+                    .credential-item:last-child { margin-bottom: 0; }
+                    .credential-label { font-weight: 600; color: #155386; font-size: 14px; }
+                    .credential-value { font-family: 'Courier New', monospace; background-color: #f1f3f5; padding: 6px 12px; border-radius: 6px; font-size: 14px; letter-spacing: 0.5px; }
+                    .warning-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                    .warning-box p { margin: 0; color: #856404; font-size: 14px; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                    .security-tip { background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px; }
+                    .security-tip h4 { margin: 0 0 8px 0; color: #155386; }
+                    @media (max-width: 600px) {
+                        .credential-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Konstructo</h1>
+                        <p>Building Permits & Licensing System</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>{$introText}</p>
+                        
+                        <div class='credentials-box'>
+                            <div class='credential-item'>
+                                <span class='credential-label'>📧 Email:</span>
+                                <span class='credential-value'>{$to}</span>
+                            </div>
+                            <div class='credential-item'>
+                                <span class='credential-label'>👤 Username:</span>
+                                <span class='credential-value'>{$username}</span>
+                            </div>
+                            <div class='credential-item'>
+                                <span class='credential-label'>🔑 Password:</span>
+                                <span class='credential-value'>{$password}</span>
+                            </div>
+                        </div>
+                        
+                        <div class='warning-box'>
+                            <p><strong>⚠️ Important:</strong> For security reasons, please change your password immediately after your first login.</p>
+                        </div>
+                        
+                        <div class='security-tip'>
+                            <h4>🔒 Security Tips:</h4>
+                            <ul style='margin: 8px 0 0 0; padding-left: 20px;'>
+                                <li>Do not share your password with anyone</li>
+                                <li>Use a strong, unique password</li>
+                                <li>Enable two-factor authentication if available</li>
+                                <li>Always log out after using shared devices</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$loginUrl}' class='button'>Login to Your Account</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            If you did not request this account, please contact our support team immediately.
+                        </p>
+                        <p style='font-size: 12px; color: #6c757d; text-align: center;'>
+                            This is an automated message, please do not reply to this email.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 
     /**

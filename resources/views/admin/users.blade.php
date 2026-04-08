@@ -29,9 +29,8 @@
         </div>
     </div>
 
-    <!-- User Roles Summary Cards - Updated Design -->
+    <!-- User Roles Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8" id="stats-container">
-        <!-- Total Users Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-orange-500 group">
             <div class="flex items-center justify-between">
                 <div>
@@ -46,7 +45,6 @@
             </div>
         </div>
         
-        <!-- Admins Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-purple-500 group">
             <div class="flex items-center justify-between">
                 <div>
@@ -59,7 +57,6 @@
             </div>
         </div>
         
-        <!-- Staff Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-blue-500 group">
             <div class="flex items-center justify-between">
                 <div>
@@ -72,7 +69,6 @@
             </div>
         </div>
         
-        <!-- Applicants Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-gray-500 group">
             <div class="flex items-center justify-between">
                 <div>
@@ -85,7 +81,6 @@
             </div>
         </div>
         
-        <!-- Active Users Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-green-500 group">
             <div class="flex items-center justify-between">
                 <div>
@@ -102,10 +97,9 @@
         </div>
     </div>
 
-    <!-- Filters and Search - Updated Design -->
+    <!-- Filters and Search -->
     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4">
-            <!-- Search -->
             <div class="flex-1 relative">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -116,7 +110,6 @@
                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
             </div>
             
-            <!-- Role Filter -->
             <select id="role-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
@@ -124,19 +117,16 @@
                 <option value="applicant">Applicant</option>
             </select>
             
-            <!-- Status Filter -->
             <select id="status-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[150px]">
                 <option value="">All Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
             
-            <!-- Filter Button -->
             <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm">
                 Apply Filters
             </button>
             
-            <!-- Reset Button -->
             <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
                 Reset
             </button>
@@ -152,18 +142,17 @@
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Position</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Active</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="users-table-body" class="divide-y divide-gray-100">
-                    <!-- Users will be loaded here dynamically -->
                 </tbody>
             </table>
         </div>
 
-        <!-- Loading Indicator -->
         <div id="loading-indicator" class="text-center py-8 hidden">
             <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -172,7 +161,6 @@
             <p class="text-gray-500 mt-2">Loading users...</p>
         </div>
 
-        <!-- Empty State -->
         <div id="empty-state" class="text-center py-12 hidden">
             <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,11 +176,6 @@
                 Add New User
             </button>
         </div>
-
-        <!-- Pagination -->
-        <div id="pagination-container" class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-            <!-- Pagination will be loaded here -->
-        </div>
     </div>
 </div>
 
@@ -201,7 +184,6 @@
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-3xl">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Modal Header -->
                 <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
                     <h3 class="text-xl font-bold" id="modal-title">Add New User</h3>
                     <button onclick="closeUserModal()" class="text-white hover:text-gray-200 transition">
@@ -211,7 +193,6 @@
                     </button>
                 </div>
                 
-                <!-- Modal Body -->
                 <div class="p-6 max-h-[70vh] overflow-y-auto">
                     <div id="modal-error" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"></div>
                     <div id="modal-success" class="hidden mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm"></div>
@@ -220,28 +201,24 @@
                         <input type="hidden" id="user-id">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- First Name -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
                                 <input type="text" id="first_name" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Last Name -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
                                 <input type="text" id="last_name" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Middle Name -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
                                 <input type="text" id="middle_name"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Suffix -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
                                 <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
@@ -254,14 +231,12 @@
                                 </select>
                             </div>
                             
-                            <!-- Email -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
                                 <input type="email" id="email" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Username -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
                                 <input type="text" id="username" required
@@ -269,7 +244,6 @@
                                 <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
                             </div>
                             
-                            <!-- Password Row - Only shown for new users -->
                             <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
@@ -283,7 +257,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Phone -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
                                 <div class="flex">
@@ -294,21 +267,18 @@
                                 <p class="text-xs text-gray-500 mt-1">Enter 10 digits (9123456789) or 11 digits starting with 09 (09123456789)</p>
                             </div>
                             
-                            <!-- Zip Code -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code <span class="text-red-500">*</span></label>
                                 <input type="text" id="zip_code" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Address -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Address <span class="text-red-500">*</span></label>
                                 <input type="text" id="address" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
                             
-                            <!-- Role -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
                                 <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
@@ -318,9 +288,21 @@
                                     <option value="applicant">Applicant</option>
                                 </select>
                             </div>
+                            
+                            <div id="position-field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Position <span class="text-red-500">*</span></label>
+                                <select id="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">Select Position</option>
+                                    <option value="engineer">Engineer</option>
+                                    <option value="architect">Architect</option>
+                                    <option value="BFP">BFP</option>
+                                    <option value="cpdo">CPDO</option>
+                                    <option value="administrative_aide">Administrative Aide</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
+                            </div>
                         </div>
                         
-                        <!-- Modal Footer -->
                         <div class="mt-8 flex justify-end gap-3">
                             <button type="button" onclick="closeUserModal()" 
                                 class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
@@ -358,9 +340,7 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <div id="reset-password-content">
-                        <!-- Dynamic content will be inserted here -->
-                    </div>
+                    <div id="reset-password-content"></div>
                 </div>
             </div>
         </div>
@@ -383,12 +363,8 @@
                 <div class="p-6">
                     <p id="toggle-modal-message" class="text-gray-700 mb-6"></p>
                     <div class="flex justify-end gap-3">
-                        <button onclick="closeToggleModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Cancel
-                        </button>
-                        <button onclick="confirmToggleStatus()" id="confirm-toggle-btn"
-                            class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2 text-sm">
+                        <button onclick="closeToggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                        <button onclick="confirmToggleStatus()" id="confirm-toggle-btn" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition flex items-center gap-2 text-sm">
                             <span id="toggle-btn-text">Confirm</span>
                             <span id="toggle-btn-spinner" class="hidden">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -414,14 +390,9 @@
                 </div>
                 <div class="p-6">
                     <p class="text-gray-700 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
-                    
                     <div class="flex justify-end gap-3">
-                        <button onclick="closeDeleteModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Cancel
-                        </button>
-                        <button onclick="confirmDelete()" id="delete-btn"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                        <button onclick="confirmDelete()" id="delete-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
                             <span id="delete-btn-text">Delete</span>
                             <span id="delete-btn-spinner" class="hidden">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -477,7 +448,6 @@
     </div>
 </div>
 
-<!-- JavaScript for User Management -->
 <script>
 let currentUserId = null;
 let users = [];
@@ -487,11 +457,23 @@ let toggleUserId = null;
 let toggleAction = null;
 let deleteUserId = null;
 
-// Load users on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadUsers();
     
-    // Setup modal close on outside click
+    const roleSelect = document.getElementById('role');
+    roleSelect.addEventListener('change', function() {
+        const positionField = document.getElementById('position-field');
+        const positionSelect = document.getElementById('position');
+        if (this.value === 'staff') {
+            positionField.classList.remove('hidden');
+            positionSelect.required = true;
+        } else {
+            positionField.classList.add('hidden');
+            positionSelect.required = false;
+            positionSelect.value = '';
+        }
+    });
+    
     const modals = ['user-modal', 'reset-password-modal', 'toggle-status-modal', 'delete-modal', 'success-modal', 'error-modal'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
@@ -509,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             if (!document.getElementById('user-modal').classList.contains('hidden')) closeUserModal();
@@ -521,19 +502,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Setup search with debounce
     let searchTimeout;
     document.getElementById('search-input').addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(applyFilters, 300);
     });
 
-    // Setup filter changes
     document.getElementById('role-filter').addEventListener('change', applyFilters);
     document.getElementById('status-filter').addEventListener('change', applyFilters);
 });
 
-// Load users from API
 async function loadUsers() {
     showLoading();
     
@@ -548,17 +526,15 @@ async function loadUsers() {
         const data = await response.json();
         console.log('API Response:', data);
         
-        if (response.ok) {
+        if (response.ok && data.users) {
             users = data.users;
-            
-            // Calculate stats from users data if stats not provided separately
             const stats = data.stats || calculateStats(users);
             updateStats(stats);
-            
             filteredUsers = [...users];
             renderUsers();
         } else {
-            showErrorModal('Failed to load users');
+            console.error('Failed to load users:', data);
+            showErrorModal(data.error || 'Failed to load users');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -568,22 +544,17 @@ async function loadUsers() {
     }
 }
 
-// Calculate stats from users array
 function calculateStats(users) {
-    const stats = {
+    return {
         total: users.length,
         admins: users.filter(u => u.role === 'admin').length,
         staff: users.filter(u => u.role === 'staff').length,
         applicants: users.filter(u => u.role === 'applicant').length,
         active: users.filter(u => u.status === 'active').length
     };
-    return stats;
 }
 
-// Update stats cards
 function updateStats(stats) {
-    console.log('Stats received:', stats);
-    
     document.getElementById('total-users').textContent = stats.total || 0;
     document.getElementById('total-admins').textContent = stats.admins || 0;
     document.getElementById('total-staff').textContent = stats.staff || 0;
@@ -591,32 +562,24 @@ function updateStats(stats) {
     document.getElementById('total-active').textContent = stats.active || 0;
 }
 
-// Apply filters
 function applyFilters() {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
     const roleFilter = document.getElementById('role-filter').value;
     const statusFilter = document.getElementById('status-filter').value;
     
     filteredUsers = users.filter(user => {
-        // Search filter
         const matchesSearch = searchTerm === '' || 
             user.name.toLowerCase().includes(searchTerm) ||
             user.email.toLowerCase().includes(searchTerm) ||
             user.role.toLowerCase().includes(searchTerm);
-        
-        // Role filter
         const matchesRole = roleFilter === '' || user.role === roleFilter;
-        
-        // Status filter
         const matchesStatus = statusFilter === '' || user.status === statusFilter;
-        
         return matchesSearch && matchesRole && matchesStatus;
     });
     
     renderUsers();
 }
 
-// Reset filters
 function resetFilters() {
     document.getElementById('search-input').value = '';
     document.getElementById('role-filter').value = '';
@@ -625,51 +588,50 @@ function resetFilters() {
     renderUsers();
 }
 
-// Get role badge color
 function getRoleColor(role) {
-    const colors = {
-        'admin': 'purple',
-        'staff': 'blue',
-        'applicant': 'gray'
-    };
+    const colors = { 'admin': 'purple', 'staff': 'blue', 'applicant': 'gray' };
     return colors[role] || 'gray';
 }
 
-// Get status badge color
 function getStatusColor(status) {
     return status === 'active' ? 'green' : 'red';
 }
 
-// Get avatar URL for a user
-function getUserAvatarUrl(user) {
-    if (user.avatar) {
-        // If user has a custom avatar
-        return `{{ Storage::url('') }}${user.avatar}?v=${new Date().getTime()}`;
-    } else {
-        // Fallback to UI Avatars
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=40&background=155386&color=fff&bold=true`;
-    }
+function getPositionDisplay(position) {
+    if (!position) return '—';
+    const positionMap = {
+        'engineer': 'Engineer',
+        'architect': 'Architect',
+        'BFP': 'BFP',
+        'cpdo': 'CPDO',
+        'administrative_aide': 'Admin Aide'
+    };
+    return positionMap[position] || position;
 }
 
-// Render users table
+function getUserAvatarUrl(user) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=40&background=155386&color=fff&bold=true`;
+}
+
 function renderUsers() {
     const tbody = document.getElementById('users-table-body');
     const emptyState = document.getElementById('empty-state');
     const table = document.querySelector('table');
     
-    if (filteredUsers.length === 0) {
-        table.classList.add('hidden');
-        emptyState.classList.remove('hidden');
+    if (!filteredUsers || filteredUsers.length === 0) {
+        if (table) table.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
         return;
     }
     
-    table.classList.remove('hidden');
-    emptyState.classList.add('hidden');
+    if (table) table.classList.remove('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
     
     tbody.innerHTML = filteredUsers.map(user => {
         const roleColor = getRoleColor(user.role);
         const statusColor = getStatusColor(user.status);
         const avatarUrl = getUserAvatarUrl(user);
+        const positionDisplay = getPositionDisplay(user.position);
         
         return `
         <tr class="hover:bg-gray-50 transition">
@@ -692,6 +654,9 @@ function renderUsers() {
                 <span class="px-3 py-1 bg-${roleColor}-100 text-${roleColor}-600 rounded-full text-xs font-medium capitalize">
                     ${user.role}
                 </span>
+            </td>
+            <td class="py-4 px-6">
+                ${user.role === 'staff' ? `<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">${positionDisplay}</span>` : '<span class="text-gray-400 text-xs">—</span>'}
             </td>
             <td class="py-4 px-6">
                 <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-600 rounded-full text-xs font-medium">
@@ -730,18 +695,18 @@ function renderUsers() {
     `}).join('');
 }
 
-// Show/hide loading
 function showLoading() {
     document.getElementById('loading-indicator').classList.remove('hidden');
-    document.querySelector('table').classList.add('hidden');
-    document.getElementById('empty-state').classList.add('hidden');
+    const table = document.querySelector('table');
+    const emptyState = document.getElementById('empty-state');
+    if (table) table.classList.add('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
 }
 
 function hideLoading() {
     document.getElementById('loading-indicator').classList.add('hidden');
 }
 
-// Modal functions
 function openUserModal() {
     document.getElementById('modal-title').textContent = 'Add New User';
     document.getElementById('user-form').reset();
@@ -749,6 +714,8 @@ function openUserModal() {
     document.getElementById('password-fields').classList.remove('hidden');
     document.getElementById('password').required = true;
     document.getElementById('password_confirmation').required = true;
+    document.getElementById('position-field').classList.add('hidden');
+    document.getElementById('position').required = false;
     document.getElementById('user-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     clearModalMessages();
@@ -761,30 +728,40 @@ function closeUserModal() {
 }
 
 function clearModalMessages() {
-    document.getElementById('modal-error').classList.add('hidden');
-    document.getElementById('modal-error').textContent = '';
-    document.getElementById('modal-success').classList.add('hidden');
-    document.getElementById('modal-success').textContent = '';
+    const errorDiv = document.getElementById('modal-error');
+    const successDiv = document.getElementById('modal-success');
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('hidden');
+        successDiv.textContent = '';
+    }
 }
 
 function showModalError(message) {
     const errorDiv = document.getElementById('modal-error');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('hidden');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
 }
 
 function showModalSuccess(message) {
     const successDiv = document.getElementById('modal-success');
-    successDiv.textContent = message;
-    successDiv.classList.remove('hidden');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.classList.remove('hidden');
+    }
 }
 
-// Save user (create or update)
 async function saveUser(event) {
     event.preventDefault();
     
     const userId = document.getElementById('user-id').value;
     const isEditing = !!userId;
+    const role = document.getElementById('role').value;
     
     // Basic validation
     const required = ['first_name', 'last_name', 'email', 'username', 'phone_number', 'zip_code', 'address', 'role'];
@@ -793,6 +770,16 @@ async function saveUser(event) {
         if (!input.value) {
             showModalError(`${field.replace('_', ' ')} is required`);
             input.focus();
+            return;
+        }
+    }
+    
+    // Position validation for staff
+    if (role === 'staff') {
+        const position = document.getElementById('position').value;
+        if (!position) {
+            showModalError('Position is required for staff users');
+            document.getElementById('position').focus();
             return;
         }
     }
@@ -841,21 +828,26 @@ async function saveUser(event) {
     }
     
     // Show loading on button
-    document.getElementById('save-btn-text').classList.add('hidden');
-    document.getElementById('save-btn-spinner').classList.remove('hidden');
-    document.getElementById('save-btn').disabled = true;
+    const saveBtnText = document.getElementById('save-btn-text');
+    const saveBtnSpinner = document.getElementById('save-btn-spinner');
+    const saveBtn = document.getElementById('save-btn');
+    
+    saveBtnText.classList.add('hidden');
+    saveBtnSpinner.classList.remove('hidden');
+    saveBtn.disabled = true;
     
     const formData = {
         first_name: document.getElementById('first_name').value,
         last_name: document.getElementById('last_name').value,
-        middle_name: document.getElementById('middle_name').value,
-        suffix: document.getElementById('suffix').value,
+        middle_name: document.getElementById('middle_name').value || null,
+        suffix: document.getElementById('suffix').value || null,
         email: document.getElementById('email').value,
         username: document.getElementById('username').value,
-        role: document.getElementById('role').value,
+        role: role,
         phone_number: document.getElementById('phone_number').value,
         zip_code: document.getElementById('zip_code').value,
         address: document.getElementById('address').value,
+        position: role === 'staff' ? document.getElementById('position').value : null
     };
     
     if (!isEditing) {
@@ -865,8 +857,11 @@ async function saveUser(event) {
     
     try {
         const url = isEditing 
-            ? `{{ url('admin/users') }}/${userId}`
+            ? `/admin/users/${userId}`
             : '{{ route("admin.users.store") }}';
+        
+        console.log('Sending request to:', url);
+        console.log('Form data:', formData);
         
         const response = await fetch(url, {
             method: isEditing ? 'PUT' : 'POST',
@@ -879,35 +874,35 @@ async function saveUser(event) {
         });
         
         const data = await response.json();
+        console.log('Response:', data);
         
         if (response.ok) {
-            showModalSuccess(data.message);
+            showModalSuccess(data.message || 'User saved successfully');
             setTimeout(() => {
                 closeUserModal();
-                loadUsers();
+                loadUsers(); // Reload the users list from database
             }, 1500);
         } else {
             if (data.errors) {
                 const errorMessages = Object.values(data.errors).flat().join(', ');
                 showModalError(errorMessages);
             } else {
-                showModalError(data.message || 'Failed to save user');
+                showModalError(data.message || data.error || 'Failed to save user');
             }
         }
     } catch (error) {
         console.error('Error:', error);
-        showModalError('An error occurred. Please try again.');
+        showModalError('An error occurred: ' + error.message);
     } finally {
-        document.getElementById('save-btn-text').classList.remove('hidden');
-        document.getElementById('save-btn-spinner').classList.add('hidden');
-        document.getElementById('save-btn').disabled = false;
+        saveBtnText.classList.remove('hidden');
+        saveBtnSpinner.classList.add('hidden');
+        saveBtn.disabled = false;
     }
 }
 
-// Edit user
 async function editUser(userId) {
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${userId}`, {
+        const response = await fetch(`/admin/users/${userId}`, {
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
@@ -930,7 +925,15 @@ async function editUser(userId) {
             document.getElementById('zip_code').value = user.zip_code;
             document.getElementById('address').value = user.address;
             
-            // Hide password fields for editing
+            if (user.role === 'staff') {
+                document.getElementById('position-field').classList.remove('hidden');
+                document.getElementById('position').required = true;
+                document.getElementById('position').value = user.position || '';
+            } else {
+                document.getElementById('position-field').classList.add('hidden');
+                document.getElementById('position').required = false;
+            }
+            
             document.getElementById('password-fields').classList.add('hidden');
             document.getElementById('password').required = false;
             document.getElementById('password_confirmation').required = false;
@@ -939,7 +942,7 @@ async function editUser(userId) {
             document.body.style.overflow = 'hidden';
             clearModalMessages();
         } else {
-            showErrorModal('Failed to load user data');
+            showErrorModal(user.error || 'Failed to load user data');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -947,7 +950,6 @@ async function editUser(userId) {
     }
 }
 
-// Reset password
 function resetPassword(userId, userName) {
     resetUserId = userId;
     
@@ -988,7 +990,7 @@ async function confirmResetPassword() {
     btn.disabled = true;
     
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${resetUserId}/reset-password`, {
+        const response = await fetch(`/admin/users/${resetUserId}/reset-password`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1030,7 +1032,6 @@ function closeResetPasswordModal() {
     resetUserId = null;
 }
 
-// Toggle user status
 function toggleUserStatus(userId, userName, currentStatus) {
     toggleUserId = userId;
     toggleAction = currentStatus === 'active' ? 'deactivate' : 'activate';
@@ -1061,7 +1062,7 @@ async function confirmToggleStatus() {
     btn.disabled = true;
     
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${toggleUserId}/toggle-status`, {
+        const response = await fetch(`/admin/users/${toggleUserId}/toggle-status`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1086,7 +1087,6 @@ async function confirmToggleStatus() {
     }
 }
 
-// Delete user
 function confirmDeleteUser(userId, userName) {
     deleteUserId = userId;
     document.getElementById('delete-modal').classList.remove('hidden');
@@ -1111,7 +1111,7 @@ async function confirmDelete() {
     btn.disabled = true;
     
     try {
-        const response = await fetch(`{{ url('admin/users') }}/${deleteUserId}`, {
+        const response = await fetch(`/admin/users/${deleteUserId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1138,9 +1138,9 @@ async function confirmDelete() {
     }
 }
 
-// Success and Error modal functions
 function showSuccessModal(message) {
-    document.getElementById('success-modal-message').textContent = message;
+    const successMsg = document.getElementById('success-modal-message');
+    if (successMsg) successMsg.textContent = message;
     document.getElementById('success-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     
@@ -1155,7 +1155,8 @@ function closeSuccessModal() {
 }
 
 function showErrorModal(message) {
-    document.getElementById('error-modal-message').textContent = message;
+    const errorMsg = document.getElementById('error-modal-message');
+    if (errorMsg) errorMsg.textContent = message;
     document.getElementById('error-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -1167,7 +1168,6 @@ function closeErrorModal() {
 </script>
 
 <style>
-    /* Modal animations */
     #user-modal, #reset-password-modal, #toggle-status-modal, #delete-modal, #success-modal, #error-modal {
         transition: opacity 0.2s ease-in-out;
     }
@@ -1197,12 +1197,10 @@ function closeErrorModal() {
         to { transform: rotate(360deg); }
     }
     
-    /* Card hover effects */
     .group:hover .group-hover\:scale-110 {
         transform: scale(1.1);
     }
     
-    /* Custom scrollbar for modal */
     .overflow-y-auto::-webkit-scrollbar {
         width: 8px;
     }
@@ -1221,16 +1219,8 @@ function closeErrorModal() {
         background: #555;
     }
 
-    /* Select all for password */
     .select-all {
         user-select: all;
-    }
-
-    /* Avatar image styles */
-    .w-10.h-10.rounded-full img {
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
     }
 </style>
 @endsection

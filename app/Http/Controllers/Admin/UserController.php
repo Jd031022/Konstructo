@@ -5,18 +5,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserProfile;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Services\GmailService;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(10);
+        $users = User::with('profile')->orderBy('created_at', 'desc')->paginate(10);
         
         $stats = [
             'total' => User::count(),
@@ -88,6 +90,7 @@ class UserController extends Controller
             'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'],
             'address' => 'required|string',
             'zip_code' => 'required|string|max:10',
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide'
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +114,9 @@ class UserController extends Controller
         $approvalStatus = ($request->role === 'applicant') ? 'pending' : 'approved';
         $emailVerifiedAt = ($request->role !== 'applicant') ? now() : null;
 
+        // Store the plain password for email before hashing
+        $plainPassword = $request->password;
+
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -118,7 +124,7 @@ class UserController extends Controller
             'suffix' => $request->suffix,
             'email' => $request->email,
             'username' => $request->username,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($plainPassword),
             'role' => $request->role,
             'phone_number' => $phoneNumber,
             'address' => $request->address,
@@ -126,6 +132,37 @@ class UserController extends Controller
             'email_verified_at' => $emailVerifiedAt,
             'approval_status' => $approvalStatus,
         ]);
+
+        // Create profile for staff with position
+        if ($request->role === 'staff' && $request->filled('position')) {
+            UserProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                ['position' => $request->position]
+            );
+        }
+
+        // Send email with credentials using GmailService
+        $emailSent = false;
+        try {
+            $gmailService = new GmailService();
+            $fullName = trim($request->first_name . ' ' . $request->last_name);
+            $emailSent = $gmailService->sendCredentialsEmail(
+                $user->email,
+                $fullName,
+                $user->username,
+                $plainPassword,
+                false // not a reset
+            );
+            
+            if ($emailSent) {
+                Log::info('Credentials email sent successfully to: ' . $user->email);
+            } else {
+                Log::warning('Failed to send credentials email to: ' . $user->email);
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception sending credentials email: ' . $e->getMessage());
+            $emailSent = false;
+        }
 
         // Log the creation
         ActivityLog::create([
@@ -135,16 +172,29 @@ class UserController extends Controller
             'metadata' => json_encode([
                 'user_id' => $user->id, 
                 'role' => $user->role,
-                'approval_status' => $user->approval_status
+                'approval_status' => $user->approval_status,
+                'position' => $request->position,
+                'email_sent' => $emailSent
             ]),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status' => 'success'
         ]);
 
+        // Load profile for response
+        $user->load('profile');
+
+        $message = 'User created successfully';
+        if ($emailSent) {
+            $message .= ' Credentials have been sent to the user\'s email.';
+        } else {
+            $message .= ' However, failed to send email credentials. Please inform the user manually.';
+        }
+
         return response()->json([
-            'message' => 'User created successfully',
-            'user' => $user
+            'message' => $message,
+            'user' => $user,
+            'email_sent' => $emailSent
         ], 201);
     }
 
@@ -161,6 +211,7 @@ class UserController extends Controller
             'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'],
             'address' => 'required|string',
             'zip_code' => 'required|string|max:10',
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide'
         ]);
 
         if ($validator->fails()) {
@@ -213,6 +264,21 @@ class UserController extends Controller
 
         $user->update($updateData);
 
+        // Handle position for staff
+        if ($newRole === 'staff') {
+            if ($request->filled('position')) {
+                UserProfile::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['position' => $request->position]
+                );
+            }
+        } else {
+            // If user is no longer staff, remove position data
+            if ($user->profile) {
+                $user->profile->delete();
+            }
+        }
+
         // Log the update
         ActivityLog::create([
             'user_id' => auth()->id(),
@@ -222,12 +288,16 @@ class UserController extends Controller
                 'user_id' => $user->id, 
                 'changes' => array_keys($request->all()),
                 'old_role' => $oldRole,
-                'new_role' => $newRole
+                'new_role' => $newRole,
+                'position' => $request->position
             ]),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status' => 'success'
         ]);
+
+        // Load profile for response
+        $user->load('profile');
 
         return response()->json([
             'message' => 'User updated successfully',
@@ -245,6 +315,12 @@ class UserController extends Controller
         }
         
         $userName = $user->first_name . ' ' . $user->last_name;
+        
+        // Delete associated profile first (cascade should handle this, but explicit for safety)
+        if ($user->profile) {
+            $user->profile->delete();
+        }
+        
         $user->delete();
         
         // Log the deletion
@@ -303,26 +379,119 @@ class UserController extends Controller
         $user->password = Hash::make($newPassword);
         $user->save();
         
+        // Send email with new password using GmailService
+        $emailSent = false;
+        try {
+            $gmailService = new GmailService();
+            $fullName = trim($user->first_name . ' ' . $user->last_name);
+            $emailSent = $gmailService->sendCredentialsEmail(
+                $user->email,
+                $fullName,
+                $user->username,
+                $newPassword,
+                true // is reset
+            );
+            
+            if ($emailSent) {
+                Log::info('Password reset email sent successfully to: ' . $user->email);
+            } else {
+                Log::warning('Failed to send password reset email to: ' . $user->email);
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception sending password reset email: ' . $e->getMessage());
+            $emailSent = false;
+        }
+        
         // Log the password reset
         ActivityLog::create([
             'user_id' => auth()->id(),
             'action' => 'reset_password',
             'description' => "Reset password for user: {$user->first_name} {$user->last_name}",
-            'metadata' => json_encode(['user_id' => $user->id]),
+            'metadata' => json_encode([
+                'user_id' => $user->id,
+                'email_sent' => $emailSent
+            ]),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'status' => 'success'
         ]);
         
+        $message = 'Password reset successfully';
+        if ($emailSent) {
+            $message .= ' The new password has been sent to the user\'s email.';
+        } else {
+            $message .= ' However, failed to send email. Please provide the password manually: ' . $newPassword;
+        }
+        
         return response()->json([
-            'message' => 'Password reset successfully',
-            'new_password' => $newPassword
+            'message' => $message,
+            'new_password' => $emailSent ? null : $newPassword,
+            'email_sent' => $emailSent
         ]);
     }
 
     /**
+     * Resend credentials to user
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resendCredentials($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            
+            // Generate a temporary password
+            $tempPassword = Str::random(10);
+            $user->password = Hash::make($tempPassword);
+            $user->save();
+            
+            // Send email with credentials using GmailService
+            $gmailService = new GmailService();
+            $fullName = trim($user->first_name . ' ' . $user->last_name);
+            $emailSent = $gmailService->sendCredentialsEmail(
+                $user->email,
+                $fullName,
+                $user->username,
+                $tempPassword,
+                true // is reset
+            );
+            
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'resend_credentials',
+                'description' => "Resent credentials to user: {$user->first_name} {$user->last_name}",
+                'metadata' => json_encode([
+                    'user_id' => $user->id,
+                    'email_sent' => $emailSent
+                ]),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'status' => 'success'
+            ]);
+            
+            if ($emailSent) {
+                return response()->json([
+                    'message' => 'Credentials have been resent to the user\'s email.'
+                ]);
+            } else {
+                return response()->json([
+                    'warning' => 'Failed to send email. Please provide the password manually: ' . $tempPassword,
+                    'new_password' => $tempPassword
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error in resendCredentials: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to resend credentials: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get all users with their latest activity from activity_logs table
-     * FIXED: Added username field to the select query
+     * Includes position from user_profiles for staff users
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -330,22 +499,23 @@ class UserController extends Controller
     public function getUsers(Request $request)
     {
         try {
-            // FIXED: Added 'username' to the select query
-            $query = User::select(
-                'id', 
-                'first_name', 
-                'last_name', 
-                'middle_name', 
-                'suffix', 
-                'email', 
-                'username',  // <-- THIS WAS MISSING
-                'role', 
-                'email_verified_at', 
-                'created_at', 
-                'approval_status', 
-                'rejection_reason', 
-                'approved_at'
-            )->orderBy('created_at', 'desc');
+            $query = User::with('profile')  // Eager load profile relationship
+                ->select(
+                    'id', 
+                    'first_name', 
+                    'last_name', 
+                    'middle_name', 
+                    'suffix', 
+                    'email', 
+                    'username',
+                    'role', 
+                    'email_verified_at', 
+                    'created_at', 
+                    'approval_status', 
+                    'rejection_reason', 
+                    'approved_at'
+                )
+                ->orderBy('created_at', 'desc');
             
             // Apply filters
             if ($request->has('role') && $request->role !== 'all') {
@@ -379,6 +549,12 @@ class UserController extends Controller
                 $initials = $firstInitial . $lastInitial;
                 if (empty(trim($initials))) {
                     $initials = 'U';
+                }
+                
+                // Get position from profile (for staff users)
+                $position = null;
+                if ($user->role === 'staff' && $user->profile) {
+                    $position = $user->profile->position;
                 }
                 
                 // Get the latest activity for this user from activity_logs table
@@ -417,17 +593,17 @@ class UserController extends Controller
                     };
                 }
                 
-                // FIXED: Return username field
                 return [
                     'id' => $user->id,
                     'name' => $fullName,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'username' => $user->username,  // <-- THIS WAS MISSING
+                    'username' => $user->username,
                     'initials' => $initials,
                     'email' => $user->email,
                     'role' => $user->role,
                     'role_badge' => $roleBadge,
+                    'position' => $position,
                     'status' => $status,
                     'status_badge' => $statusBadge,
                     'last_active' => $lastActive,
@@ -467,6 +643,7 @@ class UserController extends Controller
 
     /**
      * Get a single user by ID
+     * Includes position from profile for staff users
      * 
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
@@ -474,13 +651,19 @@ class UserController extends Controller
     public function getUser($id)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::with('profile')->findOrFail($id);
             
             // Format phone number for display (remove 09 prefix if needed)
             $phoneNumber = $user->phone_number;
             // If it starts with 09 and is 11 digits, remove the 09 for display
             if (substr($phoneNumber, 0, 2) === '09' && strlen($phoneNumber) === 11) {
                 $phoneNumber = substr($phoneNumber, 2);
+            }
+            
+            // Get position from profile
+            $position = null;
+            if ($user->profile) {
+                $position = $user->profile->position;
             }
             
             return response()->json([
@@ -492,6 +675,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'username' => $user->username,
                 'role' => $user->role,
+                'position' => $position,
                 'phone_number' => $phoneNumber,
                 'address' => $user->address,
                 'zip_code' => $user->zip_code,
@@ -551,7 +735,7 @@ class UserController extends Controller
             
             // Send email notification to user
             try {
-                $gmailService = new \App\Services\GmailService();
+                $gmailService = new GmailService();
                 $gmailService->sendAccountApprovalEmail($user->email, $user->first_name);
             } catch (\Exception $e) {
                 Log::error('Failed to send approval email: ' . $e->getMessage());
@@ -620,7 +804,7 @@ class UserController extends Controller
             
             // Send email notification to user
             try {
-                $gmailService = new \App\Services\GmailService();
+                $gmailService = new GmailService();
                 $gmailService->sendAccountRejectionEmail($user->email, $user->first_name, $reason);
             } catch (\Exception $e) {
                 Log::error('Failed to send rejection email: ' . $e->getMessage());

@@ -3,118 +3,6 @@
 @section('title', 'Staff Dashboard')
 
 @section('content')
-<!-- POSITION MODAL - Overlay on top of dashboard -->
-<div id="positionModal" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none; background-color: transparent; pointer-events: none;">
-    <!-- Modal Content - Only this is clickable, the rest of the overlay allows clicking through to dashboard -->
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 z-50" id="modalContent" style="pointer-events: auto; position: relative;">
-        <div class="p-6">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#155386] bg-opacity-10 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-800">What is your position?</h2>
-                </div>
-                <button onclick="hidePositionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Modal Body -->
-            <div class="mb-6">
-                <p class="text-sm text-gray-600 mb-4">Please select your position to continue. You can close this and set it later.</p>
-                
-                <!-- Position Selection Form -->
-                <form id="positionForm">
-                    @csrf
-                    <div class="space-y-3">
-                        <!-- Engineer -->
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
-                            <input type="radio" name="position" value="engineer" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
-                            <div class="ml-3 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Engineer</span>
-                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Technical</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">Civil, Electrical, Mechanical Engineering</p>
-                            </div>
-                        </label>
-                        
-                        <!-- Architect -->
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
-                            <input type="radio" name="position" value="architect" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
-                            <div class="ml-3 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Architect</span>
-                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Design</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">Building Design and Planning</p>
-                            </div>
-                        </label>
-                        
-                        <!-- BFP -->
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
-                            <input type="radio" name="position" value="BFP" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
-                            <div class="ml-3 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">BFP</span>
-                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Fire Safety</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">Bureau of Fire Protection</p>
-                            </div>
-                        </label>
-                        
-                        <!-- CPDO (City Planning and Development Office) -->
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
-                            <input type="radio" name="position" value="cpdo" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
-                            <div class="ml-3 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">CPDO</span>
-                                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">Planning</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">City Planning and Development Office</p>
-                            </div>
-                        </label>
-                        
-                        <!-- Administrative Aide -->
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#155386] hover:bg-blue-50 transition-all group">
-                            <input type="radio" name="position" value="administrative_aide" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" required>
-                            <div class="ml-3 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-800 group-hover:text-[#155386]">Administrative Aide</span>
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Support</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">Administrative and Support Services</p>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Error Message -->
-                    <div id="positionError" class="mt-4 text-sm text-red-600 hidden"></div>
-                    
-                    <!-- Submit Button -->
-                    <button type="submit" id="submitPositionBtn" class="w-full mt-6 bg-[#155386] text-white py-3 px-4 rounded-xl font-medium hover:bg-[#0f3b5a] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span>Save Position</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Modal Footer -->
-            <div class="text-center text-xs text-gray-400">
-                <p>You can close this and set your position later</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Original Dashboard Content -->
 <div class="p-4 md:p-6 bg-gray-50 min-h-screen max-w-7xl mx-auto" id="dashboardContent">
     <!-- PAGE HEADER -->
@@ -278,41 +166,36 @@
         </div>
 
         <!-- UPCOMING DEADLINES -->
-<div class="bg-white rounded-xl shadow-sm p-6">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h3 class="text-lg font-semibold text-gray-700">Upcoming Deadlines</h3>
-            <p class="text-xs text-gray-500 mt-1">Applications needing attention</p>
-        </div>
-        <div class="flex items-center gap-3">
-                        <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium" id="deadline-count">0 due soon</span>
-            <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">
-                View all
-            </a>
-        </div>
-    </div>
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">Upcoming Deadlines</h3>
+                    <p class="text-xs text-gray-500 mt-1">Applications needing attention</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium" id="deadline-count">0 due soon</span>
+                    <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">
+                        View all
+                    </a>
+                </div>
+            </div>
 
-    <div id="deadline-list" class="space-y-4">
-        <!-- Deadlines will be loaded dynamically -->
-        <div class="flex items-center justify-center p-4">
-            <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <div id="deadline-list" class="space-y-4">
+                <!-- Deadlines will be loaded dynamically -->
+                <div class="flex items-center justify-center p-4">
+                    <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, checking position...');
-        
-        // Check if user needs to set position
-        setTimeout(() => {
-            checkPositionNeeded();
-        }, 500);
+        console.log('DOM loaded, loading dashboard data...');
         
         // Load dashboard data
         loadDashboardData();
@@ -321,167 +204,7 @@
         document.getElementById('trend-period')?.addEventListener('change', function() {
             loadDashboardData(this.value);
         });
-        
-        // Setup position form submission
-        setupPositionForm();
-        
-        // Close modal when clicking outside
-        document.getElementById('positionModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hidePositionModal();
-            }
-        });
     });
-
-    // POSITION MODAL FUNCTIONS (keep existing)
-    async function checkPositionNeeded() {
-        try {
-            console.log('Checking if position needed...');
-            const response = await fetch('/staff/position/check');
-            const data = await response.json();
-            console.log('Position check response:', data);
-            
-            if (data.needs_position) {
-                console.log('Position needed, showing modal');
-                showPositionModal();
-            } else {
-                console.log('Position already set');
-            }
-        } catch (error) {
-            console.error('Error checking position:', error);
-        }
-    }
-
-    function showPositionModal() {
-        const modal = document.getElementById('positionModal');
-        const modalContent = document.getElementById('modalContent');
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95');
-            modalContent.classList.add('scale-100');
-        }, 50);
-    }
-
-    function hidePositionModal() {
-        const modal = document.getElementById('positionModal');
-        const modalContent = document.getElementById('modalContent');
-        modalContent.classList.remove('scale-100');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-    }
-
-    function setupPositionForm() {
-        const form = document.getElementById('positionForm');
-        const errorDiv = document.getElementById('positionError');
-        const submitBtn = document.getElementById('submitPositionBtn');
-        
-        if (!form) {
-            console.error('Position form not found');
-            return;
-        }
-        
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const selectedPosition = document.querySelector('input[name="position"]:checked')?.value;
-            
-            if (!selectedPosition) {
-                errorDiv.textContent = 'Please select a position';
-                errorDiv.classList.remove('hidden');
-                form.classList.add('animate-shake');
-                setTimeout(() => form.classList.remove('animate-shake'), 500);
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Saving...</span>
-            `;
-            
-            errorDiv.classList.add('hidden');
-            
-            try {
-                const csrfToken = document.querySelector('input[name="_token"]')?.value;
-                if (!csrfToken) throw new Error('CSRF token not found');
-                
-                const response = await fetch('/staff/position/update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ position: selectedPosition })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.errors?.position?.[0] || data.error || 'Failed to save position');
-                }
-                
-                showToast('Position saved successfully!', 'success');
-                hidePositionModal();
-                updateHeaderWithPosition(selectedPosition);
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error saving position:', error);
-                errorDiv.textContent = error.message;
-                errorDiv.classList.remove('hidden');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `
-                    <span>Save Position</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-            }
-        });
-    }
-
-    function updateHeaderWithPosition(position) {
-        const headerRight = document.querySelector('.flex.flex-col.md\\:flex-row.md\\:items-center.md\\:justify-between.mb-6 .mt-2.md\\:mt-0');
-        if (headerRight) {
-            const positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP');
-            headerRight.innerHTML = `
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#155386] rounded-lg text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span class="font-medium">${positionDisplay.charAt(0).toUpperCase() + positionDisplay.slice(1)}</span>
-                </span>
-            `;
-        }
-    }
-
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 z-[60] px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform transition-all duration-300 translate-x-0 ${
-            type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
-        }`;
-        toast.innerHTML = `
-            <svg class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                ${type === 'success' 
-                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                }
-            </svg>
-            <span class="text-sm font-medium">${message}</span>
-        `;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('translate-x-full', 'opacity-0');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
 
     // DASHBOARD FUNCTIONS
     async function loadDashboardData(period = 'this_month') {
@@ -1000,7 +723,9 @@
     function updateYAxisLabels(maxValue) {
         const yAxisLabels = document.getElementById('y-axis-labels');
         const labels = [Math.ceil(maxValue), Math.ceil(maxValue * 0.75), Math.ceil(maxValue * 0.5), Math.ceil(maxValue * 0.25), 0];
-        yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
+        if (yAxisLabels) {
+            yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
+        }
     }
 
     function updateSummaryStats(values) {
@@ -1069,55 +794,6 @@
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
-    }
-
-    #positionModal {
-        transition: opacity 0.3s ease;
-        background-color: transparent;
-        pointer-events: none;
-    }
-    
-    #positionModal.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    #modalContent {
-        pointer-events: auto !important;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-
-    .animate-shake {
-        animation: shake 0.5s ease-in-out;
-    }
-
-    #positionForm label,
-    #positionForm button,
-    #positionForm input {
-        cursor: pointer;
-    }
-
-    #modalContent button {
-        cursor: pointer;
-    }
-
-    #positionModal::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        backdrop-filter: blur(2px);
-        background-color: rgba(0,0,0,0.1);
-        pointer-events: none;
     }
 </style>
 @endsection
