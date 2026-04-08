@@ -210,7 +210,7 @@
             </div>
             <div>
                 <h4 class="font-semibold text-gray-800 mb-1">Application Tips</h4>
-                <p class="text-sm text-gray-600">Your application number is generated when you download the application form in Step 1. Keep it for reference.</p>
+                <p class="text-sm text-gray-600">Your application number is generated when you submit your application in Step 4. You will receive it via email.</p>
                 <p class="text-sm text-gray-600 mt-1">Processing time is 20 working days from submission based on the Citizens Charter.</p>
             </div>
         </div>
@@ -626,7 +626,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">${apps.map(app => createListRow(app)).join('')}</tbody>
-                    </table>
+                    寸
                 </div>
             </div>
         `;
@@ -764,7 +764,7 @@
                                 ${hasNumber ? displayNumber.substring(0, 2) : 'BR'}
                             </div>
                             <div>
-                                <h3 class="font-semibold text-gray-800">${projectTitle}</h3>
+                                <h3 class="font-semibold text-gray-800">${escapeHtml(projectTitle)}</h3>
                                 <div class="flex items-center gap-2 mt-1">
                                     <p class="text-sm text-gray-500 font-mono">${displayNumber}</p>
                                     ${hasNumber ? '<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Application #</span>' : '<span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">Pending Number</span>'}
@@ -860,7 +860,7 @@
                         <div><p class="font-medium text-gray-800">${displayNumber}</p><p class="text-xs text-gray-500">${formattedDate}</p></div>
                     </div>
                 </td>
-                <td class="py-4 px-6"><p class="text-sm text-gray-700 max-w-xs truncate" title="${escapeHtml(projectTitle)}">${escapeHtml(projectTitle.substring(0, 40))}${projectTitle.length > 40 ? '...' : ''}</p></td>
+                <td class="py-4 px-6"><p class="text-sm font-medium text-gray-800 max-w-xs truncate" title="${escapeHtml(projectTitle)}">${escapeHtml(projectTitle.substring(0, 40))}${projectTitle.length > 40 ? '...' : ''}</p></td>
                 <td class="py-4 px-6">${showAging ? getAgingBadge(agingDays) : '<span class="text-xs text-gray-400">N/A</span>'}</td>
                 <td class="py-4 px-6"><span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs">${statusConfig.text}</span></td>
                 <td class="py-4 px-6">${basicReqDisplay.show && app.status === 'draft' ? `<span class="px-3 py-1 ${basicReqDisplay.color} rounded-full text-xs">${basicReqDisplay.text}</span>` : '<span class="text-xs text-green-600">✓ Approved</span>'}</td>

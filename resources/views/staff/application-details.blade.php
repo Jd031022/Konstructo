@@ -210,17 +210,90 @@
             <!-- Left Column -->
             <div class="lg:col-span-2 space-y-8">
 
-                <!-- Applicant Information Card -->
+                <!-- Project Information Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Applicant Information</h2>
+                        <h2 class="text-lg font-semibold text-gray-800">Project Information</h2>
+                        <span id="project-type-badge" class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full capitalize"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-400">Project Title</p>
+                            <p id="project-title" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-400">Project Location</p>
+                            <p id="project-location" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-400">Project Description</p>
+                            <p id="project-description" class="text-sm text-gray-600">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Lot Area</p>
+                            <p id="lot-area" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Floor Area</p>
+                            <p id="floor-area" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Number of Floors</p>
+                            <p id="num-floors" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Estimated Cost</p>
+                            <p id="estimated-cost" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner/Applicant Information Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Owner/Applicant Information</h2>
                         <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Verified</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><p class="text-xs text-gray-400">Full Name</p><p id="applicant-name" class="text-sm font-medium text-gray-800"></p></div>
-                        <div><p class="text-xs text-gray-400">Email Address</p><p id="applicant-email" class="text-sm font-medium text-gray-800"></p></div>
-                        <div><p class="text-xs text-gray-400">Contact Number</p><p id="applicant-phone" class="text-sm font-medium text-gray-800"></p></div>
-                        <div class="md:col-span-2"><p class="text-xs text-gray-400">Address</p><p id="applicant-address" class="text-sm font-medium text-gray-800"></p></div>
+                        <div>
+                            <p class="text-xs text-gray-400">Full Name</p>
+                            <p id="applicant-name" class="text-sm font-medium text-gray-800"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Email Address</p>
+                            <p id="applicant-email" class="text-sm font-medium text-gray-800"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Contact Number</p>
+                            <p id="applicant-phone" class="text-sm font-medium text-gray-800"></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-400">Address</p>
+                            <p id="applicant-address" class="text-sm font-medium text-gray-800"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Professional Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs text-gray-400">Architect's Name</p>
+                            <p id="architect-name" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Architect's License Number</p>
+                            <p id="architect-license" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Civil Engineer's Name</p>
+                            <p id="engineer-name" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Engineer's License Number</p>
+                            <p id="engineer-license" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
                     </div>
                 </div>
 
@@ -590,8 +663,44 @@
                 if (currentApplication.document_links) displayDocumentChecklist(currentApplication.document_links);
                 else showEmptyDocuments();
                 calculateEstimatedTime();
+                displayProjectInformation(currentApplication);
             } else showError();
         } catch (error) { console.error('Error:', error); showError(); }
+    }
+
+    function displayProjectInformation(app) {
+        // Project Information
+        document.getElementById('project-title').textContent = app.project_title || 'Not provided';
+        document.getElementById('project-location').textContent = app.project_location || 'Not provided';
+        document.getElementById('project-description').textContent = app.project_description || 'Not provided';
+        document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
+        
+        // Format numbers
+        if (app.lot_area) {
+            document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
+        } else {
+            document.getElementById('lot-area').textContent = 'Not provided';
+        }
+        
+        if (app.floor_area) {
+            document.getElementById('floor-area').textContent = `${parseFloat(app.floor_area).toLocaleString()} sqm`;
+        } else {
+            document.getElementById('floor-area').textContent = 'Not provided';
+        }
+        
+        document.getElementById('num-floors').textContent = app.num_floors || 'Not provided';
+        
+        if (app.estimated_cost) {
+            document.getElementById('estimated-cost').textContent = `₱ ${parseFloat(app.estimated_cost).toLocaleString()}`;
+        } else {
+            document.getElementById('estimated-cost').textContent = 'Not provided';
+        }
+        
+        // Professional Information
+        document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
+        document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
+        document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
+        document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
     }
 
     function calculateEstimatedTime() {

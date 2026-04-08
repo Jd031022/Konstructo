@@ -12,20 +12,155 @@ use App\Notifications\StaffStatusChangeNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class NotificationService
 {
-     protected $gmailService;
+    protected $gmailService;
 
-    /**
-     * Constructor - Inject GmailService
-     */
     public function __construct(GmailService $gmailService)
     {
         $this->gmailService = $gmailService;
     }
 
-      /**
+    /**
+     * Send email notification for application submission (with application number)
+     */
+    public function sendApplicationSubmittedEmail(ApplicationDocument $application, User $applicant)
+    {
+        Log::info('========== SEND APPLICATION SUBMISSION EMAIL ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'applicant_email' => $applicant->email,
+            'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name
+        ]);
+        
+        $subject = 'Application Submitted Successfully - Konstructo';
+        $htmlContent = $this->getApplicationSubmittedEmailContent($application, $applicant);
+        
+        try {
+            $this->gmailService->sendEmail($applicant->email, $subject, $htmlContent);
+            Log::info('✅ Application submission email sent successfully');
+            return true;
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send submission email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get application submitted email content with application number
+     */
+    private function getApplicationSubmittedEmailContent(ApplicationDocument $application, User $applicant)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        $applicationNumber = $application->application_number;
+        
+        // Format the application number for display with dashes for readability
+        $formattedNumber = $applicationNumber;
+        if (strlen($applicationNumber) === 10) {
+            $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                              substr($applicationNumber, 2, 4) . '-' . 
+                              substr($applicationNumber, 6, 4);
+        }
+        
+        // Parse the application number to show meaning
+        $year = substr($applicationNumber, 0, 2);
+        $zipcode = substr($applicationNumber, 2, 4);
+        $sequence = substr($applicationNumber, 6, 4);
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .header p { margin: 10px 0 0 0; opacity: 0.9; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+                    .app-number-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0; border: 1px solid #dee2e6; }
+                    .app-number-box .label { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+                    .app-number-box .number { font-size: 32px; font-weight: bold; font-family: monospace; color: #155386; letter-spacing: 2px; }
+                    .app-number-box .breakdown { font-size: 11px; color: #6c757d; margin-top: 10px; }
+                    .info-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
+                    .info-section h3 { margin: 0 0 10px 0; color: #155386; font-size: 16px; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+                    .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
+                    .next-steps ul { margin: 0; padding-left: 20px; }
+                    .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Application Submitted Successfully!</h1>
+                        <p>Your building permit application has been received</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>Thank you for submitting your building permit application. We have successfully received your application and it is now in queue for review.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='success-badge'>✓ Application Submitted</span>
+                        </div>
+                        
+                        <div class='app-number-box'>
+                            <div class='label'>Your Application Number</div>
+                            <div class='number'>{$formattedNumber}</div>
+                            <div class='breakdown'>
+                                Year: 20{$year} | Location (ZIP): {$zipcode} | Sequence: {$sequence}
+                            </div>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3>📋 What Happens Next?</h3>
+                            <p>Your application will be reviewed by our staff. The process typically takes <strong>5-7 working days</strong>. You will receive email notifications for status updates.</p>
+                        </div>
+                        
+                        <div class='next-steps'>
+                            <h4>🔑 Keep This Number Safe</h4>
+                            <ul>
+                                <li>Use this number when checking your application status</li>
+                                <li>Reference this number when submitting hard copies to OBO</li>
+                                <li>Include this number in all correspondence regarding this application</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>Track Your Application</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Please allow 5-7 working days for initial review. You will be notified once your application status changes.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
      * Send email notification for approved application
      */
     public function sendApprovedEmail(ApplicationDocument $application, User $reviewer)
@@ -84,158 +219,233 @@ class NotificationService
             return false;
         }
     }
+
     /**
- * Send notification to applicant when status changes
- */
-public function notifyApplicantStatusChange(ApplicationDocument $application, $oldStatus, $newStatus, User $reviewer)
-{
-    Log::info('========== NOTIFY APPLICANT STATUS CHANGE START ==========');
-    Log::info('Parameters:', [
-        'application_id' => $application->id,
-        'application_number' => $application->application_number,
-        'old_status' => $oldStatus,
-        'new_status' => $newStatus,
-        'reviewer_id' => $reviewer->id,
-        'reviewer_email' => $reviewer->email,
-        'reviewer_name' => $reviewer->first_name . ' ' . $reviewer->last_name
-    ]);
-    
-    $applicant = $application->user;
-    
-    if (!$applicant) {
-        Log::error('❌ No applicant found for application!');
-        Log::info('========== NOTIFY APPLICANT STATUS CHANGE END (ERROR) ==========');
-        return;
-    }
-    
-    Log::info('Applicant found:', [
-        'applicant_id' => $applicant->id,
-        'applicant_email' => $applicant->email,
-        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
-        'applicant_role' => $applicant->role
-    ]);
-
-    $messages = [
-        'pending' => 'Your application is now pending review.',
-        'under-review' => 'Your application is now under review.',
-        'approved' => 'Your application has been approved! Please prepare your hard copies for submission.',
-        'rejected' => 'Your application has been rejected. Please check the reason and resubmit.',
-        'for-release' => 'Your application is ready for release.',
-        'verified' => 'Your application has been verified.'
-    ];
-
-    $message = $messages[$newStatus] ?? "Your application status has been updated to {$newStatus}.";
-    
-    $details = $newStatus === 'approved' 
-        ? 'Please prepare the original hard copies of your documents for submission.'
-        : null;
-
-    Log::info('Notification details:', [
-        'message' => $message,
-        'details' => $details
-    ]);
-
-    // Send notification to applicant - WITH DETAILED DEBUGGING
-    try {
-        Log::info('Creating notification instance...');
-        
-        $notification = new ApplicationStatusNotification(
-            $application,
-            $oldStatus,
-            $newStatus,
-            $message,
-            $details
-        );
-        
-        Log::info('Notification instance created', [
-            'notification_class' => get_class($notification),
-            'via' => json_encode($notification->via($applicant))
+     * Send assessment completed notification to applicant with fee breakdown
+     */
+    public function notifyAssessmentCompleted(ApplicationDocument $application, $oldStatus, $newStatus, User $reviewer, $assessmentData)
+    {
+        Log::info('========== NOTIFY ASSESSMENT COMPLETED START ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+            'reviewer_id' => $reviewer->id,
+            'total_amount' => $assessmentData['total_amount'] ?? 0
         ]);
         
-        Log::info('Calling $applicant->notify()...');
+        $applicant = $application->user;
         
-        // Check if notifications table exists
-        $tableExists = \Illuminate\Support\Facades\Schema::hasTable('notifications');
-        Log::info('Notifications table exists: ' . ($tableExists ? 'YES' : 'NO'));
-        
-        if (!$tableExists) {
-            Log::error('❌ Notifications table does not exist!');
+        if (!$applicant) {
+            Log::error('❌ No applicant found for assessment notification!');
             return;
         }
         
-        // Count before
-        $beforeCount = $applicant->notifications()->count();
-        Log::info('Notifications before: ' . $beforeCount);
+        Log::info('Applicant found:', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name
+        ]);
+
+        $message = "Your application assessment has been completed. Total fee: ₱" . number_format($assessmentData['total_amount'] ?? 0, 2);
         
-        // Send notification
-        $applicant->notify($notification);
-        
-        // Count after
-        $afterCount = $applicant->notifications()->count();
-        Log::info('Notifications after: ' . $afterCount);
-        
-        if ($afterCount > $beforeCount) {
-            Log::info('✅ Notification created successfully in database');
-            
-            // Get the latest notification
-            $latest = $applicant->notifications()->latest()->first();
-            Log::info('Latest notification ID: ' . $latest->id);
-            Log::info('Latest notification data: ' . json_encode($latest->data));
-        } else {
-            Log::error('❌ No notification was created in the database!');
-            
-            // Try to get the raw database query to see if there's an error
-            try {
-                $pdo = DB::connection()->getPdo();
-                Log::info('Database connection OK');
-            } catch (\Exception $dbEx) {
-                Log::error('Database connection error: ' . $dbEx->getMessage());
-            }
+        try {
+            $this->gmailService->sendAssessmentEmail(
+                $applicant->email,
+                $application->application_number,
+                $applicant->first_name,
+                $assessmentData,
+                $application->id
+            );
+            Log::info('✅ Assessment email sent successfully via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send assessment email: ' . $e->getMessage());
         }
         
-    } catch (\Exception $e) {
-        Log::error('❌ Failed to send notification: ' . $e->getMessage());
-        Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
-        Log::error($e->getTraceAsString());
-    }
+        try {
+            $notification = new ApplicationStatusNotification(
+                $application,
+                $oldStatus,
+                $newStatus,
+                $message,
+                "Total Building Permit Fee: ₱" . number_format($assessmentData['total_amount'] ?? 0, 2)
+            );
+            $applicant->notify($notification);
+            Log::info('✅ Assessment database notification sent');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send assessment database notification: ' . $e->getMessage());
+        }
 
-    // Also notify staff about this change (optional)
-    if (in_array($newStatus, ['verified', 'approved', 'rejected'])) {
-        Log::info('Also notifying staff about status change');
-        $this->notifyStaffOfStatusChange($application, $oldStatus, $newStatus, $reviewer);
-    }
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $reviewer->id,
+                    'action' => 'assessment_completed',
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'remarks' => "Assessment completed. Total fee: ₱" . number_format($assessmentData['total_amount'] ?? 0, 2),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ]);
+                Log::info('✅ Assessment activity logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log assessment activity: ' . $e->getMessage());
+        }
 
-    // Log this activity in application_review_activities table
-    try {
-        Log::info('Creating review activity record...');
+        $application->update(['last_updated_by' => $reviewer->id]);
         
-        $activity = $application->reviewActivities()->create([
-            'reviewer_id' => $reviewer->id,
-            'action' => 'status_updated',
+        Log::info('========== NOTIFY ASSESSMENT COMPLETED END ==========');
+    }
+
+    /**
+     * Send notification to applicant when status changes
+     */
+    public function notifyApplicantStatusChange(ApplicationDocument $application, $oldStatus, $newStatus, User $reviewer)
+    {
+        Log::info('========== NOTIFY APPLICANT STATUS CHANGE START ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
-            'remarks' => "Status changed from {$oldStatus} to {$newStatus} by {$reviewer->first_name} {$reviewer->last_name}",
-            'ip_address' => Request::ip(),
-            'user_agent' => Request::userAgent()
+            'reviewer_id' => $reviewer->id,
+            'reviewer_email' => $reviewer->email,
+            'reviewer_name' => $reviewer->first_name . ' ' . $reviewer->last_name
         ]);
         
-        Log::info('✅ Review activity created with ID: ' . $activity->id);
-    } catch (\Exception $e) {
-        Log::error('❌ Failed to log review activity: ' . $e->getMessage());
-    }
-
-    // Update last_updated_by
-    try {
-        $application->update([
-            'last_updated_by' => $reviewer->id
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found for application!');
+            Log::info('========== NOTIFY APPLICANT STATUS CHANGE END (ERROR) ==========');
+            return;
+        }
+        
+        Log::info('Applicant found:', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+            'applicant_role' => $applicant->role
         ]);
-        Log::info('✅ Updated last_updated_by to: ' . $reviewer->id);
-    } catch (\Exception $e) {
-        Log::error('❌ Failed to update last_updated_by: ' . $e->getMessage());
-    }
 
-    Log::info('========== NOTIFY APPLICANT STATUS CHANGE END ==========');
-}
+        $messages = [
+            'pending' => 'Your application is now pending review.',
+            'under-review' => 'Your application is now under review.',
+            'approved' => 'Your application has been approved! Please prepare your hard copies for submission.',
+            'rejected' => 'Your application has been rejected. Please check the reason and resubmit.',
+            'for-release' => 'Your application is ready for release.',
+            'verified' => 'Your application has been verified.'
+        ];
+
+        $message = $messages[$newStatus] ?? "Your application status has been updated to {$newStatus}.";
+        
+        $details = $newStatus === 'approved' 
+            ? 'Please prepare the original hard copies of your documents for submission.'
+            : null;
+
+        Log::info('Notification details:', [
+            'message' => $message,
+            'details' => $details
+        ]);
+
+        try {
+            Log::info('Creating notification instance...');
+            
+            $notification = new ApplicationStatusNotification(
+                $application,
+                $oldStatus,
+                $newStatus,
+                $message,
+                $details
+            );
+            
+            Log::info('Notification instance created', [
+                'notification_class' => get_class($notification),
+                'via' => json_encode($notification->via($applicant))
+            ]);
+            
+            Log::info('Calling $applicant->notify()...');
+            
+            $tableExists = Schema::hasTable('notifications');
+            Log::info('Notifications table exists: ' . ($tableExists ? 'YES' : 'NO'));
+            
+            if (!$tableExists) {
+                Log::error('❌ Notifications table does not exist!');
+                return;
+            }
+            
+            $beforeCount = $applicant->notifications()->count();
+            Log::info('Notifications before: ' . $beforeCount);
+            
+            $applicant->notify($notification);
+            
+            $afterCount = $applicant->notifications()->count();
+            Log::info('Notifications after: ' . $afterCount);
+            
+            if ($afterCount > $beforeCount) {
+                Log::info('✅ Notification created successfully in database');
+                $latest = $applicant->notifications()->latest()->first();
+                Log::info('Latest notification ID: ' . ($latest ? $latest->id : 'null'));
+            } else {
+                Log::error('❌ No notification was created in the database!');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send notification: ' . $e->getMessage());
+            Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
+            Log::error($e->getTraceAsString());
+        }
+
+        try {
+            $this->gmailService->sendStatusEmail(
+                $applicant->email,
+                $newStatus,
+                $application->application_number,
+                $applicant->first_name,
+                $application->id
+            );
+            Log::info('✅ Status email sent via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send status email: ' . $e->getMessage());
+        }
+
+        if (in_array($newStatus, ['verified', 'approved', 'rejected'])) {
+            Log::info('Also notifying staff about status change');
+            $this->notifyStaffOfStatusChange($application, $oldStatus, $newStatus, $reviewer);
+        }
+
+        try {
+            Log::info('Creating review activity record...');
+            
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $reviewer->id,
+                    'action' => 'status_updated',
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'remarks' => "Status changed from {$oldStatus} to {$newStatus} by {$reviewer->first_name} {$reviewer->last_name}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log review activity: ' . $e->getMessage());
+        }
+
+        try {
+            $application->update([
+                'last_updated_by' => $reviewer->id
+            ]);
+            Log::info('✅ Updated last_updated_by to: ' . $reviewer->id);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to update last_updated_by: ' . $e->getMessage());
+        }
+
+        Log::info('========== NOTIFY APPLICANT STATUS CHANGE END ==========');
+    }
 
     /**
      * Send notification when admin adds notes
@@ -257,7 +467,6 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
             return;
         }
         
-        // Send notification to applicant
         try {
             $applicant->notify(new AdminNoteNotification(
                 $application,
@@ -269,21 +478,21 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
             Log::error('❌ Failed to send note notification: ' . $e->getMessage());
         }
 
-        // Log the note activity
         try {
-            $activity = $application->reviewActivities()->create([
-                'reviewer_id' => $reviewer->id,
-                'action' => 'note_added',
-                'remarks' => $note,
-                'ip_address' => Request::ip(),
-                'user_agent' => Request::userAgent()
-            ]);
-            Log::info('✅ Note activity logged with ID: ' . $activity->id);
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $reviewer->id,
+                    'action' => 'note_added',
+                    'remarks' => $note,
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ Note activity logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
         } catch (\Exception $e) {
             Log::error('❌ Failed to log note activity: ' . $e->getMessage());
         }
 
-        // Update last_updated_by
         $application->update(['last_updated_by' => $reviewer->id]);
         
         Log::info('========== NOTIFY APPLICANT OF NOTE END ==========');
@@ -314,18 +523,19 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
             }
         }
 
-        // Log the submission
         try {
-            $activity = $application->reviewActivities()->create([
-                'reviewer_id' => $applicant->id,
-                'action' => 'application_created',
-                'old_status' => 'draft',
-                'new_status' => 'pending',
-                'remarks' => 'Application submitted by applicant',
-                'ip_address' => Request::ip(),
-                'user_agent' => Request::userAgent()
-            ]);
-            Log::info('✅ Submission logged with ID: ' . $activity->id);
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $applicant->id,
+                    'action' => 'application_created',
+                    'old_status' => 'draft',
+                    'new_status' => 'pending',
+                    'remarks' => 'Application submitted by applicant',
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ Submission logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
         } catch (\Exception $e) {
             Log::error('❌ Failed to log submission: ' . $e->getMessage());
         }
@@ -347,7 +557,6 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
         
         $applicant = $application->user;
         
-        // Send notification to applicant
         try {
             $applicant->notify(new HardCopyReceivedNotification($application));
             Log::info('✅ Hard copy notification sent to applicant');
@@ -355,21 +564,21 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
             Log::error('❌ Failed to send hard copy notification: ' . $e->getMessage());
         }
         
-        // Log the activity
         try {
-            $activity = $application->reviewActivities()->create([
-                'reviewer_id' => $reviewer->id,
-                'action' => 'hard_copy_received',
-                'remarks' => 'Hard copies received and verified',
-                'ip_address' => Request::ip(),
-                'user_agent' => Request::userAgent()
-            ]);
-            Log::info('✅ Hard copy activity logged with ID: ' . $activity->id);
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $reviewer->id,
+                    'action' => 'hard_copy_received',
+                    'remarks' => 'Hard copies received and verified',
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ Hard copy activity logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
         } catch (\Exception $e) {
             Log::error('❌ Failed to log hard copy activity: ' . $e->getMessage());
         }
 
-        // Update hard copy status
         $application->update([
             'hard_copy_received' => true,
             'hard_copy_received_at' => now(),
@@ -409,7 +618,6 @@ public function notifyApplicantStatusChange(ApplicationDocument $application, $o
             }
         }
 
-        // Log this staff notification activity
         try {
             if ($staff->count() > 0) {
                 Log::info('Staff notified of status change', [

@@ -50,38 +50,30 @@
         </div>
     </div>
 
-    <!-- Application Number Banner - Always visible in Step 4 -->
+    <!-- Info Banner - Application number will be generated upon submission -->
     <div class="mb-6">
-        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl shadow-lg overflow-hidden animate-slide-down">
+        <div class="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg overflow-hidden animate-slide-down">
             <div class="px-6 py-4 flex items-center justify-between flex-wrap gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div>
-                        <p class="text-white/80 text-sm">Your Application Number</p>
-                        <p id="application-number-display" class="text-2xl font-bold text-white font-mono">{{ $application->application_number ?? 'Pending' }}</p>
+                        <p class="text-white/80 text-sm">Application Status</p>
+                        <p class="text-xl font-bold text-white">Ready for Submission</p>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Copy Number
-                    </button>
-                    <button onclick="downloadApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Save Number
-                    </button>
+                <div class="bg-white/20 px-4 py-2 rounded-lg text-white text-sm font-medium">
+                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Your application number will be generated upon submission
                 </div>
             </div>
             <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
-                <span class="font-medium">Important:</span> Keep this number for reference when submitting hard copies and for all future correspondence regarding this application.
+                <span class="font-medium">Note:</span> After clicking "Submit Application", you will receive an email with your unique application number. Please keep this number for all future correspondence.
             </div>
         </div>
     </div>
@@ -368,16 +360,12 @@
 
 <script>
     const applicationId = {{ $application->id }};
-    const applicationNumber = '{{ $application->application_number ?? '' }}';
     let documentLinks = {};
 
     function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
 
-    // Check if application number exists, show warning if missing
+    // Load document summary on page load - NO application number check
     document.addEventListener('DOMContentLoaded', async function() {
-        if (!applicationNumber || applicationNumber === '') {
-            showErrorModal('Warning: No application number has been generated yet. Please ensure you have completed Step 3 properly.');
-        }
         await loadDocumentSummary();
     });
 
@@ -476,53 +464,6 @@
         return div.innerHTML;
     }
 
-    function copyApplicationNumber() {
-        if (applicationNumber && applicationNumber !== '') {
-            navigator.clipboard.writeText(applicationNumber).then(() => {
-                showSuccessModal('Application number copied to clipboard!');
-            }).catch(() => {
-                showErrorModal('Failed to copy application number.');
-            });
-        } else {
-            showErrorModal('No application number available yet. Please complete Step 3 first.');
-        }
-    }
-
-    function downloadApplicationNumber() {
-        if (applicationNumber && applicationNumber !== '') {
-            const content = `BUILDING PERMIT APPLICATION NUMBER
-================================
-
-Application Number: ${applicationNumber}
-Date Generated: ${new Date().toLocaleDateString()}
-Time Generated: ${new Date().toLocaleTimeString()}
-
-Please keep this number for reference when:
-- Submitting hard copies to OBO
-- Checking application status
-- All future correspondence
-
-Application ID: ${applicationId}
-Generated from: Konstrupto Building Permit System
-
---- End of Document ---`;
-
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `application_number_${applicationNumber}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showSuccessModal('Application number saved as text file!');
-        } else {
-            showErrorModal('No application number available yet. Please complete Step 3 first.');
-        }
-    }
-
     async function submitApplication() {
         // Validate all required checkboxes
         const hardcopyCheckbox = document.getElementById('hardcopy-checkbox');
@@ -541,7 +482,7 @@ Generated from: Konstrupto Building Permit System
         
         // Check if all legal checkboxes are checked
         let allLegalChecked = true;
-        legalCheckboxes.forEach((checkbox, index) => {
+        legalCheckboxes.forEach((checkbox) => {
             if (!checkbox.checked) {
                 allLegalChecked = false;
             }
@@ -549,12 +490,6 @@ Generated from: Konstrupto Building Permit System
         
         if (!allLegalChecked) {
             showErrorModal('Please acknowledge all legal consequences by checking all boxes in the Legal Consequences section.');
-            return;
-        }
-        
-        // Check if application number exists
-        if (!applicationNumber || applicationNumber === '') {
-            showErrorModal('No application number has been generated. Please go back to Step 3 and save your documents first.');
             return;
         }
         
@@ -579,10 +514,11 @@ Generated from: Konstrupto Building Permit System
             const data = await response.json();
             
             if (data.success) {
-                showSuccessModal(`Application ${applicationNumber} submitted successfully! Redirecting to your applications...`);
+                const newApplicationNumber = data.data?.application_number || 'generated';
+                showSuccessModal(`Application ${newApplicationNumber} submitted successfully! You will receive an email with your application number. Redirecting to your applications...`);
                 setTimeout(() => {
                     window.location.href = '/applicant/applications';
-                }, 2000);
+                }, 3000);
             } else {
                 showErrorModal(data.message || 'Failed to submit application');
                 submitBtn.innerHTML = originalText;

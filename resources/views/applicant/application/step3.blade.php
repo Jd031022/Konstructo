@@ -65,26 +65,17 @@
         </div>
     </div>
 
-    <!-- Application Number Banner - Will be shown after generation -->
-    <div id="application-number-banner" class="mb-6 hidden">
-        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl shadow-lg overflow-hidden animate-slide-down">
-            <div class="px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <div>
-                        <p class="text-white/80 text-sm">Your Application Number</p>
-                        <p id="application-number-display" class="text-2xl font-bold text-white font-mono"></p>
-                    </div>
-                </div>
-                <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                    Copy Number
-                </button>
+    <!-- Info Banner - No application number yet (will be generated in Step 4) -->
+    <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
-            <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
-                <span class="font-medium">Important:</span> Use this application number when submitting hard copies to OBO and for all future correspondence.
+            <div>
+                <h4 class="font-semibold text-gray-800">Application Number</h4>
+                <p class="text-sm text-gray-700 mt-1">Your application number will be generated when you submit your application in Step 4. You will receive it via email.</p>
             </div>
         </div>
     </div>
@@ -518,7 +509,6 @@
 
 <script>
     const applicationId = {{ $application->id }};
-    let generatedApplicationNumber = '{{ $application->application_number ?? '' }}';
     
     // Define all document fields
     const documentFields = [
@@ -540,14 +530,6 @@
     const optionalFields = ['cshp_link'];
     
     function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
-    
-    // Show application number banner if number exists
-    function showApplicationNumberBanner(number) {
-        if (number && number !== '') {
-            document.getElementById('application-number-display').textContent = number;
-            document.getElementById('application-number-banner').classList.remove('hidden');
-        }
-    }
     
     // Update progress bar
     function updateProgress() {
@@ -591,7 +573,7 @@
         showSuccessModal('Link format is valid! Make sure sharing is set to "Anyone with the link".');
     }
     
-    // Save all document links and generate application number
+    // Save all document links (NO application number generation here)
     async function saveAllDocumentLinks() {
         // Validate all required fields
         const missingFields = [];
@@ -628,16 +610,15 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Saving & Generating Application Number...
+            Saving Documents...
         `;
         proceedBtn.disabled = true;
         
         try {
-            // Step 1: Save document links AND generate application number
+            // Save document links ONLY (no application number generation)
             const requestData = {
                 document_links: documentLinks,
-                application_id: applicationId,
-                generate_application_number: true  // Signal to generate the application number
+                application_id: applicationId
             };
             
             const storeResponse = await fetch('/applicant/application/store-links', {
@@ -656,16 +637,9 @@
                 throw new Error(storeData.message || 'Failed to save documents');
             }
             
-            // If application number was generated, store it and show the banner
-            if (storeData.application_number) {
-                generatedApplicationNumber = storeData.application_number;
-                showApplicationNumberBanner(generatedApplicationNumber);
-                showSuccessModal(`Application number ${generatedApplicationNumber} has been generated! Redirecting to Step 4...`);
-            } else {
-                showSuccessModal('All documents saved successfully! Redirecting to Step 4...');
-            }
+            showSuccessModal('All documents saved successfully! Redirecting to Step 4...');
             
-            // Step 2: Mark Step 3 as complete
+            // Mark Step 3 as complete
             const completeResponse = await fetch('/applicant/application/step3/complete', {
                 method: 'POST',
                 headers: {
@@ -677,13 +651,6 @@
                     application_id: applicationId
                 })
             });
-            
-            const completeData = await completeResponse.json();
-            
-            if (!completeResponse.ok || !completeData.success) {
-                console.warn('Step completion warning:', completeData.message);
-                // Don't throw error here, just log it - the documents are saved
-            }
             
             setTimeout(() => {
                 window.location.href = `/applicant/application/step4?id=${applicationId}`;
@@ -726,24 +693,7 @@
             });
             updateProgress();
         }
-        
-        // Show existing application number if already generated (e.g., returning to step)
-        if (generatedApplicationNumber && generatedApplicationNumber !== '') {
-            showApplicationNumberBanner(generatedApplicationNumber);
-        }
     });
-    
-    function copyApplicationNumber() {
-        if (generatedApplicationNumber && generatedApplicationNumber !== '') {
-            navigator.clipboard.writeText(generatedApplicationNumber).then(() => {
-                showSuccessModal('Application number copied to clipboard!');
-            }).catch(() => {
-                showErrorModal('Failed to copy application number.');
-            });
-        } else {
-            showErrorModal('No application number available yet. Please save your documents first.');
-        }
-    }
     
     function showErrorModal(message){
         const modal = document.getElementById('error-modal');

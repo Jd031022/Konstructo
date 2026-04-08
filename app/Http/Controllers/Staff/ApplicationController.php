@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
-use App\Models\AssessmentFee; // ADD THIS IMPORT
+use App\Models\AssessmentFee;
+use App\Models\ActivityLog;
 use App\Services\NotificationService;
 use App\Services\GmailService;
 use Illuminate\Http\Request;
@@ -15,23 +16,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\ActivityLog;
 
 class ApplicationController extends Controller
 {
-    /**
-     * The notification service instance.
-     */
     protected $notificationService;
-
-    /**
-     * The Gmail service instance.
-     */
     protected $gmailService;
 
-    /**
-     * Constructor - Inject NotificationService and GmailService
-     */
     public function __construct(NotificationService $notificationService, GmailService $gmailService)
     {
         $this->notificationService = $notificationService;
@@ -57,7 +47,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
-                    'for-assessment', // ADDED for-assessment
+                    'for-assessment',
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -108,7 +98,9 @@ class ApplicationController extends Controller
                     'last_updated_by' => $app->last_updated_by,
                     'last_updated_by_name' => $lastUpdatedByName,
                     'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
-                    'is_archived' => $app->is_archived ?? false
+                    'is_archived' => $app->is_archived ?? false,
+                    // Add project title for listing
+                    'project_title' => $app->project_title ?? null
                 ];
             }
             
@@ -145,7 +137,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
-                    'for-assessment', // ADDED for-assessment
+                    'for-assessment',
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -165,6 +157,11 @@ class ApplicationController extends Controller
             if ($application->last_updated_by) {
                 $lastUpdatedBy = User::find($application->last_updated_by);
             }
+            
+            // Format currency values
+            $estimatedCost = $application->estimated_cost ? '₱ ' . number_format($application->estimated_cost, 2) : null;
+            $lotArea = $application->lot_area ? number_format($application->lot_area, 2) . ' sqm' : null;
+            $floorArea = $application->floor_area ? number_format($application->floor_area, 2) . ' sqm' : null;
             
             return response()->json([
                 'success' => true,
@@ -189,7 +186,29 @@ class ApplicationController extends Controller
                     'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
                     'last_updated_by_initials' => $lastUpdatedBy ? 
                         strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST',
-                    'is_archived' => $application->is_archived
+                    'is_archived' => $application->is_archived,
+                    // Project Information Fields
+                    'project_title' => $application->project_title ?? null,
+                    'project_location' => $application->project_location ?? null,
+                    'project_type' => $application->project_type ?? null,
+                    'project_description' => $application->project_description ?? null,
+                    'lot_area' => $application->lot_area ?? null,
+                    'lot_area_formatted' => $lotArea,
+                    'floor_area' => $application->floor_area ?? null,
+                    'floor_area_formatted' => $floorArea,
+                    'num_floors' => $application->num_floors ?? null,
+                    'estimated_cost' => $application->estimated_cost ?? null,
+                    'estimated_cost_formatted' => $estimatedCost,
+                    // Owner Information
+                    'owner_name' => $application->owner_name ?? null,
+                    'owner_address' => $application->owner_address ?? null,
+                    'contact_number' => $application->contact_number ?? null,
+                    'owner_email' => $application->owner_email ?? null,
+                    // Professional Information
+                    'architect_name' => $application->architect_name ?? null,
+                    'architect_license' => $application->architect_license ?? null,
+                    'engineer_name' => $application->engineer_name ?? null,
+                    'engineer_license' => $application->engineer_license ?? null
                 ]
             ]);
             
@@ -224,13 +243,11 @@ class ApplicationController extends Controller
             $activities = [];
             
             if (class_exists('App\Models\ApplicationReviewActivity')) {
-                // Get distinct activities - if there are duplicates by timestamp, keep only one
                 $rawActivities = ApplicationReviewActivity::with('reviewer')
                     ->where('application_id', $id)
                     ->orderBy('created_at', 'desc')
                     ->get();
                 
-                // Remove duplicates based on action and timestamp within 1 second
                 $uniqueActivities = [];
                 foreach ($rawActivities as $activity) {
                     $key = $activity->action . '_' . $activity->created_at->format('Y-m-d H:i:s');
@@ -324,6 +341,9 @@ class ApplicationController extends Controller
             case 'assessment_saved':
                 $actionText = 'Assessment Saved';
                 break;
+            case 'assessment_completed':
+                $actionText = 'Assessment Completed';
+                break;
             default:
                 $actionText = ucfirst(str_replace('_', ' ', $activity->action));
                 break;
@@ -345,291 +365,7 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Add verification note (for saving document verification progress)
-     */
-    public function addVerificationNote(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'note' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $application = ApplicationDocument::with('user')->find($id);
-            
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            $staff = auth()->user();
-
-            $existingNotes = $application->admin_notes;
-            $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . ": " . $request->note;
-            $application->admin_notes = $existingNotes 
-                ? $existingNotes . "\n\n" . $newNote 
-                : $newNote;
-            
-            $application->last_updated_by = $staff->id;
-            $application->save();
-
-            // Log the activity
-            $this->logReviewActivity(
-                $application->id,
-                $staff->id,
-                'note_added',
-                null,
-                null,
-                $request->note,
-                $request->ip(),
-                $request->userAgent()
-            );
-
-            Log::info('Verification note added', [
-                'application_id' => $application->id,
-                'staff_id' => $staff->id,
-                'note' => $request->note
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Note added successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error adding verification note: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error adding note: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Get queue position for an application
-     */
-    public function getQueuePosition($id)
-    {
-        try {
-            $application = ApplicationDocument::find($id);
-            
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-            
-            // Count applications in queue with status 'pending' or 'under-review' that are older than this one
-            $position = ApplicationDocument::whereIn('status', ['pending', 'under-review'])
-                ->where('created_at', '<', $application->created_at)
-                ->count() + 1;
-            
-            $ahead = ApplicationDocument::whereIn('status', ['pending', 'under-review'])
-                ->where('created_at', '<', $application->created_at)
-                ->count();
-            
-            return response()->json([
-                'success' => true,
-                'position' => $position,
-                'ahead' => $ahead
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error getting queue position: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error getting queue position'
-            ], 500);
-        }
-    }
-
-    /**
-     * Export single application as PDF
-     */
-    public function exportPDF($id)
-    {
-        try {
-            $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])->find($id);
-            
-            if (!$application) {
-                return redirect()->back()->with('error', 'Application not found');
-            }
-            
-            $pdfContent = $this->generatePDFContent($application);
-            
-            $filename = 'application_' . $application->application_number . '_' . date('Y-m-d') . '.pdf';
-            
-            return response($pdfContent)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
-            
-        } catch (\Exception $e) {
-            Log::error('Error exporting PDF: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error exporting PDF: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Generate PDF content (placeholder)
-     */
-    private function generatePDFContent($application)
-    {
-        $content = "Application Details\n";
-        $content .= "==================\n\n";
-        $content .= "Application Number: " . $application->application_number . "\n";
-        $content .= "Applicant Name: " . ($application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown') . "\n";
-        $content .= "Status: " . $application->status . "\n";
-        $content .= "Date Submitted: " . ($application->created_at ? $application->created_at->format('Y-m-d H:i:s') : 'N/A') . "\n";
-        
-        return $content;
-    }
-
-    /**
-     * View full activity history
-     */
-    public function activityHistory($id)
-    {
-        try {
-            $application = ApplicationDocument::with(['user'])->find($id);
-            
-            if (!$application) {
-                return redirect()->back()->with('error', 'Application not found');
-            }
-            
-            $activities = ApplicationReviewActivity::with('reviewer')
-                ->where('application_id', $id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-            
-            return view('staff.applications.activity-history', compact('application', 'activities'));
-            
-        } catch (\Exception $e) {
-            Log::error('Error loading activity history: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading activity history');
-        }
-    }
-
-    /**
-     * Store a new application (created by staff)
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:11',
-            'address' => 'required|string',
-            'google_drive_link' => 'required|url'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone_number' => $request->phone,
-                'address' => $request->address,
-                'username' => $this->generateUsername($request->first_name, $request->last_name),
-                'password' => bcrypt('defaultpassword123'),
-                'role' => 'applicant',
-                'email_verified_at' => now(),
-            ]);
-            
-            $year = date('Y');
-            do {
-                $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                $applicationNumber = $year . $random;
-            } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
-            
-            $application = ApplicationDocument::create([
-                'user_id' => $user->id,
-                'application_number' => $applicationNumber,
-                'google_drive_link' => $request->google_drive_link,
-                'status' => 'pending',
-                'rejection_reason' => null,
-                'verified_at' => null,
-                'verified_by' => null,
-                'hard_copy_received' => false
-            ]);
-            
-            $this->logReviewActivity(
-                $application->id,
-                auth()->id(),
-                'application_created',
-                null,
-                'pending',
-                "Application #{$applicationNumber} created for {$user->first_name} {$user->last_name}",
-                $request->ip(),
-                $request->userAgent()
-            );
-
-            $this->notificationService->notifyStaffNewApplication($application);
-            
-            try {
-                Log::info('📧 Attempting to send PENDING email to: ' . $user->email);
-                
-                if (method_exists($this->gmailService, 'isConfigured')) {
-                    $isConfigured = $this->gmailService->isConfigured();
-                    Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
-                }
-                
-                $emailSent = $this->gmailService->sendStatusEmail(
-                    $user->email,
-                    'pending',
-                    $applicationNumber,
-                    $user->first_name,
-                    $application->id
-                );
-                
-                if ($emailSent) {
-                    Log::info('✓✓✓ PENDING EMAIL SENT SUCCESSFULLY TO ' . $user->email);
-                } else {
-                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email);
-                }
-            } catch (\Exception $e) {
-                Log::error('✗✗✗ EXCEPTION when sending pending email: ' . $e->getMessage());
-            }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Application created successfully',
-                'data' => [
-                    'application_number' => $applicationNumber,
-                    'status' => 'pending'
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error creating application: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error creating application: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Update application status - FIXED to prevent duplicate entries
+     * Update application status
      */
     public function updateStatus(Request $request, $id)
     {
@@ -684,7 +420,6 @@ class ApplicationController extends Controller
             $oldHardCopyStatus = $application->hard_copy_received;
             $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
             
-            // Check if status actually changed
             $statusChanged = ($oldStatus !== $newStatus);
             $hardCopyChanged = ($oldHardCopyStatus != $newHardCopyStatus);
             
@@ -700,7 +435,6 @@ class ApplicationController extends Controller
                 'changed' => $hardCopyChanged ? 'YES' : 'NO'
             ]);
             
-            // Update application
             $application->status = $newStatus;
             
             if ($request->has('remarks') && $request->remarks) {
@@ -736,11 +470,9 @@ class ApplicationController extends Controller
                 'new_hardcopy_status' => $application->hard_copy_received
             ]);
 
-            // ONLY create activity if status actually changed
             if ($statusChanged) {
                 Log::info('Creating review activity for status change');
                 
-                // Check if duplicate was just created (within last 2 seconds)
                 $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
                     ->where('action', 'status_updated')
                     ->where('old_status', $oldStatus)
@@ -768,7 +500,6 @@ class ApplicationController extends Controller
                     Log::info('Skipped duplicate activity creation');
                 }
                 
-                // Send notifications
                 try {
                     $this->notificationService->notifyApplicantStatusChange(
                         $application,
@@ -780,11 +511,6 @@ class ApplicationController extends Controller
                     
                     if ($application->user && $application->user->email) {
                         Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
-                        
-                        if (method_exists($this->gmailService, 'isConfigured')) {
-                            $isConfigured = $this->gmailService->isConfigured();
-                            Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
-                        }
                         
                         $emailSent = $this->gmailService->sendStatusEmail(
                             $application->user->email,
@@ -808,11 +534,9 @@ class ApplicationController extends Controller
                 }
             }
 
-            // Hard copy notification (separate from status change)
             if ($hardCopyChanged && $newHardCopyStatus) {
                 Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
                 
-                // Check for duplicate hard copy activity
                 $existingHardCopyDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
                     ->where('action', 'hard_copy_received')
                     ->where('created_at', '>=', now()->subSeconds(2))
@@ -1004,7 +728,6 @@ class ApplicationController extends Controller
                 $message = 'Documents verified successfully';
                 $newStatus = 'approved';
                 
-                // Update application status to approved
                 $application->status = 'approved';
                 $application->verified_at = now();
                 $application->verified_by = $staff->id;
@@ -1013,7 +736,6 @@ class ApplicationController extends Controller
                 $message = 'Documents rejected';
                 $newStatus = 'rejected';
                 
-                // Update application status to rejected
                 $application->status = 'rejected';
                 if ($request->has('remarks')) {
                     $application->rejection_reason = $request->remarks;
@@ -1032,7 +754,6 @@ class ApplicationController extends Controller
             
             $application->save();
             
-            // Log the activity
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
@@ -1044,7 +765,6 @@ class ApplicationController extends Controller
                 $request->userAgent()
             );
             
-            // Send notification to applicant
             try {
                 $this->notificationService->notifyApplicantStatusChange(
                     $application,
@@ -1124,7 +844,6 @@ class ApplicationController extends Controller
 
             $staff = auth()->user();
 
-            // Check if already marked
             if ($application->hard_copy_received) {
                 Log::info('Hard copy already marked as received');
                 return response()->json([
@@ -1148,7 +867,6 @@ class ApplicationController extends Controller
                 'last_updated_by' => $application->last_updated_by
             ]);
 
-            // Check for duplicate hard copy activity
             $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
                 ->where('action', 'hard_copy_received')
                 ->where('created_at', '>=', now()->subSeconds(2))
@@ -1290,11 +1008,6 @@ class ApplicationController extends Controller
             if ($application->user && $application->user->email) {
                 Log::info('📧 ATTEMPTING TO SEND MISSING DOCUMENTS EMAIL VIA GMAIL SERVICE TO ' . $application->user->email);
                 
-                if (method_exists($this->gmailService, 'isConfigured')) {
-                    $isConfigured = $this->gmailService->isConfigured();
-                    Log::info('Gmail service configured: ' . ($isConfigured ? 'YES' : 'NO'));
-                }
-                
                 $emailSent = $this->gmailService->sendMissingDocumentsEmail(
                     $application->user->email,
                     $application->application_number,
@@ -1313,7 +1026,6 @@ class ApplicationController extends Controller
                 Log::error('Cannot send email: Applicant email not found');
             }
 
-            // Check for duplicate missing documents request
             $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
                 ->where('action', 'missing_documents_requested')
                 ->where('created_at', '>=', now()->subSeconds(2))
@@ -1350,6 +1062,109 @@ class ApplicationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store a new application (created by staff)
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|max:11',
+            'address' => 'required|string',
+            'google_drive_link' => 'required|url'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone,
+                'address' => $request->address,
+                'username' => $this->generateUsername($request->first_name, $request->last_name),
+                'password' => bcrypt('defaultpassword123'),
+                'role' => 'applicant',
+                'email_verified_at' => now(),
+            ]);
+            
+            $year = date('Y');
+            do {
+                $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $applicationNumber = $year . $random;
+            } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
+            
+            $application = ApplicationDocument::create([
+                'user_id' => $user->id,
+                'application_number' => $applicationNumber,
+                'google_drive_link' => $request->google_drive_link,
+                'status' => 'pending',
+                'rejection_reason' => null,
+                'verified_at' => null,
+                'verified_by' => null,
+                'hard_copy_received' => false
+            ]);
+            
+            $this->logReviewActivity(
+                $application->id,
+                auth()->id(),
+                'application_created',
+                null,
+                'pending',
+                "Application #{$applicationNumber} created for {$user->first_name} {$user->last_name}",
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            $this->notificationService->notifyStaffNewApplication($application);
+            
+            try {
+                Log::info('📧 Attempting to send PENDING email to: ' . $user->email);
+                
+                $emailSent = $this->gmailService->sendStatusEmail(
+                    $user->email,
+                    'pending',
+                    $applicationNumber,
+                    $user->first_name,
+                    $application->id
+                );
+                
+                if ($emailSent) {
+                    Log::info('✓✓✓ PENDING EMAIL SENT SUCCESSFULLY TO ' . $user->email);
+                } else {
+                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email);
+                }
+            } catch (\Exception $e) {
+                Log::error('✗✗✗ EXCEPTION when sending pending email: ' . $e->getMessage());
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application created successfully',
+                'data' => [
+                    'application_number' => $applicationNumber,
+                    'status' => 'pending'
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error creating application: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating application: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1413,7 +1228,7 @@ class ApplicationController extends Controller
                     'pending', 
                     'under-review', 
                     'document-verification',
-                    'for-assessment', // ADDED for-assessment
+                    'for-assessment',
                     'approved', 
                     'rejected', 
                     'for-release', 
@@ -1542,62 +1357,7 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-    
-    /**
-     * Log review activity for an application
-     */
-    private function logReviewActivity($applicationId, $reviewerId, $action, $oldStatus = null, $newStatus = null, $remarks = null, $ipAddress = null, $userAgent = null)
-    {
-        try {
-            if (!Schema::hasTable('application_review_activities')) {
-                Log::warning('Application review activities table does not exist');
-                return null;
-            }
-            
-            // Check for duplicate within last 2 seconds
-            $duplicate = ApplicationReviewActivity::where('application_id', $applicationId)
-                ->where('action', $action)
-                ->where('created_at', '>=', now()->subSeconds(2))
-                ->exists();
-            
-            if ($duplicate) {
-                Log::info('Skipping duplicate activity: ' . $action);
-                return null;
-            }
-            
-            return ApplicationReviewActivity::create([
-                'application_id' => $applicationId,
-                'reviewer_id' => $reviewerId,
-                'action' => $action,
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'remarks' => $remarks,
-                'ip_address' => $ipAddress,
-                'user_agent' => $userAgent
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error logging review activity: ' . $e->getMessage());
-            return null;
-        }
-    }
 
-    /**
-     * Generate username from first and last name
-     */
-    private function generateUsername($firstName, $lastName)
-    {
-        $base = strtolower($firstName . '.' . $lastName);
-        $username = $base;
-        $counter = 1;
-        
-        while (User::where('username', $username)->exists()) {
-            $username = $base . $counter;
-            $counter++;
-        }
-        
-        return $username;
-    }
-    
     /**
      * Archive an application
      */
@@ -1622,7 +1382,6 @@ class ApplicationController extends Controller
                 'archive_reason' => request('reason', 'Archived by staff')
             ]);
             
-            // Log the archive activity
             $this->logReviewActivity(
                 $application->id,
                 Auth::id(),
@@ -1666,7 +1425,7 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Restore an archived application
      */
@@ -1686,7 +1445,6 @@ class ApplicationController extends Controller
                 'archive_reason' => null
             ]);
             
-            // Log the restore activity
             $this->logReviewActivity(
                 $application->id,
                 Auth::id(),
@@ -1729,7 +1487,7 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Restore multiple archived applications
      */
@@ -1783,7 +1541,7 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get archived applications list (for the archive page)
      */
@@ -1927,6 +1685,20 @@ class ApplicationController extends Controller
                 $assessment->application_id = $id;
             }
             
+            // Prepare assessment data for notification
+            $assessmentData = [
+                'line_grade' => $request->line_grade,
+                'building_fee' => $request->building_fee,
+                'sanitary_fee' => $request->sanitary_fee,
+                'mechanical_fee' => $request->mechanical_fee,
+                'electrical_fee' => $request->electrical_fee,
+                'others_amount' => $request->others_amount,
+                'others_description' => $request->others_description,
+                'penalties_fines' => $request->penalties_fines,
+                'total_amount' => $request->total_amount,
+                'assessment_notes' => $request->assessment_notes
+            ];
+            
             // Update assessment data
             $assessment->line_grade = $request->line_grade;
             $assessment->building_fee = $request->building_fee;
@@ -1950,12 +1722,18 @@ class ApplicationController extends Controller
             
             // Update application status to 'for-assessment' if not already
             $oldStatus = $application->status;
+            
             if ($application->status !== 'for-assessment') {
                 $application->status = 'for-assessment';
                 $application->last_updated_by = $staff->id;
                 $application->save();
                 
-                // Log the activity
+                Log::info('Application status changed to for-assessment', [
+                    'old_status' => $oldStatus,
+                    'new_status' => 'for-assessment'
+                ]);
+                
+                // Log the status change activity
                 $this->logReviewActivity(
                     $application->id,
                     $staff->id,
@@ -1966,31 +1744,9 @@ class ApplicationController extends Controller
                     $request->ip(),
                     $request->userAgent()
                 );
-                
-                // Send notification
-                try {
-                    $this->notificationService->notifyApplicantStatusChange(
-                        $application,
-                        $oldStatus,
-                        'for-assessment',
-                        $staff
-                    );
-                    
-                    if ($application->user && $application->user->email) {
-                        $this->gmailService->sendStatusEmail(
-                            $application->user->email,
-                            'for-assessment',
-                            $application->application_number,
-                            $application->user->first_name,
-                            $application->id
-                        );
-                    }
-                } catch (\Exception $e) {
-                    Log::error('Failed to send assessment notification: ' . $e->getMessage());
-                }
             }
             
-            // Also log assessment saved activity
+            // Log assessment saved activity
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
@@ -2002,14 +1758,29 @@ class ApplicationController extends Controller
                 $request->userAgent()
             );
             
+            // Send assessment completion notification to applicant
+            try {
+                $this->notificationService->notifyAssessmentCompleted(
+                    $application,
+                    $oldStatus,
+                    'for-assessment',
+                    $staff,
+                    $assessmentData
+                );
+                Log::info('✓✓✓ ASSESSMENT NOTIFICATION SENT TO APPLICANT ✓✓✓');
+            } catch (\Exception $e) {
+                Log::error('Failed to send assessment notification: ' . $e->getMessage());
+            }
+            
             Log::info('========== SAVE ASSESSMENT END (SUCCESS) ==========');
             
             return response()->json([
                 'success' => true,
-                'message' => 'Assessment saved successfully',
+                'message' => 'Assessment saved successfully and applicant notified',
                 'data' => [
                     'assessment' => $assessment,
-                    'status' => $application->status
+                    'status' => $application->status,
+                    'notification_sent' => true
                 ]
             ]);
             
@@ -2054,5 +1825,60 @@ class ApplicationController extends Controller
                 'message' => 'Error retrieving assessment'
             ], 500);
         }
+    }
+
+    /**
+     * Log review activity for an application
+     */
+    private function logReviewActivity($applicationId, $reviewerId, $action, $oldStatus = null, $newStatus = null, $remarks = null, $ipAddress = null, $userAgent = null)
+    {
+        try {
+            if (!Schema::hasTable('application_review_activities')) {
+                Log::warning('Application review activities table does not exist');
+                return null;
+            }
+            
+            // Check for duplicate within last 2 seconds
+            $duplicate = ApplicationReviewActivity::where('application_id', $applicationId)
+                ->where('action', $action)
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
+            
+            if ($duplicate) {
+                Log::info('Skipping duplicate activity: ' . $action);
+                return null;
+            }
+            
+            return ApplicationReviewActivity::create([
+                'application_id' => $applicationId,
+                'reviewer_id' => $reviewerId,
+                'action' => $action,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'remarks' => $remarks,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error logging review activity: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generate username from first and last name
+     */
+    private function generateUsername($firstName, $lastName)
+    {
+        $base = strtolower($firstName . '.' . $lastName);
+        $username = $base;
+        $counter = 1;
+        
+        while (User::where('username', $username)->exists()) {
+            $username = $base . $counter;
+            $counter++;
+        }
+        
+        return $username;
     }
 }
