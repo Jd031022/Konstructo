@@ -17,6 +17,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Applicant\ApplicationController;
 use App\Http\Controllers\Applicant\BasicRequirementController;
 use App\Http\Controllers\ApplicationDocumentController;
+use App\Models\ApplicationDocument;
+use App\Models\BasicRequirement;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -204,53 +206,42 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.activity-history', ['applicationId' => $id]);
     })->name('activity-history');
     
-    // Step routes with per-application basic requirements check
+    // ========== STEP 1: PROJECT INFORMATION ==========
     Route::get('/application/step1', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
         
-        if ($applicationId) {
-            $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
-                ->where('id', $applicationId)
-                ->first();
-                
-            if (!$application) {
-                return redirect()->route('applicant.applications')
-                    ->with('error', 'Application not found.');
-            }
-            
-            $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
-                ->where('status', 'approved')
-                ->first();
-                
-            if (!$basicRequirement) {
-                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                    ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-            }
-            
-            return view('applicant.application.step1', compact('application'));
-        } else {
-            $submittedCount = \App\Models\ApplicationDocument::where('user_id', $user->id)
-                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
-                ->count();
-                
-            if ($submittedCount >= 3) {
-                return redirect()->route('applicant.applications')
-                    ->with('error', 'You have reached the maximum limit of 3 applications.');
-            }
-            
-            $application = \App\Models\ApplicationDocument::create([
-                'user_id' => $user->id,
-                'application_number' => null,
-                'status' => 'draft',
-                'google_drive_link' => null
-            ]);
-            
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $application->id])
-                ->with('info', 'Please complete the basic requirements first.');
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
         }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        return view('applicant.application.step1', compact('application'));
     })->name('application.step1');
+
+    // Save Project Info
+    Route::post('/application/save-project-info', [ApplicationController::class, 'saveProjectInfo'])
+        ->name('application.save-project-info');
     
+    // ========== STEP 2: DOWNLOAD FORMS ==========
     Route::get('/application/step2', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -260,7 +251,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application ID is required.');
         }
         
-        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+        $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
             ->first();
             
@@ -269,7 +260,13 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+        // Check if step 1 is completed
+        if (!$application->step1_completed) {
+            return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+                ->with('error', 'Please complete Step 1 (Project Information) first.');
+        }
+        
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
             ->where('status', 'approved')
             ->first();
             
@@ -280,7 +277,12 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         return view('applicant.application.step2', compact('application'));
     })->name('application.step2');
+
+    // Mark Step 2 as complete
+    Route::post('/application/step2/complete', [ApplicationController::class, 'completeStep2'])
+        ->name('application.step2.complete');
     
+    // ========== STEP 3: UPLOAD DOCUMENTS ==========
     Route::get('/application/step3', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -290,7 +292,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application ID is required.');
         }
         
-        $application = \App\Models\ApplicationDocument::where('user_id', $user->id)
+        $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
             ->first();
             
@@ -299,7 +301,13 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        $basicRequirement = \App\Models\BasicRequirement::where('application_id', $applicationId)
+        // Check if step 2 is completed
+        if (!$application->step2_completed) {
+            return redirect()->route('applicant.application.step2', ['id' => $applicationId])
+                ->with('error', 'Please complete Step 2 (Download Forms) first.');
+        }
+        
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
             ->where('status', 'approved')
             ->first();
             
@@ -310,6 +318,47 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         return view('applicant.application.step3', compact('application'));
     })->name('application.step3');
+    
+    // Mark Step 3 as complete
+    Route::post('/application/step3/complete', [ApplicationController::class, 'completeStep3'])
+        ->name('application.step3.complete');
+    
+    // ========== STEP 4: REVIEW & SUBMIT ==========
+    Route::get('/application/step4', function (Request $request) {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if step 3 is completed
+        if (!$application->step3_completed) {
+            return redirect()->route('applicant.application.step3', ['id' => $applicationId])
+                ->with('error', 'Please complete Step 3 (Upload Documents) first.');
+        }
+        
+        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
+            ->where('status', 'approved')
+            ->first();
+            
+        if (!$basicRequirement) {
+            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
+                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        }
+        
+        return view('applicant.application.step4', compact('application'));
+    })->name('application.step4');
     
     // Application Document API Routes
     Route::post('/application/store-link', [ApplicationDocumentController::class, 'storeLink'])

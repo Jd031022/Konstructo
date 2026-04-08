@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <h4 class="font-semibold text-gray-800">Hard Copy Submission Required</h4>
-                    <p class="text-sm text-gray-700 mt-1">After the approval of your application, Please submit the original hard copies of ALL documents to the Office of the Building Official (OBO) to complete your application.</p>
+                    <p class="text-sm text-gray-700 mt-1">After approval of your application, please submit the original hard copies of ALL documents to the Office of the Building Official (OBO) to complete your application.</p>
                 </div>
             </div>
         </div>
@@ -109,21 +109,21 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-3 mb-3">
-                            <h1 class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
+                            <h1 id="project-title" class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
                             <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                         </div>
                         
-                        <div class="flex items-center gap-4 text-sm">
+                        <div class="flex flex-wrap items-center gap-4 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400">Application Number</span>
                                 <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
                             </div>
-                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400">Submitted</span>
                                 <span id="submitted-date" class="font-medium text-gray-700"></span>
                             </div>
-                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400">Last Updated</span>
                                 <span id="updated-date" class="font-medium text-gray-700"></span>
@@ -133,11 +133,11 @@
                 </div>
                 
                 <div class="flex gap-2">
-                    <button onclick="downloadApplication()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                    <button onclick="downloadApplicationSummary()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Download Application
+                        Download Summary
                     </button>
                     <button onclick="contactSupport()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,55 +181,57 @@
                 </p>
             </div>
 
-            <div class="relative">
-                <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
-                <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
-                <div class="absolute top-5 left-0 w-full h-0.5 overflow-hidden">
-                    <div class="w-full h-full loading-line-animation"></div>
-                </div>
-                
-                <div class="relative flex justify-between">
-                    <div id="step-submitted" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">1</span>
-                        </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
-                        <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+            <div class="relative overflow-x-auto pb-4">
+                <div class="relative min-w-[600px]">
+                    <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200"></div>
+                    <div id="progress-line" class="absolute top-5 left-0 w-0 h-0.5 bg-[#155386] transition-all duration-700 ease-out" style="width: 0%"></div>
+                    <div class="absolute top-5 left-0 w-full h-0.5 overflow-hidden">
+                        <div class="w-full h-full loading-line-animation"></div>
                     </div>
-                    <div id="step-under-review" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">2</span>
+                    
+                    <div class="relative flex justify-between">
+                        <div id="step-submitted" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">1</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">Submitted</p>
+                            <p id="step-submitted-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                         </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
-                        <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    <div id="step-verification" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">3</span>
+                        <div id="step-under-review" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">2</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">Under Review</p>
+                            <p id="step-under-review-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                         </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
-                        <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    <div id="step-assessment" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">4</span>
+                        <div id="step-verification" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">3</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">Document Verification</p>
+                            <p id="step-verification-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                         </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Assessment</p>
-                        <p id="step-assessment-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    <div id="step-approval" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">5</span>
+                        <div id="step-assessment" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">4</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">Assessment</p>
+                            <p id="step-assessment-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                         </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
-                        <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
-                    </div>
-                    <div id="step-release" class="text-center step-item">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
-                            <span class="text-lg font-bold text-gray-400 step-icon">6</span>
+                        <div id="step-approval" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">5</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">Approval</p>
+                            <p id="step-approval-date" class="text-xs text-gray-400 transition-all duration-500"></p>
                         </div>
-                        <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
-                        <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+                        <div id="step-release" class="text-center step-item">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 relative z-10 transition-all duration-500">
+                                <span class="text-lg font-bold text-gray-400 step-icon">6</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 transition-all duration-500">For Release</p>
+                            <p id="step-release-date" class="text-xs text-gray-400 transition-all duration-500"></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -240,6 +242,91 @@
 
             <!-- Left Column -->
             <div class="lg:col-span-2 space-y-8">
+
+                <!-- Project Information Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Project Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Project Title</p>
+                            <p id="info-project-title" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Project Type</p>
+                            <p id="info-project-type" class="text-sm font-medium text-gray-800 capitalize">-</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-500">Project Location</p>
+                            <p id="info-project-location" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Lot Area</p>
+                            <p id="info-lot-area" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Floor Area</p>
+                            <p id="info-floor-area" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Number of Floors</p>
+                            <p id="info-num-floors" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Estimated Cost</p>
+                            <p id="info-estimated-cost" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-500">Project Description</p>
+                            <p id="info-description" class="text-sm text-gray-600">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner Information Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Owner/Applicant Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Full Name</p>
+                            <p id="info-owner-name" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Contact Number</p>
+                            <p id="info-contact-number" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-500">Address</p>
+                            <p id="info-owner-address" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Email Address</p>
+                            <p id="info-owner-email" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Professional Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Architect's Name</p>
+                            <p id="info-architect-name" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Architect's License</p>
+                            <p id="info-architect-license" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Civil Engineer's Name</p>
+                            <p id="info-engineer-name" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Engineer's License</p>
+                            <p id="info-engineer-license" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Staff/Reviewers List Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
@@ -273,7 +360,7 @@
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-800">Main Google Drive Folder</p>
-                                <div class="flex items-center gap-2 mt-1">
+                                <div class="flex flex-wrap items-center gap-2 mt-1">
                                     <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
                                         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -297,7 +384,6 @@
                     <div class="space-y-4">
                         <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Submitted Documents</h3>
                         <div id="documents-list" class="space-y-3">
-                            <!-- Documents will be loaded dynamically -->
                             <div class="text-center py-8 text-gray-500">
                                 <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -338,7 +424,7 @@
                             <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
                                 <li>All uploaded documents require original hard copy submission to the Office of the Building Official (OBO)</li>
                                 <li>You will receive an email notification for every update on your application</li>
-                                <li>Processing time may take 7-10 business days upon complete submission</li>
+                                <li>Processing time may take 20 working days upon complete submission</li>
                                 <li>For urgent concerns, please contact the Building Official's office directly</li>
                             </ul>
                         </div>
@@ -348,7 +434,7 @@
 
             <!-- Right Column -->
             <div class="lg:col-span-1">
-                <div class="sticky space-y-8">
+                <div class="sticky top-8 space-y-8">
                     <!-- Current Status Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
@@ -366,7 +452,7 @@
                             
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Estimated Review:</span>
-                                <span id="estimated-time" class="text-sm font-medium text-gray-800">3-5 business days</span>
+                                <span id="estimated-time" class="text-sm font-medium text-gray-800">20 working days</span>
                             </div>
                             
                             <div class="pt-4 border-t border-gray-100">
@@ -411,12 +497,12 @@
 
                         <!-- Action Buttons -->
                         <div class="mt-6 space-y-2">
-                            <button onclick="sendMessage()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
+                            <a href="mailto:obo@legazpi.gov.ph?subject=Building Permit Application Inquiry - {{ $applicationId ?? '' }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
                                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                Send Message to Reviewer
-                            </button>
+                                Email OBO Support
+                            </a>
                             <button onclick="requestAssistance()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
                                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -440,10 +526,9 @@
                                 <p class="text-sm">Loading activities...</p>
                             </div>
                         </div>
-                        <a href="/applicant/applications/{{ $applicationId }}/activity-history" 
-                           class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
+                        <button onclick="viewFullHistory()" class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
                             View Full History →
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -498,10 +583,22 @@
 </div>
 
 <script>
+    // CSRF token helper
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="csrf-token"]')?.content;
+        if (!token) console.warn('CSRF token meta tag not found');
+        return token || '{{ csrf_token() }}';
+    }
+
     // Get application ID from URL path
     function getApplicationIdFromUrl() {
         const pathParts = window.location.pathname.split('/');
-        return pathParts[pathParts.length - 1];
+        const lastPart = pathParts[pathParts.length - 1];
+        // Check if last part is numeric
+        if (lastPart && !isNaN(lastPart)) {
+            return lastPart;
+        }
+        return null;
     }
     
     let applicationId = getApplicationIdFromUrl();
@@ -531,7 +628,7 @@
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Application ID from URL:', applicationId);
-        if (applicationId && applicationId !== 'application-details' && !isNaN(applicationId)) {
+        if (applicationId && !isNaN(applicationId)) {
             loadApplicationDetails();
             startRealTimeUpdates();
         } else {
@@ -542,16 +639,19 @@
 
     // Start real-time updates
     function startRealTimeUpdates() {
-        updateCheckInterval = setInterval(checkForUpdates, 15000);
+        updateCheckInterval = setInterval(checkForUpdates, 30000); // Check every 30 seconds
     }
 
     // Check for updates
     async function checkForUpdates() {
+        if (!applicationId) return;
+        
         try {
             const response = await fetch(`/applicant/applications/${applicationId}`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
@@ -561,7 +661,7 @@
                     const newApplication = data.data;
                     
                     if (previousStatus && previousStatus !== newApplication.status) {
-                        showUpdateNotification('Application status updated to ' + formatStatus(newApplication.status));
+                        showUpdateNotification('Application status updated to ' + formatStatusDisplay(newApplication.status));
                         animateStatusChange();
                         
                         if (newApplication.status === 'document-verification') {
@@ -590,11 +690,14 @@
 
     // Load assessment data
     async function loadAssessmentData() {
+        if (!applicationId) return;
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
@@ -678,28 +781,34 @@
         const progressBar = document.getElementById('progress-bar');
         const progressLine = document.getElementById('progress-line');
         
-        statusBadge.classList.add('animate-pulse');
-        currentStatusBadge.classList.add('animate-pulse');
-        progressBar.classList.add('scale-animation');
-        progressLine.classList.add('scale-animation');
+        if (statusBadge) statusBadge.classList.add('animate-pulse');
+        if (currentStatusBadge) currentStatusBadge.classList.add('animate-pulse');
+        if (progressBar) progressBar.classList.add('scale-animation');
+        if (progressLine) progressLine.classList.add('scale-animation');
         
         setTimeout(() => {
-            statusBadge.classList.remove('animate-pulse');
-            currentStatusBadge.classList.remove('animate-pulse');
-            progressBar.classList.remove('scale-animation');
-            progressLine.classList.remove('scale-animation');
+            if (statusBadge) statusBadge.classList.remove('animate-pulse');
+            if (currentStatusBadge) currentStatusBadge.classList.remove('animate-pulse');
+            if (progressBar) progressBar.classList.remove('scale-animation');
+            if (progressLine) progressLine.classList.remove('scale-animation');
         }, 1000);
     }
 
     // Load application details from API
     async function loadApplicationDetails() {
+        if (!applicationId) {
+            showError();
+            return;
+        }
+        
         try {
             console.log('Fetching application details for ID:', applicationId);
             
             const response = await fetch(`/applicant/applications/${applicationId}`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
@@ -710,7 +819,7 @@
             const data = await response.json();
             console.log('Application data:', data);
             
-            if (data.success) {
+            if (data.success && data.data) {
                 currentApplication = data.data;
                 previousStatus = currentApplication.status;
                 displayApplicationDetails();
@@ -718,7 +827,6 @@
                 loadAssessmentData();
                 
                 // Display documents from the document_links
-                console.log('Document links:', currentApplication.document_links);
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
                     displayDocumentsList(currentApplication.document_links);
                 } else {
@@ -733,6 +841,30 @@
             showErrorModal('Failed to load application details: ' + error.message);
             showError();
         }
+    }
+
+    // Display project information
+    function displayProjectInfo(app) {
+        document.getElementById('info-project-title').textContent = app.project_title || 'Not provided';
+        document.getElementById('info-project-type').textContent = app.project_type || 'Not provided';
+        document.getElementById('info-project-location').textContent = app.project_location || 'Not provided';
+        document.getElementById('info-lot-area').textContent = app.lot_area ? `${parseFloat(app.lot_area).toLocaleString()} sqm` : 'Not provided';
+        document.getElementById('info-floor-area').textContent = app.floor_area ? `${parseFloat(app.floor_area).toLocaleString()} sqm` : 'Not provided';
+        document.getElementById('info-num-floors').textContent = app.num_floors || 'Not provided';
+        document.getElementById('info-estimated-cost').textContent = app.estimated_cost ? `₱${parseFloat(app.estimated_cost).toLocaleString()}` : 'Not provided';
+        document.getElementById('info-description').textContent = app.project_description || 'Not provided';
+        
+        document.getElementById('info-owner-name').textContent = app.owner_name || 'Not provided';
+        document.getElementById('info-contact-number').textContent = app.contact_number || 'Not provided';
+        document.getElementById('info-owner-address').textContent = app.owner_address || 'Not provided';
+        document.getElementById('info-owner-email').textContent = app.owner_email || 'Not provided';
+        
+        document.getElementById('info-architect-name').textContent = app.architect_name || 'Not provided';
+        document.getElementById('info-architect-license').textContent = app.architect_license || 'Not provided';
+        document.getElementById('info-engineer-name').textContent = app.engineer_name || 'Not provided';
+        document.getElementById('info-engineer-license').textContent = app.engineer_license || 'Not provided';
+        
+        document.getElementById('project-title').textContent = app.project_title || 'Building Permit Application';
     }
 
     // Display documents list
@@ -761,11 +893,11 @@
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 truncate">${docName}</p>
-                                <p class="text-xs text-gray-400 truncate">${value.length > 60 ? value.substring(0, 60) + '...' : value}</p>
+                                <p class="text-sm font-medium text-gray-800 truncate">${escapeHtml(docName)}</p>
+                                <p class="text-xs text-gray-400 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
                             </div>
                         </div>
-                        <a href="${value}" target="_blank" class="text-[#155386] hover:text-[#1F363D] text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-[#155386] hover:text-[#1F363D] text-sm flex items-center gap-1 flex-shrink-0 ml-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
@@ -803,11 +935,14 @@
 
     // Load review activities
     async function loadReviewActivities() {
+        if (!applicationId) return;
+        
         try {
             const response = await fetch(`/applicant/applications/${applicationId}/review-activities`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
@@ -934,13 +1069,13 @@
             reviewersContainer.innerHTML += `
                 <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition animate-fade-in">
                     <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold">
-                        <span>${reviewer.initials}</span>
+                        <span>${escapeHtml(reviewer.initials)}</span>
                     </div>
                     <div class="flex-1">
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-start flex-wrap gap-2">
                             <div>
-                                <p class="text-sm font-medium text-gray-800">${reviewer.name}</p>
-                                <p class="text-xs text-gray-500">${reviewer.role}</p>
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(reviewer.name)}</p>
+                                <p class="text-xs text-gray-500">${escapeHtml(reviewer.role)}</p>
                             </div>
                             <span class="text-xs px-2 py-1 ${statusClass} rounded-full whitespace-nowrap">${statusText}</span>
                         </div>
@@ -1056,7 +1191,7 @@
             let actionDisplay = activity.action_display || activity.action;
             if (activity.action === 'status_updated') {
                 if (activity.old_status && activity.new_status) {
-                    actionDisplay = `Status changed from ${formatStatus(activity.old_status)} to ${formatStatus(activity.new_status)}`;
+                    actionDisplay = `Status changed from ${formatStatusDisplay(activity.old_status)} to ${formatStatusDisplay(activity.new_status)}`;
                 } else {
                     actionDisplay = 'Status updated';
                 }
@@ -1073,13 +1208,13 @@
                     </div>
                     <div class="flex-1">
                         <div class="flex flex-col">
-                            <div class="flex justify-between items-start">
-                                <p class="text-sm font-medium text-gray-800">${actionDisplay}</p>
+                            <div class="flex justify-between items-start flex-wrap gap-1">
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(actionDisplay)}</p>
                             </div>
-                            ${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${activity.remarks}</p>` : ''}
+                            ${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${escapeHtml(activity.remarks)}</p>` : ''}
                             <p class="text-xs text-gray-500 mt-1">
-                                <span class="font-medium">${reviewerName}</span>
-                                ${reviewerRole ? `<span class="text-gray-400"> • ${reviewerRole}</span>` : ''}
+                                <span class="font-medium">${escapeHtml(reviewerName)}</span>
+                                ${reviewerRole ? `<span class="text-gray-400"> • ${escapeHtml(reviewerRole)}</span>` : ''}
                             </p>
                             <div class="mt-1">
                                 <p class="text-xs text-gray-400" title="${exactDateTime}">${timeAgo}</p>
@@ -1099,13 +1234,18 @@
 
     // Display application details
     function displayApplicationDetails() {
+        if (!currentApplication) return;
+        
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('application-content').classList.remove('hidden');
 
+        // Display project information
+        displayProjectInfo(currentApplication);
+
         document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
         
-        if (currentApplication.created_at) {
-            const submittedDate = new Date(currentApplication.created_at + ' UTC');
+        if (currentApplication.submitted_at || currentApplication.created_at) {
+            const submittedDate = new Date((currentApplication.submitted_at || currentApplication.created_at) + ' UTC');
             document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
                 year: 'numeric', month: 'long', day: 'numeric' 
             });
@@ -1129,12 +1269,14 @@
         if (currentApplication.google_drive_link) {
             const driveLink = document.getElementById('drive-link');
             driveLink.href = currentApplication.google_drive_link;
-            document.getElementById('drive-link-text').textContent = currentApplication.google_drive_link.length > 50 ? 
+            const linkText = document.getElementById('drive-link-text');
+            linkText.textContent = currentApplication.google_drive_link.length > 50 ? 
                 currentApplication.google_drive_link.substring(0, 50) + '...' : 
                 currentApplication.google_drive_link;
             driveLink.classList.remove('pointer-events-none', 'text-gray-500');
             driveLink.classList.add('text-[#155386]');
             driveLink.setAttribute('target', '_blank');
+            driveLink.setAttribute('rel', 'noopener noreferrer');
             
             document.getElementById('document-status').textContent = 'Available';
             document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
@@ -1179,23 +1321,35 @@
         return name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
     }
 
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function formatExactDateTime(date) {
+        if (!(date instanceof Date) || isNaN(date)) return '';
         return date.toLocaleDateString('en-US', { 
             year: 'numeric', month: 'long', day: 'numeric',
             hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
         });
     }
 
-    function formatStatus(status) {
+    function formatStatusDisplay(status) {
         if (!status) return '';
         const statusMap = {
-            'for-assessment': 'For Assessment'
+            'for-assessment': 'For Assessment',
+            'under-review': 'Under Review',
+            'document-verification': 'Document Verification',
+            'for-release': 'For Release'
         };
         if (statusMap[status]) return statusMap[status];
         return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
     function getTimeAgo(date) {
+        if (!(date instanceof Date) || isNaN(date)) return 'Unknown';
         const now = new Date();
         const diffMs = now - date;
         const diffMins = Math.floor(diffMs / 60000);
@@ -1228,11 +1382,15 @@
 
         const config = statusConfig[status] || { color: 'gray', text: status || 'Unknown' };
         
-        statusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
-        statusBadge.textContent = config.text;
+        if (statusBadge) {
+            statusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
+            statusBadge.textContent = config.text;
+        }
         
-        currentStatusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
-        currentStatusBadge.textContent = config.text;
+        if (currentStatusBadge) {
+            currentStatusBadge.className = `px-3 py-1 bg-${config.color}-100 text-${config.color}-600 rounded-full text-xs font-medium transition-all duration-500`;
+            currentStatusBadge.textContent = config.text;
+        }
     }
 
     function updateTimeline(status) {
@@ -1277,10 +1435,13 @@
                 } else {
                     stepElement.classList.remove('step-processing');
                     
-                    if (index === 0 && currentApplication?.created_at) {
-                        const date = new Date(currentApplication.created_at + ' UTC');
-                        dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        dateElement.className = 'text-xs text-gray-500';
+                    // Try to get completion date from application if available
+                    if (index === 0 && currentApplication?.submitted_at) {
+                        const date = new Date(currentApplication.submitted_at + ' UTC');
+                        if (!isNaN(date)) {
+                            dateElement.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            dateElement.className = 'text-xs text-gray-500';
+                        }
                     }
                 }
             } else {
@@ -1320,8 +1481,11 @@
         };
         
         const progress = progressMap[status] || 0;
-        document.getElementById('progress-percentage').textContent = progress + '%';
-        document.getElementById('progress-bar').style.width = progress + '%';
+        const progressPercent = document.getElementById('progress-percentage');
+        const progressBar = document.getElementById('progress-bar');
+        
+        if (progressPercent) progressPercent.textContent = progress + '%';
+        if (progressBar) progressBar.style.width = progress + '%';
     }
 
     function updateHardCopyStatus(received) {
@@ -1334,17 +1498,21 @@
         if (received) {
             if (hardcopyNotice) hardcopyNotice.classList.add('hidden');
             if (hardcopyReceivedNotice) hardcopyReceivedNotice.classList.remove('hidden');
-            hardcopyBadge.textContent = 'Received';
-            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full transition-all duration-500';
-            hardcopyMessage.textContent = 'Hard copies received by OBO';
-            hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg transition-all duration-500';
+            if (hardcopyBadge) {
+                hardcopyBadge.textContent = 'Received';
+                hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full transition-all duration-500';
+            }
+            if (hardcopyMessage) hardcopyMessage.textContent = 'Hard copies received by OBO';
+            if (hardcopySidebar) hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg transition-all duration-500';
         } else {
             if (hardcopyNotice) hardcopyNotice.classList.remove('hidden');
             if (hardcopyReceivedNotice) hardcopyReceivedNotice.classList.add('hidden');
-            hardcopyBadge.textContent = 'Pending';
-            hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500';
-            hardcopyMessage.textContent = 'Submit originals to OBO';
-            hardcopySidebar.className = 'mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500';
+            if (hardcopyBadge) {
+                hardcopyBadge.textContent = 'Pending';
+                hardcopyBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500';
+            }
+            if (hardcopyMessage) hardcopyMessage.textContent = 'Submit originals to OBO';
+            if (hardcopySidebar) hardcopySidebar.className = 'mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500';
         }
     }
 
@@ -1361,29 +1529,77 @@
         }
     }
 
-    function downloadApplication() {
-        showSuccessModal('Download feature coming soon');
+    function downloadApplicationSummary() {
+        if (!currentApplication) {
+            showErrorModal('No application data to download');
+            return;
+        }
+        
+        // Create a simple text summary
+        let summary = `BUILDING PERMIT APPLICATION SUMMARY\n`;
+        summary += `================================\n\n`;
+        summary += `Application Number: ${currentApplication.application_number || 'N/A'}\n`;
+        summary += `Status: ${formatStatusDisplay(currentApplication.status)}\n`;
+        summary += `Submitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
+        summary += `PROJECT INFORMATION\n`;
+        summary += `------------------\n`;
+        summary += `Title: ${currentApplication.project_title || 'N/A'}\n`;
+        summary += `Type: ${currentApplication.project_type || 'N/A'}\n`;
+        summary += `Location: ${currentApplication.project_location || 'N/A'}\n`;
+        summary += `Lot Area: ${currentApplication.lot_area ? currentApplication.lot_area + ' sqm' : 'N/A'}\n`;
+        summary += `Floor Area: ${currentApplication.floor_area ? currentApplication.floor_area + ' sqm' : 'N/A'}\n`;
+        summary += `Floors: ${currentApplication.num_floors || 'N/A'}\n`;
+        summary += `Estimated Cost: ${currentApplication.estimated_cost ? '₱' + parseFloat(currentApplication.estimated_cost).toLocaleString() : 'N/A'}\n\n`;
+        summary += `OWNER INFORMATION\n`;
+        summary += `-----------------\n`;
+        summary += `Name: ${currentApplication.owner_name || 'N/A'}\n`;
+        summary += `Contact: ${currentApplication.contact_number || 'N/A'}\n`;
+        summary += `Email: ${currentApplication.owner_email || 'N/A'}\n\n`;
+        summary += `Generated on: ${new Date().toLocaleString()}\n`;
+        
+        // Create download
+        const blob = new Blob([summary], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `application_${currentApplication.application_number || 'summary'}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showSuccessModal('Application summary downloaded!');
     }
 
     function contactSupport() {
-        window.location.href = 'mailto:support@konstructo.com';
-    }
-
-    function sendMessage() {
-        showSuccessModal('Messaging feature coming soon');
+        window.location.href = 'mailto:obo@legazpi.gov.ph?subject=Building Permit Application Inquiry - ' + (currentApplication?.application_number || '');
     }
 
     function requestAssistance() {
-        showSuccessModal('Assistance request sent');
+        showSuccessModal('Assistance request has been sent. A staff member will contact you within 1-2 business days.');
+    }
+
+    function viewFullHistory() {
+        if (applicationId) {
+            window.location.href = `/applicant/applications/${applicationId}/activity-history`;
+        } else {
+            showErrorModal('Unable to view history');
+        }
     }
 
     function showError() {
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('error-state').classList.remove('hidden');
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const applicationContent = document.getElementById('application-content');
+        
+        if (loadingState) loadingState.classList.add('hidden');
+        if (applicationContent) applicationContent.classList.add('hidden');
+        if (errorState) errorState.classList.remove('hidden');
     }
 
     function showErrorModal(message) {
-        document.getElementById('error-modal-message').textContent = message;
+        const messageEl = document.getElementById('error-modal-message');
+        if (messageEl) messageEl.textContent = message;
         document.getElementById('error-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -1394,7 +1610,8 @@
     }
 
     function showSuccessModal(message) {
-        document.getElementById('success-modal-message').textContent = message;
+        const messageEl = document.getElementById('success-modal-message');
+        if (messageEl) messageEl.textContent = message;
         document.getElementById('success-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         
@@ -1485,5 +1702,9 @@
     .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .min-w-0 { min-width: 0; }
     .hidden { display: none; }
+    .sticky { position: sticky; }
+    .top-8 { top: 2rem; }
+    .overflow-x-auto { overflow-x: auto; }
+    .min-w-[600px] { min-width: 600px; }
 </style>
 @endsection

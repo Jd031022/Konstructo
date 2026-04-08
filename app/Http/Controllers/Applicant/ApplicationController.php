@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use setasign\Fpdi\Tcpdf\Fpdi;
 
 class ApplicationController extends Controller
@@ -940,4 +941,178 @@ class ApplicationController extends Controller
             default => ucfirst(str_replace('_', ' ', $action))
         };
     }
+        /**
+     * Save project information from Step 1
+     */
+    public function saveProjectInfo(Request $request)
+    {
+        // Log the incoming request for debugging
+        Log::info('saveProjectInfo called', $request->all());
+        
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id',
+            'project_title' => 'required|string|max:255',
+            'project_location' => 'required|string',
+            'project_type' => 'required|string',
+            'lot_area' => 'required|numeric|min:0',
+            'floor_area' => 'required|numeric|min:0',
+            'num_floors' => 'required|integer|min:1',
+            'estimated_cost' => 'required|numeric|min:0',
+            'project_description' => 'required|string',
+            'owner_name' => 'required|string',
+            'owner_address' => 'required|string',
+            'contact_number' => 'required|string',
+            'owner_email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', $validator->errors()->toArray());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            // Verify ownership
+            if ($application->user_id !== Auth::id()) {
+                Log::error('Unauthorized access', ['user_id' => Auth::id(), 'application_user_id' => $application->user_id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $application->update([
+                'project_title' => $request->project_title,
+                'project_location' => $request->project_location,
+                'project_type' => $request->project_type,
+                'lot_area' => $request->lot_area,
+                'floor_area' => $request->floor_area,
+                'num_floors' => $request->num_floors,
+                'estimated_cost' => $request->estimated_cost,
+                'project_description' => $request->project_description,
+                'owner_name' => $request->owner_name,
+                'owner_address' => $request->owner_address,
+                'contact_number' => $request->contact_number,
+                'owner_email' => $request->owner_email,
+                'architect_name' => $request->architect_name,
+                'architect_license' => $request->architect_license,
+                'engineer_name' => $request->engineer_name,
+                'engineer_license' => $request->engineer_license,
+                'step1_completed' => true,
+                'step1_completed_at' => now(),
+            ]);
+            
+            Log::info('Project info saved successfully', ['application_id' => $application->id]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Project information saved successfully',
+                'data' => $application
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saving project info: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save project information: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Complete Step 2 (Download Forms)
+     */
+    public function completeStep2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $application->update([
+                'step2_completed' => true,
+                'step2_completed_at' => now()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Step 2 completed successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error completing step 2: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to complete step 2: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+   /**
+ * Complete Step 3 (Upload Documents)
+ */
+public function completeStep3(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'application_id' => 'required|exists:application_documents,id'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::findOrFail($request->application_id);
+        
+        if ($application->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        
+        $application->update([
+            'step3_completed' => true,
+            'step3_completed_at' => now()
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Step 3 completed successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error completing step 3: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to complete step 3: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

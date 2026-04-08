@@ -14,6 +14,7 @@
         
         <!-- New Application Button -->
         <a href="/applicant/basic-requirements" 
+           id="new-application-btn"
            class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -70,27 +71,27 @@
             <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span class="font-semibold text-gray-800">Processing Time: 3 Days</span>
+            <span class="font-semibold text-gray-800">Processing Time: 20 Working Days</span>
         </div>
         <div class="flex flex-wrap items-center gap-4 text-xs">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                <span class="text-gray-600">0-2 days (On Track)</span>
+                <span class="text-gray-600">0-15 days (On Track)</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <span class="text-gray-600">3 days (Due Today)</span>
+                <span class="text-gray-600">16-20 days (Due Soon)</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-orange-500"></div>
-                <span class="text-gray-600">4-7 days (Warning)</span>
+                <span class="text-gray-600">21-25 days (Warning)</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                <span class="text-gray-600">8+ days (Overdue)</span>
+                <span class="text-gray-600">26+ days (Overdue)</span>
             </div>
             <div class="border-l border-gray-300 pl-3 ml-1">
-                <span class="text-gray-500">Expected completion: <span class="font-semibold text-[#155386]">3 working days</span> from submission</span>
+                <span class="text-gray-500">Expected completion: <span class="font-semibold text-[#155386]">20 working days</span> from submission</span>
             </div>
         </div>
     </div>
@@ -105,7 +106,7 @@
                     </svg>
                     <input type="text" 
                            id="search-input"
-                           placeholder="Search by application number..." 
+                           placeholder="Search by application number or project title..." 
                            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
                 </div>
                 
@@ -140,10 +141,10 @@
                 
                 <select id="aging-filter" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
                     <option value="">All Aging Status</option>
-                    <option value="ontrack">On Track (0-2 days)</option>
-                    <option value="due">Due Today (3 days)</option>
-                    <option value="warning">Warning (4-7 days)</option>
-                    <option value="overdue">Overdue (8+ days)</option>
+                    <option value="ontrack">On Track (0-15 days)</option>
+                    <option value="due">Due Soon (16-20 days)</option>
+                    <option value="warning">Warning (21-25 days)</option>
+                    <option value="overdue">Overdue (26+ days)</option>
                 </select>
                 
                 <select id="sort-filter" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
@@ -210,7 +211,7 @@
             <div>
                 <h4 class="font-semibold text-gray-800 mb-1">Application Tips</h4>
                 <p class="text-sm text-gray-600">Your application number is generated when you download the application form in Step 1. Keep it for reference.</p>
-                <p class="text-sm text-gray-600 mt-1">Processing time is 3 working days from submission based on the Citizens Charter.</p>
+                <p class="text-sm text-gray-600 mt-1">Processing time is 20 working days from submission based on the Citizens Charter.</p>
             </div>
         </div>
     </div>
@@ -303,21 +304,31 @@
     let itemsPerPage = 5;
     let deleteId = null;
     const APPLICATION_LIMIT = 3;
-    const PROCESSING_DAYS = 3; // Based on Citizens Charter
+    const PROCESSING_DAYS = 20; // Based on Citizens Charter (working days)
 
-    // Calculate aging days since submission
+    // CSRF token helper
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="csrf-token"]')?.content;
+        if (!token) console.warn('CSRF token meta tag not found');
+        return token || '{{ csrf_token() }}';
+    }
+
+    // Calculate aging days since submission (using working days approximation)
     function calculateAgingDays(submittedAt) {
         const submittedDate = new Date(submittedAt);
         const currentDate = new Date();
+        // Simple day difference (not accounting for holidays, just calendar days)
         const daysDiff = Math.floor((currentDate - submittedDate) / (1000 * 60 * 60 * 24));
-        return daysDiff;
+        // Approximate working days (5/7 of calendar days)
+        const workingDaysDiff = Math.floor(daysDiff * 5 / 7);
+        return Math.max(0, workingDaysDiff);
     }
     
-    // Get aging status based on Citizens Charter
+    // Get aging status based on Citizens Charter (20 working days)
     function getAgingStatus(days) {
-        if (days <= 2) return { status: 'ontrack', text: 'On Track', color: 'green', days: days, description: 'Within processing timeframe' };
-        if (days === 3) return { status: 'due', text: 'Due Today', color: 'yellow', days: days, description: 'Expected completion today' };
-        if (days <= 7) return { status: 'warning', text: 'Warning', color: 'orange', days: days, description: 'Exceeding expected timeframe' };
+        if (days <= 15) return { status: 'ontrack', text: 'On Track', color: 'green', days: days, description: 'Within processing timeframe' };
+        if (days <= 20) return { status: 'due', text: 'Due Soon', color: 'yellow', days: days, description: 'Expected completion within 20 working days' };
+        if (days <= 25) return { status: 'warning', text: 'Warning', color: 'orange', days: days, description: 'Exceeding expected timeframe' };
         return { status: 'overdue', text: 'Overdue', color: 'red', days: days, description: 'Significantly delayed' };
     }
     
@@ -347,7 +358,7 @@
         }
         
         return `
-            <div class="aging-badge ${badgeClass} aging-tooltip" data-tooltip="Submitted ${days} day${days !== 1 ? 's' : ''} ago. ${aging.description}">
+            <div class="aging-badge ${badgeClass} aging-tooltip" data-tooltip="Submitted ${days} working day${days !== 1 ? 's' : ''} ago. ${aging.description}">
                 ${icon}
                 <span>${aging.text} (${days} day${days !== 1 ? 's' : ''})</span>
             </div>
@@ -401,7 +412,11 @@
     async function checkApplicationLimit() {
         try {
             const response = await fetch('/applicant/application/limit-info', {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                headers: { 
+                    'Accept': 'application/json', 
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
             const data = await response.json();
             if (data.success) {
@@ -413,13 +428,19 @@
                 if (total > 0) document.getElementById('application-limit-container').classList.remove('hidden');
                 
                 const limitWarning = document.getElementById('limit-warning');
-                const newAppBtn = document.querySelector('a[href="/applicant/basic-requirements"]');
+                const newAppBtn = document.getElementById('new-application-btn');
                 if (!data.data.can_apply) {
                     limitWarning.classList.remove('hidden');
-                    if (newAppBtn) { newAppBtn.classList.add('opacity-50', 'pointer-events-none'); newAppBtn.style.pointerEvents = 'none'; }
+                    if (newAppBtn) { 
+                        newAppBtn.classList.add('opacity-50', 'pointer-events-none'); 
+                        newAppBtn.style.pointerEvents = 'none';
+                    }
                 } else {
                     limitWarning.classList.add('hidden');
-                    if (newAppBtn) { newAppBtn.classList.remove('opacity-50', 'pointer-events-none'); newAppBtn.style.pointerEvents = 'auto'; }
+                    if (newAppBtn) { 
+                        newAppBtn.classList.remove('opacity-50', 'pointer-events-none'); 
+                        newAppBtn.style.pointerEvents = 'auto';
+                    }
                 }
             }
         } catch (error) { console.error('Error checking application limit:', error); }
@@ -437,33 +458,54 @@
     async function loadApplications() {
         try {
             const response = await fetch('/applicant/applications/data', {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'Accept': 'application/json', 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                }
             });
             const data = await response.json();
             if (data.success) {
                 applications = data.applications;
-                // Add aging calculation to each application
+                // Add aging calculation to each application (only for submitted/past draft)
                 applications = applications.map(app => {
-                    if (app.created_at) {
-                        const days = calculateAgingDays(app.created_at);
+                    // Only calculate aging for applications that have been submitted
+                    if (app.submitted_at && app.status !== 'draft') {
+                        const days = calculateAgingDays(app.submitted_at);
                         app.aging_days = days;
                         app.aging_status = getAgingStatus(days);
+                    } else {
+                        app.aging_days = null;
+                        app.aging_status = null;
                     }
                     return app;
                 });
-                console.log('Applications loaded:', applications);
+                console.log('Applications loaded:', applications.length);
                 applyFilters();
-            } else { showErrorModal('Failed to load applications'); }
+            } else { showErrorModal(data.message || 'Failed to load applications'); }
         } catch (error) { console.error('Error loading applications:', error); showErrorModal('Failed to load applications'); }
         finally { document.getElementById('loading-state').classList.add('hidden'); }
     }
 
     async function loadStats() {
-        try { await fetch('/applicant/applications/stats'); } catch (error) { console.error('Error loading stats:', error); }
+        try { 
+            await fetch('/applicant/applications/stats', {
+                headers: { 'X-CSRF-TOKEN': getCsrfToken() }
+            }); 
+        } catch (error) { console.error('Error loading stats:', error); }
     }
 
     function getStatusProgress(status) {
-        const progressMap = { 'draft': 25, 'pending': 40, 'under-review': 55, 'document-verification': 70, 'approved': 85, 'for-release': 95, 'verified': 100, 'rejected': 100 };
+        const progressMap = { 
+            'draft': 25, 
+            'pending': 40, 
+            'under-review': 55, 
+            'document-verification': 70, 
+            'approved': 85, 
+            'for-release': 95, 
+            'verified': 100, 
+            'rejected': 100 
+        };
         return progressMap[status] || 0;
     }
 
@@ -488,26 +530,29 @@
         
         filteredApplications = [...applications];
         filteredApplications = filteredApplications.filter(app => {
-            const matchesSearch = app.application_number && app.application_number.toLowerCase().includes(searchTerm);
+            const matchesSearch = (app.application_number && app.application_number.toLowerCase().includes(searchTerm)) ||
+                                  (app.project_title && app.project_title.toLowerCase().includes(searchTerm));
             const matchesStatus = !statusFilter || app.status === statusFilter;
             
             let matchesAging = true;
-            if (agingFilter && app.aging_days !== undefined) {
+            if (agingFilter && app.aging_days !== null && app.aging_days !== undefined) {
                 const days = app.aging_days;
                 switch(agingFilter) {
                     case 'ontrack':
-                        matchesAging = days <= 2;
+                        matchesAging = days <= 15;
                         break;
                     case 'due':
-                        matchesAging = days === 3;
+                        matchesAging = days >= 16 && days <= 20;
                         break;
                     case 'warning':
-                        matchesAging = days >= 4 && days <= 7;
+                        matchesAging = days >= 21 && days <= 25;
                         break;
                     case 'overdue':
-                        matchesAging = days >= 8;
+                        matchesAging = days >= 26;
                         break;
                 }
+            } else if (agingFilter && (app.aging_days === null || app.aging_days === undefined)) {
+                matchesAging = false; // Draft applications don't have aging
             }
             
             return matchesSearch && matchesStatus && matchesAging;
@@ -571,6 +616,7 @@
                         <thead class="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application</th>
+                                <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Project Title</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aging</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Basic Requirements</th>
@@ -663,8 +709,11 @@
         
         const date = new Date(app.created_at);
         const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        const agingDays = app.aging_days || 0;
-        const rowClass = getRowClass(agingDays);
+        
+        // Only show aging for submitted applications
+        const showAging = app.status !== 'draft' && app.aging_days !== null;
+        const agingDays = showAging ? (app.aging_days || 0) : 0;
+        const rowClass = showAging ? getRowClass(agingDays) : '';
         
         let hardCopyStatus = 'Not Submitted';
         let hardCopyColor = 'bg-gray-100 text-gray-600';
@@ -674,9 +723,10 @@
         const needsBasicRequirements = app.basic_requirements_status !== 'approved';
         const displayNumber = app.application_number || 'Pending';
         const hasNumber = app.application_number !== null;
+        const projectTitle = app.project_title || 'Untitled Project';
         
         let actionButton = '';
-        if (needsBasicRequirements) {
+        if (needsBasicRequirements && app.status === 'draft') {
             actionButton = `
                 <button onclick="showBasicRequirementsModal(${app.id}, '${app.basic_requirements_status}', '${app.basic_requirements_rejection_reason || ''}')" 
                    class="inline-flex items-center px-4 py-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition text-sm font-medium">
@@ -714,7 +764,7 @@
                                 ${hasNumber ? displayNumber.substring(0, 2) : 'BR'}
                             </div>
                             <div>
-                                <h3 class="font-semibold text-gray-800">Building Permit Application</h3>
+                                <h3 class="font-semibold text-gray-800">${projectTitle}</h3>
                                 <div class="flex items-center gap-2 mt-1">
                                     <p class="text-sm text-gray-500 font-mono">${displayNumber}</p>
                                     ${hasNumber ? '<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Application #</span>' : '<span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">Pending Number</span>'}
@@ -723,12 +773,12 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            ${getAgingBadge(agingDays)}
+                            ${showAging ? getAgingBadge(agingDays) : ''}
                             <span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs font-medium whitespace-nowrap">${statusConfig.text}</span>
                         </div>
                     </div>
                     
-                    ${basicReqDisplay.show ? `
+                    ${basicReqDisplay.show && app.status === 'draft' ? `
                     <div class="mb-4 p-3 ${basicReqDisplay.bgColor} rounded-lg border ${basicReqDisplay.borderColor}">
                         <div class="flex items-start gap-2">
                             <span class="text-lg">${basicReqDisplay.icon}</span>
@@ -757,7 +807,7 @@
                     ${app.status === 'rejected' && app.rejection_reason ? `
                     <div class="mb-4 p-3 bg-red-50 rounded-lg">
                         <p class="text-xs text-red-600 font-medium mb-1">Rejection Reason</p>
-                        <p class="text-sm text-gray-600">${app.rejection_reason}</p>
+                        <p class="text-sm text-gray-600">${escapeHtml(app.rejection_reason)}</p>
                     </div>
                     ` : ''}
                     
@@ -773,8 +823,10 @@
         const basicReqDisplay = getBasicRequirementsDisplay(app.basic_requirements_status, app.basic_requirements_rejection_reason);
         const date = new Date(app.created_at);
         const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const agingDays = app.aging_days || 0;
-        const rowClass = getRowClass(agingDays);
+        
+        const showAging = app.status !== 'draft' && app.aging_days !== null;
+        const agingDays = showAging ? (app.aging_days || 0) : 0;
+        const rowClass = showAging ? getRowClass(agingDays) : '';
         
         let hardCopyStatus = 'Not Submitted';
         let hardCopyColor = 'bg-gray-100 text-gray-600';
@@ -784,9 +836,10 @@
         const needsBasicRequirements = app.basic_requirements_status !== 'approved';
         const displayNumber = app.application_number || 'Pending';
         const hasNumber = app.application_number !== null;
+        const projectTitle = app.project_title || 'Untitled Project';
         
         let actionButton = '';
-        if (needsBasicRequirements) {
+        if (needsBasicRequirements && app.status === 'draft') {
             actionButton = `<button onclick="showBasicRequirementsModal(${app.id}, '${app.basic_requirements_status}', '${app.basic_requirements_rejection_reason || ''}')" class="px-3 py-2 bg-yellow-50 text-yellow-600 rounded-lg text-xs font-medium">${basicReqDisplay.icon} ${basicReqDisplay.action}</button>`;
         } else if (app.status === 'draft') {
             actionButton = `
@@ -807,14 +860,23 @@
                         <div><p class="font-medium text-gray-800">${displayNumber}</p><p class="text-xs text-gray-500">${formattedDate}</p></div>
                     </div>
                 </td>
-                <td class="py-4 px-6">${getAgingBadge(agingDays)}</td>
+                <td class="py-4 px-6"><p class="text-sm text-gray-700 max-w-xs truncate" title="${escapeHtml(projectTitle)}">${escapeHtml(projectTitle.substring(0, 40))}${projectTitle.length > 40 ? '...' : ''}</p></td>
+                <td class="py-4 px-6">${showAging ? getAgingBadge(agingDays) : '<span class="text-xs text-gray-400">N/A</span>'}</td>
                 <td class="py-4 px-6"><span class="px-3 py-1 ${statusConfig.color} rounded-full text-xs">${statusConfig.text}</span></td>
-                <td class="py-4 px-6">${basicReqDisplay.show ? `<span class="px-3 py-1 ${basicReqDisplay.color} rounded-full text-xs">${basicReqDisplay.text}</span>` : '<span class="text-xs text-green-600">✓ Approved</span>'}</td>
+                <td class="py-4 px-6">${basicReqDisplay.show && app.status === 'draft' ? `<span class="px-3 py-1 ${basicReqDisplay.color} rounded-full text-xs">${basicReqDisplay.text}</span>` : '<span class="text-xs text-green-600">✓ Approved</span>'}</td>
                 <td class="py-4 px-6"><div class="w-20 bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r ${progressColor} h-2 rounded-full" style="width: ${statusConfig.progress}%"></div></div></td>
                 <td class="py-4 px-6"><span class="px-3 py-1 ${hardCopyColor} rounded-full text-xs">${hardCopyStatus}</span></td>
                 <td class="py-4 px-6">${actionButton}</td>
             </tr>
         `;
+    }
+
+    // Simple escape function to prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function openDeleteModal(id) { deleteId = id; document.getElementById('delete-modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
@@ -823,9 +885,17 @@
     async function confirmDelete() {
         if (!deleteId) return;
         const btn = document.getElementById('confirm-delete-btn');
+        const originalText = btn.innerHTML;
         btn.innerHTML = 'Deleting...'; btn.disabled = true;
         try {
-            const response = await fetch(`/applicant/applications/${deleteId}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' } });
+            const response = await fetch(`/applicant/applications/${deleteId}`, { 
+                method: 'DELETE', 
+                headers: { 
+                    'X-CSRF-TOKEN': getCsrfToken(), 
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                } 
+            });
             const data = await response.json();
             if (data.success) {
                 showSuccessModal('Draft deleted successfully');
@@ -833,8 +903,11 @@
                 await loadApplications();
                 await checkApplicationLimit();
             } else { showErrorModal(data.message || 'Failed to delete draft'); }
-        } catch (error) { showErrorModal('Failed to delete draft'); }
-        finally { btn.innerHTML = 'Delete'; btn.disabled = false; }
+        } catch (error) { 
+            console.error('Delete error:', error);
+            showErrorModal('Failed to delete draft'); 
+        }
+        finally { btn.innerHTML = originalText; btn.disabled = false; }
     }
 
     function updatePagination() {
@@ -855,27 +928,90 @@
     }
 
     function goToPage(page) { currentPage = page; displayApplications(); }
-    document.getElementById('prev-page')?.addEventListener('click', () => { if (currentPage > 1) { currentPage--; displayApplications(); } });
-    document.getElementById('next-page')?.addEventListener('click', () => { const totalPages = Math.ceil(filteredApplications.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; displayApplications(); } });
-
+    
     function setupEventListeners() {
         let searchTimeout;
-        document.getElementById('search-input').addEventListener('input', function() { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 300); });
-        document.getElementById('status-filter').addEventListener('change', applyFilters);
-        document.getElementById('aging-filter').addEventListener('change', applyFilters);
-        document.getElementById('sort-filter').addEventListener('change', applyFilters);
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() { 
+                clearTimeout(searchTimeout); 
+                searchTimeout = setTimeout(applyFilters, 300); 
+            });
+        }
+        
+        const statusFilter = document.getElementById('status-filter');
+        const agingFilter = document.getElementById('aging-filter');
+        const sortFilter = document.getElementById('sort-filter');
+        
+        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+        if (agingFilter) agingFilter.addEventListener('change', applyFilters);
+        if (sortFilter) sortFilter.addEventListener('change', applyFilters);
+        
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => { 
+                if (currentPage > 1) { 
+                    currentPage--; 
+                    displayApplications(); 
+                } 
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => { 
+                const totalPages = Math.ceil(filteredApplications.length / itemsPerPage); 
+                if (currentPage < totalPages) { 
+                    currentPage++; 
+                    displayApplications(); 
+                } 
+            });
+        }
     }
 
     function setupModals() {
         const modals = ['delete-modal', 'error-modal', 'success-modal', 'basic-requirements-modal'];
-        modals.forEach(id => { const modal = document.getElementById(id); if (modal) { modal.addEventListener('click', e => { if (e.target === modal) closeModal(id); }); } });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { modals.forEach(id => closeModal(id)); } });
+        modals.forEach(id => { 
+            const modal = document.getElementById(id); 
+            if (modal) { 
+                modal.addEventListener('click', e => { 
+                    if (e.target === modal) closeModal(id); 
+                }); 
+            } 
+        });
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { 
+                modals.forEach(id => closeModal(id)); 
+            } 
+        });
     }
-    function closeModal(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; } }
+    
+    function closeModal(id) { 
+        const modal = document.getElementById(id); 
+        if (modal) { 
+            modal.classList.add('hidden'); 
+            document.body.style.overflow = 'auto'; 
+        } 
+    }
 
-    function showErrorModal(message) { document.getElementById('error-modal-message').textContent = message; document.getElementById('error-modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+    function showErrorModal(message) { 
+        const messageEl = document.getElementById('error-modal-message');
+        if (messageEl) messageEl.textContent = message;
+        document.getElementById('error-modal').classList.remove('hidden'); 
+        document.body.style.overflow = 'hidden'; 
+    }
+    
     function closeErrorModal() { closeModal('error-modal'); }
-    function showSuccessModal(message) { document.getElementById('success-modal-message').textContent = message; document.getElementById('success-modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; setTimeout(() => closeSuccessModal(), 3000); }
+    
+    function showSuccessModal(message) { 
+        const messageEl = document.getElementById('success-modal-message');
+        if (messageEl) messageEl.textContent = message;
+        document.getElementById('success-modal').classList.remove('hidden'); 
+        document.body.style.overflow = 'hidden'; 
+        setTimeout(() => closeSuccessModal(), 3000); 
+    }
+    
     function closeSuccessModal() { closeModal('success-modal'); }
 </script>
 
@@ -943,12 +1079,8 @@
     }
     
     @keyframes pulseRed {
-        0%, 100% {
-            background-color: #fee2e2;
-        }
-        50% {
-            background-color: #fecaca;
-        }
+        0%, 100% { background-color: #fee2e2; }
+        50% { background-color: #fecaca; }
     }
     
     .aging-tooltip {
@@ -970,6 +1102,17 @@
         white-space: nowrap;
         z-index: 10;
         margin-bottom: 5px;
+    }
+    
+    /* Table cell truncation */
+    .max-w-xs {
+        max-width: 200px;
+    }
+    
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 </style>
 @endsection

@@ -1,27 +1,51 @@
 @extends('layouts.app')
 
-@section('title', 'Review & Submit - Step 3')
+@section('title', 'Application - Step 3: Upload Documents')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
     <!-- Back Button -->
     <div class="mb-8">
         <a href="/applicant/application/step2?id={{ $application->id }}" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Upload Documents
+            Back to Step 2: Download Forms
         </a>
     </div>
 
-    <!-- Step Indicator - Step 3 -->
+    <!-- Step Indicator -->
     <div class="mb-4">
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 bg-[#155386] text-white rounded-full font-bold text-sm">3</div>
+            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-600 rounded-full font-bold text-sm">1</div>
             <div>
-                <h2 class="text-2xl font-semibold text-gray-800">Step 3: Review & Submit</h2>
-                <p class="text-l text-gray-600">Review your downloaded forms and Google Drive documents before final submission</p>
+                <h2 class="text-2xl font-semibold text-gray-800">Step 3: Upload Documents to Google Drive</h2>
+                <p class="text-l text-gray-600">Upload each document to Google Drive and provide individual shareable links below. All original hard copies must be submitted to our office.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Steps Overview -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                <span class="text-sm font-medium text-gray-400">Project Info</span>
+                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                <span class="text-sm font-medium text-gray-400">Download Forms</span>
+                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                <span class="text-sm font-semibold text-[#155386]">Upload Docs</span>
+                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                <span class="text-sm font-medium text-gray-400">Review & Submit</span>
             </div>
         </div>
     </div>
@@ -36,651 +60,746 @@
             </div>
             <div>
                 <h4 class="font-semibold text-gray-800">Important Reminder</h4>
-                <p class="text-sm text-gray-700 mt-1">After online submission, <span class="font-semibold">you must submit the original hard copies of ALL required documents</span> to the Office of the Building Official (OBO) for final processing.</p>
+                <p class="text-sm text-gray-700 mt-1">The Google Drive links are for pre-verification purposes. <span class="font-semibold">You must submit the original hard copies</span> of ALL documents to the Office of the Building Official (OBO) for final processing.</p>
             </div>
         </div>
     </div>
 
-    <!-- Progress Steps Overview -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <span class="text-sm font-medium text-gray-600">Download Forms</span>
-                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+    <!-- Application Number Banner - Will be shown after generation -->
+    <div id="application-number-banner" class="mb-6 hidden">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl shadow-lg overflow-hidden animate-slide-down">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-white/80 text-sm">Your Application Number</p>
+                        <p id="application-number-display" class="text-2xl font-bold text-white font-mono"></p>
+                    </div>
+                </div>
+                <button onclick="copyApplicationNumber()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                    Copy Number
+                </button>
             </div>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <span class="text-sm font-medium text-gray-600">Google Drive Upload</span>
-                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <span class="text-sm font-semibold text-[#155386]">Review & Submit</span>
+            <div class="bg-white/10 px-6 py-2 text-sm text-white/90">
+                <span class="font-medium">Important:</span> Use this application number when submitting hard copies to OBO and for all future correspondence.
             </div>
         </div>
     </div>
 
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
-        <!-- Review Header -->
-        <div class="px-8 py-6 bg-gradient-to-r from-[#155386] to-[#1F363D] text-white">
-            <h2 class="text-2xl font-bold">Review Your Application</h2>
-            <p class="text-white/80 text-sm mt-1">Please verify all information before submitting</p>
-        </div>
-
-        <!-- Loading State -->
-        <div id="loading-state" class="p-12 text-center">
-            <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="text-gray-600 mt-2">Loading your application...</p>
-        </div>
-
-        <!-- Review Content (initially hidden) -->
-        <div id="review-content" class="hidden">
-            <div class="p-8 space-y-8">
-
-                <!-- Application Number Banner -->
-                <div id="application-number-banner" class="bg-gradient-to-r from-[#155386] to-[#1F363D] rounded-lg p-4 text-white">
-                    <p class="text-sm opacity-90">Your Application Number</p>
-                    <p class="text-2xl font-bold font-mono" id="display-application-number"></p>
-                </div>
-
-                <!-- Step 1: Downloaded Forms Summary -->
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Downloaded Forms</h3>
-                        <a href="/applicant/application/step1?id={{ request()->get('id') }}" class="text-sm text-[#155386] hover:underline flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                            Edit
-                        </a>
-                    </div>
-                    
-                    <div class="bg-gray-50 rounded-xl p-6">
-                        <div id="downloaded-forms-container" class="space-y-2">
-                            <!-- Downloaded forms will be loaded dynamically here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Google Drive Documents Review -->
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Google Drive Documents</h3>
-                        <a href="/applicant/application/step2?id={{ request()->get('id') }}" class="text-sm text-[#155386] hover:underline flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                            Edit
-                        </a>
-                    </div>
-                    
-                    <div id="drive-link-display" class="bg-gray-50 rounded-xl p-6">
-                        <div id="document-links-container" class="space-y-3">
-                            <!-- Document links will be loaded dynamically -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Required Documents Reminder -->
-                <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="p-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Document Links</h2>
+            
+            <!-- Instructions Card -->
+            <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">Required Documents Reminder</p>
-                            <p class="text-xs text-gray-600 mt-1">Please ensure all 13 required documents are uploaded to your Google Drive folder before submitting.</p>
-                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">How to Upload to Google Drive</h4>
+                        <ol class="mt-2 text-sm text-gray-600 list-decimal list-inside space-y-1">
+                            <li>Upload each document individually to Google Drive</li>
+                            <li>For each document, set sharing permission to <span class="font-semibold">"Anyone with the link can view"</span></li>
+                            <li>Copy each shareable link and paste it in the corresponding field below</li>
+                            <li>Make sure each link is accessible and working</li>
+                        </ol>
                     </div>
                 </div>
+            </div>
 
-                <!-- Declaration Section -->
-                <div class="border-t border-gray-200 pt-6">
-                    <div class="bg-yellow-50 rounded-xl p-6 border border-yellow-100">
-                        <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+            <!-- Documents Grid -->
+            <form id="documents-form" class="space-y-6">
+                @csrf
+                <input type="hidden" name="application_id" value="{{ $application->id }}">
+                
+                <!-- Required Documents -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Required Documents</h3>
+                    
+                    <!-- Application Letter -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Application Letter <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Request letter addressed to the Building Official</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="app_letter_link" 
+                                       name="app_letter_link"
+                                       value="{{ $application->document_links['app_letter_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-800">Declaration</h4>
-                                <p class="text-sm text-gray-600 mt-1">I hereby certify that the information provided and documents uploaded to Google Drive are true and correct to the best of my knowledge. I understand that any false statement or misrepresentation may result in the denial or revocation of my application and may subject me to legal consequences.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 flex items-center gap-3">
-                            <input type="checkbox" id="agree-checkbox" class="h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                            <label for="agree-checkbox" class="text-sm text-gray-700">I agree to the terms and conditions and confirm that all information provided is accurate</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hard Copy Confirmation Section -->
-                <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-800 text-lg">Hard Copy Submission Confirmation</h4>
-                            <p class="text-sm text-gray-600 mt-1">I confirm that all documents are uploaded to Google Drive and I will submit the original hard copies to the Office of the Building Official (OBO) for final processing.</p>
-                            
-                            <div class="mt-4 flex items-center gap-3">
-                                <input type="checkbox" id="hardcopy-confirm" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                <label for="hardcopy-confirm" class="text-sm font-medium text-gray-700">I confirm that I will submit all original hard copies to the OBO</label>
+                                <button type="button" onclick="testLink('app_letter_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Application Summary -->
-                <div class="bg-[#155386]/5 rounded-xl p-6 border border-[#155386]/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">Processing Time</p>
-                            <p class="text-lg font-semibold text-gray-800">7-10 business days</p>
+                    
+                    <!-- Building Permit Forms -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Building Permit Forms <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Completed BP Form (BP 102, BP 103, etc.)</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="bp_forms_link" 
+                                       name="bp_forms_link"
+                                       value="{{ $application->document_links['bp_forms_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('bp_forms_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Application Number</p>
-                            <p class="text-lg font-semibold text-gray-800 font-mono" id="summary-app-number">-</p>
+                    </div>
+                    
+                    <!-- Architectural Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Architectural Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed architect</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="arch_plans_link" 
+                                       name="arch_plans_link"
+                                       value="{{ $application->document_links['arch_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('arch_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Civil/Structural Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Civil/Structural Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed civil engineer</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="structural_plans_link" 
+                                       name="structural_plans_link"
+                                       value="{{ $application->document_links['structural_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('structural_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Electrical Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Electrical Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed electrical engineer</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="electrical_plans_link" 
+                                       name="electrical_plans_link"
+                                       value="{{ $application->document_links['electrical_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('electrical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sanitary/Plumbing Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Sanitary/Plumbing Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed sanitary/plumbing engineer</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="plumbing_plans_link" 
+                                       name="plumbing_plans_link"
+                                       value="{{ $application->document_links['plumbing_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('plumbing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mechanical Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Mechanical Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed mechanical engineer</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="mechanical_plans_link" 
+                                       name="mechanical_plans_link"
+                                       value="{{ $application->document_links['mechanical_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('mechanical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fencing Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fencing Plans (5 sets) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">If applicable, signed and sealed</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="fencing_plans_link" 
+                                       name="fencing_plans_link"
+                                       value="{{ $application->document_links['fencing_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('fencing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Proof of Ownership -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Proof of Ownership (2 copies) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">TCT, Tax Declaration, or Contract of Lease</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="ownership_link" 
+                                       name="ownership_link"
+                                       value="{{ $application->document_links['ownership_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('ownership_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bill of Materials -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Bill of Materials (5 copies) <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Detailed list of materials with quantities</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="bom_link" 
+                                       name="bom_link"
+                                       value="{{ $application->document_links['bom_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('bom_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Structural Design Analysis -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Structural Design Analysis <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Computation and analysis signed by civil engineer</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="structural_analysis_link" 
+                                       name="structural_analysis_link"
+                                       value="{{ $application->document_links['structural_analysis_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('structural_analysis_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Barangay Clearance -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Barangay Clearance <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Clearance from the barangay where project is located</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="barangay_clearance_link" 
+                                       name="barangay_clearance_link"
+                                       value="{{ $application->document_links['barangay_clearance_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('barangay_clearance_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Valid ID -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Valid ID <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Government-issued ID of applicant/representative</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="valid_id_link" 
+                                       name="valid_id_link"
+                                       value="{{ $application->document_links['valid_id_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('valid_id_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-            </div>
-
-            <!-- Submit Button -->
-            <div class="p-8 pt-0 flex justify-end">
-                <button onclick="submitApplication()" 
-                        id="submit-button"
-                        class="inline-flex items-center px-10 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-semibold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled>
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Submit Application
-                </button>
+                
+                <!-- Optional Documents -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Optional Documents</h3>
+                    <p class="text-sm text-gray-500 mt-2 mb-4">For contractors with PCAB license</p>
+                    
+                    <!-- CSHP from DOLE -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    CSHP from DOLE (Optional)
+                                </label>
+                                <p class="text-xs text-gray-500">Construction Safety and Health Program</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="cshp_link" 
+                                       name="cshp_link"
+                                       value="{{ $application->document_links['cshp_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('cshp_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Progress Indicator -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">Documents Upload Progress</span>
+                    <span class="text-sm font-bold text-[#155386]" id="upload-progress">0/13</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-[#155386] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2" id="progress-message">Please provide links for all required documents</p>
             </div>
         </div>
 
-    </div>
-
-    <!-- Help Card -->
-    <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 mt-8">
-        <div class="flex items-start gap-4">
-            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <!-- Navigation Buttons -->
+        <div class="p-6 pt-0 flex justify-between items-center">
+            <a href="/applicant/application/step2?id={{ $application->id }}" 
+               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-            </div>
-            <div>
-                <h4 class="font-semibold text-gray-800 mb-1">Final Review</h4>
-                <p class="text-sm text-gray-600">
-                    Please double-check all information before submitting. After online submission, bring all original hard copies to the OBO.
-                </p>
-            </div>
+                Previous: Download Forms
+            </a>
+            
+            <button onclick="saveAllDocumentLinks()" 
+                    id="proceed-btn"
+                    class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md">
+                Save & Proceed to Review
+                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
         </div>
     </div>
-
 </div>
 
-<!-- Error Message Modal -->
+<!-- Error Modal -->
 <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
-                <p id="error-modal-message" class="text-sm text-gray-600 mb-6"></p>
-                <button onclick="closeErrorModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
+        <div class="bg-white rounded-2xl shadow-xl p-6 text-center">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
+            <p id="error-modal-message" class="text-sm text-gray-600 mb-6"></p>
+            <button onclick="closeErrorModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
         </div>
     </div>
 </div>
 
-<!-- Success Message Modal -->
+<!-- Success Modal -->
 <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                    <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Success</h3>
-                <p id="success-modal-message" class="text-sm text-gray-600 mb-6"></p>
-                <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
+        <div class="bg-white rounded-2xl shadow-xl p-6 text-center">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Success</h3>
+            <p id="success-modal-message" class="text-sm text-gray-600 mb-6"></p>
+            <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">OK</button>
         </div>
     </div>
 </div>
 
 <script>
-    let applicationData = null;
-    let currentApplicationId = null;
-    let documentLinks = {};
-
-    // Get application ID from URL
-    function getApplicationId() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('id');
-    }
-
-    // Go back to Step 2 with application ID
-    function goBack() {
-        const appId = getApplicationId();
-        if (appId) {
-            window.location.href = `/applicant/application/step2?id=${appId}`;
-        } else {
-            window.location.href = '/applicant/application/step2';
+    const applicationId = {{ $application->id }};
+    let generatedApplicationNumber = '{{ $application->application_number ?? '' }}';
+    
+    // Define all document fields
+    const documentFields = [
+        'app_letter_link',
+        'bp_forms_link',
+        'arch_plans_link',
+        'structural_plans_link',
+        'electrical_plans_link',
+        'plumbing_plans_link',
+        'mechanical_plans_link',
+        'fencing_plans_link',
+        'ownership_link',
+        'bom_link',
+        'structural_analysis_link',
+        'barangay_clearance_link',
+        'valid_id_link'
+    ];
+    
+    const optionalFields = ['cshp_link'];
+    
+    function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
+    
+    // Show application number banner if number exists
+    function showApplicationNumberBanner(number) {
+        if (number && number !== '') {
+            document.getElementById('application-number-display').textContent = number;
+            document.getElementById('application-number-banner').classList.remove('hidden');
         }
     }
-
-    // Load application data on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        currentApplicationId = getApplicationId();
-        
-        if (!currentApplicationId) {
-            showErrorModal('Application ID not found. Please start from Step 1.');
-            setTimeout(() => {
-                window.location.href = '/applicant/applications';
-            }, 2000);
-            return;
-        }
-        
-        loadApplicationData();
-        
-        // Modal close handlers
-        const errorModal = document.getElementById('error-modal');
-        const successModal = document.getElementById('success-modal');
-        
-        if (errorModal) {
-            errorModal.addEventListener('click', function(e) {
-                if (e.target === errorModal) closeErrorModal();
-            });
-        }
-        
-        if (successModal) {
-            successModal.addEventListener('click', function(e) {
-                if (e.target === successModal) closeSuccessModal();
-            });
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeErrorModal();
-                closeSuccessModal();
+    
+    // Update progress bar
+    function updateProgress() {
+        let filledCount = 0;
+        documentFields.forEach(field => {
+            const value = document.getElementById(field)?.value.trim();
+            if (value && value !== '') {
+                filledCount++;
             }
         });
-    });
-
-    // Load application data from API
-    async function loadApplicationData() {
-        try {
-            console.log('Loading application data for ID:', currentApplicationId);
-            
-            const response = await fetch(`/applicant/application/details?application_id=${currentApplicationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
-            
-            const result = await response.json();
-            console.log('Application data:', result);
-            
-            if (result.success && result.data) {
-                applicationData = result.data;
-                
-                // Check the status - only redirect if it's already pending/verified
-                if (applicationData.status === 'pending' || applicationData.status === 'verified') {
-                    showErrorModal('This application has already been submitted.');
-                    setTimeout(() => {
-                        window.location.href = '/applicant/applications';
-                    }, 2000);
-                    return;
-                }
-                
-                // Display the data
-                displayApplicationData();
-            } else {
-                showErrorModal('No application data found. Please complete Step 2 first.');
-                setTimeout(() => {
-                    window.location.href = `/applicant/application/step2?id=${currentApplicationId}`;
-                }, 2000);
-            }
-        } catch (error) {
-            console.error('Error loading application data:', error);
-            showErrorModal('Failed to load application data. Please try again.');
-        }
-    }
-
-    // Display application data
-    function displayApplicationData() {
-        // Hide loading state
-        document.getElementById('loading-state').classList.add('hidden');
         
-        // Show review content
-        document.getElementById('review-content').classList.remove('hidden');
+        const totalRequired = documentFields.length;
+        const percentage = (filledCount / totalRequired) * 100;
         
-        // Display application number
-        if (applicationData.application_number) {
-            document.getElementById('display-application-number').textContent = applicationData.application_number;
-            document.getElementById('summary-app-number').textContent = applicationData.application_number;
+        document.getElementById('upload-progress').textContent = `${filledCount}/${totalRequired}`;
+        document.getElementById('progress-bar').style.width = `${percentage}%`;
+        
+        if (filledCount === totalRequired) {
+            document.getElementById('progress-message').innerHTML = '<span class="text-green-600">✓ All required documents have links! You can now proceed.</span>';
         } else {
-            document.getElementById('display-application-number').textContent = 'Pending';
-            document.getElementById('summary-app-number').textContent = 'Pending';
-        }
-        
-        // Get document links
-        documentLinks = applicationData.document_links || {};
-        
-        // Display document links
-        displayDocumentLinks();
-        
-        // Display downloaded forms
-        displayDownloadedForms();
-        
-        // Set up checkbox listeners
-        setupCheckboxListeners();
-    }
-
-    // Display document links
-    function displayDocumentLinks() {
-        const container = document.getElementById('document-links-container');
-        
-        // Define document names for display
-        const documentNames = {
-            'app_letter_link': 'Application Letter',
-            'bp_forms_link': 'Building Permit Forms',
-            'arch_plans_link': 'Architectural Plans (5 sets)',
-            'structural_plans_link': 'Civil/Structural Plans (5 sets)',
-            'electrical_plans_link': 'Electrical Plans (5 sets)',
-            'plumbing_plans_link': 'Sanitary/Plumbing Plans (5 sets)',
-            'mechanical_plans_link': 'Mechanical Plans (5 sets)',
-            'fencing_plans_link': 'Fencing Plans (5 sets)',
-            'ownership_link': 'Proof of Ownership (2 copies)',
-            'bom_link': 'Bill of Materials (5 copies)',
-            'structural_analysis_link': 'Structural Design Analysis',
-            'barangay_clearance_link': 'Barangay Clearance',
-            'valid_id_link': 'Valid ID'
-        };
-        
-        // Count how many documents are uploaded
-        let uploadedCount = 0;
-        let documentHtml = '';
-        
-        if (documentLinks && Object.keys(documentLinks).length > 0) {
-            for (const [key, value] of Object.entries(documentLinks)) {
-                if (value && value.trim()) {
-                    uploadedCount++;
-                    const displayName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '');
-                    documentHtml += `
-                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">${displayName}</p>
-                                    <p class="text-xs text-gray-500 truncate max-w-md">${value.substring(0, 50)}${value.length > 50 ? '...' : ''}</p>
-                                </div>
-                            </div>
-                            <a href="${value}" target="_blank" class="text-xs text-[#155386] hover:underline flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                                View
-                            </a>
-                        </div>
-                    `;
-                }
-            }
-        }
-        
-        if (uploadedCount === 0) {
-            container.innerHTML = `
-                <div class="p-4 bg-white rounded-lg border border-gray-200">
-                    <p class="text-sm text-gray-500">No documents have been uploaded to Google Drive yet.</p>
-                    <a href="/applicant/application/step2?id=${currentApplicationId}" class="text-xs text-[#155386] hover:underline mt-2 inline-block">Go to Step 2 to upload documents</a>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div class="mb-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-sm text-green-700">${uploadedCount} out of 13 required documents uploaded</p>
-                    </div>
-                </div>
-                ${documentHtml}
-            `;
+            document.getElementById('progress-message').innerHTML = `<span class="text-yellow-600">⚠️ Please provide links for ${totalRequired - filledCount} more document(s)</span>`;
         }
     }
-
-    // Display downloaded forms
-    function displayDownloadedForms() {
-        const container = document.getElementById('downloaded-forms-container');
+    
+    // Test individual link
+    function testLink(fieldId) {
+        const link = document.getElementById(fieldId).value.trim();
         
-        container.innerHTML = `
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-800">Application Letter</p>
-                </div>
-                <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Downloaded</span>
-            </div>
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-800">Building Permit Forms</p>
-                </div>
-                <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Downloaded</span>
-            </div>
-            <div class="mt-2 text-xs text-gray-500">
-                Additional forms can be downloaded in Step 1 if needed.
-            </div>
-        `;
-    }
-
-    // Setup checkbox listeners
-    function setupCheckboxListeners() {
-        const agreeCheckbox = document.getElementById('agree-checkbox');
-        const hardcopyCheckbox = document.getElementById('hardcopy-confirm');
-        
-        if (agreeCheckbox) {
-            agreeCheckbox.addEventListener('change', updateSubmitButton);
-        }
-        
-        if (hardcopyCheckbox) {
-            hardcopyCheckbox.addEventListener('change', updateSubmitButton);
-        }
-
-        updateSubmitButton();
-    }
-
-    // Enable submit button only when both checkboxes are checked and documents are uploaded
-    function updateSubmitButton() {
-        const agreeChecked = document.getElementById('agree-checkbox').checked;
-        const hardcopyChecked = document.getElementById('hardcopy-confirm')?.checked || false;
-        
-        // Check if documents are uploaded
-        const hasDocuments = documentLinks && Object.keys(documentLinks).length > 0;
-        
-        const submitBtn = document.getElementById('submit-button');
-        submitBtn.disabled = !(agreeChecked && hardcopyChecked && hasDocuments);
-        
-        // Update button text based on document status
-        if (!hasDocuments) {
-            submitBtn.title = 'Please upload your documents in Step 2 first';
-        }
-    }
-
-    // Submit application
-    async function submitApplication() {
-        const agreeChecked = document.getElementById('agree-checkbox').checked;
-        const hardcopyChecked = document.getElementById('hardcopy-confirm')?.checked || false;
-        
-        if (!agreeChecked) {
-            showErrorModal('Please agree to the terms and conditions.');
+        if (!link) {
+            showErrorModal('Please enter a Google Drive link first.');
             return;
         }
         
-        if (!hardcopyChecked) {
-            showErrorModal('Please confirm that you will submit all original hard copies to the OBO.');
+        const isGoogleDriveLink = link.includes('drive.google.com') || link.includes('docs.google.com');
+        
+        if (!isGoogleDriveLink) {
+            showErrorModal('Please enter a valid Google Drive link.');
             return;
         }
-
+        
+        showSuccessModal('Link format is valid! Make sure sharing is set to "Anyone with the link".');
+    }
+    
+    // Save all document links and generate application number
+    async function saveAllDocumentLinks() {
+        // Validate all required fields
+        const missingFields = [];
+        documentFields.forEach(field => {
+            const value = document.getElementById(field)?.value.trim();
+            if (!value) {
+                const label = document.querySelector(`label[for="${field}"]`)?.innerText || field;
+                missingFields.push(label);
+            }
+        });
+        
+        if (missingFields.length > 0) {
+            showErrorModal(`Please provide links for the following required documents:\n${missingFields.join('\n')}`);
+            return;
+        }
+        
+        // Collect all links
+        const documentLinks = {};
+        documentFields.forEach(field => {
+            documentLinks[field] = document.getElementById(field).value.trim();
+        });
+        optionalFields.forEach(field => {
+            const value = document.getElementById(field)?.value.trim();
+            if (value) {
+                documentLinks[field] = value;
+            }
+        });
+        
         // Show loading state
-        const button = document.getElementById('submit-button');
-        const originalText = button.innerHTML;
-        button.innerHTML = `
+        const proceedBtn = document.getElementById('proceed-btn');
+        const originalText = proceedBtn.innerHTML;
+        proceedBtn.innerHTML = `
             <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Submitting...
+            Saving & Generating Application Number...
         `;
-        button.disabled = true;
-
+        proceedBtn.disabled = true;
+        
         try {
-            const response = await fetch('/applicant/application/submit', {
+            // Step 1: Save document links AND generate application number
+            const requestData = {
+                document_links: documentLinks,
+                application_id: applicationId,
+                generate_application_number: true  // Signal to generate the application number
+            };
+            
+            const storeResponse = await fetch('/applicant/application/store-links', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrf(),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            const storeData = await storeResponse.json();
+            
+            if (!storeResponse.ok || !storeData.success) {
+                throw new Error(storeData.message || 'Failed to save documents');
+            }
+            
+            // If application number was generated, store it and show the banner
+            if (storeData.application_number) {
+                generatedApplicationNumber = storeData.application_number;
+                showApplicationNumberBanner(generatedApplicationNumber);
+                showSuccessModal(`Application number ${generatedApplicationNumber} has been generated! Redirecting to Step 4...`);
+            } else {
+                showSuccessModal('All documents saved successfully! Redirecting to Step 4...');
+            }
+            
+            // Step 2: Mark Step 3 as complete
+            const completeResponse = await fetch('/applicant/application/step3/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf(),
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    application_id: currentApplicationId
+                    application_id: applicationId
                 })
             });
             
-            const result = await response.json();
+            const completeData = await completeResponse.json();
             
-            if (result.success) {
-                showSuccessModal('Application submitted successfully! Please bring all original hard copies to the OBO for final processing.');
-                
-                // Clear session storage
-                sessionStorage.removeItem('konstructo_current_app_id');
-                sessionStorage.removeItem('konstructo_current_app_number');
-                
-                // Redirect to applications list
-                setTimeout(() => {
-                    window.location.href = '/applicant/applications';
-                }, 3000);
-            } else {
-                showErrorModal(result.message || 'Failed to submit application. Please try again.');
-                button.innerHTML = originalText;
-                button.disabled = false;
+            if (!completeResponse.ok || !completeData.success) {
+                console.warn('Step completion warning:', completeData.message);
+                // Don't throw error here, just log it - the documents are saved
             }
+            
+            setTimeout(() => {
+                window.location.href = `/applicant/application/step4?id=${applicationId}`;
+            }, 2000);
+            
         } catch (error) {
-            console.error('Error submitting application:', error);
-            showErrorModal('Failed to submit application. Please try again.');
-            button.innerHTML = originalText;
-            button.disabled = false;
+            console.error('Error:', error);
+            showErrorModal(error.message || 'An error occurred. Please try again.');
+            proceedBtn.innerHTML = originalText;
+            proceedBtn.disabled = false;
         }
     }
-
-    // Modal functions
-    function showErrorModal(message) {
-        document.getElementById('error-modal-message').textContent = message;
-        document.getElementById('error-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeErrorModal() {
-        document.getElementById('error-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
-    function showSuccessModal(message) {
-        document.getElementById('success-modal-message').textContent = message;
-        document.getElementById('success-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    
+    // Load existing data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners for all input fields to update progress
+        documentFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.addEventListener('input', updateProgress);
+            }
+        });
         
-        setTimeout(() => {
-            closeSuccessModal();
-        }, 3000);
+        updateProgress();
+        
+        // Load existing document links from the application object
+        const existingLinks = @json($application->document_links ?? []);
+        if (existingLinks) {
+            documentFields.forEach(field => {
+                if (existingLinks[field]) {
+                    const element = document.getElementById(field);
+                    if (element) element.value = existingLinks[field];
+                }
+            });
+            optionalFields.forEach(field => {
+                if (existingLinks[field]) {
+                    const element = document.getElementById(field);
+                    if (element) element.value = existingLinks[field];
+                }
+            });
+            updateProgress();
+        }
+        
+        // Show existing application number if already generated (e.g., returning to step)
+        if (generatedApplicationNumber && generatedApplicationNumber !== '') {
+            showApplicationNumberBanner(generatedApplicationNumber);
+        }
+    });
+    
+    function copyApplicationNumber() {
+        if (generatedApplicationNumber && generatedApplicationNumber !== '') {
+            navigator.clipboard.writeText(generatedApplicationNumber).then(() => {
+                showSuccessModal('Application number copied to clipboard!');
+            }).catch(() => {
+                showErrorModal('Failed to copy application number.');
+            });
+        } else {
+            showErrorModal('No application number available yet. Please save your documents first.');
+        }
     }
-
-    function closeSuccessModal() {
-        document.getElementById('success-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+    
+    function showErrorModal(message){
+        const modal = document.getElementById('error-modal');
+        const messageEl = document.getElementById('error-modal-message');
+        if(modal && messageEl){
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else { alert(message); }
+    }
+    
+    function closeErrorModal(){
+        const modal = document.getElementById('error-modal');
+        if(modal){
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    function showSuccessModal(message){
+        const modal = document.getElementById('success-modal');
+        const messageEl = document.getElementById('success-modal-message');
+        if(modal && messageEl){
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { closeSuccessModal(); }, 3000);
+        } else { alert(message); }
+    }
+    
+    function closeSuccessModal(){
+        const modal = document.getElementById('success-modal');
+        if(modal){
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
 </script>
 
 <style>
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-#error-modal, #success-modal {
-    transition: opacity 0.2s ease-in-out;
-}
-
-#error-modal .bg-white, #success-modal .bg-white {
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
+    .animate-spin{animation:spin 1s linear infinite;}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    button:disabled{cursor:not-allowed;opacity:.65;}
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    .animate-slide-down {
+        animation: slideDown 0.5s ease-out;
     }
-}
-
-.break-all {
-    word-break: break-all;
-}
-
-.truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.max-w-md {
-    max-width: 28rem;
-}
 </style>
 @endsection
