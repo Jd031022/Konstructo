@@ -42,48 +42,107 @@ class LoginController extends Controller
             'password' => $password
         ];
         
-        // Clear old failed attempts for this IP (older than 1 hour)
+        // ========== FIXED RATE LIMITING - TRACK BY IP + USERNAME ==========
+        // Clear old failed attempts for this IP + Username combination (older than 3 minutes)
         try {
             LoginAttempt::where('ip_address', $request->ip())
+                ->where('username_attempted', $loginValue)
                 ->where('was_successful', false)
-                ->where('created_at', '<', now()->subHour())
+                ->where('created_at', '<', now()->subMinutes(3))
                 ->delete();
         } catch (\Exception $e) {
             // Skip if table doesn't exist
         }
         
-        // Check for too many failed attempts in the last hour
+        // Check for too many failed attempts for this SPECIFIC username from this IP
         try {
             $failedAttempts = LoginAttempt::where('ip_address', $request->ip())
+                ->where('username_attempted', $loginValue)
                 ->where('was_successful', false)
-                ->where('created_at', '>=', now()->subHour())
+                ->where('created_at', '>=', now()->subMinutes(3))
                 ->count();
             
-            if ($failedAttempts >= 5) {
-                $this->logActivity(null, 'login', 'Too many failed login attempts', [
-                    'login_attempted' => $loginValue,
-                    'login_type' => $loginType,
-                    'failure_reason' => 'too_many_attempts',
-                    'attempt_count' => $failedAttempts,
-                    'ip_address' => $request->ip()
-                ], $request, 'failed');
+            // BLOCK if 3 or more attempts for the SAME username in 3 minutes
+            if ($failedAttempts >= 3) {
+                // Get the oldest attempt to calculate when they can retry
+                $oldestAttempt = LoginAttempt::where('ip_address', $request->ip())
+                    ->where('username_attempted', $loginValue)
+                    ->where('was_successful', false)
+                    ->where('created_at', '>=', now()->subMinutes(3))
+                    ->orderBy('created_at', 'asc')
+                    ->first();
                 
-                // Clear the attempts after 5 to allow new login attempts
-                if ($failedAttempts >= 10) {
-                    LoginAttempt::where('ip_address', $request->ip())
-                        ->where('was_successful', false)
-                        ->delete();
+                if ($oldestAttempt) {
+                    // Calculate when the block will lift (3 minutes from first failed attempt)
+                    $unlockTime = $oldestAttempt->created_at->addMinutes(3);
+                    $remainingSeconds = now()->diffInSeconds($unlockTime, false);
+                    
+                    // If still blocked
+                    if ($remainingSeconds > 0) {
+                        $remainingMinutes = ceil($remainingSeconds / 60);
+                        
+                        $this->logActivity(null, 'login', 'Too many failed login attempts for this account', [
+                            'login_attempted' => $loginValue,
+                            'login_type' => $loginType,
+                            'failure_reason' => 'too_many_attempts',
+                            'attempt_count' => $failedAttempts,
+                            'ip_address' => $request->ip(),
+                            'retry_after_seconds' => $remainingSeconds,
+                            'unlock_at' => $unlockTime->toDateTimeString()
+                        ], $request, 'failed');
+                        
+                        $errorMessage = "Too many failed attempts for this account. Please try again in {$remainingSeconds} seconds.";
+                        
+                        if ($isJson) {
+                            return response()->json([
+                                'error' => $errorMessage,
+                                'retry_after' => $remainingSeconds,
+                                'retry_after_seconds' => $remainingSeconds,
+                                'unlock_at' => $unlockTime->toDateTimeString()
+                            ], 429)->header('Retry-After', $remainingSeconds);
+                        }
+                        return back()->withErrors(['email' => $errorMessage])->onlyInput('email');
+                    }
                 }
                 
-                if ($isJson) {
-                    return response()->json(['error' => 'Too many login attempts. Please try again in 1 hour.'], 429);
-                }
-                return back()->withErrors(['email' => 'Too many login attempts. Please try again in 1 hour.'])->onlyInput('email');
+                // If we get here, the time has passed - clear old attempts
+                LoginAttempt::where('ip_address', $request->ip())
+                    ->where('username_attempted', $loginValue)
+                    ->where('was_successful', false)
+                    ->where('created_at', '<', now()->subMinutes(3))
+                    ->delete();
             }
         } catch (\Exception $e) {
             // Skip rate limiting if table doesn't exist
             \Log::warning('Rate limiting check failed: ' . $e->getMessage());
         }
+        
+        // ========== GLOBAL RATE LIMIT (Prevents DOS attacks) ==========
+        // Optional: Add a higher global limit per IP to prevent abuse
+        try {
+            $globalAttempts = LoginAttempt::where('ip_address', $request->ip())
+                ->where('was_successful', false)
+                ->where('created_at', '>=', now()->subMinutes(10))
+                ->count();
+            
+            // Global block if too many attempts from same IP across different accounts (20 attempts in 10 minutes)
+            if ($globalAttempts >= 20) {
+                $this->logActivity(null, 'login', 'Global rate limit exceeded', [
+                    'ip_address' => $request->ip(),
+                    'attempt_count' => $globalAttempts
+                ], $request, 'failed');
+                
+                if ($isJson) {
+                    return response()->json([
+                        'error' => 'Too many login attempts from this IP. Please try again in 10 minutes.'
+                    ], 429);
+                }
+                return back()->withErrors(['email' => 'Too many login attempts. Please try again in 10 minutes.'])->onlyInput('email');
+            }
+        } catch (\Exception $e) {
+            // Skip global rate limiting if table doesn't exist
+        }
+        // ========== END RATE LIMITING FIX ==========
         
         // Log the attempt in login_attempts table
         try {
@@ -112,9 +171,10 @@ class LoginController extends Controller
                 } catch (\Exception $e) {}
             }
             
-            // Clear all failed attempts for this IP on successful login
+            // Clear all failed attempts for this IP AND this username on successful login
             try {
                 LoginAttempt::where('ip_address', $request->ip())
+                    ->where('username_attempted', $loginValue)
                     ->where('was_successful', false)
                     ->delete();
             } catch (\Exception $e) {}
