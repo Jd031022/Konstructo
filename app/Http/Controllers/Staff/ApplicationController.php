@@ -287,6 +287,14 @@ class ApplicationController extends Controller
                 ]
             );
 
+            // Send notifications to applicant and staff about FSEC upload
+            try {
+                $this->notificationService->notifyFSECUploaded($application, $staff, $fullPath, $originalFilename);
+                Log::info('✅ FSEC notifications sent successfully');
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send FSEC notifications: ' . $e->getMessage());
+            }
+
             // Log activity
             $this->logReviewActivity(
                 $application->id,
@@ -461,6 +469,16 @@ class ApplicationController extends Controller
                     'bfp_comments_updated_at' => now()
                 ]
             );
+
+            // Send notifications to applicant and staff about BFP comments
+            if ($request->filled('comments') && $request->comments !== '') {
+                try {
+                    $this->notificationService->notifyBFPCommentsAdded($application, $staff, $request->comments);
+                    Log::info('✅ BFP comments notifications sent successfully');
+                } catch (\Exception $e) {
+                    Log::error('❌ Failed to send BFP comments notifications: ' . $e->getMessage());
+                }
+            }
 
             // Log activity
             $this->logReviewActivity(

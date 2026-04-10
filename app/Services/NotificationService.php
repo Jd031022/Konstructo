@@ -9,6 +9,8 @@ use App\Notifications\AdminNoteNotification;
 use App\Notifications\NewApplicationNotification;
 use App\Notifications\HardCopyReceivedNotification;
 use App\Notifications\StaffStatusChangeNotification;
+use App\Notifications\FSECUploadedNotification;
+use App\Notifications\BFPCommentsAddedNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +49,275 @@ class NotificationService
             Log::error('❌ Failed to send submission email: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Send notification when BFP uploads FSEC document
+     */
+    public function notifyFSECUploaded(ApplicationDocument $application, User $bfpUser, $fsecLink, $filename)
+    {
+        Log::info('========== NOTIFY FSEC UPLOADED ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'bfp_user_id' => $bfpUser->id,
+            'bfp_user_name' => $bfpUser->first_name . ' ' . $bfpUser->last_name,
+            'filename' => $filename
+        ]);
+        
+        $applicant = $application->user;
+        
+        // 1. Notify the applicant
+        if ($applicant) {
+            try {
+                $applicant->notify(new FSECUploadedNotification($application, $bfpUser, $fsecLink, $filename, 'applicant'));
+                Log::info('✅ FSEC notification sent to applicant: ' . $applicant->email);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send FSEC notification to applicant: ' . $e->getMessage());
+            }
+        }
+        
+        // 2. Notify all staff (including non-BFP)
+        $staff = User::whereIn('role', ['admin', 'staff'])->get();
+        $staffNotifiedCount = 0;
+        
+        foreach ($staff as $staffMember) {
+            // Skip the BFP user who uploaded (they already know)
+            if ($staffMember->id === $bfpUser->id) {
+                continue;
+            }
+            
+            try {
+                $staffMember->notify(new FSECUploadedNotification($application, $bfpUser, $fsecLink, $filename, 'staff'));
+                $staffNotifiedCount++;
+                Log::info('✅ FSEC notification sent to staff: ' . $staffMember->email);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send FSEC notification to staff ' . $staffMember->email . ': ' . $e->getMessage());
+            }
+        }
+        
+        Log::info("FSEC notifications sent to {$staffNotifiedCount} staff members");
+        
+        // 3. Send email to applicant (via GmailService)
+        try {
+            $subject = 'Fire Safety Evaluation Clearance (FSEC) Uploaded - Konstructo';
+            $htmlContent = $this->getFSECEmailContent($application, $bfpUser, $fsecLink, $filename);
+            $this->gmailService->sendEmail($applicant->email, $subject, $htmlContent);
+            Log::info('✅ FSEC email sent to applicant via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send FSEC email: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY FSEC UPLOADED END ==========');
+    }
+
+    /**
+     * Send notification when BFP adds comments
+     */
+    public function notifyBFPCommentsAdded(ApplicationDocument $application, User $bfpUser, $comments)
+    {
+        Log::info('========== NOTIFY BFP COMMENTS ADDED ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'bfp_user_id' => $bfpUser->id,
+            'bfp_user_name' => $bfpUser->first_name . ' ' . $bfpUser->last_name,
+            'comments_length' => strlen($comments)
+        ]);
+        
+        $applicant = $application->user;
+        
+        // 1. Notify the applicant
+        if ($applicant) {
+            try {
+                $applicant->notify(new BFPCommentsAddedNotification($application, $bfpUser, $comments, 'applicant'));
+                Log::info('✅ BFP comments notification sent to applicant: ' . $applicant->email);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send BFP comments notification to applicant: ' . $e->getMessage());
+            }
+        }
+        
+        // 2. Notify all staff (including non-BFP)
+        $staff = User::whereIn('role', ['admin', 'staff'])->get();
+        $staffNotifiedCount = 0;
+        
+        foreach ($staff as $staffMember) {
+            // Skip the BFP user who added comments (they already know)
+            if ($staffMember->id === $bfpUser->id) {
+                continue;
+            }
+            
+            try {
+                $staffMember->notify(new BFPCommentsAddedNotification($application, $bfpUser, $comments, 'staff'));
+                $staffNotifiedCount++;
+                Log::info('✅ BFP comments notification sent to staff: ' . $staffMember->email);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send BFP comments notification to staff ' . $staffMember->email . ': ' . $e->getMessage());
+            }
+        }
+        
+        Log::info("BFP comments notifications sent to {$staffNotifiedCount} staff members");
+        
+        // 3. Send email to applicant (via GmailService)
+        try {
+            $subject = 'BFP Comments Added to Your Application - Konstructo';
+            $htmlContent = $this->getBFPCommentsEmailContent($application, $bfpUser, $comments);
+            $this->gmailService->sendEmail($applicant->email, $subject, $htmlContent);
+            Log::info('✅ BFP comments email sent to applicant via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send BFP comments email: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY BFP COMMENTS ADDED END ==========');
+    }
+
+    /**
+     * Get FSEC email content
+     */
+    private function getFSECEmailContent(ApplicationDocument $application, User $bfpUser, $fsecLink, $filename)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $applicant = $application->user;
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Fire Safety Evaluation Clearance (FSEC)</h1>
+                        <p>Document Uploaded for Your Application</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>The Bureau of Fire Protection (BFP) has uploaded the Fire Safety Evaluation Clearance (FSEC) for your building permit application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='badge'>🔥 FSEC Document Uploaded</span>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Uploaded by:</strong> {$bfpUser->first_name} {$bfpUser->last_name}</p>
+                            <p><strong>Document:</strong> {$filename}</p>
+                            <p><strong>Application Number:</strong> {$application->application_number}</p>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$fsecLink}' class='button' target='_blank'>View FSEC Document</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='text-align: center;'>
+                            <a href='{$appUrl}' style='color: #155386;'>View Application Details →</a>
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get BFP comments email content
+     */
+    private function getBFPCommentsEmailContent(ApplicationDocument $application, User $bfpUser, $comments)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $applicant = $application->user;
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
+                    .badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+                    .comments-box { background-color: #FFFBEB; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+                    .comments-box p { margin: 0; color: #78350F; }
+                    .info-box { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>BFP Comments Added</h1>
+                        <p>New comments from the Bureau of Fire Protection</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>The Bureau of Fire Protection (BFP) has added comments to your building permit application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='badge'>📝 New Comments Added</span>
+                        </div>
+                        
+                        <div class='comments-box'>
+                            <strong>Comments from {$bfpUser->first_name} {$bfpUser->last_name}:</strong>
+                            <p style='margin-top: 10px;'>" . nl2br(htmlspecialchars($comments)) . "</p>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Application Number:</strong> {$application->application_number}</p>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application Details</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Please review the comments and take appropriate action.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 
     /**

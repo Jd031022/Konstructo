@@ -495,6 +495,57 @@
                             <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
                         </div>
 
+                        <!-- FSEC Document Card (Fire Safety Evaluation Clearance) -->
+                        <div id="fsec-card" class="mt-4 p-3 bg-red-50 rounded-lg border border-red-200 transition-all duration-500 hidden">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-semibold text-red-700">Fire Safety Evaluation Clearance (FSEC)</span>
+                            </div>
+                            <div id="fsec-content">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span id="fsec-filename" class="text-xs text-gray-600">No document uploaded yet</span>
+                                    </div>
+                                    <a id="fsec-link" href="#" target="_blank" class="text-xs text-red-600 hover:text-red-800 underline flex items-center gap-1 opacity-50 pointer-events-none">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                        </svg>
+                                        View
+                                    </a>
+                                </div>
+                                <div id="fsec-upload-info" class="mt-2">
+                                    <p id="fsec-upload-date" class="text-xs text-gray-400"></p>
+                                    <p id="fsec-uploaded-by" class="text-xs text-gray-400"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BFP Comments Card -->
+                        <div id="bfp-comments-card" class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200 transition-all duration-500 hidden">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-semibold text-amber-700">BFP Comments</span>
+                            </div>
+                            <div id="bfp-comments-content">
+                                <p id="bfp-comments-text" class="text-xs text-gray-600 italic">No comments yet</p>
+                                <div class="mt-2">
+                                    <p id="bfp-comments-date" class="text-xs text-gray-400"></p>
+                                    <p id="bfp-comments-by" class="text-xs text-gray-400"></p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Action Buttons -->
                         <div class="mt-6 space-y-2">
                             <a href="mailto:obo@legazpi.gov.ph?subject=Building Permit Application Inquiry - {{ $applicationId ?? '' }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
@@ -606,6 +657,7 @@
     let previousStatus = null;
     let updateCheckInterval = null;
     let currentAssessment = null;
+    let currentBfpData = null;
 
     // Document names mapping
     const documentNames = {
@@ -685,6 +737,83 @@
             }
         } catch (error) {
             console.error('Error checking for updates:', error);
+        }
+    }
+
+    // Load BFP data
+    async function loadBFPData() {
+        if (!applicationId) return;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/bfp-data`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentBfpData = data.data;
+                    displayBFPData();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading BFP data:', error);
+        }
+    }
+
+    // Display BFP data (FSEC and comments)
+    function displayBFPData() {
+        if (!currentBfpData) return;
+        
+        // FSEC Card
+        const fsecCard = document.getElementById('fsec-card');
+        if (currentBfpData.fsec_link) {
+            fsecCard.classList.remove('hidden');
+            const fsecLink = document.getElementById('fsec-link');
+            const fsecFilename = document.getElementById('fsec-filename');
+            const fsecUploadDate = document.getElementById('fsec-upload-date');
+            const fsecUploadedBy = document.getElementById('fsec-uploaded-by');
+            
+            fsecLink.href = currentBfpData.fsec_link;
+            fsecLink.classList.remove('opacity-50', 'pointer-events-none');
+            fsecFilename.textContent = currentBfpData.fsec_filename || 'FSEC Document';
+            
+            if (currentBfpData.fsec_uploaded_at) {
+                const uploadDate = new Date(currentBfpData.fsec_uploaded_at);
+                fsecUploadDate.textContent = `Uploaded: ${uploadDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
+            }
+            
+            if (currentBfpData.bfp_user_name) {
+                fsecUploadedBy.textContent = `Uploaded by: ${currentBfpData.bfp_user_name}`;
+            }
+        } else {
+            fsecCard.classList.add('hidden');
+        }
+        
+        // BFP Comments Card
+        const bfpCommentsCard = document.getElementById('bfp-comments-card');
+        if (currentBfpData.bfp_comments && currentBfpData.bfp_comments.trim() !== '') {
+            bfpCommentsCard.classList.remove('hidden');
+            const commentsText = document.getElementById('bfp-comments-text');
+            const commentsDate = document.getElementById('bfp-comments-date');
+            const commentsBy = document.getElementById('bfp-comments-by');
+            
+            commentsText.textContent = currentBfpData.bfp_comments;
+            
+            if (currentBfpData.bfp_comments_updated_at) {
+                const updateDate = new Date(currentBfpData.bfp_comments_updated_at);
+                commentsDate.textContent = `Updated: ${updateDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
+            }
+            
+            if (currentBfpData.bfp_user_name) {
+                commentsBy.textContent = `By: ${currentBfpData.bfp_user_name}`;
+            }
+        } else {
+            bfpCommentsCard.classList.add('hidden');
         }
     }
 
@@ -825,6 +954,7 @@
                 displayApplicationDetails();
                 loadReviewActivities();
                 loadAssessmentData();
+                loadBFPData();
                 
                 // Display documents from the document_links
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
@@ -1061,6 +1191,12 @@
                 } else if (reviewer.lastAction === 'application_created') {
                     statusText = 'Created Application';
                     statusClass = 'bg-emerald-100 text-emerald-600';
+                } else if (reviewer.lastAction === 'fsec_uploaded') {
+                    statusText = 'Uploaded FSEC';
+                    statusClass = 'bg-red-100 text-red-600';
+                } else if (reviewer.lastAction === 'bfp_comments_added') {
+                    statusText = 'Added Comments';
+                    statusClass = 'bg-amber-100 text-amber-600';
                 }
             }
             
@@ -1183,6 +1319,14 @@
                 iconColor = 'bg-green-100';
                 iconTextColor = 'text-green-600';
                 iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>`;
+            } else if (activity.action === 'fsec_uploaded') {
+                iconColor = 'bg-red-100';
+                iconTextColor = 'text-red-600';
+                iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>`;
+            } else if (activity.action === 'bfp_comments_added') {
+                iconColor = 'bg-amber-100';
+                iconTextColor = 'text-amber-600';
+                iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>`;
             }
             
             const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
@@ -1197,6 +1341,10 @@
                 }
             } else if (activity.action === 'document_verified') {
                 actionDisplay = 'Documents Verified';
+            } else if (activity.action === 'fsec_uploaded') {
+                actionDisplay = 'FSEC Document Uploaded';
+            } else if (activity.action === 'bfp_comments_added') {
+                actionDisplay = 'BFP Comments Added';
             } else {
                 actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             }
