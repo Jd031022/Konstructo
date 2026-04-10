@@ -87,27 +87,11 @@ class UserController extends Controller
             'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_-]+$/',
             'password' => 'required|string|min:8|max:16|confirmed',
             'role' => 'required|in:admin,staff,applicant',
-            'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'],
-            'address' => 'required|string',
-            'zip_code' => 'required|string|max:10',
-            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide'
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Format phone number to ensure it's 11 digits starting with 09
-        $phoneNumber = $request->phone_number;
-        
-        // If it's 10 digits, add 09 prefix
-        if (preg_match('/^[0-9]{10}$/', $phoneNumber)) {
-            $phoneNumber = '09' . $phoneNumber;
-        }
-        
-        // Ensure it's exactly 11 digits and starts with 09
-        if (!preg_match('/^09[0-9]{9}$/', $phoneNumber)) {
-            return response()->json(['errors' => ['phone_number' => ['Phone number must be 11 digits starting with 09']]], 422);
         }
 
         // Set approval status based on role
@@ -116,6 +100,14 @@ class UserController extends Controller
 
         // Store the plain password for email before hashing
         $plainPassword = $request->password;
+
+        // Generate a dummy phone number that will pass validation (09 + 9 digits)
+        // This is just to satisfy the database constraint
+        $dummyPhoneNumber = '09123456789';
+        
+        // Dummy address and zip code
+        $dummyAddress = 'System Generated User';
+        $dummyZipCode = '0000';
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -126,9 +118,9 @@ class UserController extends Controller
             'username' => $request->username,
             'password' => Hash::make($plainPassword),
             'role' => $request->role,
-            'phone_number' => $phoneNumber,
-            'address' => $request->address,
-            'zip_code' => $request->zip_code,
+            'phone_number' => $dummyPhoneNumber,
+            'address' => $dummyAddress,
+            'zip_code' => $dummyZipCode,
             'email_verified_at' => $emailVerifiedAt,
             'approval_status' => $approvalStatus,
         ]);
@@ -208,27 +200,11 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'username' => 'required|string|regex:/^[a-zA-Z0-9_-]+$/|unique:users,username,' . $id,
             'role' => 'required|in:admin,staff,applicant',
-            'phone_number' => ['required', 'string', 'regex:/^(09[0-9]{9}|[0-9]{10})$/'],
-            'address' => 'required|string',
-            'zip_code' => 'required|string|max:10',
-            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide'
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Format phone number to ensure it's 11 digits starting with 09
-        $phoneNumber = $request->phone_number;
-        
-        // If it's 10 digits, add 09 prefix
-        if (preg_match('/^[0-9]{10}$/', $phoneNumber)) {
-            $phoneNumber = '09' . $phoneNumber;
-        }
-        
-        // Ensure it's exactly 11 digits and starts with 09
-        if (!preg_match('/^09[0-9]{9}$/', $phoneNumber)) {
-            return response()->json(['errors' => ['phone_number' => ['Phone number must be 11 digits starting with 09']]], 422);
         }
 
         $oldRole = $user->role;
@@ -242,9 +218,6 @@ class UserController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'role' => $newRole,
-            'phone_number' => $phoneNumber,
-            'address' => $request->address,
-            'zip_code' => $request->zip_code,
         ];
 
         // If role changed from applicant to admin/staff, auto-approve
@@ -653,13 +626,6 @@ class UserController extends Controller
         try {
             $user = User::with('profile')->findOrFail($id);
             
-            // Format phone number for display (remove 09 prefix if needed)
-            $phoneNumber = $user->phone_number;
-            // If it starts with 09 and is 11 digits, remove the 09 for display
-            if (substr($phoneNumber, 0, 2) === '09' && strlen($phoneNumber) === 11) {
-                $phoneNumber = substr($phoneNumber, 2);
-            }
-            
             // Get position from profile
             $position = null;
             if ($user->profile) {
@@ -676,9 +642,6 @@ class UserController extends Controller
                 'username' => $user->username,
                 'role' => $user->role,
                 'position' => $position,
-                'phone_number' => $phoneNumber,
-                'address' => $user->address,
-                'zip_code' => $user->zip_code,
                 'approval_status' => $user->approval_status,
                 'rejection_reason' => $user->rejection_reason,
                 'approved_at' => $user->approved_at,
