@@ -97,6 +97,68 @@
             </div>
         </div>
 
+        <!-- BFP FSEC Section - Only visible to BFP staff -->
+        <div id="bfp-section" class="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-800">Fire Safety Evaluation Clearance (FSEC)</h4>
+                    <p class="text-sm text-gray-700 mt-1">Upload the Fire Safety Evaluation Clearance for this building permit application.</p>
+                    
+                    <!-- FSEC Upload Section -->
+                    <div class="mt-4 space-y-4">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <input type="file" id="fsec-file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                <button onclick="document.getElementById('fsec-file').click()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    Upload FSEC
+                                </button>
+                                <span id="fsec-filename" class="text-sm text-gray-500">No file selected</span>
+                            </div>
+                            
+                            <!-- Existing FSEC Display -->
+                            <div id="existing-fsec-container" class="hidden">
+                                <p class="text-xs text-gray-500 mb-1">Current FSEC Document:</p>
+                                <div class="flex items-center gap-2">
+                                    <a id="fsec-link" href="#" target="_blank" class="text-sm text-red-600 hover:text-red-800 underline flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                        </svg>
+                                        View Current FSEC
+                                    </a>
+                                    <button onclick="deleteFSEC()" class="text-xs text-red-500 hover:text-red-700">Delete</button>
+                                </div>
+                                <p id="fsec-upload-date" class="text-xs text-gray-400 mt-1"></p>
+                            </div>
+                            
+                            <div id="fsec-upload-status" class="hidden text-sm"></div>
+                        </div>
+                        
+                        <!-- BFP Additional Comments -->
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">BFP Comments / Recommendations</label>
+                            <textarea id="bfp-comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm" placeholder="Add any comments or recommendations regarding fire safety compliance..."></textarea>
+                            <div class="flex justify-end mt-2">
+                                <button onclick="saveBFPComments()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">Save Comments</button>
+                            </div>
+                            <div id="bfp-comments-display" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
+                                <p class="text-xs text-gray-500 mb-1">Previous Comments:</p>
+                                <p id="bfp-comments-text" class="text-sm text-gray-700"></p>
+                                <p id="bfp-comments-date" class="text-xs text-gray-400 mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Application Header -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -510,6 +572,7 @@
     let currentApplication = null;
     let documentVerificationStatus = {};
     let currentAssessment = null;
+    let currentUserPosition = null;
 
     const documentsList = [
         { key: 'app_letter_link', name: 'Application for Building Permit', category: 'Application Forms' },
@@ -528,11 +591,15 @@
     ];
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Get current user position
+        fetchCurrentUserPosition();
+        
         if (applicationId && !isNaN(applicationId)) {
             loadApplicationDetails();
             loadReviewActivities();
             loadDocumentVerificationStatus();
             loadAssessmentData();
+            loadBFPData();
         } else {
             showError();
         }
@@ -544,7 +611,195 @@
                 dropdown.classList.add('hidden');
             }
         });
+        
+        // FSEC file input change handler
+        document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
     });
+    
+    async function fetchCurrentUserPosition() {
+        try {
+            // First try to get from the position/check endpoint which returns position
+            const response = await fetch('/staff/position/check');
+            const data = await response.json();
+            console.log('Position check response:', data);
+            
+            // The response might have a 'position' field or we need to get from user profile
+            if (data.position) {
+                currentUserPosition = data.position;
+            } else if (data.needs_position === false) {
+                // If needs_position is false, try to get from a different endpoint
+                const userResponse = await fetch('/api/user/position');
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    currentUserPosition = userData.position;
+                }
+            }
+            
+            // Also check if we can get from the profile endpoint
+            if (!currentUserPosition) {
+                const profileResponse = await fetch('/profile/avatar-info');
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    if (profileData.user && profileData.user.position) {
+                        currentUserPosition = profileData.user.position;
+                    }
+                }
+            }
+            
+            console.log('Current user position:', currentUserPosition);
+            
+            // Show BFP section if position is BFP (case insensitive)
+            if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+                document.getElementById('bfp-section').classList.remove('hidden');
+                console.log('BFP section shown');
+            } else {
+                console.log('BFP section hidden. Position:', currentUserPosition);
+            }
+        } catch (error) {
+            console.error('Error fetching user position:', error);
+        }
+    }
+
+    async function loadBFPData() {
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/bfp-data`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    // Display existing FSEC
+                    if (data.data.fsec_link) {
+                        document.getElementById('existing-fsec-container').classList.remove('hidden');
+                        document.getElementById('fsec-link').href = data.data.fsec_link;
+                        if (data.data.fsec_filename) {
+                            document.getElementById('fsec-filename').textContent = data.data.fsec_filename;
+                        }
+                        if (data.data.fsec_uploaded_at) {
+                            document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(data.data.fsec_uploaded_at).toLocaleDateString();
+                        }
+                    }
+                    // Display existing BFP comments
+                    if (data.data.bfp_comments) {
+                        document.getElementById('bfp-comments-display').classList.remove('hidden');
+                        document.getElementById('bfp-comments-text').textContent = data.data.bfp_comments;
+                        if (data.data.bfp_comments_updated_at) {
+                            document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date(data.data.bfp_comments_updated_at).toLocaleString();
+                        }
+                        document.getElementById('bfp-comments').value = data.data.bfp_comments;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading BFP data:', error);
+        }
+    }
+
+    async function handleFSECUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please upload PDF, JPG, or PNG files only.');
+            event.target.value = '';
+            return;
+        }
+        
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert('File size must be less than 10MB.');
+            event.target.value = '';
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('fsec_file', file);
+        
+        const statusDiv = document.getElementById('fsec-upload-status');
+        statusDiv.classList.remove('hidden');
+        statusDiv.innerHTML = '<span class="text-blue-600">Uploading...</span>';
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/upload-fsec`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                statusDiv.innerHTML = '<span class="text-green-600">✓ FSEC uploaded successfully!</span>';
+                document.getElementById('fsec-filename').textContent = file.name;
+                document.getElementById('existing-fsec-container').classList.remove('hidden');
+                document.getElementById('fsec-link').href = data.link;
+                document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date().toLocaleDateString();
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+            } else {
+                statusDiv.innerHTML = '<span class="text-red-600">✗ ' + (data.message || 'Upload failed') + '</span>';
+            }
+        } catch (error) {
+            console.error('Error uploading FSEC:', error);
+            statusDiv.innerHTML = '<span class="text-red-600">✗ Upload failed. Please try again.</span>';
+        } finally {
+            event.target.value = '';
+            setTimeout(() => {
+                if (statusDiv.innerHTML) statusDiv.innerHTML = '';
+            }, 5000);
+        }
+    }
+    
+    async function deleteFSEC() {
+        if (!confirm('Are you sure you want to delete the uploaded FSEC file?')) return;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/delete-fsec`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('existing-fsec-container').classList.add('hidden');
+                document.getElementById('fsec-filename').textContent = 'No file selected';
+                alert('FSEC deleted successfully');
+            } else {
+                alert(data.message || 'Failed to delete FSEC');
+            }
+        } catch (error) {
+            console.error('Error deleting FSEC:', error);
+            alert('Failed to delete FSEC');
+        }
+    }
+    
+    async function saveBFPComments() {
+        const comments = document.getElementById('bfp-comments').value;
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Saving...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/bfp-comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify({ comments: comments })
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('bfp-comments-display').classList.remove('hidden');
+                document.getElementById('bfp-comments-text').textContent = comments;
+                document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date().toLocaleString();
+                alert('Comments saved successfully');
+            } else {
+                alert(data.message || 'Failed to save comments');
+            }
+        } catch (error) {
+            console.error('Error saving comments:', error);
+            alert('Failed to save comments');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
 
     async function loadAssessmentData() {
         try {

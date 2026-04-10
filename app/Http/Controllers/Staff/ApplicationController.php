@@ -7,6 +7,7 @@ use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
 use App\Models\AssessmentFee;
+use App\Models\BfpApplicationData;
 use App\Models\ActivityLog;
 use App\Services\NotificationService;
 use App\Services\GmailService;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
@@ -99,7 +101,6 @@ class ApplicationController extends Controller
                     'last_updated_by_name' => $lastUpdatedByName,
                     'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
                     'is_archived' => $app->is_archived ?? false,
-                    // Add project title for listing
                     'project_title' => $app->project_title ?? null
                 ];
             }
@@ -119,6 +120,375 @@ class ApplicationController extends Controller
                 'success' => false,
                 'message' => 'Error loading applications: ' . $e->getMessage(),
                 'applications' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current user's position
+     */
+    public function getUserPosition()
+    {
+        try {
+            $user = Auth::user();
+            $position = null;
+            
+            if ($user) {
+                $user->load('profile');
+                if ($user->profile) {
+                    $position = $user->profile->position;
+                }
+            }
+            
+            Log::info('Get user position', [
+                'user_id' => $user ? $user->id : null,
+                'position' => $position
+            ]);
+            
+            return response()->json([
+                'position' => $position,
+                'needs_position' => !$position && $user && $user->role === 'staff'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting user position: ' . $e->getMessage());
+            return response()->json([
+                'position' => null,
+                'needs_position' => false
+            ]);
+        }
+    }
+
+    /**
+     * Check if user is BFP (case-insensitive)
+     */
+    private function isBFPUser($user)
+    {
+        if (!$user) return false;
+        
+        $user->load('profile');
+        $position = $user->profile ? $user->profile->position : null;
+        
+        Log::info('Checking if user is BFP', [
+            'user_id' => $user->id,
+            'position' => $position,
+            'is_bfp' => $position && strtoupper($position) === 'BFP'
+        ]);
+        
+        return $position && strtoupper($position) === 'BFP';
+    }
+
+    /**
+     * Get BFP data for an application
+     */
+    public function getBfpData($id)
+    {
+        try {
+            $bfpData = BfpApplicationData::where('application_id', $id)->first();
+            
+            if (!$bfpData) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'fsec_link' => $bfpData->fsec_link,
+                    'fsec_filename' => $bfpData->fsec_filename,
+                    'fsec_uploaded_at' => $bfpData->fsec_uploaded_at,
+                    'bfp_comments' => $bfpData->bfp_comments,
+                    'bfp_comments_updated_at' => $bfpData->bfp_comments_updated_at,
+                    'bfp_user_name' => $bfpData->bfpUser ? $bfpData->bfpUser->first_name . ' ' . $bfpData->bfpUser->last_name : null
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting BFP data: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving BFP data'
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload FSEC file (BFP only)
+     */
+    public function uploadFSEC(Request $request, $id)
+    {
+        Log::info('========== UPLOAD FSEC START ==========');
+        Log::info('uploadFSEC called', [
+            'application_id' => $id,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
+            'user_id' => auth()->id()
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'fsec_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            // Check if user is BFP using case-insensitive comparison
+            if (!$this->isBFPUser($staff)) {
+                Log::error('Unauthorized: User is not BFP', [
+                    'user_id' => $staff->id,
+                    'position' => $staff->profile ? $staff->profile->position : 'no profile'
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only BFP staff can upload FSEC documents. Your position: ' . ($staff->profile ? $staff->profile->position : 'not set')
+                ], 403);
+            }
+
+            $file = $request->file('fsec_file');
+            $originalFilename = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'fsec_' . $application->application_number . '_' . time() . '.' . $extension;
+            
+            // Store file in storage/app/public/fsec
+            $path = $file->storeAs('fsec', $filename, 'public');
+            $fullPath = Storage::url($path);
+            
+            Log::info('File uploaded', [
+                'original_name' => $originalFilename,
+                'saved_as' => $filename,
+                'path' => $fullPath
+            ]);
+
+            // Update or create BFP data record
+            $bfpData = BfpApplicationData::updateOrCreate(
+                ['application_id' => $id],
+                [
+                    'bfp_user_id' => $staff->id,
+                    'fsec_link' => $fullPath,
+                    'fsec_filename' => $originalFilename,
+                    'fsec_uploaded_at' => now()
+                ]
+            );
+
+            // Log activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'fsec_uploaded',
+                null,
+                null,
+                "FSEC document uploaded: {$originalFilename}",
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            Log::info('========== UPLOAD FSEC END (SUCCESS) ==========');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FSEC uploaded successfully',
+                'link' => $fullPath,
+                'filename' => $originalFilename
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('========== UPLOAD FSEC END (ERROR) ==========');
+            Log::error('Error uploading FSEC: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading FSEC: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete FSEC file (BFP only)
+     */
+    public function deleteFSEC(Request $request, $id)
+    {
+        Log::info('========== DELETE FSEC START ==========');
+        Log::info('deleteFSEC called', [
+            'application_id' => $id,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+        ]);
+
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            // Check if user is BFP using case-insensitive comparison
+            if (!$this->isBFPUser($staff)) {
+                Log::error('Unauthorized: User is not BFP');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only BFP staff can delete FSEC documents'
+                ], 403);
+            }
+
+            $bfpData = BfpApplicationData::where('application_id', $id)->first();
+            
+            if (!$bfpData || !$bfpData->fsec_link) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No FSEC file found to delete'
+                ], 404);
+            }
+
+            // Delete the file from storage
+            $path = str_replace('/storage', '', $bfpData->fsec_link);
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+                Log::info('File deleted from storage', ['path' => $path]);
+            }
+
+            // Clear the FSEC fields
+            $bfpData->fsec_link = null;
+            $bfpData->fsec_filename = null;
+            $bfpData->fsec_uploaded_at = null;
+            $bfpData->bfp_user_id = $staff->id;
+            $bfpData->save();
+
+            // Log activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'fsec_deleted',
+                null,
+                null,
+                "FSEC document deleted",
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            Log::info('========== DELETE FSEC END (SUCCESS) ==========');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FSEC deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('========== DELETE FSEC END (ERROR) ==========');
+            Log::error('Error deleting FSEC: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting FSEC: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Save BFP comments (BFP only)
+     */
+    public function saveBFPComments(Request $request, $id)
+    {
+        Log::info('========== SAVE BFP COMMENTS START ==========');
+        Log::info('saveBFPComments called', [
+            'application_id' => $id,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'comments' => 'nullable|string|max:2000'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            
+            // Check if user is BFP using case-insensitive comparison
+            if (!$this->isBFPUser($staff)) {
+                Log::error('Unauthorized: User is not BFP');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only BFP staff can add comments'
+                ], 403);
+            }
+
+            // Update or create BFP data record
+            $bfpData = BfpApplicationData::updateOrCreate(
+                ['application_id' => $id],
+                [
+                    'bfp_user_id' => $staff->id,
+                    'bfp_comments' => $request->comments,
+                    'bfp_comments_updated_at' => now()
+                ]
+            );
+
+            // Log activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                'bfp_comments_added',
+                null,
+                null,
+                "BFP comments added/updated",
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            Log::info('========== SAVE BFP COMMENTS END (SUCCESS) ==========');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'BFP comments saved successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('========== SAVE BFP COMMENTS END (ERROR) ==========');
+            Log::error('Error saving BFP comments: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error saving BFP comments: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -343,6 +713,15 @@ class ApplicationController extends Controller
                 break;
             case 'assessment_completed':
                 $actionText = 'Assessment Completed';
+                break;
+            case 'fsec_uploaded':
+                $actionText = 'FSEC Document Uploaded';
+                break;
+            case 'fsec_deleted':
+                $actionText = 'FSEC Document Deleted';
+                break;
+            case 'bfp_comments_added':
+                $actionText = 'BFP Comments Added';
                 break;
             default:
                 $actionText = ucfirst(str_replace('_', ' ', $activity->action));

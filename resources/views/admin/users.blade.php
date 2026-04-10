@@ -592,6 +592,7 @@ function getPositionDisplay(position) {
         'engineer': 'Engineer',
         'architect': 'Architect',
         'BFP': 'BFP',
+        'bfp': 'BFP',
         'cpdo': 'CPDO',
         'administrative_aide': 'Admin Aide',
         'treasurer': 'Treasurer',

@@ -78,6 +78,23 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Normalize position value - ensure BFP is uppercase
+     */
+    private function normalizePosition($position)
+    {
+        if (empty($position)) {
+            return null;
+        }
+        
+        // Convert 'bfp' (lowercase) to 'BFP' (uppercase)
+        if (strtolower($position) === 'bfp') {
+            return 'BFP';
+        }
+        
+        return $position;
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -125,11 +142,12 @@ class UserController extends Controller
             'approval_status' => $approvalStatus,
         ]);
 
-        // Create profile for staff with position
+        // Create profile for staff with position (normalized)
         if ($request->role === 'staff' && $request->filled('position')) {
+            $normalizedPosition = $this->normalizePosition($request->position);
             UserProfile::updateOrCreate(
                 ['user_id' => $user->id],
-                ['position' => $request->position]
+                ['position' => $normalizedPosition]
             );
         }
 
@@ -166,6 +184,7 @@ class UserController extends Controller
                 'role' => $user->role,
                 'approval_status' => $user->approval_status,
                 'position' => $request->position,
+                'normalized_position' => isset($normalizedPosition) ? $normalizedPosition : null,
                 'email_sent' => $emailSent
             ]),
             'ip_address' => $request->ip(),
@@ -237,12 +256,13 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        // Handle position for staff
+        // Handle position for staff (normalized)
         if ($newRole === 'staff') {
             if ($request->filled('position')) {
+                $normalizedPosition = $this->normalizePosition($request->position);
                 UserProfile::updateOrCreate(
                     ['user_id' => $user->id],
-                    ['position' => $request->position]
+                    ['position' => $normalizedPosition]
                 );
             }
         } else {
@@ -262,7 +282,8 @@ class UserController extends Controller
                 'changes' => array_keys($request->all()),
                 'old_role' => $oldRole,
                 'new_role' => $newRole,
-                'position' => $request->position
+                'position' => $request->position,
+                'normalized_position' => isset($normalizedPosition) ? $normalizedPosition : null
             ]),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),

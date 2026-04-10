@@ -67,6 +67,13 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         Route::get('/check', [App\Http\Controllers\Staff\PositionController::class, 'check'])->name('check');
     });
     
+    // ========== BFP ROUTES (FIRE SAFETY EVALUATION CLEARANCE) ==========
+    Route::get('/position/check', [App\Http\Controllers\Staff\ApplicationController::class, 'getUserPosition']);
+    Route::get('/applications/{id}/bfp-data', [App\Http\Controllers\Staff\ApplicationController::class, 'getBfpData']);
+    Route::post('/applications/{id}/upload-fsec', [App\Http\Controllers\Staff\ApplicationController::class, 'uploadFSEC']);
+    Route::delete('/applications/{id}/delete-fsec', [App\Http\Controllers\Staff\ApplicationController::class, 'deleteFSEC']);
+    Route::post('/applications/{id}/bfp-comments', [App\Http\Controllers\Staff\ApplicationController::class, 'saveBFPComments']);
+    
     // ========== BASIC REQUIREMENTS REVIEW ROUTES ==========
     Route::get('/basic-requirements', [App\Http\Controllers\Staff\BasicRequirementController::class, 'index'])
         ->name('basic-requirements.index');
