@@ -306,27 +306,100 @@
                 </div>
 
                 <!-- Professional Information Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Professional Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-xs text-gray-500">Architect's Name</p>
-                            <p id="info-architect-name" class="text-sm font-medium text-gray-800">-</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Architect's License</p>
-                            <p id="info-architect-license" class="text-sm font-medium text-gray-800">-</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Civil Engineer's Name</p>
-                            <p id="info-engineer-name" class="text-sm font-medium text-gray-800">-</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Engineer's License</p>
-                            <p id="info-engineer-license" class="text-sm font-medium text-gray-800">-</p>
-                        </div>
-                    </div>
-                </div>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Professional Information</h2>
+        <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">Licensed Professionals</span>
+    </div>
+    
+    <!-- Architect -->
+    <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                </svg>
+            </div>
+            <h4 class="text-sm font-semibold text-gray-700">Architect</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+            <div>
+                <p class="text-xs text-gray-500">Name</p>
+                <p id="info-architect-name" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">License Number</p>
+                <p id="info-architect-license" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Civil Engineer -->
+    <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <h4 class="text-sm font-semibold text-gray-700">Civil Engineer</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+            <div>
+                <p class="text-xs text-gray-500">Name</p>
+                <p id="info-engineer-name" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">License Number</p>
+                <p id="info-engineer-license" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Electrical Engineer -->
+    <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <h4 class="text-sm font-semibold text-gray-700">Professional Electrical Engineer</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+            <div>
+                <p class="text-xs text-gray-500">Name</p>
+                <p id="info-electrical-name" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">License Number</p>
+                <p id="info-electrical-license" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sanitary Engineer / Master Plumber -->
+    <div>
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h4 class="text-sm font-semibold text-gray-700">Sanitary Engineer / Master Plumber</h4>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+            <div>
+                <p class="text-xs text-gray-500">Name</p>
+                <p id="info-sanitary-name" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">License Number</p>
+                <p id="info-sanitary-license" class="text-sm font-medium text-gray-800">-</p>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Staff/Reviewers List Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
@@ -974,28 +1047,36 @@
     }
 
     // Display project information
-    function displayProjectInfo(app) {
-        document.getElementById('info-project-title').textContent = app.project_title || 'Not provided';
-        document.getElementById('info-project-type').textContent = app.project_type || 'Not provided';
-        document.getElementById('info-project-location').textContent = app.project_location || 'Not provided';
-        document.getElementById('info-lot-area').textContent = app.lot_area ? `${parseFloat(app.lot_area).toLocaleString()} sqm` : 'Not provided';
-        document.getElementById('info-floor-area').textContent = app.floor_area ? `${parseFloat(app.floor_area).toLocaleString()} sqm` : 'Not provided';
-        document.getElementById('info-num-floors').textContent = app.num_floors || 'Not provided';
-        document.getElementById('info-estimated-cost').textContent = app.estimated_cost ? `₱${parseFloat(app.estimated_cost).toLocaleString()}` : 'Not provided';
-        document.getElementById('info-description').textContent = app.project_description || 'Not provided';
-        
-        document.getElementById('info-owner-name').textContent = app.owner_name || 'Not provided';
-        document.getElementById('info-contact-number').textContent = app.contact_number || 'Not provided';
-        document.getElementById('info-owner-address').textContent = app.owner_address || 'Not provided';
-        document.getElementById('info-owner-email').textContent = app.owner_email || 'Not provided';
-        
-        document.getElementById('info-architect-name').textContent = app.architect_name || 'Not provided';
-        document.getElementById('info-architect-license').textContent = app.architect_license || 'Not provided';
-        document.getElementById('info-engineer-name').textContent = app.engineer_name || 'Not provided';
-        document.getElementById('info-engineer-license').textContent = app.engineer_license || 'Not provided';
-        
-        document.getElementById('project-title').textContent = app.project_title || 'Building Permit Application';
-    }
+   function displayProjectInfo(app) {
+    document.getElementById('info-project-title').textContent = app.project_title || 'Not provided';
+    document.getElementById('info-project-type').textContent = app.project_type || 'Not provided';
+    document.getElementById('info-project-location').textContent = app.project_location || 'Not provided';
+    document.getElementById('info-lot-area').textContent = app.lot_area ? `${parseFloat(app.lot_area).toLocaleString()} sqm` : 'Not provided';
+    document.getElementById('info-floor-area').textContent = app.floor_area ? `${parseFloat(app.floor_area).toLocaleString()} sqm` : 'Not provided';
+    document.getElementById('info-num-floors').textContent = app.num_floors || 'Not provided';
+    document.getElementById('info-estimated-cost').textContent = app.estimated_cost ? `₱${parseFloat(app.estimated_cost).toLocaleString()}` : 'Not provided';
+    document.getElementById('info-description').textContent = app.project_description || 'Not provided';
+    
+    document.getElementById('info-owner-name').textContent = app.owner_name || 'Not provided';
+    document.getElementById('info-contact-number').textContent = app.contact_number || 'Not provided';
+    document.getElementById('info-owner-address').textContent = app.owner_address || 'Not provided';
+    document.getElementById('info-owner-email').textContent = app.owner_email || 'Not provided';
+    
+    // Professional Information - All 4 professionals
+    document.getElementById('info-architect-name').textContent = app.architect_name || 'Not provided';
+    document.getElementById('info-architect-license').textContent = app.architect_license || 'Not provided';
+    
+    document.getElementById('info-engineer-name').textContent = app.engineer_name || 'Not provided';
+    document.getElementById('info-engineer-license').textContent = app.engineer_license || 'Not provided';
+    
+    document.getElementById('info-electrical-name').textContent = app.electrical_engineer_name || 'Not provided';
+    document.getElementById('info-electrical-license').textContent = app.electrical_engineer_license || 'Not provided';
+    
+    document.getElementById('info-sanitary-name').textContent = app.sanitary_engineer_name || 'Not provided';
+    document.getElementById('info-sanitary-license').textContent = app.sanitary_engineer_license || 'Not provided';
+    
+    document.getElementById('project-title').textContent = app.project_title || 'Building Permit Application';
+}
 
     // Display documents list
     function displayDocumentsList(documents) {

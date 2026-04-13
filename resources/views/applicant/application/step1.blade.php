@@ -221,23 +221,27 @@
 
                 <!-- Professional Information -->
                 <div class="border-t border-gray-200 pt-6 mt-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Professional Information</h3>
+                    <div class="flex items-center gap-2 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Professional Information</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">Please provide the licensed professionals who will sign and seal the plans</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Architect -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Architect's Name
+                                Architect's Name <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
                                    name="architect_name" 
                                    id="architect_name"
                                    value="{{ $application->architect_name ?? '' }}"
-                                   placeholder="Name of licensed architect"
+                                   placeholder="Full name of licensed architect"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Architect's License Number
+                                Architect's License Number <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
                                    name="architect_license" 
@@ -248,26 +252,79 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <!-- Civil Engineer -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Civil Engineer's Name <span class="text-red-500">*</span>
+        </label>
+        <input type="text" 
+               name="engineer_name" 
+               id="engineer_name"
+               value="{{ $application->engineer_name ?? '' }}"
+               placeholder="Full name of licensed civil engineer"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Civil Engineer's License Number <span class="text-red-500">*</span>
+        </label>
+        <input type="text" 
+               name="engineer_license" 
+               id="engineer_license"
+               value="{{ $application->engineer_license ?? '' }}"
+               placeholder="PRC License Number"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+</div>
+
+                    <!-- Professional Electrical Engineer -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Civil Engineer's Name
+                                Professional Electrical Engineer's Name <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
-                                   name="engineer_name" 
-                                   id="engineer_name"
-                                   value="{{ $application->engineer_name ?? '' }}"
-                                   placeholder="Name of licensed civil engineer"
+                                   name="electrical_engineer_name" 
+                                   id="electrical_engineer_name"
+                                   value="{{ $application->electrical_engineer_name ?? '' }}"
+                                   placeholder="Full name of licensed electrical engineer"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Engineer's License Number
+                                Electrical Engineer's License Number <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
-                                   name="engineer_license" 
-                                   id="engineer_license"
-                                   value="{{ $application->engineer_license ?? '' }}"
+                                   name="electrical_engineer_license" 
+                                   id="electrical_engineer_license"
+                                   value="{{ $application->electrical_engineer_license ?? '' }}"
+                                   placeholder="PRC License Number"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Sanitary Engineer / Master Plumber -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Sanitary Engineer / Master Plumber's Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="sanitary_engineer_name" 
+                                   id="sanitary_engineer_name"
+                                   value="{{ $application->sanitary_engineer_name ?? '' }}"
+                                   placeholder="Full name of licensed sanitary engineer or master plumber"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Sanitary Engineer / Master Plumber's License Number <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="sanitary_engineer_license" 
+                                   id="sanitary_engineer_license"
+                                   value="{{ $application->sanitary_engineer_license ?? '' }}"
                                    placeholder="PRC License Number"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                         </div>
@@ -328,22 +385,34 @@ document.getElementById('project-info-form').addEventListener('submit', async fu
     e.preventDefault();
     
     // Validate required fields
-    const requiredFields = ['project_title', 'project_location', 'project_type', 'lot_area', 'floor_area', 'num_floors', 'estimated_cost', 'project_description', 'owner_name', 'owner_address', 'contact_number', 'owner_email'];
+    const requiredFields = [
+        'project_title', 'project_location', 'project_type', 
+        'lot_area', 'floor_area', 'num_floors', 'estimated_cost', 'project_description', 
+        'owner_name', 'owner_address', 'contact_number', 'owner_email',
+        'architect_name', 'architect_license',
+        'engineer_name', 'engineer_license',
+        'electrical_engineer_name', 'electrical_engineer_license',
+        'sanitary_engineer_name', 'sanitary_engineer_license'
+    ];
+    
     let hasError = false;
+    let missingFields = [];
     
     for (const field of requiredFields) {
         const input = document.getElementById(field);
         if (!input || !input.value.trim()) {
-            showErrorModal(`Please fill in all required fields. Missing: ${field.replace(/_/g, ' ')}`);
+            missingFields.push(field.replace(/_/g, ' '));
             input?.classList.add('border-red-500');
             hasError = true;
-            break;
         } else {
             input?.classList.remove('border-red-500');
         }
     }
     
-    if (hasError) return;
+    if (hasError) {
+        showErrorModal(`Please fill in all required fields.\nMissing: ${missingFields.join(', ')}`);
+        return;
+    }
     
     // Validate email format
     const email = document.getElementById('owner_email').value;

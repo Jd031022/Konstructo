@@ -11,90 +11,100 @@ class ApplicationDocument extends Model
 
     protected $table = 'application_documents';
 
-protected $fillable = [
-    // Core fields
-    'user_id',
-    'application_number',
-    'status',
-    
-    // Document fields
-    'google_drive_link',
-    'document_links',
-    'pdf_annotations',
-    
-    // Admin/Staff fields
-    'admin_notes',
-    'verified_at',
-    'verified_by',
-    'rejection_reason',
-    'hard_copy_received',
-    'hard_copy_received_at',
-    'last_updated_by',
-    
-    // Archive fields
-    'is_archived',
-    'archived_at',
-    'archived_by',
-    'archive_reason',
-    
-    // Step 1: Project Information
-    'project_title',
-    'project_location',
-    'project_type',
-    'lot_area',
-    'floor_area',
-    'num_floors',
-    'estimated_cost',
-    'project_description',
-    
-    // Step 1: Owner/Applicant Information
-    'owner_name',
-    'owner_address',
-    'contact_number',
-    'owner_email',
-    
-    // Step 1: Professional Information
-    'architect_name',
-    'architect_license',
-    'engineer_name',
-    'engineer_license',
-    
-    // Step Completion Tracking
-    'step1_completed',
-    'step1_completed_at',
-    'step2_completed',
-    'step2_completed_at',
-    'step3_completed',
-    'step3_completed_at',
-];
+ protected $fillable = [
+        // Core fields
+        'user_id',
+        'application_number',
+        'status',
+        
+        // Document fields
+        'google_drive_link',
+        'document_links',
+        'pdf_annotations',
+        
+        // Admin/Staff fields
+        'admin_notes',
+        'verified_at',
+        'verified_by',
+        'rejection_reason',
+        'hard_copy_received',
+        'hard_copy_received_at',
+        'last_updated_by',
+        
+        // Archive fields
+        'is_archived',
+        'archived_at',
+        'archived_by',
+        'archive_reason',
+        
+        // Step 1: Project Information
+        'project_title',
+        'project_location',
+        'project_type',
+        'lot_area',
+        'floor_area',
+        'num_floors',
+        'estimated_cost',
+        'project_description',
+        
+        // Step 1: Owner/Applicant Information
+        'owner_name',
+        'owner_address',
+        'contact_number',
+        'owner_email',
+        
+        // Step 1: Professional Information - Architect
+        'architect_name',
+        'architect_license',
+        
+        // Step 1: Professional Information - Civil Engineer
+        'engineer_name',
+        'engineer_license',
+        
+        // Step 1: Professional Information - Electrical Engineer (NEW)
+        'electrical_engineer_name',
+        'electrical_engineer_license',
+        
+        // Step 1: Professional Information - Sanitary Engineer / Master Plumber (NEW)
+        'sanitary_engineer_name',
+        'sanitary_engineer_license',
+        
+        // Step Completion Tracking
+        'step1_completed',
+        'step1_completed_at',
+        'step2_completed',
+        'step2_completed_at',
+        'step3_completed',
+        'step3_completed_at',
+    ];
 
-protected $casts = [
-    // Date/Timestamp fields
-    'verified_at' => 'datetime',
-    'hard_copy_received_at' => 'datetime',
-    'created_at' => 'datetime',
-    'updated_at' => 'datetime',
-    'archived_at' => 'datetime',
-    'step1_completed_at' => 'datetime',
-    'step2_completed_at' => 'datetime',
-    'step3_completed_at' => 'datetime',
-    
-    // Boolean fields
-    'hard_copy_received' => 'boolean',
-    'is_archived' => 'boolean',
-    'step1_completed' => 'boolean',
-    'step2_completed' => 'boolean',
-    'step3_completed' => 'boolean',
-    
-    // JSON/Array fields
-    'document_links' => 'array',
-    'pdf_annotations' => 'array',
-    
-    // Decimal fields
-    'lot_area' => 'decimal:2',
-    'floor_area' => 'decimal:2',
-    'estimated_cost' => 'decimal:2',
-];
+    protected $casts = [
+        // Date/Timestamp fields
+        'verified_at' => 'datetime',
+        'hard_copy_received_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
+        'step1_completed_at' => 'datetime',
+        'step2_completed_at' => 'datetime',
+        'step3_completed_at' => 'datetime',
+        
+        // Boolean fields
+        'hard_copy_received' => 'boolean',
+        'is_archived' => 'boolean',
+        'step1_completed' => 'boolean',
+        'step2_completed' => 'boolean',
+        'step3_completed' => 'boolean',
+        
+        // JSON/Array fields
+        'document_links' => 'array',
+        'pdf_annotations' => 'array',
+        
+        // Decimal fields
+        'lot_area' => 'decimal:2',
+        'floor_area' => 'decimal:2',
+        'estimated_cost' => 'decimal:2',
+    ];
 
     /**
      * Get the user that owns the application documents
