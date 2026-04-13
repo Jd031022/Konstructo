@@ -162,48 +162,123 @@
                 </div>
             </div>
 
-            <!-- Professional Information Summary -->
-            <div class="border border-gray-200 rounded-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
-                    <h3 class="text-white font-semibold flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                        </svg>
-                        Professional Information
-                    </h3>
+           <!-- Professional Information Summary -->
+<div class="border border-gray-200 rounded-xl overflow-hidden">
+    <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
+        <div class="flex items-center justify-between">
+            <h3 class="text-white font-semibold flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                </svg>
+                Professional Information
+            </h3>
+            <span class="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Licensed Professionals</span>
+        </div>
+    </div>
+    <div class="p-6">
+        <!-- Architect -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    </svg>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-xs text-gray-500">Architect's Name</p>
-                            <p class="text-sm font-medium text-gray-800">{{ $application->architect_name ?? 'Not provided' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Architect's License Number</p>
-                            <p class="text-sm font-medium text-gray-800">{{ $application->architect_license ?? 'Not provided' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Civil Engineer's Name</p>
-                            <p class="text-sm font-medium text-gray-800">{{ $application->engineer_name ?? 'Not provided' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Engineer's License Number</p>
-                            <p class="text-sm font-medium text-gray-800">{{ $application->engineer_license ?? 'Not provided' }}</p>
-                        </div>
-                    </div>
+                <h4 class="text-sm font-semibold text-gray-700">Architect</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+                <div>
+                    <p class="text-xs text-gray-500">Name</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->architect_name ?? 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">License Number</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->architect_license ?? 'Not provided' }}</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Civil Engineer -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-700">Civil Engineer</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+                <div>
+                    <p class="text-xs text-gray-500">Name</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->engineer_name ?? 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">License Number</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->engineer_license ?? 'Not provided' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Electrical Engineer -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-700">Professional Electrical Engineer</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+                <div>
+                    <p class="text-xs text-gray-500">Name</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->electrical_engineer_name ?? 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">License Number</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->electrical_engineer_license ?? 'Not provided' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sanitary Engineer / Master Plumber -->
+        <div>
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-700">Sanitary Engineer / Master Plumber</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+                <div>
+                    <p class="text-xs text-gray-500">Name</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->sanitary_engineer_name ?? 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">License Number</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $application->sanitary_engineer_license ?? 'Not provided' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Document Checklist Summary -->
             <div class="border border-gray-200 rounded-xl overflow-hidden">
                 <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
-                    <h3 class="text-white font-semibold flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Uploaded Documents
-                    </h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Uploaded Documents
+                        </h3>
+                        <span class="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Required Documents</span>
+                    </div>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="document-checklist-summary">
@@ -215,6 +290,7 @@
                             <p class="text-sm mt-2">Loading documents...</p>
                         </div>
                     </div>
+                    <p class="text-xs text-gray-500 mt-4 italic">Optional documents (if applicable): Mechanical Plans, Fencing Plans, Structural Plans for slab/2+ stories, CSHP from DOLE</p>
                 </div>
             </div>
 
@@ -255,77 +331,44 @@
             </div>
 
             <!-- Declaration & Legal Consequences Section -->
-            <div class="border border-gray-200 rounded-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
-                    <h3 class="text-white font-semibold flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Declaration & Legal Consequences
-                    </h3>
-                </div>
-                <div class="p-6">
-                    <div class="bg-yellow-50 rounded-lg p-4 mb-6 border border-yellow-200">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <p class="text-sm font-semibold text-yellow-800">Declaration of Truth and Accuracy</p>
-                                <p class="text-sm text-yellow-700 mt-1">I/we certify that all the information provided in this application, including all attached documents and plans, are true, correct, and complete to the best of my/our knowledge and belief.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Legal Consequences Checklist -->
-                    <div class="bg-red-50 rounded-lg p-4 mb-6 border border-red-200">
-                        <div class="flex items-start gap-3 mb-3">
-                            <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <p class="text-sm font-semibold text-red-800">Legal Consequences of False Information</p>
-                        </div>
-                        <div class="space-y-3 ml-8">
-                            <label class="flex items-start gap-3">
-                                <input type="checkbox" id="legal-checkbox-1" class="legal-checkbox mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                <span class="text-sm text-gray-700">I/we understand that providing false or misleading information in this application constitutes <span class="font-semibold">perjury</span> under Philippine law (Revised Penal Code, Article 183).</span>
-                            </label>
-                            <label class="flex items-start gap-3">
-                                <input type="checkbox" id="legal-checkbox-2" class="legal-checkbox mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                <span class="text-sm text-gray-700">I/we understand that any false statement may result in the <span class="font-semibold">immediate rejection and cancellation</span> of this application.</span>
-                            </label>
-                            <label class="flex items-start gap-3">
-                                <input type="checkbox" id="legal-checkbox-3" class="legal-checkbox mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                <span class="text-sm text-gray-700">I/we understand that I/we may be subject to <span class="font-semibold">fines, penalties, and/or imprisonment</span> as prescribed by the National Building Code (PD 1096) and other applicable laws.</span>
-                            </label>
-                            <label class="flex items-start gap-3">
-                                <input type="checkbox" id="legal-checkbox-4" class="legal-checkbox mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                <span class="text-sm text-gray-700">I/we understand that any violation may lead to <span class="font-semibold">administrative sanctions</span> including the suspension or revocation of permits.</span>
-                            </label>
-                            <label class="flex items-start gap-3">
-                                <input type="checkbox" id="legal-checkbox-5" class="legal-checkbox mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                <span class="text-sm text-gray-700">I/we understand that the building official has the right to conduct <span class="font-semibold">site inspections and verification</span> at any time.</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Final Declaration -->
-                    <label class="flex items-start gap-3 mb-6">
-                        <input type="checkbox" id="declaration-checkbox" class="mt-1 h-4 w-4 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                        <span class="text-sm text-gray-700">I/we hereby declare that I/we have read, understood, and agree to comply with all the terms, conditions, and legal requirements stated above. I/we confirm that all information provided is true and correct to the best of my/our knowledge.</span>
-                    </label>
-
-                    <div class="flex justify-end">
-                        <button onclick="submitApplication()" id="submit-btn"
-                                class="inline-flex items-center px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Submit Application
-                        </button>
-                    </div>
-                </div>
+<div class="border border-gray-200 rounded-xl overflow-hidden">
+    <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
+        <h3 class="text-white font-semibold flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Declaration & Legal Acknowledgment
+        </h3>
+    </div>
+    <div class="p-6">
+        <!-- Combined Declaration with all acknowledgments -->
+        <label class="flex items-start gap-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
+            <input type="checkbox" id="declaration-checkbox" class="mt-1 h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+            <div class="text-sm text-gray-700">
+                <p class="font-semibold mb-2">I/we hereby acknowledge and agree to the following:</p>
+                <ul class="list-disc list-inside space-y-1 text-gray-600 ml-2">
+                    <li>The information provided in this application, including all attached documents and plans, is true, correct, and complete.</li>
+                    <li>Providing false or misleading information constitutes <span class="font-semibold text-red-600">perjury</span> under Philippine law (Revised Penal Code, Article 183).</li>
+                    <li>Any false statement may result in <span class="font-semibold text-red-600">immediate rejection and cancellation</span> of this application.</li>
+                    <li>I/we may be subject to <span class="font-semibold text-red-600">fines, penalties, and/or imprisonment</span> as prescribed by the National Building Code (PD 1096) and other applicable laws.</li>
+                    <li>Any violation may lead to <span class="font-semibold text-red-600">administrative sanctions</span> including suspension or revocation of permits.</li>
+                    <li>The Building Official has the right to conduct <span class="font-semibold text-red-600">site inspections and verification</span> at any time.</li>
+                </ul>
+                <p class="font-semibold mt-3 text-[#155386]">I/we agree to comply with all terms, conditions, and legal requirements stated above.</p>
             </div>
+        </label>
+
+        <div class="flex justify-end">
+            <button onclick="submitApplication()" id="submit-btn"
+                    class="inline-flex items-center px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Submit Application
+            </button>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -364,7 +407,7 @@
 
     function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
 
-    // Load document summary on page load - NO application number check
+    // Load document summary on page load
     document.addEventListener('DOMContentLoaded', async function() {
         await loadDocumentSummary();
     });
@@ -396,6 +439,7 @@
     function displayDocumentSummary(links) {
         const container = document.getElementById('document-checklist-summary');
         
+        // Complete document list matching Step 3
         const documentNames = {
             'app_letter_link': 'Application Letter',
             'bp_forms_link': 'Building Permit Forms',
@@ -403,13 +447,12 @@
             'structural_plans_link': 'Civil/Structural Plans',
             'electrical_plans_link': 'Electrical Plans',
             'plumbing_plans_link': 'Sanitary/Plumbing Plans',
-            'mechanical_plans_link': 'Mechanical Plans',
-            'fencing_plans_link': 'Fencing Plans',
             'ownership_link': 'Proof of Ownership',
             'bom_link': 'Bill of Materials',
             'structural_analysis_link': 'Structural Design Analysis',
             'barangay_clearance_link': 'Barangay Clearance',
-            'valid_id_link': 'Valid ID'
+            'valid_id_link': 'Valid ID',
+            'ptr_license_link': 'PTR License No. (Current Year)'
         };
         
         let html = '';
@@ -464,73 +507,59 @@
         return div.innerHTML;
     }
 
-    async function submitApplication() {
-        // Validate all required checkboxes
-        const hardcopyCheckbox = document.getElementById('hardcopy-checkbox');
-        const declarationCheckbox = document.getElementById('declaration-checkbox');
-        const legalCheckboxes = document.querySelectorAll('.legal-checkbox');
-        
-        if (!hardcopyCheckbox.checked) {
-            showErrorModal('Please acknowledge the hard copy submission requirement.');
-            return;
-        }
-        
-        if (!declarationCheckbox.checked) {
-            showErrorModal('Please read and accept the declaration to proceed.');
-            return;
-        }
-        
-        // Check if all legal checkboxes are checked
-        let allLegalChecked = true;
-        legalCheckboxes.forEach((checkbox) => {
-            if (!checkbox.checked) {
-                allLegalChecked = false;
-            }
+async function submitApplication() {
+    // Validate all required checkboxes
+    const hardcopyCheckbox = document.getElementById('hardcopy-checkbox');
+    const declarationCheckbox = document.getElementById('declaration-checkbox');
+    
+    if (!hardcopyCheckbox.checked) {
+        showErrorModal('Please acknowledge the hard copy submission requirement.');
+        return;
+    }
+    
+    if (!declarationCheckbox.checked) {
+        showErrorModal('Please read and accept the Declaration & Legal Acknowledgment to proceed.');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/applicant/application/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf(),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                application_id: applicationId
+            })
         });
         
-        if (!allLegalChecked) {
-            showErrorModal('Please acknowledge all legal consequences by checking all boxes in the Legal Consequences section.');
-            return;
-        }
+        const data = await response.json();
         
-        const submitBtn = document.getElementById('submit-btn');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...';
-        submitBtn.disabled = true;
-        
-        try {
-            const response = await fetch('/applicant/application/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf(),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    application_id: applicationId
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                const newApplicationNumber = data.data?.application_number || 'generated';
-                showSuccessModal(`Application ${newApplicationNumber} submitted successfully! You will receive an email with your application number. Redirecting to your applications...`);
-                setTimeout(() => {
-                    window.location.href = '/applicant/applications';
-                }, 3000);
-            } else {
-                showErrorModal(data.message || 'Failed to submit application');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showErrorModal('An error occurred. Please try again.');
+        if (data.success) {
+            const newApplicationNumber = data.data?.application_number || 'generated';
+            showSuccessModal(`Application ${newApplicationNumber} submitted successfully! You will receive an email with your application number. Redirecting to your applications...`);
+            setTimeout(() => {
+                window.location.href = '/applicant/applications';
+            }, 3000);
+        } else {
+            showErrorModal(data.message || 'Failed to submit application');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorModal('An error occurred. Please try again.');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
+}
 
     function showErrorModal(message){
         const modal = document.getElementById('error-modal');

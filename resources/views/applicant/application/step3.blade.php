@@ -65,21 +65,6 @@
         </div>
     </div>
 
-    <!-- Info Banner - No application number yet (will be generated in Step 4) -->
-    <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
-        <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <h4 class="font-semibold text-gray-800">Application Number</h4>
-                <p class="text-sm text-gray-700 mt-1">Your application number will be generated when you submit your application in Step 4. You will receive it via email.</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-8">
@@ -252,75 +237,6 @@
                         </div>
                     </div>
                     
-                    <!-- Mechanical Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Mechanical Plans (5 sets) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed mechanical engineer</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="mechanical_plans_link" 
-                                       name="mechanical_plans_link"
-                                       value="{{ $application->document_links['mechanical_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('mechanical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Fencing Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Fencing Plans (5 sets) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">If applicable, signed and sealed</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="fencing_plans_link" 
-                                       name="fencing_plans_link"
-                                       value="{{ $application->document_links['fencing_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('fencing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Proof of Ownership -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Proof of Ownership (2 copies) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">TCT, Tax Declaration, or Contract of Lease</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="ownership_link" 
-                                       name="ownership_link"
-                                       value="{{ $application->document_links['ownership_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('ownership_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Bill of Materials -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -412,21 +328,113 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- PTR License No. (Updated Current Year) -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    PTR License No. <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Professional Tax Receipt - Must be updated for current year ({{ date('Y') }})</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="ptr_license_link" 
+                                       name="ptr_license_link"
+                                       value="{{ $application->document_links['ptr_license_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('ptr_license_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Optional Documents -->
                 <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Optional Documents</h3>
-                    <p class="text-sm text-gray-500 mt-2 mb-4">For contractors with PCAB license</p>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Optional Documents (If Applicable)</h3>
+                    <p class="text-sm text-gray-500 mt-2 mb-4">These documents are required only if your project includes specific features</p>
+                    
+                    <!-- Mechanical Plans and Specs -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Mechanical Plans and Specifications
+                                </label>
+                                <p class="text-xs text-gray-500">For projects with elevators, escalators, HVAC systems, or other mechanical installations</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="mechanical_plans_link" 
+                                       name="mechanical_plans_link"
+                                       value="{{ $application->document_links['mechanical_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('mechanical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fencing Plans -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fencing Plans
+                                </label>
+                                <p class="text-xs text-gray-500">For perimeter fencing, gates, and boundary walls</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="fencing_plans_link" 
+                                       name="fencing_plans_link"
+                                       value="{{ $application->document_links['fencing_plans_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('fencing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Structural Plans (For slab and 2 stories or more) -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Structural Plans (For slab and 2 stories or more)
+                                </label>
+                                <p class="text-xs text-gray-500">Required for buildings with 2 or more stories, or projects with concrete slab construction</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="structural_optional_link" 
+                                       name="structural_optional_link"
+                                       value="{{ $application->document_links['structural_optional_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('structural_optional_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- CSHP from DOLE -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    CSHP from DOLE (Optional)
+                                    CSHP from DOLE
                                 </label>
-                                <p class="text-xs text-gray-500">Construction Safety and Health Program</p>
+                                <p class="text-xs text-gray-500">Construction Safety and Health Program - Required for contractors with PCAB license</p>
                             </div>
                             <div class="flex-1">
                                 <input type="url" 
@@ -510,7 +518,7 @@
 <script>
     const applicationId = {{ $application->id }};
     
-    // Define all document fields
+    // Define all document fields - Required (Proof of Ownership removed)
     const documentFields = [
         'app_letter_link',
         'bp_forms_link',
@@ -518,16 +526,20 @@
         'structural_plans_link',
         'electrical_plans_link',
         'plumbing_plans_link',
-        'mechanical_plans_link',
-        'fencing_plans_link',
-        'ownership_link',
         'bom_link',
         'structural_analysis_link',
         'barangay_clearance_link',
-        'valid_id_link'
+        'valid_id_link',
+        'ptr_license_link'
     ];
     
-    const optionalFields = ['cshp_link'];
+    // Optional documents
+    const optionalFields = [
+        'mechanical_plans_link',
+        'fencing_plans_link',
+        'structural_optional_link',
+        'cshp_link'
+    ];
     
     function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
     
