@@ -19,33 +19,11 @@
         
         <!-- Hidden Application ID -->
         <input type="hidden" name="application_id" id="application_id" value="{{ $application->id ?? '' }}">
+        
+        <!-- Hidden is_owner field - always true now -->
+        <input type="hidden" name="is_owner" value="1">
 
-        <!-- Property Ownership Status Card -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
-            <div class="flex items-start gap-3 mb-4">
-                <div class="w-8 h-8 bg-[#155386] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-800">Property Ownership Status</h3>
-                    <p class="text-sm text-gray-600">Please indicate your relationship to the property</p>
-                </div>
-            </div>
-            <div class="flex gap-6 pl-11">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="is_owner" value="1" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" {{ (!isset($basicRequirement) || $basicRequirement->is_owner) ? 'checked' : '' }}>
-                    <span class="text-gray-700 group-hover:text-[#155386] transition">Yes, I am the owner</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="is_owner" value="0" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" {{ (isset($basicRequirement) && !$basicRequirement->is_owner) ? 'checked' : '' }}>
-                    <span class="text-gray-700 group-hover:text-[#155386] transition">No, I am authorized representative</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Proof of Ownership Section -->
+        <!-- TCT / Deed of Sale Section -->
         <div>
             <div class="flex items-center gap-2 mb-5">
                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -53,14 +31,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800">Proof of Ownership</h3>
+                <h3 class="text-lg font-semibold text-gray-800">Property Documents</h3>
             </div>
             
             <div class="space-y-5">
-                <!-- TCT Link -->
+                <!-- TCT / Deed of Sale Link (Combined Field) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Transfer Certificate of Title (TCT)
+                        Transfer Certificate of Title (TCT) / Deed of Sale
                         <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -75,7 +53,7 @@
                                value="{{ $basicRequirement->tct_link ?? '' }}"
                                required>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Provide a Google Drive link to the Certified True Copy of TCT</p>
+                    <p class="text-xs text-gray-500 mt-1">Provide a Google Drive link to the Certified True Copy of TCT or Deed of Sale</p>
                 </div>
 
                 <!-- Tax Declaration Link -->
@@ -120,8 +98,8 @@
             </div>
         </div>
 
-        <!-- Authorization Documents (Conditional) -->
-        <div id="authorization-section" class="{{ (isset($basicRequirement) && !$basicRequirement->is_owner) ? '' : 'hidden' }}">
+        <!-- SPA Section (Optional) -->
+        <div>
             <div class="border-t border-gray-200 pt-6">
                 <div class="flex items-center gap-2 mb-5">
                     <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -129,43 +107,24 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">Authorization Documents</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Additional Documents (Optional)</h3>
                 </div>
                 
-                <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-4 mb-5 border border-yellow-200">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-5 border border-blue-200">
                     <div class="flex items-start gap-2">
-                        <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="text-sm text-yellow-800">Since you are not the property owner, you need to provide authorization documents from the registered owner.</p>
+                        <p class="text-sm text-blue-800">Special Power of Attorney (SPA) is optional. You may skip this if not applicable.</p>
                     </div>
                 </div>
                 
                 <div class="space-y-5">
-                    <!-- Deed of Sale Link -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Notarized Deed of Sale
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                                </svg>
-                            </div>
-                            <input type="url" name="deed_of_sale_link" id="deed_of_sale_link" 
-                                   class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
-                                   placeholder="https://drive.google.com/file/d/..." 
-                                   value="{{ $basicRequirement->deed_of_sale_link ?? '' }}">
-                        </div>
-                    </div>
-
-                    <!-- SPA Link -->
+                    <!-- SPA Link (Optional) -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Special Power of Attorney (SPA)
-                            <span class="text-red-500">*</span>
+                            <span class="text-gray-400 text-xs font-normal">(Optional)</span>
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -175,9 +134,10 @@
                             </div>
                             <input type="url" name="spa_link" id="spa_link" 
                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
-                                   placeholder="https://drive.google.com/file/d/..." 
+                                   placeholder="https://drive.google.com/file/d/... (Optional)" 
                                    value="{{ $basicRequirement->spa_link ?? '' }}">
                         </div>
+                        <p class="text-xs text-gray-500 mt-1">Provide a Google Drive link to the Special Power of Attorney if available</p>
                     </div>
                 </div>
             </div>
@@ -199,8 +159,6 @@
 <script>
 // Form submission logic for the submission form
 document.addEventListener('DOMContentLoaded', function() {
-    const isOwnerRadios = document.querySelectorAll('input[name="is_owner"]');
-    const authorizationSection = document.getElementById('authorization-section');
     const form = document.getElementById('basic-requirements-form');
     const submitBtn = document.getElementById('submit-btn');
     const applicationIdInput = document.getElementById('application_id');
@@ -216,34 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Toggle authorization section based on owner status
-    function toggleAuthorizationSection() {
-        const isOwner = document.querySelector('input[name="is_owner"]:checked');
-        if (authorizationSection) {
-            const deedInput = document.getElementById('deed_of_sale_link');
-            const spaInput = document.getElementById('spa_link');
-            
-            if (isOwner && isOwner.value === '0') {
-                authorizationSection.classList.remove('hidden');
-                // Make authorization fields required
-                if (deedInput) deedInput.setAttribute('required', 'required');
-                if (spaInput) spaInput.setAttribute('required', 'required');
-            } else {
-                authorizationSection.classList.add('hidden');
-                // Remove required from authorization fields
-                if (deedInput) deedInput.removeAttribute('required');
-                if (spaInput) spaInput.removeAttribute('required');
-            }
-        }
-    }
-
-    if (isOwnerRadios.length > 0) {
-        isOwnerRadios.forEach(radio => {
-            radio.addEventListener('change', toggleAuthorizationSection);
-        });
-        toggleAuthorizationSection();
-    }
-
     // Form submission
     if (form) {
         form.addEventListener('submit', async function(e) {
@@ -251,18 +181,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate all required fields
             const requiredFields = [
-                { id: 'tct_link', name: 'Transfer Certificate of Title (TCT)' },
+                { id: 'tct_link', name: 'TCT / Deed of Sale' },
                 { id: 'tax_declaration_link', name: 'Tax Declaration' },
                 { id: 'current_tax_receipt_link', name: 'Current Tax Receipt' }
             ];
-            
-            const isOwner = document.querySelector('input[name="is_owner"]:checked');
-            if (isOwner && isOwner.value === '0') {
-                requiredFields.push(
-                    { id: 'deed_of_sale_link', name: 'Notarized Deed of Sale' },
-                    { id: 'spa_link', name: 'Special Power of Attorney (SPA)' }
-                );
-            }
             
             let hasError = false;
             for (const field of requiredFields) {
@@ -297,20 +219,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // Build FormData
             const formData = new FormData();
             formData.append('application_id', applicationIdInput.value);
+            formData.append('is_owner', '1');
             formData.append('_token', document.querySelector('input[name="_token"]').value);
             
             // Add all form fields
-            const formElements = form.elements;
-            for (let element of formElements) {
-                if (element.name && element.name !== '_token' && element.name !== 'application_id') {
-                    if (element.type === 'radio') {
-                        if (element.checked) {
-                            formData.append(element.name, element.value);
-                        }
-                    } else if (element.type !== 'button' && element.type !== 'submit') {
-                        formData.append(element.name, element.value);
-                    }
-                }
+            const tctLink = document.getElementById('tct_link');
+            const taxDeclarationLink = document.getElementById('tax_declaration_link');
+            const currentTaxReceiptLink = document.getElementById('current_tax_receipt_link');
+            const spaLink = document.getElementById('spa_link');
+            
+            formData.append('tct_link', tctLink.value);
+            formData.append('tax_declaration_link', taxDeclarationLink.value);
+            formData.append('current_tax_receipt_link', currentTaxReceiptLink.value);
+            
+            if (spaLink.value) {
+                formData.append('spa_link', spaLink.value);
             }
             
             try {

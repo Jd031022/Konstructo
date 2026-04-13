@@ -16,9 +16,7 @@ class BasicRequirement extends Model
         'tct_link',
         'tax_declaration_link',
         'current_tax_receipt_link',
-        'deed_of_sale_link',
         'spa_link',
-        'is_owner',
         'status',
         'rejection_reason',
         'submitted_at',
@@ -26,16 +24,24 @@ class BasicRequirement extends Model
         'approved_by',
         'reviewed_at',
         'reviewed_by',
-        'admin_notes'
+        'admin_notes',
+        // New columns for document verification
+        'tct_checked',
+        'tax_declaration_checked',
+        'tax_receipt_checked',
+        'auto_approved_at'
     ];
 
     protected $casts = [
-        'is_owner' => 'boolean',
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'auto_approved_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'tct_checked' => 'boolean',
+        'tax_declaration_checked' => 'boolean',
+        'tax_receipt_checked' => 'boolean',
     ];
 
     /**
@@ -95,11 +101,60 @@ class BasicRequirement extends Model
     }
 
     /**
+     * Check if all documents are verified
+     */
+    public function isAllDocumentsVerified(): bool
+    {
+        return $this->tct_checked && 
+               $this->tax_declaration_checked && 
+               $this->tax_receipt_checked;
+    }
+
+    /**
+     * Check if TCT is verified
+     */
+    public function isTctVerified(): bool
+    {
+        return $this->tct_checked;
+    }
+
+    /**
+     * Check if Tax Declaration is verified
+     */
+    public function isTaxDeclarationVerified(): bool
+    {
+        return $this->tax_declaration_checked;
+    }
+
+    /**
+     * Check if Tax Receipt is verified
+     */
+    public function isTaxReceiptVerified(): bool
+    {
+        return $this->tax_receipt_checked;
+    }
+
+    /**
+     * Get verification progress percentage
+     */
+    public function getVerificationProgressAttribute(): int
+    {
+        $verified = 0;
+        $total = 3;
+        
+        if ($this->tct_checked) $verified++;
+        if ($this->tax_declaration_checked) $verified++;
+        if ($this->tax_receipt_checked) $verified++;
+        
+        return round(($verified / $total) * 100);
+    }
+
+    /**
      * Mark the requirement as approved
      */
-    public function markAsApproved($userId, $notes = null)
+    public function markAsApproved($userId, $notes = null, $autoApprove = false)
     {
-        $this->update([
+        $data = [
             'status' => 'approved',
             'approved_at' => now(),
             'approved_by' => $userId,
@@ -107,7 +162,22 @@ class BasicRequirement extends Model
             'reviewed_by' => $userId,
             'admin_notes' => $notes,
             'rejection_reason' => null
-        ]);
+        ];
+        
+        if ($autoApprove) {
+            $data['auto_approved_at'] = now();
+        }
+        
+        $this->update($data);
+        
+        // Update the associated application
+        if ($this->application_id) {
+            $this->application?->update([
+                'basic_requirements_approved_at' => now(),
+                'basic_requirements_approved_by' => $userId,
+                'last_updated_by' => $userId
+            ]);
+        }
         
         return $this;
     }
@@ -124,7 +194,57 @@ class BasicRequirement extends Model
             'reviewed_by' => $userId,
             'admin_notes' => $notes,
             'approved_at' => null,
-            'approved_by' => null
+            'approved_by' => null,
+            'auto_approved_at' => null
+        ]);
+        
+        // Update the associated application
+        if ($this->application_id) {
+            $this->application?->update([
+                'basic_requirements_approved_at' => null,
+                'basic_requirements_approved_by' => null,
+                'rejection_reason' => $reason,
+                'last_updated_by' => $userId
+            ]);
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Update document verification status
+     */
+    public function updateDocumentVerification($documentType, $checked, $userId = null)
+    {
+        $allowedTypes = ['tct', 'tax_declaration', 'tax_receipt'];
+        
+        if (!in_array($documentType, $allowedTypes)) {
+            throw new \InvalidArgumentException('Invalid document type');
+        }
+        
+        $column = $documentType === 'tct' ? 'tct_checked' : 
+                  ($documentType === 'tax_declaration' ? 'tax_declaration_checked' : 'tax_receipt_checked');
+        
+        $this->update([$column => $checked]);
+        
+        // If all documents are verified and status is pending, trigger auto-approval
+        if ($this->isAllDocumentsVerified() && $this->isPending()) {
+            return ['auto_approve' => true, 'message' => 'All documents verified. Ready for auto-approval.'];
+        }
+        
+        return ['auto_approve' => false, 'message' => 'Verification status updated.'];
+    }
+
+    /**
+     * Reset document verification status (useful when rejecting and resubmitting)
+     */
+    public function resetVerificationStatus()
+    {
+        $this->update([
+            'tct_checked' => false,
+            'tax_declaration_checked' => false,
+            'tax_receipt_checked' => false,
+            'auto_approved_at' => null
         ]);
         
         return $this;
@@ -136,6 +256,14 @@ class BasicRequirement extends Model
     public function hasApplication(): bool
     {
         return !is_null($this->application_id);
+    }
+
+    /**
+     * Check if it was auto-approved
+     */
+    public function wasAutoApproved(): bool
+    {
+        return !is_null($this->auto_approved_at);
     }
 
     /**
@@ -157,10 +285,10 @@ class BasicRequirement extends Model
     public function getStatusColorAttribute(): string
     {
         return match($this->status) {
-            'pending' => 'bg-yellow-100 text-yellow-600',
-            'approved' => 'bg-green-100 text-green-600',
-            'rejected' => 'bg-red-100 text-red-600',
-            default => 'bg-gray-100 text-gray-600'
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'approved' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
         };
     }
 
@@ -189,6 +317,14 @@ class BasicRequirement extends Model
     }
 
     /**
+     * Get formatted auto-approved date
+     */
+    public function getFormattedAutoApprovedAt(): string
+    {
+        return $this->auto_approved_at ? $this->auto_approved_at->format('M d, Y h:i A') : 'N/A';
+    }
+
+    /**
      * Get the applicant's full name
      */
     public function getApplicantNameAttribute(): string
@@ -213,6 +349,20 @@ class BasicRequirement extends Model
     }
 
     /**
+     * Get verification summary
+     */
+    public function getVerificationSummaryAttribute(): array
+    {
+        return [
+            'tct' => $this->tct_checked,
+            'tax_declaration' => $this->tax_declaration_checked,
+            'tax_receipt' => $this->tax_receipt_checked,
+            'progress' => $this->verification_progress,
+            'all_verified' => $this->isAllDocumentsVerified()
+        ];
+    }
+
+    /**
      * Scope for approved requirements
      */
     public function scopeApproved($query)
@@ -234,6 +384,32 @@ class BasicRequirement extends Model
     public function scopeRejected($query)
     {
         return $query->where('status', 'rejected');
+    }
+
+    /**
+     * Scope for fully verified requirements
+     */
+    public function scopeFullyVerified($query)
+    {
+        return $query->where('tct_checked', true)
+                     ->where('tax_declaration_checked', true)
+                     ->where('tax_receipt_checked', true);
+    }
+
+    /**
+     * Scope for auto-approved requirements
+     */
+    public function scopeAutoApproved($query)
+    {
+        return $query->whereNotNull('auto_approved_at');
+    }
+
+    /**
+     * Scope for manually approved requirements
+     */
+    public function scopeManuallyApproved($query)
+    {
+        return $query->where('status', 'approved')->whereNull('auto_approved_at');
     }
 
     /**
@@ -283,5 +459,29 @@ class BasicRequirement extends Model
     {
         return $query->where('status', 'pending')
             ->where('submitted_at', '<', now()->subDays($days));
+    }
+
+    /**
+     * Scope for requirements where TCT is not yet verified
+     */
+    public function scopeTctNotVerified($query)
+    {
+        return $query->where('tct_checked', false);
+    }
+
+    /**
+     * Scope for requirements where Tax Declaration is not yet verified
+     */
+    public function scopeTaxDeclarationNotVerified($query)
+    {
+        return $query->where('tax_declaration_checked', false);
+    }
+
+    /**
+     * Scope for requirements where Tax Receipt is not yet verified
+     */
+    public function scopeTaxReceiptNotVerified($query)
+    {
+        return $query->where('tax_receipt_checked', false);
     }
 }

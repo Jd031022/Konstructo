@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class BasicRequirementController extends Controller
 {
@@ -62,7 +63,7 @@ class BasicRequirementController extends Controller
     public function show($id)
     {
         try {
-            $requirement = BasicRequirement::with(['user', 'application'])
+            $requirement = BasicRequirement::with(['user', 'application', 'reviewer'])
                 ->findOrFail($id);
             
             return response()->json([
@@ -78,12 +79,10 @@ class BasicRequirementController extends Controller
                         'email' => $requirement->user->email,
                         'phone_number' => $requirement->user->phone_number,
                     ],
-                    'is_owner' => $requirement->is_owner,
                     'submitted_at' => $requirement->submitted_at,
                     'tct_link' => $requirement->tct_link,
                     'tax_declaration_link' => $requirement->tax_declaration_link,
                     'current_tax_receipt_link' => $requirement->current_tax_receipt_link,
-                    'deed_of_sale_link' => $requirement->deed_of_sale_link,
                     'spa_link' => $requirement->spa_link,
                     'status' => $requirement->status,
                     'rejection_reason' => $requirement->rejection_reason,
@@ -92,6 +91,10 @@ class BasicRequirementController extends Controller
                     'reviewed_by' => $requirement->reviewed_by,
                     'approved_at' => $requirement->approved_at,
                     'approved_by' => $requirement->approved_by,
+                    'tct_checked' => $requirement->tct_checked ?? false,
+                    'tax_declaration_checked' => $requirement->tax_declaration_checked ?? false,
+                    'tax_receipt_checked' => $requirement->tax_receipt_checked ?? false,
+                    'auto_approved_at' => $requirement->auto_approved_at,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -99,6 +102,216 @@ class BasicRequirementController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load requirement details: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update document check status
+     */
+    public function updateCheck(Request $request, $id)
+    {
+        try {
+            Log::info('Update check request received', [
+                'id' => $id,
+                'user_id' => Auth::id(),
+                'user_email' => Auth::user() ? Auth::user()->email : 'unknown',
+                'request_data' => $request->all()
+            ]);
+            
+            $validator = Validator::make($request->all(), [
+                'document_type' => 'required|string|in:tct,tax_declaration,tax_receipt',
+                'checked' => 'required|boolean'
+            ]);
+
+            if ($validator->fails()) {
+                Log::error('Validation failed', ['errors' => $validator->errors()]);
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $requirement = BasicRequirement::findOrFail($id);
+            
+            // Check if already approved
+            if ($requirement->status === 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Requirements already approved. Cannot modify check status.'
+                ], 400);
+            }
+            
+            // Check if already rejected
+            if ($requirement->status === 'rejected') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Requirements already rejected. Cannot modify check status.'
+                ], 400);
+            }
+            
+            $user = Auth::user();
+            
+            // Get user position from user_profile
+            $userProfile = DB::table('user_profiles')->where('user_id', $user->id)->first();
+            $userPosition = $userProfile ? $userProfile->position : null;
+            
+            // If no position found, try to get from users table
+            if (!$userPosition && Schema::hasColumn('users', 'position')) {
+                $userPosition = DB::table('users')->where('id', $user->id)->value('position');
+            }
+            
+            Log::info('User position retrieved', [
+                'user_id' => $user->id,
+                'position' => $userPosition,
+                'has_profile' => $userProfile ? true : false
+            ]);
+            
+            // Update based on document type with role validation
+            switch ($request->document_type) {
+                case 'tct':
+                    // Only Assessor can check TCT
+                    if ($userPosition !== 'assessor') {
+                        Log::warning('Unauthorized TCT check attempt', [
+                            'user_id' => $user->id,
+                            'user_position' => $userPosition,
+                            'required_position' => 'assessor'
+                        ]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only Assessor can verify TCT / Deed of Sale documents. Your position: ' . ($userPosition ?: 'Not set')
+                        ], 403);
+                    }
+                    $requirement->tct_checked = $request->checked;
+                    break;
+                    
+                case 'tax_declaration':
+                    // Only Treasurer can check Tax Declaration
+                    if ($userPosition !== 'treasurer') {
+                        Log::warning('Unauthorized Tax Declaration check attempt', [
+                            'user_id' => $user->id,
+                            'user_position' => $userPosition,
+                            'required_position' => 'treasurer'
+                        ]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only Treasurer can verify Tax Declaration documents. Your position: ' . ($userPosition ?: 'Not set')
+                        ], 403);
+                    }
+                    $requirement->tax_declaration_checked = $request->checked;
+                    break;
+                    
+                case 'tax_receipt':
+                    // Only Treasurer can check Current Tax Receipt
+                    if ($userPosition !== 'treasurer') {
+                        Log::warning('Unauthorized Tax Receipt check attempt', [
+                            'user_id' => $user->id,
+                            'user_position' => $userPosition,
+                            'required_position' => 'treasurer'
+                        ]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only Treasurer can verify Current Tax Receipt documents. Your position: ' . ($userPosition ?: 'Not set')
+                        ], 403);
+                    }
+                    $requirement->tax_receipt_checked = $request->checked;
+                    break;
+                    
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid document type.'
+                    ], 400);
+            }
+            
+            $requirement->save();
+            
+            // Check if all documents are verified
+            $allVerified = $requirement->tct_checked && 
+                           $requirement->tax_declaration_checked && 
+                           $requirement->tax_receipt_checked;
+            
+            $message = 'Document verification status updated.';
+            $autoApproved = false;
+            
+            // If all documents are verified and status is pending, trigger auto-approval
+            if ($allVerified && $requirement->status === 'pending') {
+                $autoApproved = true;
+                $message = 'All documents verified. Auto-approving requirements...';
+                
+                // Auto-approve the requirements
+                $requirement->status = 'approved';
+                $requirement->approved_at = now();
+                $requirement->approved_by = $user->id;
+                $requirement->reviewed_at = now();
+                $requirement->reviewed_by = $user->id;
+                $requirement->auto_approved_at = now();
+                $requirement->rejection_reason = null;
+                $requirement->save();
+                
+                // Update the associated application
+                if ($requirement->application_id) {
+                    try {
+                        $application = $requirement->application;
+                        if ($application) {
+                            $application->basic_requirements_approved_at = now();
+                            $application->basic_requirements_approved_by = $user->id;
+                            $application->last_updated_by = $user->id;
+                            $application->save();
+                            Log::info('Application updated for auto-approval', [
+                                'application_id' => $application->id
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Error updating application: ' . $e->getMessage());
+                    }
+                }
+                
+                // Send email notification for auto-approval
+                try {
+                    if ($requirement->user && $requirement->user->email) {
+                        $this->gmailService->sendBasicRequirementsApprovedEmail(
+                            $requirement->user->email,
+                            $requirement->user->first_name,
+                            $requirement->id,
+                            $user->first_name . ' ' . $user->last_name,
+                            $requirement->application ? $requirement->application->application_number : null
+                        );
+                        Log::info('Auto-approval email sent to: ' . $requirement->user->email);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error sending auto-approval email: ' . $e->getMessage());
+                }
+            }
+            
+            Log::info('Document check updated successfully', [
+                'requirement_id' => $requirement->id,
+                'document_type' => $request->document_type,
+                'checked' => $request->checked,
+                'all_verified' => $allVerified,
+                'auto_approved' => $autoApproved
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'all_verified' => $allVerified,
+                'auto_approved' => $autoApproved,
+                'status' => $requirement->status,
+                'data' => [
+                    'tct_checked' => $requirement->tct_checked,
+                    'tax_declaration_checked' => $requirement->tax_declaration_checked,
+                    'tax_receipt_checked' => $requirement->tax_receipt_checked
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error updating document check status: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update check status: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -152,8 +365,11 @@ class BasicRequirementController extends Controller
                 ], 400);
             }
 
+            // Check if auto_approve flag is set (from auto-approval)
+            $isAutoApprove = $request->auto_approve ?? false;
+            
             // Mark as approved
-            $requirement->update([
+            $updateData = [
                 'status' => 'approved',
                 'approved_at' => now(),
                 'approved_by' => Auth::id(),
@@ -161,7 +377,13 @@ class BasicRequirementController extends Controller
                 'reviewed_by' => Auth::id(),
                 'admin_notes' => $request->notes,
                 'rejection_reason' => null
-            ]);
+            ];
+            
+            if ($isAutoApprove) {
+                $updateData['auto_approved_at'] = now();
+            }
+            
+            $requirement->update($updateData);
             
             // Update the associated application if it exists
             if ($requirement->application_id) {
@@ -185,29 +407,32 @@ class BasicRequirementController extends Controller
                 'requirement_id' => $requirement->id,
                 'application_id' => $requirement->application_id,
                 'user_id' => $requirement->user_id,
-                'approved_by' => Auth::id()
+                'approved_by' => Auth::id(),
+                'auto_approved' => $isAutoApprove
             ]);
 
-            // SEND EMAIL NOTIFICATION TO APPLICANT
-            try {
-                Log::info('Attempting to send approval email to: ' . $requirement->user->email);
-                
-                $emailSent = $this->gmailService->sendBasicRequirementsApprovedEmail(
-                    $requirement->user->email,
-                    $requirement->user->first_name,
-                    $requirement->id,
-                    Auth::user()->first_name . ' ' . Auth::user()->last_name,
-                    $requirement->application ? $requirement->application->application_number : null
-                );
-                
-                if ($emailSent) {
-                    Log::info('✅ Basic requirements approval email sent successfully to ' . $requirement->user->email);
-                } else {
-                    Log::error('❌ Failed to send basic requirements approval email to ' . $requirement->user->email);
+            // SEND EMAIL NOTIFICATION TO APPLICANT (skip if auto-approve email already sent)
+            if (!$isAutoApprove) {
+                try {
+                    Log::info('Attempting to send approval email to: ' . $requirement->user->email);
+                    
+                    $emailSent = $this->gmailService->sendBasicRequirementsApprovedEmail(
+                        $requirement->user->email,
+                        $requirement->user->first_name,
+                        $requirement->id,
+                        Auth::user()->first_name . ' ' . Auth::user()->last_name,
+                        $requirement->application ? $requirement->application->application_number : null
+                    );
+                    
+                    if ($emailSent) {
+                        Log::info('✅ Basic requirements approval email sent successfully to ' . $requirement->user->email);
+                    } else {
+                        Log::error('❌ Failed to send basic requirements approval email to ' . $requirement->user->email);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('❌ Error sending approval email: ' . $e->getMessage());
+                    Log::error('Stack trace: ' . $e->getTraceAsString());
                 }
-            } catch (\Exception $e) {
-                Log::error('❌ Error sending approval email: ' . $e->getMessage());
-                Log::error('Stack trace: ' . $e->getTraceAsString());
             }
 
             return response()->json([
@@ -275,7 +500,7 @@ class BasicRequirementController extends Controller
                 ], 400);
             }
             
-            // Mark as rejected
+            // Mark as rejected and reset verification status
             $requirement->update([
                 'status' => 'rejected',
                 'rejection_reason' => $request->rejection_reason,
@@ -283,7 +508,11 @@ class BasicRequirementController extends Controller
                 'reviewed_by' => Auth::id(),
                 'admin_notes' => $request->notes,
                 'approved_at' => null,
-                'approved_by' => null
+                'approved_by' => null,
+                'auto_approved_at' => null,
+                'tct_checked' => false,
+                'tax_declaration_checked' => false,
+                'tax_receipt_checked' => false
             ]);
             
             // Update the associated application if it exists
@@ -373,6 +602,10 @@ class BasicRequirementController extends Controller
                 'pending_over_3_days' => BasicRequirement::where('status', 'pending')
                     ->where('submitted_at', '<', now()->subDays(3))
                     ->count(),
+                'tct_verified' => BasicRequirement::where('tct_checked', true)->count(),
+                'tax_declaration_verified' => BasicRequirement::where('tax_declaration_checked', true)->count(),
+                'tax_receipt_verified' => BasicRequirement::where('tax_receipt_checked', true)->count(),
+                'auto_approved' => BasicRequirement::whereNotNull('auto_approved_at')->count(),
             ];
             
             return response()->json([
@@ -432,12 +665,19 @@ class BasicRequirementController extends Controller
                     'Applicant Name',
                     'Email',
                     'Application Number',
-                    'Owner Status',
                     'Status',
+                    'TCT Verified',
+                    'Tax Declaration Verified',
+                    'Tax Receipt Verified',
+                    'Auto Approved',
                     'Reviewed Date',
                     'Reviewed By',
                     'Rejection Reason',
-                    'Admin Notes'
+                    'Admin Notes',
+                    'TCT/Deed of Sale Link',
+                    'Tax Declaration Link',
+                    'Current Tax Receipt Link',
+                    'SPA Link'
                 ]);
 
                 // Write data rows
@@ -448,12 +688,19 @@ class BasicRequirementController extends Controller
                         $req->user->first_name . ' ' . $req->user->last_name,
                         $req->user->email,
                         $req->application ? $req->application->application_number : 'N/A',
-                        $req->is_owner ? 'Owner' : 'Authorized Rep',
                         ucfirst($req->status),
+                        $req->tct_checked ? 'Yes' : 'No',
+                        $req->tax_declaration_checked ? 'Yes' : 'No',
+                        $req->tax_receipt_checked ? 'Yes' : 'No',
+                        $req->auto_approved_at ? 'Yes' : 'No',
                         $req->reviewed_at ? $req->reviewed_at->format('Y-m-d H:i:s') : '',
                         $req->reviewed_by ? ($req->reviewer ? $req->reviewer->first_name . ' ' . $req->reviewer->last_name : 'N/A') : '',
                         $req->rejection_reason ?: '',
-                        $req->admin_notes ?: ''
+                        $req->admin_notes ?: '',
+                        $req->tct_link ?: '',
+                        $req->tax_declaration_link ?: '',
+                        $req->current_tax_receipt_link ?: '',
+                        $req->spa_link ?: ''
                     ]);
                 }
 

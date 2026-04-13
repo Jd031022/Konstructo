@@ -76,12 +76,10 @@ class BasicRequirementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'application_id' => 'required|exists:application_documents,id',
-            'is_owner' => 'required|boolean',
             'tct_link' => 'required|url',
             'tax_declaration_link' => 'required|url',
             'current_tax_receipt_link' => 'required|url',
-            'deed_of_sale_link' => 'required_if:is_owner,0|nullable|url',
-            'spa_link' => 'required_if:is_owner,0|nullable|url',
+            'spa_link' => 'nullable|url',
         ]);
 
         if ($validator->fails()) {
@@ -121,21 +119,13 @@ class BasicRequirementController extends Controller
             $data = [
                 'user_id' => $user->id,
                 'application_id' => $application->id,
-                'is_owner' => $request->is_owner,
                 'tct_link' => $request->tct_link,
                 'tax_declaration_link' => $request->tax_declaration_link,
                 'current_tax_receipt_link' => $request->current_tax_receipt_link,
+                'spa_link' => $request->spa_link,
                 'status' => 'pending',
                 'submitted_at' => now(),
             ];
-
-            if (!$request->is_owner) {
-                $data['deed_of_sale_link'] = $request->deed_of_sale_link;
-                $data['spa_link'] = $request->spa_link;
-            } else {
-                $data['deed_of_sale_link'] = null;
-                $data['spa_link'] = null;
-            }
 
             if ($existingRequirement && $existingRequirement->status === 'rejected') {
                 $data['rejection_reason'] = null;
@@ -222,7 +212,6 @@ class BasicRequirementController extends Controller
                 'rejection_reason' => $requirement->rejection_reason,
                 'submitted_at' => $requirement->submitted_at?->format('Y-m-d H:i:s'),
                 'approved_at' => $requirement->approved_at?->format('Y-m-d H:i:s'),
-                'is_owner' => $requirement->is_owner,
                 'application_status' => $application->status,
                 'has_application_number' => !is_null($application->application_number)
             ]);
@@ -327,7 +316,6 @@ class BasicRequirementController extends Controller
                     'id' => $requirement->id,
                     'application_id' => $requirement->application_id,
                     'application_number' => $application->application_number,
-                    'is_owner' => $requirement->is_owner,
                     'status' => $requirement->status,
                     'status_display' => $this->getStatusDisplay($requirement->status),
                     'status_color' => $this->getStatusColor($requirement->status),
@@ -337,7 +325,6 @@ class BasicRequirementController extends Controller
                     'tct_link' => $requirement->tct_link,
                     'tax_declaration_link' => $requirement->tax_declaration_link,
                     'current_tax_receipt_link' => $requirement->current_tax_receipt_link,
-                    'deed_of_sale_link' => $requirement->deed_of_sale_link,
                     'spa_link' => $requirement->spa_link
                 ]
             ]);

@@ -65,6 +65,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::prefix('position')->name('position.')->group(function () {
         Route::post('/update', [App\Http\Controllers\Staff\PositionController::class, 'update'])->name('update');
         Route::get('/check', [App\Http\Controllers\Staff\PositionController::class, 'check'])->name('check');
+        Route::get('/get', [App\Http\Controllers\Staff\PositionController::class, 'getPosition'])->name('get');
     });
     
     // ========== BFP ROUTES (FIRE SAFETY EVALUATION CLEARANCE) ==========
@@ -83,6 +84,8 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         ->name('basic-requirements.stats');
     Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
         ->name('basic-requirements.show');
+    Route::post('/basic-requirements/{id}/update-check', [App\Http\Controllers\Staff\BasicRequirementController::class, 'updateCheck'])
+        ->name('basic-requirements.update-check');
     Route::post('/basic-requirements/{id}/approve', [App\Http\Controllers\Staff\BasicRequirementController::class, 'approve'])
         ->name('basic-requirements.approve');
     Route::post('/basic-requirements/{id}/reject', [App\Http\Controllers\Staff\BasicRequirementController::class, 'reject'])
@@ -416,9 +419,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     
     Route::get('/applications/{id}/review-activities', [ApplicationController::class, 'getReviewActivities'])
         ->name('applications.review-activities');
-    
-    Route::get('/applications/{id}/debug-review', [ApplicationController::class, 'debugReviewActivities'])
-        ->name('applications.debug-review');
 
     Route::get('/applications/{id}/activity-history', function ($id) {
         return view('applicant.activity-history', ['applicationId' => $id]);
