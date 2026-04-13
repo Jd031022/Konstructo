@@ -362,7 +362,7 @@
                 <!-- Document Checklist Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Document Verification Checklist</h2>
+                        <h2 class="text-lg font-semibold text-gray-800">Document Checklist</h2>
                         <div class="flex items-center gap-2">
                             <span id="verified-count" class="text-sm font-semibold text-green-600">0</span>
                             <span class="text-sm text-gray-400">/</span>
@@ -405,7 +405,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                            <p class="text-sm text-gray-600">Click "View" to review each document. Check the checkbox to mark as verified. When all documents are verified, click "For Assessment" to compute fees.</p>
+                            <p class="text-sm text-gray-600">Click "View" to review each document. Check the checkbox to mark as verified. When ready to proceed with assessment, select "For Assessment" status to compute fees.</p>
                         </div>
                     </div>
                 </div>
@@ -817,13 +817,11 @@
         } catch (error) { console.error('Error loading assessment:', error); }
     }
 
+    // MODIFIED: Removed document verification requirement for assessment
     function openAssessmentModal() {
-        let verified = 0;
-        documentsList.forEach(doc => { if (documentVerificationStatus[doc.key]?.verified) verified++; });
-        if (verified < documentsList.length) {
-            alert(`Please verify all documents first! (${verified}/${documentsList.length} verified)`);
-            return;
-        }
+        // No longer checking if all documents are verified
+        // Staff can proceed to assessment regardless of document verification status
+        
         if (currentAssessment) {
             document.getElementById('line-grade').value = currentAssessment.line_grade || '';
             document.getElementById('building-fee').value = currentAssessment.building_fee || '';
@@ -1136,10 +1134,17 @@
         document.getElementById('hardcopy-checkbox').checked = received;
     }
 
+    // MODIFIED: updateStatus function now handles for-assessment without document check
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
         if (!selected) { alert('Please select a status'); return; }
-        if (selected.value === 'for-assessment') { openAssessmentModal(); return; }
+        
+        // For assessment status - open modal without document verification check
+        if (selected.value === 'for-assessment') { 
+            openAssessmentModal(); 
+            return; 
+        }
+        
         const btn = event.target;
         const original = btn.innerHTML;
         btn.innerHTML = 'Updating...';
