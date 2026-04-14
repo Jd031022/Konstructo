@@ -288,7 +288,7 @@ class GmailService
     }
 
     /**
-     * Send assessment completed email with fee breakdown
+     * Send assessment completed email with fee breakdown - UPDATED to show all fees including additional fees
      */
     public function sendAssessmentEmail($to, $applicationNumber, $applicantName, $assessmentData, $applicationId)
     {
@@ -298,7 +298,8 @@ class GmailService
         Log::info('📧 Sending assessment completion email', [
             'to' => $to,
             'application_number' => $applicationNumber,
-            'total_amount' => $assessmentData['total_amount'] ?? 0
+            'total_amount' => $assessmentData['total_amount'] ?? 0,
+            'has_additional_fees' => isset($assessmentData['additional_fees']) && count($assessmentData['additional_fees'] ?? []) > 0
         ]);
         
         return $this->sendEmailInternal($to, $subject, $htmlContent);
@@ -586,7 +587,7 @@ class GmailService
     }
 
     /**
-     * Get assessment email content with fee breakdown
+     * Get assessment email content with fee breakdown - UPDATED to show all fees including additional fees
      */
     private function getAssessmentEmailContent($applicationNumber, $applicantName, $assessmentData, $applicationId)
     {
@@ -598,8 +599,9 @@ class GmailService
             return '₱' . number_format($amount, 2);
         };
         
-        $feeItems = '';
-        $feeItemsArray = [
+        // Build standard fees section
+        $standardFeesHtml = '';
+        $standardFees = [
             ['label' => 'Line Grade Fee', 'value' => $assessmentData['line_grade'] ?? null],
             ['label' => 'Building Fee', 'value' => $assessmentData['building_fee'] ?? null],
             ['label' => 'Sanitary/Plumbing Fee', 'value' => $assessmentData['sanitary_fee'] ?? null],
@@ -607,29 +609,47 @@ class GmailService
             ['label' => 'Electrical Fee', 'value' => $assessmentData['electrical_fee'] ?? null],
         ];
         
-        foreach ($feeItemsArray as $item) {
-            if ($item['value'] && $item['value'] > 0) {
-                $feeItems .= '
+        $hasStandardFees = false;
+        foreach ($standardFees as $fee) {
+            if ($fee['value'] && $fee['value'] > 0) {
+                $hasStandardFees = true;
+                $standardFeesHtml .= '
                     <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-                        <span style="color: #4b5563;">' . $item['label'] . ':</span>
-                        <span style="font-weight: 500; color: #1f2937;">' . $formatAmount($item['value']) . '</span>
+                        <span style="color: #4b5563;">' . $fee['label'] . ':</span>
+                        <span style="font-weight: 500; color: #1f2937;">' . $formatAmount($fee['value']) . '</span>
                     </div>';
             }
         }
         
-        if (($assessmentData['others_amount'] ?? 0) > 0) {
-            $othersLabel = !empty($assessmentData['others_description']) 
-                ? 'Others (' . htmlspecialchars($assessmentData['others_description']) . ')' 
-                : 'Others';
-            $feeItems .= '
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-                    <span style="color: #4b5563;">' . $othersLabel . ':</span>
-                    <span style="font-weight: 500; color: #1f2937;">' . $formatAmount($assessmentData['others_amount']) . '</span>
-                </div>';
+        // Build additional fees section (dynamic)
+        $additionalFeesHtml = '';
+        $additionalFees = $assessmentData['additional_fees'] ?? [];
+        
+        if (is_string($additionalFees)) {
+            $additionalFees = json_decode($additionalFees, true);
         }
         
+        $hasAdditionalFees = false;
+        if (is_array($additionalFees) && count($additionalFees) > 0) {
+            foreach ($additionalFees as $fee) {
+                $amount = is_array($fee) ? ($fee['amount'] ?? 0) : 0;
+                $description = is_array($fee) ? ($fee['description'] ?? 'Additional Fee') : 'Additional Fee';
+                
+                if ($amount && $amount > 0) {
+                    $hasAdditionalFees = true;
+                    $additionalFeesHtml .= '
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+                            <span style="color: #4b5563;">' . htmlspecialchars($description) . ':</span>
+                            <span style="font-weight: 500; color: #1f2937;">' . $formatAmount($amount) . '</span>
+                        </div>';
+                }
+            }
+        }
+        
+        // Build penalties section
+        $penaltiesHtml = '';
         if (($assessmentData['penalties_fines'] ?? 0) > 0) {
-            $feeItems .= '
+            $penaltiesHtml .= '
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
                     <span style="color: #dc2626;">Penalties/Fines:</span>
                     <span style="font-weight: 500; color: #dc2626;">' . $formatAmount($assessmentData['penalties_fines']) . '</span>
@@ -645,6 +665,39 @@ class GmailService
                 <div class="notes-section" style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
                     <h3 style="margin: 0 0 8px 0; color: #92400e; font-size: 14px; font-weight: 600;">📝 Assessment Notes</h3>
                     <p style="margin: 0; color: #78350f; font-size: 14px;">' . nl2br(htmlspecialchars($assessmentNotes)) . '</p>
+                </div>';
+        }
+        
+        // Build complete fee breakdown section
+        $feeBreakdownHtml = '';
+        if ($hasStandardFees || $hasAdditionalFees || $penaltiesHtml) {
+            $feeBreakdownHtml = '<div class="fee-summary" style="background-color: #f8f9fa; border-radius: 12px; padding: 20px; margin: 25px 0; border: 1px solid #e5e7eb;">';
+            $feeBreakdownHtml .= '<h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 16px;">💰 Building Permit Fee Breakdown</h3>';
+            
+            if ($hasStandardFees) {
+                $feeBreakdownHtml .= $standardFeesHtml;
+            }
+            
+            if ($hasAdditionalFees) {
+                $feeBreakdownHtml .= '
+                    <div style="margin-top: 10px;">
+                        <div style="font-weight: 600; color: #4b5563; padding: 8px 0; border-bottom: 1px solid #d1d5db;">Additional Fees:</div>
+                        ' . $additionalFeesHtml . '
+                    </div>';
+            }
+            
+            $feeBreakdownHtml .= $penaltiesHtml;
+            
+            $feeBreakdownHtml .= '
+                <div class="total-row" style="display: flex; justify-content: space-between; padding: 12px 0; margin-top: 10px; border-top: 2px solid #d1d5db; font-weight: bold; font-size: 18px;">
+                    <span style="color: #155386;">TOTAL BUILDING PERMIT FEE:</span>
+                    <span style="color: #155386;">' . $formatAmount($totalAmount) . '</span>
+                </div>
+            </div>';
+        } else {
+            $feeBreakdownHtml = '
+                <div class="fee-summary" style="background-color: #f8f9fa; border-radius: 12px; padding: 20px; margin: 25px 0; border: 1px solid #e5e7eb; text-align: center;">
+                    <p style="color: #6c757d; margin: 0;">No fees have been assessed for this application yet.</p>
                 </div>';
         }
         
@@ -701,14 +754,7 @@ class GmailService
                             <span>{$applicationNumber}</span>
                         </div>
                         
-                        <div class='fee-summary'>
-                            <h3>💰 Building Permit Fee Breakdown</h3>
-                            {$feeItems}
-                            <div class='total-row'>
-                                <span>TOTAL BUILDING PERMIT FEE:</span>
-                                <span>{$formatAmount($totalAmount)}</span>
-                            </div>
-                        </div>
+                        {$feeBreakdownHtml}
                         
                         {$notesHtml}
                         
@@ -1108,6 +1154,15 @@ class GmailService
         }
         $documentList .= '</div>';
         
+        $remarksHtml = '';
+        if ($remarks) {
+            $remarksHtml = '
+                <div class="remarks-box" style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                    <strong>Remarks:</strong>
+                    <p style="margin: 8px 0 0 0;">' . nl2br(htmlspecialchars($remarks)) . '</p>
+                </div>';
+        }
+        
         return "
             <!DOCTYPE html>
             <html>
@@ -1147,6 +1202,8 @@ class GmailService
                             <h3 style='margin-top: 0; color: #DC2626; font-size: 16px;'>The following documents are missing:</h3>
                             {$documentList}
                         </div>
+                        
+                        {$remarksHtml}
                         
                         <div style='text-align: center;'>
                             <a href='{$appUrl}' class='button'>View Application</a>

@@ -2046,11 +2046,10 @@ class ApplicationController extends Controller
             'sanitary_fee' => 'nullable|numeric|min:0',
             'mechanical_fee' => 'nullable|numeric|min:0',
             'electrical_fee' => 'nullable|numeric|min:0',
-            'others_amount' => 'nullable|numeric|min:0',
-            'others_description' => 'nullable|string|max:255',
             'penalties_fines' => 'nullable|numeric|min:0',
             'total_amount' => 'nullable|numeric|min:0',
-            'assessment_notes' => 'nullable|string'
+            'assessment_notes' => 'nullable|string',
+            'additional_fees' => 'nullable|array'
         ]);
 
         if ($validator->fails()) {
@@ -2089,11 +2088,10 @@ class ApplicationController extends Controller
                 'sanitary_fee' => $request->sanitary_fee,
                 'mechanical_fee' => $request->mechanical_fee,
                 'electrical_fee' => $request->electrical_fee,
-                'others_amount' => $request->others_amount,
-                'others_description' => $request->others_description,
                 'penalties_fines' => $request->penalties_fines,
                 'total_amount' => $request->total_amount,
-                'assessment_notes' => $request->assessment_notes
+                'assessment_notes' => $request->assessment_notes,
+                'additional_fees' => $request->additional_fees
             ];
             
             // Update assessment data
@@ -2102,11 +2100,10 @@ class ApplicationController extends Controller
             $assessment->sanitary_fee = $request->sanitary_fee;
             $assessment->mechanical_fee = $request->mechanical_fee;
             $assessment->electrical_fee = $request->electrical_fee;
-            $assessment->others_amount = $request->others_amount;
-            $assessment->others_description = $request->others_description;
             $assessment->penalties_fines = $request->penalties_fines;
             $assessment->total_amount = $request->total_amount;
             $assessment->assessment_notes = $request->assessment_notes;
+            $assessment->additional_fees = $request->additional_fees ? json_encode($request->additional_fees) : null;
             $assessment->assessed_by = $staff->id;
             $assessment->assessed_at = now();
             $assessment->save();
@@ -2209,9 +2206,18 @@ class ApplicationController extends Controller
                 ]);
             }
             
+            // Parse additional_fees if it's stored as JSON string
+            $additionalFees = $assessment->additional_fees;
+            if (is_string($additionalFees)) {
+                $additionalFees = json_decode($additionalFees, true);
+            }
+            
+            $assessmentData = $assessment->toArray();
+            $assessmentData['additional_fees'] = $additionalFees;
+            
             return response()->json([
                 'success' => true,
-                'data' => $assessment
+                'data' => $assessmentData
             ]);
             
         } catch (\Exception $e) {

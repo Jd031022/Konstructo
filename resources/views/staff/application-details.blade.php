@@ -498,9 +498,9 @@
     </div>
 </div>
 
-<!-- Assessment Fee Modal -->
+<!-- Assessment Fee Modal with Dynamic Fee Fields -->
 <div id="assessment-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
-    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-2xl">
         <div class="bg-white rounded-2xl shadow-xl">
             <div class="p-4 border-b border-gray-200 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -518,28 +518,63 @@
                 </button>
             </div>
             
-            <div class="p-4 space-y-3">
+            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
+                <!-- Standard Fees Grid -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Line Grade (₱)</label><input type="number" id="line-grade" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Building Fee (₱)</label><input type="number" id="building-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Sanitary/Plumbing Fee (₱)</label><input type="number" id="sanitary-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Mechanical Fee (₱)</label><input type="number" id="mechanical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Electrical Fee (₱)</label><input type="number" id="electrical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Others (₱)</label><input type="number" id="others-amount" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Line Grade (₱)</label>
+                        <input type="number" id="line-grade" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Building Fee (₱)</label>
+                        <input type="number" id="building-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Sanitary/Plumbing Fee (₱)</label>
+                        <input type="number" id="sanitary-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Mechanical Fee (₱)</label>
+                        <input type="number" id="mechanical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Electrical Fee (₱)</label>
+                        <input type="number" id="electrical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Penalties/Fines (₱)</label>
+                        <input type="number" id="penalties-fines" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
                 </div>
-                
-                <div><label class="block text-xs font-medium text-gray-700 mb-1">Others Description</label><input type="text" id="others-description" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="Specify what the 'Others' fee is for"></div>
-                
-                <div><label class="block text-xs font-medium text-gray-700 mb-1">Penalties/Fines (₱)</label><input type="number" id="penalties-fines" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
-                
-                <div class="p-3 bg-indigo-50 rounded-xl">
+
+                <!-- Dynamic Additional Fees Section -->
+                <div class="mt-4 pt-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-sm font-semibold text-gray-700">Additional Fees</label>
+                        <button type="button" onclick="addDynamicFee()" class="inline-flex items-center px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Fee
+                        </button>
+                    </div>
+                    <div id="dynamic-fees-container" class="space-y-2">
+                        <!-- Dynamic fee rows will be added here -->
+                    </div>
+                </div>
+
+                <!-- Total Amount Display -->
+                <div class="p-3 bg-indigo-50 rounded-xl mt-3">
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-semibold text-indigo-700">Total Building Permit Fee:</span>
                         <span class="text-2xl font-bold text-indigo-700">₱<span id="total-amount-display">0.00</span></span>
                     </div>
                 </div>
                 
-                <div><label class="block text-xs font-medium text-gray-700 mb-1">Assessment Notes</label><textarea id="assessment-notes" rows="2" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="Add any notes about this assessment..."></textarea></div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Assessment Notes</label>
+                    <textarea id="assessment-notes" rows="2" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="Add any notes about this assessment..."></textarea>
+                </div>
             </div>
             
             <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
@@ -573,6 +608,8 @@
     let documentVerificationStatus = {};
     let currentAssessment = null;
     let currentUserPosition = null;
+    let dynamicFees = []; // Array to store dynamic fee objects {description, amount}
+    let feeRowCounter = 0;
 
     const documentsList = [
         { key: 'app_letter_link', name: 'Application for Building Permit', category: 'Application Forms' },
@@ -591,7 +628,6 @@
     ];
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Get current user position
         fetchCurrentUserPosition();
         
         if (applicationId && !isNaN(applicationId)) {
@@ -604,7 +640,6 @@
             showError();
         }
         
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('missing-documents-dropdown');
             if (dropdown && !dropdown.contains(event.target) && !event.target.closest('button')?.innerHTML?.includes('Request Missing')) {
@@ -612,22 +647,104 @@
             }
         });
         
-        // FSEC file input change handler
         document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
     });
     
+    // Dynamic Fee Functions
+    function addDynamicFee(description = '', amount = 0) {
+        const container = document.getElementById('dynamic-fees-container');
+        const rowId = `dynamic-fee-${feeRowCounter}`;
+        
+        const rowHtml = `
+            <div id="${rowId}" class="flex gap-2 items-center p-2 bg-gray-50 rounded-lg">
+                <input type="text" placeholder="Fee description (e.g., Excavation Fee)" class="dynamic-fee-desc flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${escapeHtml(description)}" onchange="updateDynamicFeesArray()">
+                <input type="number" step="0.01" placeholder="Amount" class="dynamic-fee-amount w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${amount}" oninput="updateDynamicFeesArray(); calculateTotal()">
+                <button type="button" onclick="removeDynamicFee('${rowId}')" class="text-red-500 hover:text-red-700 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', rowHtml);
+        
+        // Store reference in dynamicFees array
+        dynamicFees.push({ id: rowId, description: description, amount: amount });
+        feeRowCounter++;
+        
+        calculateTotal();
+    }
+    
+    function removeDynamicFee(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.remove();
+            // Remove from dynamicFees array
+            dynamicFees = dynamicFees.filter(fee => fee.id !== rowId);
+            calculateTotal();
+        }
+    }
+    
+    function updateDynamicFeesArray() {
+        // Update the dynamicFees array with current values from DOM
+        const rows = document.querySelectorAll('#dynamic-fees-container > div');
+        dynamicFees = [];
+        
+        rows.forEach(row => {
+            const descInput = row.querySelector('.dynamic-fee-desc');
+            const amountInput = row.querySelector('.dynamic-fee-amount');
+            if (descInput && amountInput) {
+                dynamicFees.push({
+                    id: row.id,
+                    description: descInput.value,
+                    amount: parseFloat(amountInput.value) || 0
+                });
+            }
+        });
+    }
+    
+    function getDynamicFeesTotal() {
+        let total = 0;
+        dynamicFees.forEach(fee => {
+            total += fee.amount || 0;
+        });
+        return total;
+    }
+    
+    function loadDynamicFeesFromData(feesData) {
+        // Clear existing dynamic fees
+        const container = document.getElementById('dynamic-fees-container');
+        container.innerHTML = '';
+        dynamicFees = [];
+        feeRowCounter = 0;
+        
+        if (feesData && feesData.length > 0) {
+            feesData.forEach(fee => {
+                addDynamicFee(fee.description, fee.amount);
+            });
+        }
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
     async function fetchCurrentUserPosition() {
         try {
-            // First try to get from the position/check endpoint which returns position
             const response = await fetch('/staff/position/check');
             const data = await response.json();
             console.log('Position check response:', data);
             
-            // The response might have a 'position' field or we need to get from user profile
             if (data.position) {
                 currentUserPosition = data.position;
             } else if (data.needs_position === false) {
-                // If needs_position is false, try to get from a different endpoint
                 const userResponse = await fetch('/api/user/position');
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
@@ -635,7 +752,6 @@
                 }
             }
             
-            // Also check if we can get from the profile endpoint
             if (!currentUserPosition) {
                 const profileResponse = await fetch('/profile/avatar-info');
                 if (profileResponse.ok) {
@@ -648,7 +764,6 @@
             
             console.log('Current user position:', currentUserPosition);
             
-            // Show BFP section if position is BFP (case insensitive)
             if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
                 document.getElementById('bfp-section').classList.remove('hidden');
                 console.log('BFP section shown');
@@ -668,7 +783,6 @@
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.data) {
-                    // Display existing FSEC
                     if (data.data.fsec_link) {
                         document.getElementById('existing-fsec-container').classList.remove('hidden');
                         document.getElementById('fsec-link').href = data.data.fsec_link;
@@ -679,7 +793,6 @@
                             document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(data.data.fsec_uploaded_at).toLocaleDateString();
                         }
                     }
-                    // Display existing BFP comments
                     if (data.data.bfp_comments) {
                         document.getElementById('bfp-comments-display').classList.remove('hidden');
                         document.getElementById('bfp-comments-text').textContent = data.data.bfp_comments;
@@ -706,7 +819,7 @@
             return;
         }
         
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
             alert('File size must be less than 10MB.');
             event.target.value = '';
@@ -817,24 +930,33 @@
         } catch (error) { console.error('Error loading assessment:', error); }
     }
 
-    // MODIFIED: Removed document verification requirement for assessment
     function openAssessmentModal() {
-        // No longer checking if all documents are verified
-        // Staff can proceed to assessment regardless of document verification status
-        
         if (currentAssessment) {
+            // Load standard fees
             document.getElementById('line-grade').value = currentAssessment.line_grade || '';
             document.getElementById('building-fee').value = currentAssessment.building_fee || '';
             document.getElementById('sanitary-fee').value = currentAssessment.sanitary_fee || '';
             document.getElementById('mechanical-fee').value = currentAssessment.mechanical_fee || '';
             document.getElementById('electrical-fee').value = currentAssessment.electrical_fee || '';
-            document.getElementById('others-amount').value = currentAssessment.others_amount || '';
-            document.getElementById('others-description').value = currentAssessment.others_description || '';
             document.getElementById('penalties-fines').value = currentAssessment.penalties_fines || '';
             document.getElementById('assessment-notes').value = currentAssessment.assessment_notes || '';
+            
+            // Load dynamic fees if they exist (stored as JSON in a separate field or as part of assessment)
+            if (currentAssessment.additional_fees) {
+                try {
+                    const fees = typeof currentAssessment.additional_fees === 'string' 
+                        ? JSON.parse(currentAssessment.additional_fees) 
+                        : currentAssessment.additional_fees;
+                    loadDynamicFeesFromData(fees);
+                } catch(e) { console.error('Error parsing additional fees:', e); }
+            } else {
+                loadDynamicFeesFromData([]);
+            }
+            
             calculateTotal();
         } else {
             document.querySelectorAll('#assessment-modal input, #assessment-modal textarea').forEach(el => el.value = '');
+            loadDynamicFeesFromData([]);
             document.getElementById('total-amount-display').textContent = '0.00';
         }
         document.getElementById('assessment-modal').classList.remove('hidden');
@@ -847,13 +969,16 @@
     }
 
     function calculateTotal() {
-        const total = (parseFloat(document.getElementById('line-grade').value) || 0) +
-                      (parseFloat(document.getElementById('building-fee').value) || 0) +
-                      (parseFloat(document.getElementById('sanitary-fee').value) || 0) +
-                      (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
-                      (parseFloat(document.getElementById('electrical-fee').value) || 0) +
-                      (parseFloat(document.getElementById('others-amount').value) || 0) +
-                      (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
+                              (parseFloat(document.getElementById('building-fee').value) || 0) +
+                              (parseFloat(document.getElementById('sanitary-fee').value) || 0) +
+                              (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('electrical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        
+        const dynamicTotal = getDynamicFeesTotal();
+        const total = standardTotal + dynamicTotal;
+        
         document.getElementById('total-amount-display').textContent = total.toFixed(2);
         return total;
     }
@@ -864,18 +989,35 @@
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
         
-        const total = calculateTotal();
+        // Update dynamicFees array before saving
+        updateDynamicFeesArray();
+        
+        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
+                              (parseFloat(document.getElementById('building-fee').value) || 0) +
+                              (parseFloat(document.getElementById('sanitary-fee').value) || 0) +
+                              (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('electrical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        
+        const dynamicTotal = getDynamicFeesTotal();
+        const total = standardTotal + dynamicTotal;
+        
+        // Prepare additional fees data
+        const additionalFees = dynamicFees.map(fee => ({
+            description: fee.description,
+            amount: fee.amount
+        })).filter(fee => fee.description.trim() !== '' || fee.amount > 0);
+        
         const data = {
             line_grade: parseFloat(document.getElementById('line-grade').value) || null,
             building_fee: parseFloat(document.getElementById('building-fee').value) || null,
             sanitary_fee: parseFloat(document.getElementById('sanitary-fee').value) || null,
             mechanical_fee: parseFloat(document.getElementById('mechanical-fee').value) || null,
             electrical_fee: parseFloat(document.getElementById('electrical-fee').value) || null,
-            others_amount: parseFloat(document.getElementById('others-amount').value) || null,
-            others_description: document.getElementById('others-description').value || null,
             penalties_fines: parseFloat(document.getElementById('penalties-fines').value) || null,
             total_amount: total,
-            assessment_notes: document.getElementById('assessment-notes').value || null
+            assessment_notes: document.getElementById('assessment-notes').value || null,
+            additional_fees: additionalFees
         };
         
         try {
@@ -922,13 +1064,11 @@
     }
 
     function displayProjectInformation(app) {
-        // Project Information
         document.getElementById('project-title').textContent = app.project_title || 'Not provided';
         document.getElementById('project-location').textContent = app.project_location || 'Not provided';
         document.getElementById('project-description').textContent = app.project_description || 'Not provided';
         document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
         
-        // Format numbers
         if (app.lot_area) {
             document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
         } else {
@@ -949,7 +1089,6 @@
             document.getElementById('estimated-cost').textContent = 'Not provided';
         }
         
-        // Professional Information
         document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
         document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
         document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
@@ -1134,12 +1273,10 @@
         document.getElementById('hardcopy-checkbox').checked = received;
     }
 
-    // MODIFIED: updateStatus function now handles for-assessment without document check
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
         if (!selected) { alert('Please select a status'); return; }
         
-        // For assessment status - open modal without document verification check
         if (selected.value === 'for-assessment') { 
             openAssessmentModal(); 
             return; 

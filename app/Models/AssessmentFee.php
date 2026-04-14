@@ -17,13 +17,12 @@ class AssessmentFee extends Model
         'sanitary_fee',
         'mechanical_fee',
         'electrical_fee',
-        'others_amount',
-        'others_description',
         'penalties_fines',
         'total_amount',
         'assessed_by',
         'assessed_at',
-        'assessment_notes'
+        'assessment_notes',
+        'additional_fees'
     ];
     
     protected $casts = [
@@ -32,10 +31,10 @@ class AssessmentFee extends Model
         'sanitary_fee' => 'decimal:2',
         'mechanical_fee' => 'decimal:2',
         'electrical_fee' => 'decimal:2',
-        'others_amount' => 'decimal:2',
         'penalties_fines' => 'decimal:2',
         'total_amount' => 'decimal:2',
-        'assessed_at' => 'datetime'
+        'assessed_at' => 'datetime',
+        'additional_fees' => 'array'
     ];
     
     public function application(): BelongsTo
@@ -48,7 +47,10 @@ class AssessmentFee extends Model
         return $this->belongsTo(User::class, 'assessed_by');
     }
     
-    public function calculateTotal(): float
+    /**
+     * Calculate total from standard fees
+     */
+    public function calculateStandardTotal(): float
     {
         $total = 0;
         $total += $this->line_grade ?? 0;
@@ -56,8 +58,96 @@ class AssessmentFee extends Model
         $total += $this->sanitary_fee ?? 0;
         $total += $this->mechanical_fee ?? 0;
         $total += $this->electrical_fee ?? 0;
-        $total += $this->others_amount ?? 0;
         $total += $this->penalties_fines ?? 0;
         return $total;
+    }
+    
+    /**
+     * Calculate total from additional fees
+     */
+    public function calculateAdditionalTotal(): float
+    {
+        $total = 0;
+        $additionalFees = $this->additional_fees ?? [];
+        
+        if (is_array($additionalFees)) {
+            foreach ($additionalFees as $fee) {
+                $total += $fee['amount'] ?? 0;
+            }
+        }
+        
+        return $total;
+    }
+    
+    /**
+     * Calculate grand total (standard + additional)
+     */
+    public function calculateTotal(): float
+    {
+        return $this->calculateStandardTotal() + $this->calculateAdditionalTotal();
+    }
+    
+    /**
+     * Get all fees including breakdown
+     */
+    public function getFeeBreakdown(): array
+    {
+        $breakdown = [];
+        
+        // Standard fees
+        if ($this->line_grade > 0) $breakdown[] = ['name' => 'Line Grade', 'amount' => (float) $this->line_grade];
+        if ($this->building_fee > 0) $breakdown[] = ['name' => 'Building Fee', 'amount' => (float) $this->building_fee];
+        if ($this->sanitary_fee > 0) $breakdown[] = ['name' => 'Sanitary/Plumbing Fee', 'amount' => (float) $this->sanitary_fee];
+        if ($this->mechanical_fee > 0) $breakdown[] = ['name' => 'Mechanical Fee', 'amount' => (float) $this->mechanical_fee];
+        if ($this->electrical_fee > 0) $breakdown[] = ['name' => 'Electrical Fee', 'amount' => (float) $this->electrical_fee];
+        if ($this->penalties_fines > 0) $breakdown[] = ['name' => 'Penalties/Fines', 'amount' => (float) $this->penalties_fines];
+        
+        // Additional fees
+        $additionalFees = $this->additional_fees ?? [];
+        if (is_array($additionalFees)) {
+            foreach ($additionalFees as $fee) {
+                if (!empty($fee['description']) && ($fee['amount'] ?? 0) > 0) {
+                    $breakdown[] = [
+                        'name' => $fee['description'],
+                        'amount' => (float) ($fee['amount'] ?? 0)
+                    ];
+                }
+            }
+        }
+        
+        return $breakdown;
+    }
+    
+    /**
+     * Format total amount for display
+     */
+    public function getFormattedTotalAttribute(): string
+    {
+        return '₱ ' . number_format($this->calculateTotal(), 2);
+    }
+    
+    /**
+     * Scope for assessments created today
+     */
+    public function scopeToday($query)
+    {
+        return $query->whereDate('assessed_at', today());
+    }
+    
+    /**
+     * Scope for assessments created this week
+     */
+    public function scopeThisWeek($query)
+    {
+        return $query->whereBetween('assessed_at', [now()->startOfWeek(), now()->endOfWeek()]);
+    }
+    
+    /**
+     * Scope for assessments created this month
+     */
+    public function scopeThisMonth($query)
+    {
+        return $query->whereMonth('assessed_at', now()->month)
+                     ->whereYear('assessed_at', now()->year);
     }
 }
