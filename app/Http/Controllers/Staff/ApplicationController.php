@@ -596,7 +596,10 @@ class ApplicationController extends Controller
                     'architect_name' => $application->architect_name ?? null,
                     'architect_license' => $application->architect_license ?? null,
                     'engineer_name' => $application->engineer_name ?? null,
-                    'engineer_license' => $application->engineer_license ?? null
+                    'engineer_license' => $application->engineer_license ?? null,
+                    // Hard Copy Submission Details
+                    'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
+                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null
                 ]
             ]);
             
@@ -772,6 +775,8 @@ class ApplicationController extends Controller
             'status' => $request->status,
             'hardcopy_received' => $request->hardcopy_received,
             'remarks' => $request->remarks,
+            'hardcopy_submission_date' => $request->hardcopy_submission_date,
+            'hardcopy_instructions' => $request->hardcopy_instructions,
             'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
             'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
         ]);
@@ -779,7 +784,9 @@ class ApplicationController extends Controller
         $validator = Validator::make($request->all(), [
             'status' => 'required|string|in:pending,under-review,document-verification,for-assessment,approved,rejected,for-release,verified',
             'remarks' => 'nullable|string',
-            'hardcopy_received' => 'sometimes|boolean'
+            'hardcopy_received' => 'sometimes|boolean',
+            'hardcopy_submission_date' => 'nullable|string',
+            'hardcopy_instructions' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -849,6 +856,18 @@ class ApplicationController extends Controller
                 }
             }
             
+            // Save hard copy submission date and instructions when status is approved
+            if ($newStatus === 'approved') {
+                if ($request->has('hardcopy_submission_date') && $request->hardcopy_submission_date) {
+                    $application->hardcopy_submission_date = $request->hardcopy_submission_date;
+                    Log::info('Setting hardcopy_submission_date', ['date' => $request->hardcopy_submission_date]);
+                }
+                if ($request->has('hardcopy_instructions')) {
+                    $application->hardcopy_instructions = $request->hardcopy_instructions;
+                    Log::info('Setting hardcopy_instructions', ['instructions' => $request->hardcopy_instructions]);
+                }
+            }
+            
             if ($newStatus === 'verified') {
                 $application->verified_at = now();
                 $application->verified_by = $staff->id;
@@ -864,7 +883,8 @@ class ApplicationController extends Controller
             
             Log::info('Application saved to database', [
                 'new_status' => $application->status,
-                'new_hardcopy_status' => $application->hard_copy_received
+                'new_hardcopy_status' => $application->hard_copy_received,
+                'hardcopy_submission_date' => $application->hardcopy_submission_date
             ]);
 
             if ($statusChanged) {
@@ -909,12 +929,17 @@ class ApplicationController extends Controller
                     if ($application->user && $application->user->email) {
                         Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
                         
+                        // Include hard copy submission details in the email for approved status
                         $emailSent = $this->gmailService->sendStatusEmail(
                             $application->user->email,
                             $newStatus,
                             $application->application_number,
                             $application->user->first_name,
-                            $application->id
+                            $application->id,
+                            [
+                                'hardcopy_submission_date' => $application->hardcopy_submission_date,
+                                'hardcopy_instructions' => $application->hardcopy_instructions
+                            ]
                         );
                         
                         if ($emailSent) {
@@ -986,7 +1011,9 @@ class ApplicationController extends Controller
                     'id' => $application->id,
                     'status' => $application->status,
                     'hard_copy_received' => $application->hard_copy_received,
-                    'hard_copy_received_at' => $application->hard_copy_received_at
+                    'hard_copy_received_at' => $application->hard_copy_received_at,
+                    'hardcopy_submission_date' => $application->hardcopy_submission_date,
+                    'hardcopy_instructions' => $application->hardcopy_instructions
                 ]
             ]);
             

@@ -54,6 +54,23 @@
             </div>
         </div>
 
+        <!-- Hard Copy Submission Date Notice (when approved with date) -->
+        <div id="hardcopy-submission-notice" class="mb-6 p-4 bg-green-100 border-l-4 border-green-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Hard Copy Submission Schedule</h4>
+                    <p class="text-sm text-gray-700 mt-1">Please submit your hard copy documents to the Office of the Building Official (OBO) on:</p>
+                    <p id="hardcopy-submission-date" class="text-md font-bold text-green-700 mt-1"></p>
+                    <p id="hardcopy-instructions" class="text-sm text-gray-600 mt-2"></p>
+                </div>
+            </div>
+        </div>
+
         <!-- Hard Copy Received Notice -->
         <div id="hardcopy-received-notice" class="mb-6 p-4 bg-green-100 border-l-4 border-green-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
@@ -408,7 +425,7 @@
                     </div>
                 </div>
 
-                <!-- Google Drive Documents Card (Main Folder Removed) -->
+                <!-- Google Drive Documents Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,30 +498,6 @@
                                 <span class="text-sm text-gray-600">Status:</span>
                                 <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                             </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Queue Position:</span>
-                                <span id="queue-position" class="text-sm font-medium text-gray-800">-</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Estimated Review:</span>
-                                <span id="estimated-time" class="text-sm font-medium text-gray-800">20 working days</span>
-                            </div>
-                            
-                            <div class="pt-4 border-t border-gray-100">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-gray-400">Target Release Date</p>
-                                        <p id="target-release" class="text-sm font-semibold text-gray-800">-</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Assessment Fee Card -->
@@ -530,6 +523,16 @@
                                 <span id="hardcopy-badge" class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500">Pending</span>
                             </div>
                             <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
+                        </div>
+
+                        <!-- Hard Copy Submission Date Display (when approved) -->
+                        <div id="hardcopy-submission-info" class="mt-4 p-3 bg-green-50 rounded-lg hidden transition-all duration-500">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+                                <span class="text-xs font-semibold text-green-700">Hard Copy Submission Schedule</span>
+                            </div>
+                            <p id="sidebar-submission-date" class="text-sm font-bold text-green-700"></p>
+                            <p id="sidebar-submission-instructions" class="text-xs text-gray-600 mt-1"></p>
                         </div>
 
                         <!-- FSEC Document Card (Fire Safety Evaluation Clearance) -->
@@ -917,6 +920,54 @@
                     feeDetails.innerHTML = '<div class="text-center text-gray-500">Fee breakdown not available</div>';
                 }
             }
+        }
+    }
+
+    // Display hard copy submission date
+    function displayHardCopySubmissionInfo(application) {
+        const submissionNotice = document.getElementById('hardcopy-submission-notice');
+        const submissionInfoSidebar = document.getElementById('hardcopy-submission-info');
+        const submissionDateEl = document.getElementById('hardcopy-submission-date');
+        const submissionInstructionsEl = document.getElementById('hardcopy-instructions');
+        const sidebarDateEl = document.getElementById('sidebar-submission-date');
+        const sidebarInstructionsEl = document.getElementById('sidebar-submission-instructions');
+        
+        if (application.hardcopy_submission_date) {
+            // Format the date nicely
+            let formattedDate = application.hardcopy_submission_date;
+            try {
+                const dateObj = new Date(application.hardcopy_submission_date);
+                if (!isNaN(dateObj)) {
+                    formattedDate = dateObj.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch(e) {
+                // Keep original format if parsing fails
+            }
+            
+            if (submissionDateEl) submissionDateEl.textContent = formattedDate;
+            if (sidebarDateEl) sidebarDateEl.textContent = formattedDate;
+            
+            if (application.hardcopy_instructions) {
+                if (submissionInstructionsEl) submissionInstructionsEl.textContent = application.hardcopy_instructions;
+                if (sidebarInstructionsEl) sidebarInstructionsEl.textContent = application.hardcopy_instructions;
+            }
+            
+            if (submissionNotice) submissionNotice.classList.remove('hidden');
+            if (submissionInfoSidebar) submissionInfoSidebar.classList.remove('hidden');
+            
+            // Hide the regular hard copy notice since we have a specific date
+            const regularNotice = document.getElementById('hardcopy-notice');
+            if (regularNotice) regularNotice.classList.add('hidden');
+        } else {
+            if (submissionNotice) submissionNotice.classList.add('hidden');
+            if (submissionInfoSidebar) submissionInfoSidebar.classList.add('hidden');
         }
     }
 
@@ -1454,8 +1505,9 @@
         updateTimeline(currentApplication.status);
         updateProgress(currentApplication.status);
 
-        // Google Drive main link removed - no longer showing
-        
+        // Display hard copy submission date if available
+        displayHardCopySubmissionInfo(currentApplication);
+
         if (currentApplication.google_drive_link) {
             document.getElementById('document-status').textContent = 'Available';
             document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
@@ -1676,7 +1728,11 @@
             if (hardcopyMessage) hardcopyMessage.textContent = 'Hard copies received by OBO';
             if (hardcopySidebar) hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg transition-all duration-500';
         } else {
-            if (hardcopyNotice) hardcopyNotice.classList.remove('hidden');
+            // Don't hide if we have a specific submission date
+            const hasSubmissionDate = currentApplication?.hardcopy_submission_date;
+            if (!hasSubmissionDate) {
+                if (hardcopyNotice) hardcopyNotice.classList.remove('hidden');
+            }
             if (hardcopyReceivedNotice) hardcopyReceivedNotice.classList.add('hidden');
             if (hardcopyBadge) {
                 hardcopyBadge.textContent = 'Pending';
@@ -1698,6 +1754,17 @@
         summary += `Application Number: ${currentApplication.application_number || 'N/A'}\n`;
         summary += `Status: ${formatStatusDisplay(currentApplication.status)}\n`;
         summary += `Submitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
+        
+        if (currentApplication.hardcopy_submission_date) {
+            summary += `HARD COPY SUBMISSION SCHEDULE\n`;
+            summary += `=============================\n`;
+            summary += `Submission Date: ${currentApplication.hardcopy_submission_date}\n`;
+            if (currentApplication.hardcopy_instructions) {
+                summary += `Instructions: ${currentApplication.hardcopy_instructions}\n`;
+            }
+            summary += `\n`;
+        }
+        
         summary += `PROJECT INFORMATION\n`;
         summary += `------------------\n`;
         summary += `Title: ${currentApplication.project_title || 'N/A'}\n`;

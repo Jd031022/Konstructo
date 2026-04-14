@@ -445,25 +445,36 @@
                                 </div>
                             </div>
 
+                            <!-- Status Options - Restricted based on position -->
                             <div class="space-y-2">
                                 @php
                                     $statusOptions = [
-                                        'under-review' => ['Under Review', 'purple'],
-                                        'document-verification' => ['Document Verification', 'purple'],
-                                        'for-assessment' => ['For Assessment', 'indigo'],
-                                        'approved' => ['Approved', 'green'],
-                                        'rejected' => ['Rejected', 'red'],
-                                        'for-release' => ['For Release', 'blue'],
-                                        'verified' => ['Completed', 'emerald']
+                                        'under-review' => ['Under Review', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                                        'document-verification' => ['Document Verification', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                                        'for-assessment' => ['For Assessment', 'indigo', ['engineer']],
+                                        'approved' => ['Approved', 'green', ['engineer']],
+                                        'rejected' => ['Rejected', 'red', ['engineer']],
+                                        'for-release' => ['For Release', 'blue', ['engineer']],
+                                        'verified' => ['Completed', 'emerald', ['engineer']]
                                     ];
                                 @endphp
                                 
-                                @foreach($statusOptions as $value => [$label, $color])
-                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
+                                @foreach($statusOptions as $value => [$label, $color, $allowedPositions])
+                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 status-option status-option-{{ $value }}" data-allowed-positions='@json($allowedPositions)'>
                                     <input type="radio" name="status" value="{{ $value }}" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
                                     <span class="ml-3 text-sm font-medium text-{{ $color }}-600">{{ $label }}</span>
+                                    <span class="ml-auto text-xs text-gray-400 status-restricted-badge hidden">(Restricted)</span>
                                 </label>
                                 @endforeach
+                            </div>
+
+                            <div id="status-restriction-notice" class="hidden p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-700">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <span>Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.</span>
+                                </div>
                             </div>
 
                             <div>
@@ -471,7 +482,7 @@
                                 <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
                             </div>
 
-                            <button onclick="updateStatus()" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
+                            <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
                         </div>
                     </div>
 
@@ -585,6 +596,60 @@
     </div>
 </div>
 
+<!-- Hard Copy Submission Date Modal -->
+<div id="hardcopy-date-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Set Hard Copy Submission Date</h3>
+                </div>
+                <button onclick="closeHardCopyDateModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-blue-50 rounded-lg p-3 mb-2">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm text-blue-800">Please set the date when the applicant can submit their hard copies to the Engineering Office.</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Submission Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="hardcopy-submission-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" min="{{ date('Y-m-d') }}">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Time (Optional)</label>
+                    <input type="time" id="hardcopy-submission-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Additional Instructions (Optional)</label>
+                    <textarea id="hardcopy-instructions" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="e.g., Bring valid ID, pay the assessment fee, etc."></textarea>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeHardCopyDateModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Cancel</button>
+                <button onclick="confirmApprovalWithDate()" id="confirm-approval-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">Confirm Approval & Send Notification</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Missing Documents Dropdown -->
 <div id="missing-documents-dropdown" class="hidden fixed left-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div class="p-4">
@@ -608,8 +673,9 @@
     let documentVerificationStatus = {};
     let currentAssessment = null;
     let currentUserPosition = null;
-    let dynamicFees = []; // Array to store dynamic fee objects {description, amount}
+    let dynamicFees = [];
     let feeRowCounter = 0;
+    let pendingApprovalStatus = null;
 
     const documentsList = [
         { key: 'app_letter_link', name: 'Application for Building Permit', category: 'Application Forms' },
@@ -626,6 +692,17 @@
         { key: 'barangay_clearance_link', name: 'Barangay Clearance', category: 'Supporting' },
         { key: 'valid_id_link', name: 'Valid ID', category: 'Supporting' }
     ];
+
+    // Status options with allowed positions
+    const statusPermissions = {
+        'under-review': { allowed: ['engineer', 'architect', 'cpdo', 'administrative_aide'], label: 'Under Review' },
+        'document-verification': { allowed: ['engineer', 'architect', 'cpdo', 'administrative_aide'], label: 'Document Verification' },
+        'for-assessment': { allowed: ['engineer'], label: 'For Assessment' },
+        'approved': { allowed: ['engineer'], label: 'Approved' },
+        'rejected': { allowed: ['engineer'], label: 'Rejected' },
+        'for-release': { allowed: ['engineer'], label: 'For Release' },
+        'verified': { allowed: ['engineer'], label: 'Completed' }
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
         fetchCurrentUserPosition();
@@ -650,6 +727,119 @@
         document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
     });
     
+    async function fetchCurrentUserPosition() {
+        try {
+            let position = null;
+            
+            try {
+                const response = await fetch('/staff/position/check', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.position) {
+                    position = data.position;
+                }
+            } catch(e) { console.log('Position check endpoint failed'); }
+            
+            if (!position) {
+                try {
+                    const response = await fetch('/staff/position/get', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success && data.position) {
+                        position = data.position;
+                    }
+                } catch(e) { console.log('Position get endpoint failed'); }
+            }
+            
+            if (!position) {
+                try {
+                    const response = await fetch('/api/user/position', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.position) {
+                        position = data.position;
+                    }
+                } catch(e) { console.log('API user position failed'); }
+            }
+            
+            currentUserPosition = position || '';
+            console.log('Current user position:', currentUserPosition);
+            
+            applyStatusRestrictions();
+            
+            if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+                document.getElementById('bfp-section').classList.remove('hidden');
+            }
+            
+        } catch (error) {
+            console.error('Error fetching user position:', error);
+            currentUserPosition = '';
+        }
+    }
+    
+    function applyStatusRestrictions() {
+        const isEngineer = currentUserPosition === 'engineer';
+        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
+        
+        const statusRadios = document.querySelectorAll('.status-radio');
+        
+        statusRadios.forEach(radio => {
+            const statusValue = radio.value;
+            const parentLabel = radio.closest('.status-option');
+            const restrictedBadge = parentLabel?.querySelector('.status-restricted-badge');
+            
+            if (restrictedStatuses.includes(statusValue)) {
+                if (!isEngineer) {
+                    radio.disabled = true;
+                    if (parentLabel) {
+                        parentLabel.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-50');
+                        parentLabel.style.cursor = 'not-allowed';
+                    }
+                    if (restrictedBadge) {
+                        restrictedBadge.classList.remove('hidden');
+                    }
+                } else {
+                    radio.disabled = false;
+                    if (parentLabel) {
+                        parentLabel.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-50');
+                        parentLabel.style.cursor = 'pointer';
+                    }
+                    if (restrictedBadge) {
+                        restrictedBadge.classList.add('hidden');
+                    }
+                }
+            }
+        });
+        
+        const restrictionNotice = document.getElementById('status-restriction-notice');
+        if (restrictionNotice) {
+            if (!isEngineer) {
+                restrictionNotice.classList.remove('hidden');
+            } else {
+                restrictionNotice.classList.add('hidden');
+            }
+        }
+        
+        const updateBtn = document.getElementById('update-status-btn');
+        if (updateBtn && !isEngineer) {
+            updateBtn.title = 'Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed';
+        }
+    }
+    
+    function checkStatusPermission(statusValue) {
+        const isEngineer = currentUserPosition === 'engineer';
+        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
+        
+        if (restrictedStatuses.includes(statusValue) && !isEngineer) {
+            alert('Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
+            return false;
+        }
+        return true;
+    }
+
     // Dynamic Fee Functions
     function addDynamicFee(description = '', amount = 0) {
         const container = document.getElementById('dynamic-fees-container');
@@ -668,11 +858,8 @@
         `;
         
         container.insertAdjacentHTML('beforeend', rowHtml);
-        
-        // Store reference in dynamicFees array
         dynamicFees.push({ id: rowId, description: description, amount: amount });
         feeRowCounter++;
-        
         calculateTotal();
     }
     
@@ -680,17 +867,14 @@
         const row = document.getElementById(rowId);
         if (row) {
             row.remove();
-            // Remove from dynamicFees array
             dynamicFees = dynamicFees.filter(fee => fee.id !== rowId);
             calculateTotal();
         }
     }
     
     function updateDynamicFeesArray() {
-        // Update the dynamicFees array with current values from DOM
         const rows = document.querySelectorAll('#dynamic-fees-container > div');
         dynamicFees = [];
-        
         rows.forEach(row => {
             const descInput = row.querySelector('.dynamic-fee-desc');
             const amountInput = row.querySelector('.dynamic-fee-amount');
@@ -713,7 +897,6 @@
     }
     
     function loadDynamicFeesFromData(feesData) {
-        // Clear existing dynamic fees
         const container = document.getElementById('dynamic-fees-container');
         container.innerHTML = '';
         dynamicFees = [];
@@ -734,45 +917,6 @@
             if (m === '>') return '&gt;';
             return m;
         });
-    }
-    
-    async function fetchCurrentUserPosition() {
-        try {
-            const response = await fetch('/staff/position/check');
-            const data = await response.json();
-            console.log('Position check response:', data);
-            
-            if (data.position) {
-                currentUserPosition = data.position;
-            } else if (data.needs_position === false) {
-                const userResponse = await fetch('/api/user/position');
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    currentUserPosition = userData.position;
-                }
-            }
-            
-            if (!currentUserPosition) {
-                const profileResponse = await fetch('/profile/avatar-info');
-                if (profileResponse.ok) {
-                    const profileData = await profileResponse.json();
-                    if (profileData.user && profileData.user.position) {
-                        currentUserPosition = profileData.user.position;
-                    }
-                }
-            }
-            
-            console.log('Current user position:', currentUserPosition);
-            
-            if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
-                document.getElementById('bfp-section').classList.remove('hidden');
-                console.log('BFP section shown');
-            } else {
-                console.log('BFP section hidden. Position:', currentUserPosition);
-            }
-        } catch (error) {
-            console.error('Error fetching user position:', error);
-        }
     }
 
     async function loadBFPData() {
@@ -932,7 +1076,6 @@
 
     function openAssessmentModal() {
         if (currentAssessment) {
-            // Load standard fees
             document.getElementById('line-grade').value = currentAssessment.line_grade || '';
             document.getElementById('building-fee').value = currentAssessment.building_fee || '';
             document.getElementById('sanitary-fee').value = currentAssessment.sanitary_fee || '';
@@ -941,7 +1084,6 @@
             document.getElementById('penalties-fines').value = currentAssessment.penalties_fines || '';
             document.getElementById('assessment-notes').value = currentAssessment.assessment_notes || '';
             
-            // Load dynamic fees if they exist (stored as JSON in a separate field or as part of assessment)
             if (currentAssessment.additional_fees) {
                 try {
                     const fees = typeof currentAssessment.additional_fees === 'string' 
@@ -989,7 +1131,6 @@
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
         
-        // Update dynamicFees array before saving
         updateDynamicFeesArray();
         
         const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
@@ -1002,7 +1143,6 @@
         const dynamicTotal = getDynamicFeesTotal();
         const total = standardTotal + dynamicTotal;
         
-        // Prepare additional fees data
         const additionalFees = dynamicFees.map(fee => ({
             description: fee.description,
             amount: fee.amount
@@ -1273,31 +1413,110 @@
         document.getElementById('hardcopy-checkbox').checked = received;
     }
 
+    // Updated updateStatus function with approval date modal
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
         if (!selected) { alert('Please select a status'); return; }
+        
+        // Check permission before proceeding
+        if (!checkStatusPermission(selected.value)) {
+            return;
+        }
+        
+        // If status is 'approved', show date picker modal first
+        if (selected.value === 'approved') {
+            pendingApprovalStatus = selected.value;
+            openHardCopyDateModal();
+            return;
+        }
         
         if (selected.value === 'for-assessment') { 
             openAssessmentModal(); 
             return; 
         }
         
-        const btn = event.target;
+        await processStatusUpdate(selected.value);
+    }
+    
+    function openHardCopyDateModal() {
+        // Clear previous values
+        document.getElementById('hardcopy-submission-date').value = '';
+        document.getElementById('hardcopy-submission-time').value = '';
+        document.getElementById('hardcopy-instructions').value = '';
+        
+        // Set minimum date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('hardcopy-submission-date').min = tomorrow.toISOString().split('T')[0];
+        
+        document.getElementById('hardcopy-date-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeHardCopyDateModal() {
+        document.getElementById('hardcopy-date-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        pendingApprovalStatus = null;
+    }
+    
+    async function confirmApprovalWithDate() {
+        const submissionDate = document.getElementById('hardcopy-submission-date').value;
+        if (!submissionDate) {
+            alert('Please select a submission date.');
+            return;
+        }
+        
+        const submissionTime = document.getElementById('hardcopy-submission-time').value;
+        const instructions = document.getElementById('hardcopy-instructions').value;
+        
+        // Format the datetime
+        let submissionDateTime = submissionDate;
+        if (submissionTime) {
+            submissionDateTime = `${submissionDate} ${submissionTime}`;
+        }
+        
+        closeHardCopyDateModal();
+        
+        // Process the status update with the date
+        await processStatusUpdate('approved', {
+            hardcopy_submission_date: submissionDateTime,
+            hardcopy_instructions: instructions
+        });
+    }
+    
+    async function processStatusUpdate(status, additionalData = {}) {
+        const btn = document.getElementById('update-status-btn');
         const original = btn.innerHTML;
         btn.innerHTML = 'Updating...';
         btn.disabled = true;
+        
         try {
+            const payload = {
+                status: status,
+                remarks: document.getElementById('status-remarks').value,
+                hardcopy_received: document.getElementById('hardcopy-checkbox').checked,
+                ...additionalData
+            };
+            
             const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ status: selected.value, remarks: document.getElementById('status-remarks').value, hardcopy_received: document.getElementById('hardcopy-checkbox').checked })
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify(payload)
             });
             const data = await response.json();
             if (data.success) {
                 alert('Status updated successfully');
                 location.reload();
-            } else alert(data.message || 'Failed to update status');
-        } catch(error) { alert('Error updating status'); }
-        finally { btn.innerHTML = original; btn.disabled = false; }
+            } else {
+                alert(data.message || 'Failed to update status');
+            }
+        } catch(error) {
+            console.error('Error:', error);
+            alert('Error updating status');
+        } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
+        }
     }
 
     function displayReviewActivities(activities) {
@@ -1383,8 +1602,16 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; }
     @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
-    #assessment-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
+    #assessment-modal .bg-white, #hardcopy-date-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .hidden { display: none; }
+    .status-option.disabled, .status-radio:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    .status-restricted-badge {
+        font-size: 10px;
+        color: #9ca3af;
+    }
 </style>
 @endsection
