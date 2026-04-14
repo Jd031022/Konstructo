@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ApplicationDocument;
 use App\Models\User;
 use App\Models\ApplicationReviewActivity;
-use App\Models\BasicRequirement;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +22,7 @@ class ApplicationDocumentController extends Controller
     }
 
     /**
-     * Create a draft application (called from Step 1 when starting a new application)
+     * Create a draft application
      */
     public function createDraft(Request $request)
     {
@@ -406,21 +405,14 @@ class ApplicationDocumentController extends Controller
     /**
      * Generate a unique application number
      * Format: YY + ZIPCODE + SEQUENCE (10 digits total)
-     * - YY: 2-digit year (e.g., 25 for 2025)
-     * - ZIPCODE: 4-digit zipcode from user's profile
-     * - SEQUENCE: 4-digit sequence (0001, 0002, etc.)
      */
     private function generateApplicationNumber($user)
     {
-        $year = date('y'); // 2-digit year (e.g., 25 for 2025)
+        $year = date('y');
         $zipcode = $user->zip_code ?? '0000';
-        
-        // Ensure zipcode is exactly 4 digits
         $zipcode = str_pad(substr($zipcode, 0, 4), 4, '0', STR_PAD_LEFT);
-        
         $prefix = $year . $zipcode;
         
-        // Find the latest sequence for this year and zipcode
         $lastApplication = ApplicationDocument::where('application_number', 'LIKE', $prefix . '%')
             ->whereNotNull('application_number')
             ->orderBy('id', 'desc')
@@ -434,11 +426,9 @@ class ApplicationDocumentController extends Controller
             $sequence = $lastSequence + 1;
         }
         
-        // Format as 4-digit with leading zeros
         $sequenceFormatted = str_pad($sequence, 4, '0', STR_PAD_LEFT);
         $applicationNumber = $prefix . $sequenceFormatted;
         
-        // Ensure uniqueness (just in case)
         while (ApplicationDocument::where('application_number', $applicationNumber)->exists()) {
             $sequence++;
             $sequenceFormatted = str_pad($sequence, 4, '0', STR_PAD_LEFT);
@@ -481,7 +471,7 @@ class ApplicationDocumentController extends Controller
             $documentLinks = $application->document_links;
             $hasDocuments = $documentLinks && is_array($documentLinks) && count($documentLinks) > 0;
             
-            // Also check if the older google_drive_link is provided (for backward compatibility)
+            // Also check if the older google_drive_link is provided
             $hasGoogleDriveLink = !empty($application->google_drive_link);
             
             if (!$hasDocuments && !$hasGoogleDriveLink) {
@@ -491,18 +481,7 @@ class ApplicationDocumentController extends Controller
                 ], 403);
             }
             
-            // Check if basic requirements are approved
-            $basicRequirement = BasicRequirement::where('application_id', $application->id)
-                ->where('status', 'approved')
-                ->first();
-            
-            if (!$basicRequirement) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Basic requirements must be approved before submitting your application.'
-                ], 403);
-            }
-            
+            // Check application limit before submitting
             if ($this->hasReachedApplicationLimit($user)) {
                 return response()->json([
                     'success' => false,
@@ -516,6 +495,7 @@ class ApplicationDocumentController extends Controller
             
             $application->application_number = $applicationNumber;
             $application->status = 'pending';
+            $application->submitted_at = now();
             $application->save();
 
             Log::info('Application submitted and number generated', [

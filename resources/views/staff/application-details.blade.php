@@ -356,6 +356,22 @@
                             <p class="text-xs text-gray-400">Engineer's License Number</p>
                             <p id="engineer-license" class="text-sm font-medium text-gray-800">Not provided</p>
                         </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Electrical Engineer's Name</p>
+                            <p id="electrical-engineer-name" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Electrical Engineer's License</p>
+                            <p id="electrical-engineer-license" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Sanitary Engineer's Name</p>
+                            <p id="sanitary-engineer-name" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Sanitary Engineer's License</p>
+                            <p id="sanitary-engineer-license" class="text-sm font-medium text-gray-800">Not provided</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1233,6 +1249,10 @@
         document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
         document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
         document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
+        document.getElementById('electrical-engineer-name').textContent = app.electrical_engineer_name || 'Not provided';
+        document.getElementById('electrical-engineer-license').textContent = app.electrical_engineer_license || 'Not provided';
+        document.getElementById('sanitary-engineer-name').textContent = app.sanitary_engineer_name || 'Not provided';
+        document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
     }
 
     function calculateEstimatedTime() {
@@ -1413,17 +1433,14 @@
         document.getElementById('hardcopy-checkbox').checked = received;
     }
 
-    // Updated updateStatus function with approval date modal
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
         if (!selected) { alert('Please select a status'); return; }
         
-        // Check permission before proceeding
         if (!checkStatusPermission(selected.value)) {
             return;
         }
         
-        // If status is 'approved', show date picker modal first
         if (selected.value === 'approved') {
             pendingApprovalStatus = selected.value;
             openHardCopyDateModal();
@@ -1439,12 +1456,10 @@
     }
     
     function openHardCopyDateModal() {
-        // Clear previous values
         document.getElementById('hardcopy-submission-date').value = '';
         document.getElementById('hardcopy-submission-time').value = '';
         document.getElementById('hardcopy-instructions').value = '';
         
-        // Set minimum date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         document.getElementById('hardcopy-submission-date').min = tomorrow.toISOString().split('T')[0];
@@ -1469,7 +1484,6 @@
         const submissionTime = document.getElementById('hardcopy-submission-time').value;
         const instructions = document.getElementById('hardcopy-instructions').value;
         
-        // Format the datetime
         let submissionDateTime = submissionDate;
         if (submissionTime) {
             submissionDateTime = `${submissionDate} ${submissionTime}`;
@@ -1477,7 +1491,6 @@
         
         closeHardCopyDateModal();
         
-        // Process the status update with the date
         await processStatusUpdate('approved', {
             hardcopy_submission_date: submissionDateTime,
             hardcopy_instructions: instructions

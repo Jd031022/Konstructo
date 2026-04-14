@@ -15,10 +15,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Applicant\ApplicationController;
-use App\Http\Controllers\Applicant\BasicRequirementController;
-use App\Http\Controllers\ApplicationDocumentController;
 use App\Models\ApplicationDocument;
-use App\Models\BasicRequirement;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -74,22 +71,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::post('/applications/{id}/upload-fsec', [App\Http\Controllers\Staff\ApplicationController::class, 'uploadFSEC']);
     Route::delete('/applications/{id}/delete-fsec', [App\Http\Controllers\Staff\ApplicationController::class, 'deleteFSEC']);
     Route::post('/applications/{id}/bfp-comments', [App\Http\Controllers\Staff\ApplicationController::class, 'saveBFPComments']);
-    
-    // ========== BASIC REQUIREMENTS REVIEW ROUTES ==========
-    Route::get('/basic-requirements', [App\Http\Controllers\Staff\BasicRequirementController::class, 'index'])
-        ->name('basic-requirements.index');
-    Route::get('/basic-requirements/export', [App\Http\Controllers\Staff\BasicRequirementController::class, 'export'])
-        ->name('basic-requirements.export');
-    Route::get('/basic-requirements/stats', [App\Http\Controllers\Staff\BasicRequirementController::class, 'getStats'])
-        ->name('basic-requirements.stats');
-    Route::get('/basic-requirements/{id}', [App\Http\Controllers\Staff\BasicRequirementController::class, 'show'])
-        ->name('basic-requirements.show');
-    Route::post('/basic-requirements/{id}/update-check', [App\Http\Controllers\Staff\BasicRequirementController::class, 'updateCheck'])
-        ->name('basic-requirements.update-check');
-    Route::post('/basic-requirements/{id}/approve', [App\Http\Controllers\Staff\BasicRequirementController::class, 'approve'])
-        ->name('basic-requirements.approve');
-    Route::post('/basic-requirements/{id}/reject', [App\Http\Controllers\Staff\BasicRequirementController::class, 'reject'])
-        ->name('basic-requirements.reject');
     
     // View routes (return HTML)
     Route::get('/dashboard', function () {
@@ -182,18 +163,6 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
 
 // Applicant UI Routes
 Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(function () {
-    // ========== BASIC REQUIREMENTS ROUTES ==========
-    Route::get('/basic-requirements', [BasicRequirementController::class, 'index'])
-        ->name('basic-requirements.index');
-    Route::post('/basic-requirements', [BasicRequirementController::class, 'store'])
-        ->name('basic-requirements.store');
-    Route::get('/basic-requirements/status', [BasicRequirementController::class, 'checkStatus'])
-        ->name('basic-requirements.status');
-    Route::get('/basic-requirements/can-proceed', [BasicRequirementController::class, 'canProceed'])
-        ->name('basic-requirements.can-proceed');
-    Route::get('/basic-requirements/{applicationId}/details', [BasicRequirementController::class, 'getDetails'])
-        ->name('basic-requirements.details');
-    
     // View routes
     Route::get('/applications', function () {
         return view('applicant.applications');
@@ -235,15 +204,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
         return view('applicant.application.step1', compact('application'));
     })->name('application.step1');
 
@@ -274,15 +234,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         if (!$application->step1_completed) {
             return redirect()->route('applicant.application.step1', ['id' => $applicationId])
                 ->with('error', 'Please complete Step 1 (Project Information) first.');
-        }
-        
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
         }
         
         return view('applicant.application.step2', compact('application'));
@@ -317,15 +268,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Please complete Step 2 (Download Forms) first.');
         }
         
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
         return view('applicant.application.step3', compact('application'));
     })->name('application.step3');
     
@@ -358,38 +300,32 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Please complete Step 3 (Upload Documents) first.');
         }
         
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
         return view('applicant.application.step4', compact('application'));
     })->name('application.step4');
     
     // Application Document API Routes
-    Route::post('/application/store-link', [ApplicationDocumentController::class, 'storeLink'])
+    Route::post('/application/store-link', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLink'])
         ->name('application.store-link');
     
-    Route::get('/application/status', [ApplicationDocumentController::class, 'checkStatus'])
+    Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])
+        ->name('application.store-links');
+    
+    Route::get('/application/status', [App\Http\Controllers\ApplicationDocumentController::class, 'checkStatus'])
         ->name('application.status');
 
     Route::get('/application/limit-info', [ApplicationController::class, 'getLimitInfo'])
         ->name('application.limit-info');
     
-    Route::get('/application/details', [ApplicationDocumentController::class, 'getApplicationDetails'])
+    Route::get('/application/details', [App\Http\Controllers\ApplicationDocumentController::class, 'getApplicationDetails'])
         ->name('application.details');
     
-    Route::get('/application/debug', [ApplicationDocumentController::class, 'debug'])
+    Route::get('/application/debug', [App\Http\Controllers\ApplicationDocumentController::class, 'debug'])
         ->name('application.debug');
     
     Route::post('/application/create-draft', [ApplicationController::class, 'createDraft'])
         ->name('application.create-draft');
     
-    Route::post('/application/submit', [ApplicationDocumentController::class, 'submitApplication'])
+    Route::post('/application/submit', [App\Http\Controllers\ApplicationDocumentController::class, 'submitApplication'])
         ->name('application.submit');
     
     // Generate number route
@@ -509,9 +445,6 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         return redirect()->route('dashboard');
     })->name('account-status');
-
-    Route::post('/application/store-links', [ApplicationDocumentController::class, 'storeLinks'])
-        ->name('application.store-links');
 });
 
 // Admin routes

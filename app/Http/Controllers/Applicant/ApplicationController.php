@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Applicant;
 use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\ApplicationReviewActivity;
-use App\Models\BasicRequirement;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -48,18 +47,14 @@ class ApplicationController extends Controller
                 ], 500);
             }
 
-            $applications = ApplicationDocument::with('basicRequirement')
-                ->where('user_id', $user->id)
+            $applications = ApplicationDocument::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
             
             $formattedApplications = [];
             foreach ($applications as $app) {
                 try {
-                    $basicRequirementStatus = $app->basicRequirement ? $app->basicRequirement->status : 'not_submitted';
-                    $basicRequirementRejectionReason = $app->basicRequirement ? $app->basicRequirement->rejection_reason : null;
-                    
-                    // Get project title - check direct column first, then data JSON
+                    // Get project title
                     $projectTitle = $app->project_title ?? null;
                     if (!$projectTitle && $app->data && is_array($app->data)) {
                         $projectTitle = $app->data['project_title'] ?? null;
@@ -83,9 +78,6 @@ class ApplicationController extends Controller
                         'last_updated_by' => $app->last_updated_by,
                         'project_title' => $projectTitle ?? 'Untitled Project',
                         'progress' => $this->calculateProgress($app->status),
-                        'basic_requirements_status' => $basicRequirementStatus,
-                        'basic_requirements_rejection_reason' => $basicRequirementRejectionReason,
-                        // Professional fields (optional for index, but good to have)
                         'architect_name' => $app->architect_name ?? null,
                         'engineer_name' => $app->engineer_name ?? null,
                         'electrical_engineer_name' => $app->electrical_engineer_name ?? null,
@@ -199,8 +191,7 @@ class ApplicationController extends Controller
                 ], 401);
             }
             
-            $application = ApplicationDocument::with('basicRequirement')
-                ->where('user_id', $user->id)
+            $application = ApplicationDocument::where('user_id', $user->id)
                 ->where('id', $id)
                 ->first();
 
@@ -210,9 +201,6 @@ class ApplicationController extends Controller
                     'message' => 'Application not found'
                 ], 404);
             }
-
-            $basicRequirement = $application->basicRequirement;
-            $basicRequirementsStatus = $basicRequirement ? $basicRequirement->status : 'not_submitted';
 
             $lastUpdatedBy = null;
             if ($application->last_updated_by) {
@@ -240,7 +228,6 @@ class ApplicationController extends Controller
                     'progress' => $this->calculateProgress($application->status),
                     'last_updated_by' => $application->last_updated_by,
                     'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
-                    'basic_requirements_status' => $basicRequirementsStatus,
                     // Project information from direct columns
                     'project_title' => $application->project_title ?? null,
                     'project_location' => $application->project_location ?? null,
@@ -254,7 +241,7 @@ class ApplicationController extends Controller
                     'owner_address' => $application->owner_address ?? null,
                     'contact_number' => $application->contact_number ?? null,
                     'owner_email' => $application->owner_email ?? null,
-                    // Professional Information - ALL 4 professionals
+                    // Professional Information
                     'architect_name' => $application->architect_name ?? null,
                     'architect_license' => $application->architect_license ?? null,
                     'engineer_name' => $application->engineer_name ?? null,
@@ -330,11 +317,6 @@ class ApplicationController extends Controller
                     'success' => false,
                     'message' => 'Draft application not found'
                 ], 404);
-            }
-
-            $basicRequirement = BasicRequirement::where('application_id', $application->id)->first();
-            if ($basicRequirement) {
-                $basicRequirement->delete();
             }
 
             $application->delete();
@@ -670,10 +652,7 @@ class ApplicationController extends Controller
                 return response()->json(['error' => 'PDF template not found'], 404);
             }
 
-            $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
-            $pdf->SetCreator('Konstructo');
-            $pdf->SetAuthor('Konstructo BPO');
-            $pdf->SetTitle('Application Letter - ' . $applicationNumber);
+            $pdf = new Fpdi();
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
             $pdf->SetMargins(0, 0, 0);
@@ -683,8 +662,8 @@ class ApplicationController extends Controller
             $templateId = $pdf->importPage(1);
             $size       = $pdf->getTemplateSize($templateId);
 
-            $pdfW = $size['width'];   // in mm (TCPDF always works in mm)
-            $pdfH = $size['height'];  // in mm
+            $pdfW = $size['width'];
+            $pdfH = $size['height'];
 
             $pdf->AddPage('P', [$pdfW, $pdfH]);
             $pdf->useTemplate($templateId, 0, 0, $pdfW, $pdfH);
@@ -698,13 +677,12 @@ class ApplicationController extends Controller
 
                 // Screen px → PDF pt (screen is 96dpi, PDF is 72dpi)
                 $fontSizePx = (int)($text['fontSize'] ?? 12);
-                $fontSizePt = $fontSizePx * 0.75;   // px → pt
+                $fontSizePt = $fontSizePx * 0.75;
 
                 $pdf->SetFont('helvetica', '', $fontSizePt);
 
                 // Colour
                 $color = $text['color'] ?? '#000000';
-                // Accept named colours
                 $namedColors = ['black'=>'#000000','blue'=>'#0000FF','red'=>'#FF0000'];
                 if (isset($namedColors[$color])) $color = $namedColors[$color];
                 $hex = ltrim($color, '#');
@@ -745,8 +723,199 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Show step 1 - only if basic requirements are approved
+     * Save project information from Step 1
      */
+    public function saveProjectInfo(Request $request)
+    {
+        Log::info('saveProjectInfo called', $request->all());
+        
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id',
+            'project_title' => 'required|string|max:255',
+            'project_location' => 'required|string',
+            'project_type' => 'required|string',
+            'lot_area' => 'required|numeric|min:0',
+            'floor_area' => 'required|numeric|min:0',
+            'num_floors' => 'required|integer|min:1',
+            'estimated_cost' => 'required|numeric|min:0',
+            'project_description' => 'required|string',
+            'owner_name' => 'required|string',
+            'owner_address' => 'required|string',
+            'contact_number' => 'required|string',
+            'owner_email' => 'required|email',
+            'architect_name' => 'required|string',
+            'architect_license' => 'required|string',
+            'engineer_name' => 'required|string',
+            'engineer_license' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', $validator->errors()->toArray());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            Log::info('Updating application', ['id' => $application->id]);
+            
+            $application->update([
+                // Project Information
+                'project_title' => $request->project_title,
+                'project_location' => $request->project_location,
+                'project_type' => $request->project_type,
+                'lot_area' => $request->lot_area,
+                'floor_area' => $request->floor_area,
+                'num_floors' => $request->num_floors,
+                'estimated_cost' => $request->estimated_cost,
+                'project_description' => $request->project_description,
+                
+                // Owner Information
+                'owner_name' => $request->owner_name,
+                'owner_address' => $request->owner_address,
+                'contact_number' => $request->contact_number,
+                'owner_email' => $request->owner_email,
+                
+                // Professional Information
+                'architect_name' => $request->architect_name,
+                'architect_license' => $request->architect_license,
+                'engineer_name' => $request->engineer_name,
+                'engineer_license' => $request->engineer_license,
+                'electrical_engineer_name' => $request->electrical_engineer_name,
+                'electrical_engineer_license' => $request->electrical_engineer_license,
+                'sanitary_engineer_name' => $request->sanitary_engineer_name,
+                'sanitary_engineer_license' => $request->sanitary_engineer_license,
+                
+                // Step completion
+                'step1_completed' => true,
+                'step1_completed_at' => now(),
+            ]);
+            
+            $updated = $application->fresh();
+            Log::info('After update', [
+                'project_title' => $updated->project_title,
+                'engineer_name' => $updated->engineer_name,
+                'engineer_license' => $updated->engineer_license,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Project information saved successfully',
+                'data' => $application
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saving project info: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save project information: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Complete Step 2 (Download Forms)
+     */
+    public function completeStep2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $application->update([
+                'step2_completed' => true,
+                'step2_completed_at' => now()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Step 2 completed successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error completing step 2: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to complete step 2: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Complete Step 3 (Upload Documents)
+     */
+    public function completeStep3(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $application->update([
+                'step3_completed' => true,
+                'step3_completed_at' => now()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Step 3 completed successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error completing step 3: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to complete step 3: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function step1(Request $request)
     {
         $user = Auth::user();
@@ -758,30 +927,17 @@ class ApplicationController extends Controller
                 ->first();
                 
             if (!$application) {
-                return redirect()->route('applicant.basic-requirements.index')
+                return redirect()->route('applicant.applications')
                     ->with('error', 'Application not found.');
             }
             
-            $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-                ->where('status', 'approved')
-                ->first();
-                
-            if (!$basicRequirement) {
-                return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                    ->with('error', 'Please complete and get approval for your basic requirements first.');
-            }
-            
             return view('applicant.application.step1', compact('application'));
-            
         } else {
-            return redirect()->route('applicant.basic-requirements.index')
-                ->with('error', 'Please complete your basic requirements first.');
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
         }
     }
 
-    /**
-     * Show step 2
-     */
     public function step2(Request $request)
     {
         $user = Auth::user();
@@ -801,21 +957,9 @@ class ApplicationController extends Controller
                 ->with('error', 'Application not found.');
         }
         
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
-        }
-        
         return view('applicant.application.step2', compact('application'));
     }
 
-    /**
-     * Show step 3
-     */
     public function step3(Request $request)
     {
         $user = Auth::user();
@@ -835,16 +979,29 @@ class ApplicationController extends Controller
                 ->with('error', 'Application not found.');
         }
         
-        $basicRequirement = BasicRequirement::where('application_id', $applicationId)
-            ->where('status', 'approved')
-            ->first();
-            
-        if (!$basicRequirement) {
-            return redirect()->route('applicant.basic-requirements.index', ['application_id' => $applicationId])
-                ->with('error', 'Please submit and get approval for basic requirements before proceeding.');
+        return view('applicant.application.step3', compact('application'));
+    }
+
+    public function step4(Request $request)
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
         }
         
-        return view('applicant.application.step3', compact('application'));
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        return view('applicant.application.step4', compact('application'));
     }
 
     /**
@@ -962,201 +1119,5 @@ class ApplicationController extends Controller
             'application_submitted' => 'Application Submitted',
             default => ucfirst(str_replace('_', ' ', $action))
         };
-    }
-
-    /**
-     * Save project information from Step 1
-     */
-    public function saveProjectInfo(Request $request)
-    {
-        Log::info('saveProjectInfo called', $request->all());
-        
-        $validator = Validator::make($request->all(), [
-            'application_id' => 'required|exists:application_documents,id',
-            'project_title' => 'required|string|max:255',
-            'project_location' => 'required|string',
-            'project_type' => 'required|string',
-            'lot_area' => 'required|numeric|min:0',
-            'floor_area' => 'required|numeric|min:0',
-            'num_floors' => 'required|integer|min:1',
-            'estimated_cost' => 'required|numeric|min:0',
-            'project_description' => 'required|string',
-            'owner_name' => 'required|string',
-            'owner_address' => 'required|string',
-            'contact_number' => 'required|string',
-            'owner_email' => 'required|email',
-            'architect_name' => 'required|string',
-            'architect_license' => 'required|string',
-            'engineer_name' => 'required|string',
-            'engineer_license' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            Log::error('Validation failed', $validator->errors()->toArray());
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $application = ApplicationDocument::findOrFail($request->application_id);
-            
-            if ($application->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-            
-            // Log before update
-            Log::info('Updating application', ['id' => $application->id]);
-            
-            $application->update([
-                // Project Information
-                'project_title' => $request->project_title,
-                'project_location' => $request->project_location,
-                'project_type' => $request->project_type,
-                'lot_area' => $request->lot_area,
-                'floor_area' => $request->floor_area,
-                'num_floors' => $request->num_floors,
-                'estimated_cost' => $request->estimated_cost,
-                'project_description' => $request->project_description,
-                
-                // Owner Information
-                'owner_name' => $request->owner_name,
-                'owner_address' => $request->owner_address,
-                'contact_number' => $request->contact_number,
-                'owner_email' => $request->owner_email,
-                
-                // Professional Information
-                'architect_name' => $request->architect_name,
-                'architect_license' => $request->architect_license,
-                'engineer_name' => $request->engineer_name,
-                'engineer_license' => $request->engineer_license,
-                'electrical_engineer_name' => $request->electrical_engineer_name,
-                'electrical_engineer_license' => $request->electrical_engineer_license,
-                'sanitary_engineer_name' => $request->sanitary_engineer_name,
-                'sanitary_engineer_license' => $request->sanitary_engineer_license,
-                
-                // Step completion
-                'step1_completed' => true,
-                'step1_completed_at' => now(),
-            ]);
-            
-            // Log after update to verify
-            $updated = $application->fresh();
-            Log::info('After update', [
-                'project_title' => $updated->project_title,
-                'engineer_name' => $updated->engineer_name,
-                'engineer_license' => $updated->engineer_license,
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Project information saved successfully',
-                'data' => $application
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error saving project info: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to save project information: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Complete Step 2 (Download Forms)
-     */
-    public function completeStep2(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'application_id' => 'required|exists:application_documents,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $application = ApplicationDocument::findOrFail($request->application_id);
-            
-            if ($application->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-            
-            $application->update([
-                'step2_completed' => true,
-                'step2_completed_at' => now()
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Step 2 completed successfully'
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error completing step 2: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to complete step 2: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Complete Step 3 (Upload Documents)
-     */
-    public function completeStep3(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'application_id' => 'required|exists:application_documents,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $application = ApplicationDocument::findOrFail($request->application_id);
-            
-            if ($application->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-            
-            $application->update([
-                'step3_completed' => true,
-                'step3_completed_at' => now()
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Step 3 completed successfully'
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error completing step 3: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to complete step 3: ' . $e->getMessage()
-            ], 500);
-        }
     }
 }

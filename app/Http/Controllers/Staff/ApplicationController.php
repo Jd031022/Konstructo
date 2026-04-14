@@ -597,6 +597,10 @@ class ApplicationController extends Controller
                     'architect_license' => $application->architect_license ?? null,
                     'engineer_name' => $application->engineer_name ?? null,
                     'engineer_license' => $application->engineer_license ?? null,
+                    'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
+                    'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
+                    'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
+                    'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
                     // Hard Copy Submission Details
                     'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
                     'hardcopy_instructions' => $application->hardcopy_instructions ?? null
@@ -1491,109 +1495,6 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Store a new application (created by staff)
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:11',
-            'address' => 'required|string',
-            'google_drive_link' => 'required|url'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone_number' => $request->phone,
-                'address' => $request->address,
-                'username' => $this->generateUsername($request->first_name, $request->last_name),
-                'password' => bcrypt('defaultpassword123'),
-                'role' => 'applicant',
-                'email_verified_at' => now(),
-            ]);
-            
-            $year = date('Y');
-            do {
-                $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                $applicationNumber = $year . $random;
-            } while (ApplicationDocument::where('application_number', $applicationNumber)->exists());
-            
-            $application = ApplicationDocument::create([
-                'user_id' => $user->id,
-                'application_number' => $applicationNumber,
-                'google_drive_link' => $request->google_drive_link,
-                'status' => 'pending',
-                'rejection_reason' => null,
-                'verified_at' => null,
-                'verified_by' => null,
-                'hard_copy_received' => false
-            ]);
-            
-            $this->logReviewActivity(
-                $application->id,
-                auth()->id(),
-                'application_created',
-                null,
-                'pending',
-                "Application #{$applicationNumber} created for {$user->first_name} {$user->last_name}",
-                $request->ip(),
-                $request->userAgent()
-            );
-
-            $this->notificationService->notifyStaffNewApplication($application);
-            
-            try {
-                Log::info('📧 Attempting to send PENDING email to: ' . $user->email);
-                
-                $emailSent = $this->gmailService->sendStatusEmail(
-                    $user->email,
-                    'pending',
-                    $applicationNumber,
-                    $user->first_name,
-                    $application->id
-                );
-                
-                if ($emailSent) {
-                    Log::info('✓✓✓ PENDING EMAIL SENT SUCCESSFULLY TO ' . $user->email);
-                } else {
-                    Log::error('✗✗✗ FAILED TO SEND PENDING EMAIL TO ' . $user->email);
-                }
-            } catch (\Exception $e) {
-                Log::error('✗✗✗ EXCEPTION when sending pending email: ' . $e->getMessage());
-            }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Application created successfully',
-                'data' => [
-                    'application_number' => $applicationNumber,
-                    'status' => 'pending'
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error creating application: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error creating application: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
      * Delete an application
      */
     public function destroy(Request $request, $id)
@@ -2293,22 +2194,5 @@ class ApplicationController extends Controller
             Log::error('Error logging review activity: ' . $e->getMessage());
             return null;
         }
-    }
-
-    /**
-     * Generate username from first and last name
-     */
-    private function generateUsername($firstName, $lastName)
-    {
-        $base = strtolower($firstName . '.' . $lastName);
-        $username = $base;
-        $counter = 1;
-        
-        while (User::where('username', $username)->exists()) {
-            $username = $base . $counter;
-            $counter++;
-        }
-        
-        return $username;
     }
 }

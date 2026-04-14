@@ -20,12 +20,6 @@
                 </svg>
                 Export Report
             </button>
-            <button onclick="openNewApplicationModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                New Application
-            </button>
         </div>
     </div>
 
@@ -48,6 +42,8 @@
                 <option value="">All Status</option>
                 <option value="pending">Pending Review</option>
                 <option value="under-review">Under Review</option>
+                <option value="document-verification">Document Verification</option>
+                <option value="for-assessment">For Assessment</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
                 <option value="for-release">For Release</option>
@@ -122,6 +118,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application #</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
@@ -146,119 +143,6 @@
         </div>
     </div>
 
-</div>
-
-<!-- New Application Modal -->
-<div id="new-application-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-full flex items-center justify-center">
-        <div class="mx-auto w-full max-w-3xl">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Modal Header -->
-                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
-                    <h3 class="text-xl font-bold">New Application</h3>
-                    <button onclick="closeNewApplicationModal()" class="text-white hover:text-gray-200 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Modal Body -->
-                <div class="p-6 max-h-[70vh] overflow-y-auto">
-                    <form id="new-application-form" onsubmit="submitNewApplication(event)">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Applicant Information -->
-                            <div class="md:col-span-2">
-                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Applicant Information</h4>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
-                                <input type="text" 
-                                       id="first-name"
-                                       required
-                                       placeholder="e.g., Juan"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
-                                <input type="text" 
-                                       id="last-name"
-                                       required
-                                       placeholder="e.g., Dela Cruz"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-                                <input type="email" 
-                                       id="email"
-                                       required
-                                       placeholder="juandelacruz@email.com"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number <span class="text-red-500">*</span></label>
-                                <input type="tel" 
-                                       id="phone"
-                                       required
-                                       placeholder="0917 123 4567"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <!-- Project Information -->
-                            <div class="md:col-span-2 mt-4">
-                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Project Information</h4>
-                            </div>
-                            
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Project Address <span class="text-red-500">*</span></label>
-                                <input type="text" 
-                                       id="address"
-                                       required
-                                       placeholder="e.g., Brgy. San Jose, Legazpi City"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Project Type <span class="text-red-500">*</span></label>
-                                <select id="project-type" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent bg-white">
-                                    <option value="" disabled selected>Select Type</option>
-                                    <option value="residential">Residential</option>
-                                    <option value="commercial">Commercial</option>
-                                    <option value="industrial">Industrial</option>
-                                    <option value="renovation">Renovation</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Google Drive Link <span class="text-red-500">*</span></label>
-                                <input type="url" 
-                                       id="google-drive-link"
-                                       required
-                                       placeholder="https://drive.google.com/drive/folders/..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                        </div>
-                        
-                        <!-- Modal Footer -->
-                        <div class="mt-8 flex justify-end gap-3">
-                            <button type="button" onclick="closeNewApplicationModal()" 
-                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                                Cancel
-                            </button>
-                            <button type="submit" 
-                                class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
-                                Create Application
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Edit Status Modal -->
@@ -291,6 +175,8 @@
                             <select id="new-status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent bg-white">
                                 <option value="pending">Pending Review</option>
                                 <option value="under-review">Under Review</option>
+                                <option value="document-verification">Document Verification</option>
+                                <option value="for-assessment">For Assessment</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                                 <option value="for-release">For Release</option>
@@ -432,7 +318,6 @@
 <!-- Aging Tooltip Styles -->
 <style>
     /* Modal animations */
-    #new-application-modal,
     #edit-status-modal,
     #archive-modal,
     #delete-modal,
@@ -441,7 +326,6 @@
         transition: opacity 0.2s ease-in-out;
     }
     
-    #new-application-modal .bg-white,
     #edit-status-modal .bg-white,
     #archive-modal .bg-white,
     #delete-modal .bg-white,
@@ -608,11 +492,11 @@
     });
 
     // Calculate aging days since submission
-    function calculateAgingDays(submittedAt, lastUpdatedAt) {
+    function calculateAgingDays(submittedAt) {
         const submittedDate = new Date(submittedAt);
         const currentDate = new Date();
         const daysDiff = Math.floor((currentDate - submittedDate) / (1000 * 60 * 60 * 24));
-        return daysDiff;
+        return Math.max(0, daysDiff);
     }
     
     // Get aging status based on days
@@ -697,7 +581,7 @@
                 applications = data.applications || [];
                 // Add aging calculation to each application
                 applications = applications.map(app => {
-                    const days = calculateAgingDays(app.created_at, app.updated_at);
+                    const days = calculateAgingDays(app.created_at);
                     app.aging_days = days;
                     app.aging_status = getAgingStatus(days);
                     return app;
@@ -805,6 +689,8 @@
         const statusColors = {
             'pending': 'bg-yellow-100 text-yellow-600',
             'under-review': 'bg-purple-100 text-purple-600',
+            'document-verification': 'bg-indigo-100 text-indigo-600',
+            'for-assessment': 'bg-indigo-100 text-indigo-600',
             'approved': 'bg-green-100 text-green-600',
             'rejected': 'bg-red-100 text-red-600',
             'for-release': 'bg-blue-100 text-blue-600',
@@ -814,6 +700,8 @@
         const statusText = {
             'pending': 'Pending Review',
             'under-review': 'Under Review',
+            'document-verification': 'Document Verification',
+            'for-assessment': 'For Assessment',
             'approved': 'Approved',
             'rejected': 'Rejected',
             'for-release': 'For Release',
@@ -849,7 +737,7 @@
         return `
             <tr class="hover:bg-gray-50 transition ${rowClass}">
                 <td class="py-4 px-6">
-                    <span class="font-mono text-sm font-medium text-[#155386]">${app.application_number}</span>
+                    <span class="font-mono text-sm font-medium text-[#155386]">${escapeHtml(app.application_number)}</span>
                 </td>
                 <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
@@ -857,8 +745,8 @@
                             ${initials}
                         </div>
                         <div>
-                            <span class="font-medium text-gray-800">${app.applicant_name || 'N/A'}</span>
-                            <p class="text-xs text-gray-500">${app.email || ''}</p>
+                            <span class="font-medium text-gray-800">${escapeHtml(app.applicant_name || 'N/A')}</span>
+                            <p class="text-xs text-gray-500">${escapeHtml(app.email || '')}</p>
                         </div>
                     </div>
                 </td>
@@ -890,7 +778,7 @@
                         </a>
                         
                         <!-- Update Status -->
-                        <button onclick="openStatusModal(${app.id}, '${app.application_number}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
+                        <button onclick="openStatusModal(${app.id}, '${escapeHtml(app.application_number)}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -913,6 +801,14 @@
                 </td>
             </tr>
         `;
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
     // Update pagination
@@ -1123,46 +1019,6 @@
         }
     }
 
-    // Submit new application
-    async function submitNewApplication(event) {
-        event.preventDefault();
-        
-        const formData = {
-            first_name: document.getElementById('first-name').value,
-            last_name: document.getElementById('last-name').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            address: document.getElementById('address').value,
-            google_drive_link: document.getElementById('google-drive-link').value
-        };
-        
-        try {
-            const response = await fetch('/staff/applications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal('Application created successfully');
-                closeNewApplicationModal();
-                loadApplications();
-                document.getElementById('new-application-form').reset();
-            } else {
-                showErrorModal(data.message || 'Failed to create application');
-            }
-        } catch (error) {
-            console.error('Error creating application:', error);
-            showErrorModal('Failed to create application');
-        }
-    }
-
     // Export applications
     function exportApplications() {
         console.log('Export button clicked');
@@ -1175,16 +1031,6 @@
     }
 
     // Modal functions
-    function openNewApplicationModal() {
-        document.getElementById('new-application-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeNewApplicationModal() {
-        document.getElementById('new-application-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
     function showSuccessModal(message) {
         document.getElementById('success-modal-message').textContent = message;
         document.getElementById('success-modal').classList.remove('hidden');
@@ -1213,14 +1059,13 @@
 
     // Setup modals
     function setupModals() {
-        const modals = ['new-application-modal', 'edit-status-modal', 'archive-modal', 'delete-modal', 'error-modal', 'success-modal'];
+        const modals = ['edit-status-modal', 'archive-modal', 'delete-modal', 'error-modal', 'success-modal'];
         
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.addEventListener('click', function(e) {
                     if (e.target === modal) {
-                        if (modalId === 'new-application-modal') closeNewApplicationModal();
                         if (modalId === 'edit-status-modal') closeStatusModal();
                         if (modalId === 'archive-modal') closeArchiveModal();
                         if (modalId === 'delete-modal') closeDeleteModal();
@@ -1233,7 +1078,6 @@
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeNewApplicationModal();
                 closeStatusModal();
                 closeArchiveModal();
                 closeDeleteModal();

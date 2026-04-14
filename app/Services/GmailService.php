@@ -279,10 +279,10 @@ class GmailService
     /**
      * Send status update email
      */
-    public function sendStatusEmail($to, $status, $applicationNumber, $applicantName, $applicationId)
+    public function sendStatusEmail($to, $status, $applicationNumber, $applicantName, $applicationId, $additionalData = [])
     {
         $subject = $this->getEmailSubject($status);
-        $htmlContent = $this->getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId);
+        $htmlContent = $this->getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId, $additionalData);
         
         return $this->sendEmailInternal($to, $subject, $htmlContent);
     }
@@ -312,58 +312,6 @@ class GmailService
     {
         $subject = 'Action Required: Missing Documents for Your Building Permit Application';
         $htmlContent = $this->getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks);
-        
-        return $this->sendEmailInternal($to, $subject, $htmlContent);
-    }
-
-    /**
-     * Send notification to staff about new basic requirements submission
-     */
-    public function sendNewBasicRequirementsEmail($staffEmail, $staffName, $applicant, $requirement)
-    {
-        $subject = 'New Basic Requirements Submitted - Konstructo';
-        $htmlContent = $this->getNewBasicRequirementsEmailContent($staffName, $applicant, $requirement);
-        
-        Log::info('📧 Sending new basic requirements notification to staff', [
-            'to' => $staffEmail,
-            'applicant_id' => $applicant->id,
-            'requirement_id' => $requirement->id
-        ]);
-        
-        return $this->sendEmailInternal($staffEmail, $subject, $htmlContent);
-    }
-
-    /**
-     * Send basic requirements approval email
-     */
-    public function sendBasicRequirementsApprovedEmail($to, $firstName, $requirementId, $approverName = null, $applicationNumber = null)
-    {
-        $subject = 'Basic Requirements Approved - Konstructo';
-        $htmlContent = $this->getBasicRequirementsApprovedEmailContent($firstName, $requirementId, $approverName, $applicationNumber);
-        
-        Log::info('📧 Sending basic requirements approval email', [
-            'to' => $to,
-            'requirement_id' => $requirementId,
-            'application_number' => $applicationNumber
-        ]);
-        
-        return $this->sendEmailInternal($to, $subject, $htmlContent);
-    }
-
-    /**
-     * Send basic requirements rejection email
-     */
-    public function sendBasicRequirementsRejectedEmail($to, $firstName, $requirementId, $reason, $applicationNumber = null)
-    {
-        $subject = 'Basic Requirements Update - Konstructo';
-        $htmlContent = $this->getBasicRequirementsRejectedEmailContent($firstName, $requirementId, $reason, $applicationNumber);
-        
-        Log::info('📧 Sending basic requirements rejection email', [
-            'to' => $to,
-            'requirement_id' => $requirementId,
-            'reason_length' => strlen($reason),
-            'application_number' => $applicationNumber
-        ]);
         
         return $this->sendEmailInternal($to, $subject, $htmlContent);
     }
@@ -1065,7 +1013,7 @@ class GmailService
     /**
      * Get status email content
      */
-    private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId)
+    private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId, $additionalData = [])
     {
         $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
         $statusDisplay = ucfirst(str_replace('-', ' ', $status));
@@ -1081,6 +1029,31 @@ class GmailService
         ];
         
         $color = $statusColors[$status] ?? ['bg' => '#6B7280', 'light' => '#F3F4F6'];
+        
+        // Additional content for approved status (hard copy submission details)
+        $additionalContent = '';
+        if ($status === 'approved' && !empty($additionalData)) {
+            $submissionDate = $additionalData['hardcopy_submission_date'] ?? null;
+            $instructions = $additionalData['hardcopy_instructions'] ?? null;
+            
+            if ($submissionDate || $instructions) {
+                $additionalContent = '
+                    <div class="hardcopy-info" style="background-color: #e0e7ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4338ca;">
+                        <h3 style="margin: 0 0 10px 0; color: #4338ca; font-size: 16px;">📄 Hard Copy Submission Required</h3>';
+                
+                if ($submissionDate) {
+                    $additionalContent .= '<p style="margin: 5px 0;"><strong>Submission Date:</strong> ' . htmlspecialchars($submissionDate) . '</p>';
+                }
+                
+                if ($instructions) {
+                    $additionalContent .= '<p style="margin: 5px 0;"><strong>Instructions:</strong> ' . nl2br(htmlspecialchars($instructions)) . '</p>';
+                }
+                
+                $additionalContent .= '
+                        <p style="margin-top: 10px; font-size: 13px; color: #4338ca;">Please bring the required hard copies on the specified date.</p>
+                    </div>';
+            }
+        }
         
         return "
             <!DOCTYPE html>
@@ -1116,6 +1089,8 @@ class GmailService
                         <div style='text-align: center; margin: 30px 0;'>
                             <span class='status-badge'>Current Status: {$statusDisplay}</span>
                         </div>
+                        
+                        {$additionalContent}
                         
                         <div style='text-align: center;'>
                             <a href='{$appUrl}' class='button'>View Application</a>
@@ -1213,228 +1188,6 @@ class GmailService
                         
                         <p style='font-size: 14px; color: #6c757d; text-align: center;'>
                             Please submit the required documents as soon as possible.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Get new basic requirements notification email content for staff
-     */
-    private function getNewBasicRequirementsEmailContent($staffName, $applicant, $requirement)
-    {
-        $greeting = $staffName ? "Dear " . $staffName . "," : "Dear Staff,";
-        $requirementsUrl = env('APP_URL') . "/staff/basic-requirements/{$requirement->id}";
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
-                    .badge { background-color: #FEF3C7; color: #F59E0B; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
-                    .applicant-info { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #155386; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>New Basic Requirements Submission</h1>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>A new basic requirements submission requires your review.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='badge'>⏳ Pending Review</span>
-                        </div>
-                        
-                        <div class='applicant-info'>
-                            <h3 style='margin-top: 0; color: #155386; font-size: 16px;'>Applicant Information:</h3>
-                            <p><strong>Name:</strong> {$applicant->first_name} {$applicant->last_name}</p>
-                            <p><strong>Email:</strong> {$applicant->email}</p>
-                            <p><strong>Phone:</strong> {$applicant->phone_number}</p>
-                            <p><strong>Property Owner:</strong> " . ($requirement->is_owner ? 'Yes' : 'No (Authorized Representative)') . "</p>
-                            <p><strong>Submitted:</strong> " . ($requirement->submitted_at ? $requirement->submitted_at->format('F d, Y h:i A') : 'N/A') . "</p>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$requirementsUrl}' class='button'>Review Requirements</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Please review and take appropriate action on this submission.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Get basic requirements approved email content
-     */
-    private function getBasicRequirementsApprovedEmailContent($firstName, $requirementId, $approverName = null, $applicationNumber = null)
-    {
-        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
-        $approverText = $approverName ? " by " . $approverName : "";
-        $appNumberText = $applicationNumber ? "<p><strong>Application Number:</strong> {$applicationNumber}</p>" : "";
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
-                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
-                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>Basic Requirements Approved! ✅</h1>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>Great news! Your basic requirements have been <strong>approved</strong>{$approverText}.</p>
-                        
-                        {$appNumberText}
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='success-badge'>✓ Requirements Approved</span>
-                        </div>
-                        
-                        <div class='info-section'>
-                            <h3 style='margin-top: 0; color: #059669; font-size: 16px;'>What's Next?</h3>
-                            <p>You can now proceed with your building permit application.</p>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='" . env('APP_URL') . "/applicant/application/step1?id={$requirementId}' class='button'>Start Your Application</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Thank you for using Konstructo.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Get basic requirements rejected email content
-     */
-    private function getBasicRequirementsRejectedEmailContent($firstName, $requirementId, $reason, $applicationNumber = null)
-    {
-        $greeting = $firstName ? "Dear " . $firstName . "," : "Dear Valued User,";
-        $appNumberText = $applicationNumber ? "<p><strong>Application Number:</strong> {$applicationNumber}</p>" : "";
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
-                    .rejection-badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
-                    .reason-box { background-color: #FEE2E2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
-                    .info-section { background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #DC2626; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>Basic Requirements Update</h1>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>Your basic requirements have been <strong>rejected</strong>.</p>
-                        
-                        {$appNumberText}
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='rejection-badge'>✗ Requirements Rejected</span>
-                        </div>
-                        
-                        <div class='reason-box'>
-                            <strong>Reason for rejection:</strong>
-                            <p style='margin: 8px 0 0 0;'>" . nl2br(htmlspecialchars($reason)) . "</p>
-                        </div>
-                        
-                        <div class='info-section'>
-                            <h3 style='margin-top: 0; color: #DC2626; font-size: 16px;'>What you can do:</h3>
-                            <p>Please review the reason above, make the necessary corrections, and resubmit your requirements.</p>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='" . env('APP_URL') . "/applicant/basic-requirements?application_id={$requirementId}' class='button'>Resubmit Requirements</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            If you need assistance, please contact our support team.
                         </p>
                     </div>
                     <div class='footer'>

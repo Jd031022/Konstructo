@@ -5,15 +5,16 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
- <!-- Back Button (Simple Version) -->
-<div class="mb-8">
-    <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back
-    </a>
-</div>
+    <!-- Back Button -->
+    <div class="mb-8">
+        <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </a>
+    </div>
+
     <!-- Hero Section -->
     <div class="bg-gradient-to-r from-[#155386] to-[#40798C] rounded-3xl p-8 md:p-12 mb-8 text-white shadow-xl">
         <div class="flex flex-col md:flex-row items-center gap-8">
@@ -285,7 +286,7 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3">
-                    <a href="/applicant/application/step1?new=true" class="block w-full px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 font-medium text-center shadow-lg hover:shadow-xl">
+                    <a href="#" id="proceed-application-btn" class="block w-full px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 font-medium text-center shadow-lg hover:shadow-xl">
                         Proceed to Application
                     </a>
                     <button onclick="downloadChecklist()" class="block w-full px-6 py-4 border-2 border-[#155386] text-[#155386] rounded-xl hover:bg-[#155386]/5 transition-all duration-300 font-medium text-center">
@@ -326,14 +327,13 @@
                 </div>
             </div>
         </div>
-    </div> <!-- End of Main Content Grid -->
+    </div>
 
     <!-- FAQ Section -->
     <div class="mt-8 bg-white rounded-3xl shadow-lg p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Frequently Asked Questions</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- FAQ 1 -->
             <div class="space-y-2">
                 <h3 class="font-semibold text-gray-800 flex items-center gap-2">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
@@ -341,8 +341,6 @@
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">Processing typically takes 7-10 working days from complete submission of requirements.</p>
             </div>
-
-            <!-- FAQ 2 -->
             <div class="space-y-2">
                 <h3 class="font-semibold text-gray-800 flex items-center gap-2">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
@@ -350,8 +348,6 @@
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">No, plans must be signed and sealed by licensed professionals (architect/engineer).</p>
             </div>
-
-            <!-- FAQ 3 -->
             <div class="space-y-2">
                 <h3 class="font-semibold text-gray-800 flex items-center gap-2">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
@@ -359,8 +355,6 @@
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">You'll receive a notice of incomplete requirements and have 15 days to comply.</p>
             </div>
-
-            <!-- FAQ 4 -->
             <div class="space-y-2">
                 <h3 class="font-semibold text-gray-800 flex items-center gap-2">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
@@ -375,15 +369,60 @@
     <div class="mt-8 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-3xl p-8 text-white text-center shadow-xl">
         <h2 class="text-2xl font-bold mb-2">Ready to Start Your Application?</h2>
         <p class="text-white/80 mb-6">Begin your building permit application online today</p>
-        <a href="/applicant/application/step1?new=true" class="inline-block px-8 py-4 bg-white text-[#155386] rounded-xl hover:bg-gray-100 transition-all duration-300 font-semibold shadow-lg">
+        <a href="#" id="cta-application-btn" class="inline-block px-8 py-4 bg-white text-[#155386] rounded-xl hover:bg-gray-100 transition-all duration-300 font-semibold shadow-lg">
             Apply Now
         </a>
     </div>
 </div>
 
 <script>
+// CSRF Token Helper
+function getCsrfToken() {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    return token || '{{ csrf_token() }}';
+}
+
+// Create draft and redirect to step 1
+async function createDraftAndRedirect() {
+    try {
+        const response = await fetch('/applicant/application/create-draft', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.id) {
+            window.location.href = '/applicant/application/step1?id=' + data.data.id;
+        } else if (data.limit_reached) {
+            alert('You have reached the maximum limit of 3 applications.');
+        } else {
+            alert(data.message || 'Failed to create new application');
+        }
+    } catch (error) {
+        console.error('Error creating draft:', error);
+        alert('An error occurred. Please try again.');
+    }
+}
+
+// Proceed to Application button
+document.getElementById('proceed-application-btn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    createDraftAndRedirect();
+});
+
+// CTA Apply Now button
+document.getElementById('cta-application-btn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    createDraftAndRedirect();
+});
+
+// Download Checklist Function
 function downloadChecklist() {
-    // Create checklist content
     const checklist = [
         "BUILDING PERMIT APPLICATION CHECKLIST",
         "=====================================",
@@ -413,7 +452,6 @@ function downloadChecklist() {
         "- Pay fees at the City Treasurer's Office"
     ].join('\n');
 
-    // Create blob and download
     const blob = new Blob([checklist], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -424,7 +462,6 @@ function downloadChecklist() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    // Show success message (optional)
     alert('Checklist downloaded successfully!');
 }
 </script>
@@ -450,7 +487,6 @@ function downloadChecklist() {
         animation: fadeIn 0.5s ease-out;
     }
 
-    /* Custom scrollbar */
     .max-h-\[450px\]::-webkit-scrollbar {
         width: 4px;
     }

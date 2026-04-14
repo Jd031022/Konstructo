@@ -11,11 +11,12 @@ class ApplicationDocument extends Model
 
     protected $table = 'application_documents';
 
- protected $fillable = [
+    protected $fillable = [
         // Core fields
         'user_id',
         'application_number',
         'status',
+        'submitted_at',
         
         // Document fields
         'google_drive_link',
@@ -61,11 +62,11 @@ class ApplicationDocument extends Model
         'engineer_name',
         'engineer_license',
         
-        // Step 1: Professional Information - Electrical Engineer (NEW)
+        // Step 1: Professional Information - Electrical Engineer
         'electrical_engineer_name',
         'electrical_engineer_license',
         
-        // Step 1: Professional Information - Sanitary Engineer / Master Plumber (NEW)
+        // Step 1: Professional Information - Sanitary Engineer / Master Plumber
         'sanitary_engineer_name',
         'sanitary_engineer_license',
         
@@ -76,6 +77,10 @@ class ApplicationDocument extends Model
         'step2_completed_at',
         'step3_completed',
         'step3_completed_at',
+        
+        // Additional fields
+        'hardcopy_submission_date',
+        'hardcopy_instructions',
     ];
 
     protected $casts = [
@@ -88,6 +93,7 @@ class ApplicationDocument extends Model
         'step1_completed_at' => 'datetime',
         'step2_completed_at' => 'datetime',
         'step3_completed_at' => 'datetime',
+        'submitted_at' => 'datetime',
         
         // Boolean fields
         'hard_copy_received' => 'boolean',
@@ -139,14 +145,6 @@ class ApplicationDocument extends Model
     }
 
     /**
-     * Get the basic requirements for this application
-     */
-    public function basicRequirement()
-    {
-        return $this->hasOne(BasicRequirement::class, 'application_id');
-    }
-
-    /**
      * Get the review activities for this application
      */
     public function reviewActivities()
@@ -168,71 +166,6 @@ class ApplicationDocument extends Model
     public function assessmentFee()
     {
         return $this->hasOne(AssessmentFee::class, 'application_id');
-    }
-
-    /**
-     * Check if basic requirements are approved for this application
-     */
-    public function hasApprovedBasicRequirements()
-    {
-        return $this->basicRequirement && $this->basicRequirement->status === 'approved';
-    }
-
-    /**
-     * Check if basic requirements are pending for this application
-     */
-    public function hasPendingBasicRequirements()
-    {
-        return $this->basicRequirement && $this->basicRequirement->status === 'pending';
-    }
-
-    /**
-     * Check if basic requirements are rejected for this application
-     */
-    public function hasRejectedBasicRequirements()
-    {
-        return $this->basicRequirement && $this->basicRequirement->status === 'rejected';
-    }
-
-    /**
-     * Check if basic requirements are not submitted for this application
-     */
-    public function hasNoBasicRequirements()
-    {
-        return !$this->basicRequirement;
-    }
-
-    /**
-     * Get basic requirements status for display
-     */
-    public function getBasicRequirementsStatus()
-    {
-        if (!$this->basicRequirement) {
-            return 'not_submitted';
-        }
-        return $this->basicRequirement->status;
-    }
-
-    /**
-     * Get basic requirements status text for display
-     */
-    public function getBasicRequirementsStatusText()
-    {
-        if (!$this->basicRequirement) {
-            return 'Not Submitted';
-        }
-        return $this->basicRequirement->getStatusDisplayAttribute();
-    }
-
-    /**
-     * Get basic requirements status color for display
-     */
-    public function getBasicRequirementsStatusColor()
-    {
-        if (!$this->basicRequirement) {
-            return 'bg-gray-100 text-gray-600';
-        }
-        return $this->basicRequirement->getStatusColorAttribute();
     }
 
     /**
@@ -341,34 +274,6 @@ class ApplicationDocument extends Model
     }
 
     /**
-     * Scope a query to only include applications with approved basic requirements
-     */
-    public function scopeWithApprovedBasicRequirements($query)
-    {
-        return $query->whereHas('basicRequirement', function($q) {
-            $q->where('status', 'approved');
-        });
-    }
-
-    /**
-     * Scope a query to only include applications with pending basic requirements
-     */
-    public function scopeWithPendingBasicRequirements($query)
-    {
-        return $query->whereHas('basicRequirement', function($q) {
-            $q->where('status', 'pending');
-        });
-    }
-
-    /**
-     * Scope a query to only include applications without basic requirements
-     */
-    public function scopeWithoutBasicRequirements($query)
-    {
-        return $query->whereDoesntHave('basicRequirement');
-    }
-
-    /**
      * Check if application is verified
      */
     public function isVerified()
@@ -470,14 +375,6 @@ class ApplicationDocument extends Model
     public function isDeletable()
     {
         return $this->status === 'draft';
-    }
-
-    /**
-     * Check if user can proceed to application steps
-     */
-    public function canProceedToSteps()
-    {
-        return $this->hasApprovedBasicRequirements();
     }
 
     /**
@@ -656,20 +553,6 @@ class ApplicationDocument extends Model
     }
 
     /**
-     * Generate a unique application number
-     */
-    public static function generateApplicationNumber()
-    {
-        $year = date('Y');
-        do {
-            $random = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $applicationNumber = $year . $random;
-        } while (self::where('application_number', $applicationNumber)->exists());
-
-        return $applicationNumber;
-    }
-
-    /**
      * Get the formatted created date
      */
     public function getFormattedCreatedAt()
@@ -746,7 +629,7 @@ class ApplicationDocument extends Model
      */
     public function canBeSubmitted()
     {
-        return $this->status === 'draft' && $this->google_drive_link !== null;
+        return $this->status === 'draft' && $this->document_links !== null;
     }
 
     /**
