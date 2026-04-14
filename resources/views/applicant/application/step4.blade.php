@@ -267,7 +267,7 @@
     </div>
 </div>
 
-            <!-- Document Checklist Summary -->
+            <!-- Document Checklist Summary (Required + Optional) -->
             <div class="border border-gray-200 rounded-xl overflow-hidden">
                 <div class="bg-gradient-to-r from-[#155386] to-[#1F363D] px-6 py-3">
                     <div class="flex items-center justify-between">
@@ -277,20 +277,44 @@
                             </svg>
                             Uploaded Documents
                         </h3>
-                        <span class="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Required Documents</span>
+                        <div class="flex gap-2">
+                            <span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full" id="required-count-badge">0/0 Required</span>
+                            <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full" id="optional-count-badge">0 Optional</span>
+                        </div>
                     </div>
                 </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="document-checklist-summary">
-                        <div class="text-center py-4 text-gray-500 col-span-2">
-                            <svg class="animate-spin h-6 w-6 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-sm mt-2">Loading documents...</p>
+                    <!-- Required Documents Section -->
+                    <div class="mb-6">
+                        <h4 class="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                            Required Documents
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="required-documents-list">
+                            <div class="text-center py-4 text-gray-500 col-span-2">
+                                <svg class="animate-spin h-6 w-6 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-sm mt-2">Loading documents...</p>
+                            </div>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-4 italic">Optional documents (if applicable): Mechanical Plans, Fencing Plans, Structural Plans for slab/2+ stories, CSHP from DOLE</p>
+
+                    <!-- Optional Documents Section -->
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                            Optional Documents (If Uploaded)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="optional-documents-list">
+                            <div class="text-center py-4 text-gray-500 col-span-2">
+                                <p class="text-sm">No optional documents uploaded</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 mt-4 italic">Note: Optional documents are not required for submission but may be requested by the Building Official if applicable to your project.</p>
                 </div>
             </div>
 
@@ -437,31 +461,42 @@
     }
 
     function displayDocumentSummary(links) {
-        const container = document.getElementById('document-checklist-summary');
-        
-        // Complete document list matching Step 3
-        const documentNames = {
+        // Required Documents (must be uploaded)
+        const requiredDocuments = {
             'app_letter_link': 'Application Letter',
             'bp_forms_link': 'Building Permit Forms',
+            'zoning_compliance_link': 'Zoning Compliance / Locational Clearance',
             'arch_plans_link': 'Architectural Plans',
             'structural_plans_link': 'Civil/Structural Plans',
+            'geodetic_plan_link': 'Site Development Plan / Geodetic Plan',
             'electrical_plans_link': 'Electrical Plans',
             'plumbing_plans_link': 'Sanitary/Plumbing Plans',
-            'ownership_link': 'Proof of Ownership',
             'bom_link': 'Bill of Materials',
-            'structural_analysis_link': 'Structural Design Analysis',
             'barangay_clearance_link': 'Barangay Clearance',
             'valid_id_link': 'Valid ID',
             'ptr_license_link': 'PTR License No. (Current Year)'
         };
         
-        let html = '';
-        let hasDocuments = false;
+        // Optional Documents (only show if uploaded)
+        const optionalDocuments = {
+            'structural_analysis_link': 'Structural Design Analysis',
+            'mechanical_plans_link': 'Mechanical Plans and Specifications',
+            'fencing_plans_link': 'Fencing Plans and Specifications',
+            'sign_permit_link': 'Sign Permit Application',
+            'electronics_permit_link': 'Electronics Permit',
+            'demolition_permit_link': 'Demolition Permit',
+            'cshp_link': 'CSHP from DOLE'
+        };
         
-        for (const [key, name] of Object.entries(documentNames)) {
+        // Display Required Documents
+        const requiredContainer = document.getElementById('required-documents-list');
+        let requiredHtml = '';
+        let requiredCount = 0;
+        
+        for (const [key, name] of Object.entries(requiredDocuments)) {
             if (links[key] && links[key].trim() !== '') {
-                hasDocuments = true;
-                html += `
+                requiredCount++;
+                requiredHtml += `
                     <div class="flex items-center gap-2 p-2 bg-green-50 rounded-lg border border-green-200">
                         <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -472,24 +507,57 @@
             }
         }
         
-        if (!hasDocuments) {
-            html = `
-                <div class="text-center py-8 text-gray-500 col-span-2">
-                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <p class="text-sm">No documents uploaded yet</p>
-                    <p class="text-xs text-gray-400 mt-1">Please go back to Step 3 to upload your documents</p>
+        if (requiredHtml === '') {
+            requiredHtml = `
+                <div class="text-center py-4 text-gray-500 col-span-2">
+                    <p class="text-sm">No required documents uploaded yet</p>
                 </div>
             `;
         }
+        requiredContainer.innerHTML = requiredHtml;
+        document.getElementById('required-count-badge').textContent = `${requiredCount}/${Object.keys(requiredDocuments).length} Required`;
         
-        container.innerHTML = html;
+        // Display Optional Documents (only if uploaded)
+        const optionalContainer = document.getElementById('optional-documents-list');
+        let optionalHtml = '';
+        let optionalCount = 0;
+        
+        for (const [key, name] of Object.entries(optionalDocuments)) {
+            if (links[key] && links[key].trim() !== '') {
+                optionalCount++;
+                optionalHtml += `
+                    <div class="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-sm text-gray-700">${escapeHtml(name)}</span>
+                    </div>
+                `;
+            }
+        }
+        
+        if (optionalHtml === '') {
+            optionalHtml = `
+                <div class="text-center py-4 text-gray-500 col-span-2">
+                    <p class="text-sm">No optional documents uploaded</p>
+                    <p class="text-xs text-gray-400 mt-1">Optional documents are not required for submission</p>
+                </div>
+            `;
+        }
+        optionalContainer.innerHTML = optionalHtml;
+        document.getElementById('optional-count-badge').textContent = `${optionalCount} Optional`;
+        
+        // Check if all required documents are uploaded
+        const totalRequired = Object.keys(requiredDocuments).length;
+        if (requiredCount === totalRequired) {
+            // All good - proceed is enabled
+            console.log('All required documents uploaded');
+        }
     }
 
     function displayEmptyDocuments() {
-        const container = document.getElementById('document-checklist-summary');
-        container.innerHTML = `
+        const requiredContainer = document.getElementById('required-documents-list');
+        requiredContainer.innerHTML = `
             <div class="text-center py-8 text-gray-500 col-span-2">
                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -498,6 +566,13 @@
                 <p class="text-xs text-gray-400 mt-1">Please go back to Step 3 to upload your documents</p>
             </div>
         `;
+        document.getElementById('optional-documents-list').innerHTML = `
+            <div class="text-center py-4 text-gray-500 col-span-2">
+                <p class="text-sm">No optional documents uploaded</p>
+            </div>
+        `;
+        document.getElementById('required-count-badge').textContent = `0/0 Required`;
+        document.getElementById('optional-count-badge').textContent = `0 Optional`;
     }
 
     function escapeHtml(text) {

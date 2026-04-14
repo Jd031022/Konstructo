@@ -139,12 +139,6 @@
                         </svg>
                         Download Summary
                     </button>
-                    <button onclick="contactSupport()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        Contact Support
-                    </button>
                 </div>
             </div>
         </div>
@@ -414,48 +408,18 @@
                     </div>
                 </div>
 
-                <!-- Google Drive Documents Card -->
+                <!-- Google Drive Documents Card (Main Folder Removed) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Google Drive Documents
+                        Submitted Documents
                     </h2>
-                    
-                    <!-- Main Google Drive Folder Link -->
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-800">Main Google Drive Folder</p>
-                                <div class="flex flex-wrap items-center gap-2 mt-1">
-                                    <a href="#" id="drive-link" class="text-[#155386] hover:underline text-sm flex items-center gap-1 break-all" target="_blank">
-                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                        <span id="drive-link-text">View Folder</span>
-                                    </a>
-                                    <span class="text-gray-300">|</span>
-                                    <button onclick="copyDriveLink()" class="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        Copy Link
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">All required documents should be uploaded to this folder</p>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Individual Document Links -->
                     <div class="space-y-4">
-                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Submitted Documents</h3>
+                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Document Links</h3>
                         <div id="documents-list" class="space-y-3">
                             <div class="text-center py-8 text-gray-500">
                                 <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -543,7 +507,7 @@
                             </div>
                         </div>
 
-                        <!-- Assessment Fee Card - Updated to show additional fees -->
+                        <!-- Assessment Fee Card -->
                         <div id="assessment-fee-card" class="mt-4 p-3 bg-indigo-50 rounded-lg hidden transition-all duration-500">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
@@ -617,22 +581,6 @@
                                     <p id="bfp-comments-by" class="text-xs text-gray-400"></p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="mt-6 space-y-2">
-                            <a href="mailto:obo@legazpi.gov.ph?subject=Building Permit Application Inquiry - {{ $applicationId ?? '' }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">
-                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                Email OBO Support
-                            </a>
-                            <button onclick="requestAssistance()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
-                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                Request for Assistance
-                            </button>
                         </div>
                     </div>
 
@@ -718,7 +666,6 @@
     function getApplicationIdFromUrl() {
         const pathParts = window.location.pathname.split('/');
         const lastPart = pathParts[pathParts.length - 1];
-        // Check if last part is numeric
         if (lastPart && !isNaN(lastPart)) {
             return lastPart;
         }
@@ -742,12 +689,14 @@
         'plumbing_plans_link': 'Sanitary/Plumbing Plans',
         'mechanical_plans_link': 'Mechanical Plans',
         'fencing_plans_link': 'Fencing Plans',
-        'ownership_link': 'Proof of Ownership',
         'bom_link': 'Bill of Materials',
         'structural_analysis_link': 'Structural Design Analysis',
         'barangay_clearance_link': 'Barangay Clearance',
         'valid_id_link': 'Valid ID',
-        'cshp_link': 'CSHP from DOLE (Optional)'
+        'cshp_link': 'CSHP from DOLE (Optional)',
+        'ptr_license_link': 'PTR License No.',
+        'zoning_compliance_link': 'Zoning Compliance',
+        'geodetic_plan_link': 'Geodetic Plan'
     };
 
     // Load application details on page load
@@ -764,7 +713,7 @@
 
     // Start real-time updates
     function startRealTimeUpdates() {
-        updateCheckInterval = setInterval(checkForUpdates, 30000); // Check every 30 seconds
+        updateCheckInterval = setInterval(checkForUpdates, 30000);
     }
 
     // Check for updates
@@ -842,7 +791,6 @@
     function displayBFPData() {
         if (!currentBfpData) return;
         
-        // FSEC Card
         const fsecCard = document.getElementById('fsec-card');
         if (currentBfpData.fsec_link) {
             fsecCard.classList.remove('hidden');
@@ -867,7 +815,6 @@
             fsecCard.classList.add('hidden');
         }
         
-        // BFP Comments Card
         const bfpCommentsCard = document.getElementById('bfp-comments-card');
         if (currentBfpData.bfp_comments && currentBfpData.bfp_comments.trim() !== '') {
             bfpCommentsCard.classList.remove('hidden');
@@ -915,10 +862,9 @@
         }
     }
 
-    // Display assessment information - UPDATED to show additional fees
+    // Display assessment information
     function displayAssessmentInfo() {
         if (currentAssessment && currentAssessment.total_amount) {
-            // Show assessment notice
             const assessmentNotice = document.getElementById('assessment-notice');
             const assessmentTotal = document.getElementById('assessment-total');
             if (assessmentNotice && assessmentTotal) {
@@ -926,7 +872,6 @@
                 assessmentNotice.classList.remove('hidden');
             }
             
-            // Show assessment fee card in sidebar
             const assessmentCard = document.getElementById('assessment-fee-card');
             const feeAmount = document.getElementById('assessment-fee-amount');
             const feeDetails = document.getElementById('assessment-fee-details');
@@ -935,10 +880,8 @@
                 feeAmount.textContent = `₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                 assessmentCard.classList.remove('hidden');
                 
-                // Build fee breakdown including standard fees
                 let breakdownHtml = '';
                 
-                // Standard fees
                 if (currentAssessment.line_grade && parseFloat(currentAssessment.line_grade) > 0) {
                     breakdownHtml += `<div class="flex justify-between"><span>Line Grade:</span><span>₱${parseFloat(currentAssessment.line_grade).toLocaleString()}</span></div>`;
                 }
@@ -958,7 +901,6 @@
                     breakdownHtml += `<div class="flex justify-between"><span>Penalties/Fines:</span><span>₱${parseFloat(currentAssessment.penalties_fines).toLocaleString()}</span></div>`;
                 }
                 
-                // Additional fees (dynamic)
                 if (currentAssessment.additional_fees && currentAssessment.additional_fees.length > 0) {
                     breakdownHtml += `<div class="border-t border-gray-200 my-2 pt-2"><span class="font-semibold text-gray-600">Additional Fees:</span></div>`;
                     currentAssessment.additional_fees.forEach(fee => {
@@ -1053,7 +995,6 @@
                 loadAssessmentData();
                 loadBFPData();
                 
-                // Display documents from the document_links
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
                     displayDocumentsList(currentApplication.document_links);
                 } else {
@@ -1086,16 +1027,12 @@
         document.getElementById('info-owner-address').textContent = app.owner_address || 'Not provided';
         document.getElementById('info-owner-email').textContent = app.owner_email || 'Not provided';
         
-        // Professional Information - All 4 professionals
         document.getElementById('info-architect-name').textContent = app.architect_name || 'Not provided';
         document.getElementById('info-architect-license').textContent = app.architect_license || 'Not provided';
-        
         document.getElementById('info-engineer-name').textContent = app.engineer_name || 'Not provided';
         document.getElementById('info-engineer-license').textContent = app.engineer_license || 'Not provided';
-        
         document.getElementById('info-electrical-name').textContent = app.electrical_engineer_name || 'Not provided';
         document.getElementById('info-electrical-license').textContent = app.electrical_engineer_license || 'Not provided';
-        
         document.getElementById('info-sanitary-name').textContent = app.sanitary_engineer_name || 'Not provided';
         document.getElementById('info-sanitary-license').textContent = app.sanitary_engineer_license || 'Not provided';
         
@@ -1492,7 +1429,6 @@
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('application-content').classList.remove('hidden');
 
-        // Display project information
         displayProjectInfo(currentApplication);
 
         document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
@@ -1518,29 +1454,12 @@
         updateTimeline(currentApplication.status);
         updateProgress(currentApplication.status);
 
-        // Update Google Drive main link
+        // Google Drive main link removed - no longer showing
+        
         if (currentApplication.google_drive_link) {
-            const driveLink = document.getElementById('drive-link');
-            driveLink.href = currentApplication.google_drive_link;
-            const linkText = document.getElementById('drive-link-text');
-            linkText.textContent = currentApplication.google_drive_link.length > 50 ? 
-                currentApplication.google_drive_link.substring(0, 50) + '...' : 
-                currentApplication.google_drive_link;
-            driveLink.classList.remove('pointer-events-none', 'text-gray-500');
-            driveLink.classList.add('text-[#155386]');
-            driveLink.setAttribute('target', '_blank');
-            driveLink.setAttribute('rel', 'noopener noreferrer');
-            
             document.getElementById('document-status').textContent = 'Available';
             document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
         } else {
-            const driveLink = document.getElementById('drive-link');
-            driveLink.innerHTML = '<span class="text-gray-500">No link provided</span>';
-            driveLink.href = '#';
-            driveLink.classList.add('pointer-events-none', 'text-gray-500');
-            driveLink.classList.remove('text-[#155386]');
-            driveLink.removeAttribute('target');
-            
             document.getElementById('document-status').textContent = 'Not Uploaded';
             document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
         }
@@ -1688,7 +1607,6 @@
                 } else {
                     stepElement.classList.remove('step-processing');
                     
-                    // Try to get completion date from application if available
                     if (index === 0 && currentApplication?.submitted_at) {
                         const date = new Date(currentApplication.submitted_at + ' UTC');
                         if (!isNaN(date)) {
@@ -1769,26 +1687,12 @@
         }
     }
 
-    function copyDriveLink() {
-        const link = currentApplication?.google_drive_link;
-        if (link) {
-            navigator.clipboard.writeText(link).then(() => {
-                showSuccessModal('Link copied to clipboard!');
-            }).catch(() => {
-                showErrorModal('Failed to copy link');
-            });
-        } else {
-            showErrorModal('No link to copy');
-        }
-    }
-
     function downloadApplicationSummary() {
         if (!currentApplication) {
             showErrorModal('No application data to download');
             return;
         }
         
-        // Create a simple text summary
         let summary = `BUILDING PERMIT APPLICATION SUMMARY\n`;
         summary += `================================\n\n`;
         summary += `Application Number: ${currentApplication.application_number || 'N/A'}\n`;
@@ -1809,48 +1713,14 @@
         summary += `Contact: ${currentApplication.contact_number || 'N/A'}\n`;
         summary += `Email: ${currentApplication.owner_email || 'N/A'}\n\n`;
         
-        // Add assessment fee information if available
         if (currentAssessment && currentAssessment.total_amount) {
             summary += `ASSESSMENT FEE\n`;
             summary += `--------------\n`;
-            summary += `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n`;
-            summary += `\nFee Breakdown:\n`;
-            
-            if (currentAssessment.line_grade && parseFloat(currentAssessment.line_grade) > 0) {
-                summary += `- Line Grade: ₱${parseFloat(currentAssessment.line_grade).toLocaleString()}\n`;
-            }
-            if (currentAssessment.building_fee && parseFloat(currentAssessment.building_fee) > 0) {
-                summary += `- Building Fee: ₱${parseFloat(currentAssessment.building_fee).toLocaleString()}\n`;
-            }
-            if (currentAssessment.sanitary_fee && parseFloat(currentAssessment.sanitary_fee) > 0) {
-                summary += `- Sanitary/Plumbing Fee: ₱${parseFloat(currentAssessment.sanitary_fee).toLocaleString()}\n`;
-            }
-            if (currentAssessment.mechanical_fee && parseFloat(currentAssessment.mechanical_fee) > 0) {
-                summary += `- Mechanical Fee: ₱${parseFloat(currentAssessment.mechanical_fee).toLocaleString()}\n`;
-            }
-            if (currentAssessment.electrical_fee && parseFloat(currentAssessment.electrical_fee) > 0) {
-                summary += `- Electrical Fee: ₱${parseFloat(currentAssessment.electrical_fee).toLocaleString()}\n`;
-            }
-            if (currentAssessment.penalties_fines && parseFloat(currentAssessment.penalties_fines) > 0) {
-                summary += `- Penalties/Fines: ₱${parseFloat(currentAssessment.penalties_fines).toLocaleString()}\n`;
-            }
-            
-            // Additional fees
-            if (currentAssessment.additional_fees && currentAssessment.additional_fees.length > 0) {
-                summary += `\nAdditional Fees:\n`;
-                currentAssessment.additional_fees.forEach(fee => {
-                    if (fee.amount && parseFloat(fee.amount) > 0) {
-                        const description = fee.description || 'Additional Fee';
-                        summary += `- ${description}: ₱${parseFloat(fee.amount).toLocaleString()}\n`;
-                    }
-                });
-            }
-            summary += `\n`;
+            summary += `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
         }
         
         summary += `Generated on: ${new Date().toLocaleString()}\n`;
         
-        // Create download
         const blob = new Blob([summary], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1862,14 +1732,6 @@
         URL.revokeObjectURL(url);
         
         showSuccessModal('Application summary downloaded!');
-    }
-
-    function contactSupport() {
-        window.location.href = 'mailto:obo@legazpi.gov.ph?subject=Building Permit Application Inquiry - ' + (currentApplication?.application_number || '');
-    }
-
-    function requestAssistance() {
-        showSuccessModal('Assistance request has been sent. A staff member will contact you within 1-2 business days.');
     }
 
     function viewFullHistory() {

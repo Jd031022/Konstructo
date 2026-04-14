@@ -626,7 +626,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">${apps.map(app => createListRow(app)).join('')}</tbody>
-                    寸
+                    \d
                 </div>
             </div>
         `;

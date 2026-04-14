@@ -108,7 +108,7 @@
                     <span class="text-xs text-gray-400">PDF</span>
                 </div>
 
-                <!-- 2. Architectural Permit -->
+                <!-- 3. Architectural Permit -->
                 <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
                     <input type="checkbox" id="form-architectural-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1">
@@ -118,7 +118,7 @@
                     <span class="text-xs text-gray-400">PDF</span>
                 </div>
 
-                <!-- 3. Civil/Structural Permit -->
+                <!-- 4. Civil/Structural Permit -->
                 <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
                     <input type="checkbox" id="form-civil-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1">
@@ -128,7 +128,7 @@
                     <span class="text-xs text-gray-400">PDF</span>
                 </div>
 
-                <!-- 4. Electrical Permit -->
+                <!-- 5. Electrical Permit -->
                 <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
                     <input type="checkbox" id="form-electrical-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1">
@@ -138,7 +138,7 @@
                     <span class="text-xs text-gray-400">PDF</span>
                 </div>
 
-                <!-- 5. Sanitary/Plumbing Permit -->
+                <!-- 6. Sanitary/Plumbing Permit -->
                 <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
                     <input type="checkbox" id="form-sanitary-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
                     <div class="flex-1">
@@ -147,6 +147,16 @@
                     </div>
                     <span class="text-xs text-gray-400">PDF</span>
                 </div>
+
+                        <!-- 2. Zoning Compliance -->
+        <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+            <input type="checkbox" id="form-zoning-compliance" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+            <div class="flex-1">
+                <label for="form-zoning-compliance" class="font-medium text-gray-800 cursor-pointer">Zoning Compliance / Locational Clearance</label>
+                <p class="text-xs text-gray-500">Certificate from the City Planning and Development Office - Verifies project complies with zoning regulations</p>
+            </div>
+            <span class="text-xs text-gray-400">PDF</span>
+        </div>
 
                 <!-- Divider for Optional Forms -->
                 <div class="md:col-span-2 mt-2 mb-2">
@@ -267,10 +277,11 @@ const applicationId = {{ $application->id }};
 // Track downloaded forms to prevent re-download
 let downloadedForms = JSON.parse(localStorage.getItem(`downloaded_forms_${applicationId}`) || '{}');
 
-// Priority forms first, then optional
+// Priority forms first, then optional (Added Zoning Compliance)
 const formCheckboxes = [
     // Priority Forms (Required)
     { id:'form-building-permit',        name:'Building Permit Application',     file:'building-permit-application.pdf', priority: true },
+    { id:'form-zoning-compliance',      name:'Zoning Compliance / Locational Clearance', file:'zoning-compliance.pdf', priority: true },
     { id:'form-architectural-permit',   name:'Architectural Permit',           file:'architectural-permit.pdf', priority: true },
     { id:'form-civil-permit',           name:'Civil/Structural Permit',        file:'civil-structural-permit.pdf', priority: true },
     { id:'form-electrical-permit',      name:'Electrical Permit',              file:'electrical-permit.pdf', priority: true },

@@ -145,6 +145,29 @@
                         </div>
                     </div>
                     
+                    <!-- Zoning Compliance / Locational Clearance -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Zoning Compliance / Locational Clearance <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Certificate from the City Planning and Development Office - Verifies project complies with zoning regulations</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="zoning_compliance_link" 
+                                       name="zoning_compliance_link"
+                                       value="{{ $application->document_links['zoning_compliance_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('zoning_compliance_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Architectural Plans -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -168,14 +191,14 @@
                         </div>
                     </div>
                     
-                    <!-- Civil/Structural Plans -->
+                    <!-- Structural Plans and Specifications (REQUIRED) -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Civil/Structural Plans (5 sets) <span class="text-red-500">*</span>
+                                    Structural Plans and Specifications <span class="text-red-500">*</span>
                                 </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed civil engineer</p>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed civil engineer - Complete structural drawings including foundation, framing, and details</p>
                             </div>
                             <div class="flex-1">
                                 <input type="url" 
@@ -187,6 +210,29 @@
                             </div>
                             <div>
                                 <button type="button" onclick="testLink('structural_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Site Development Plan / Geodetic Plan -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Site Development Plan / Geodetic Plan <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500">Signed and sealed by licensed geodetic engineer - Shows property boundaries, topography, and site features</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="geodetic_plan_link" 
+                                       name="geodetic_plan_link"
+                                       value="{{ $application->document_links['geodetic_plan_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('geodetic_plan_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
                             </div>
                         </div>
                     </div>
@@ -256,29 +302,6 @@
                             </div>
                             <div>
                                 <button type="button" onclick="testLink('bom_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Structural Design Analysis -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Structural Design Analysis <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Computation and analysis signed by civil engineer</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="structural_analysis_link" 
-                                       name="structural_analysis_link"
-                                       value="{{ $application->document_links['structural_analysis_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('structural_analysis_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
                             </div>
                         </div>
                     </div>
@@ -358,6 +381,29 @@
                     <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Optional Documents (If Applicable)</h3>
                     <p class="text-sm text-gray-500 mt-2 mb-4">These documents are required only if your project includes specific features</p>
                     
+                    <!-- Structural Design Analysis (OPTIONAL - moved here) -->
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Structural Design Analysis 
+                                </label>
+                                <p class="text-xs text-gray-500">Computation and analysis signed by civil engineer - Required for buildings with complex structural systems</p>
+                            </div>
+                            <div class="flex-1">
+                                <input type="url" 
+                                       id="structural_analysis_link" 
+                                       name="structural_analysis_link"
+                                       value="{{ $application->document_links['structural_analysis_link'] ?? '' }}"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
+                            </div>
+                            <div>
+                                <button type="button" onclick="testLink('structural_analysis_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Mechanical Plans and Specs -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -404,12 +450,12 @@
                         </div>
                     </div>
                     
-                    <!-- Structural Plans (For slab and 2 stories or more) -->
+                    <!-- Structural Plans for slab and 2+ stories (Optional) -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Structural Plans (For slab and 2 stories or more)
+                                    Structural Plans 
                                 </label>
                                 <p class="text-xs text-gray-500">Required for buildings with 2 or more stories, or projects with concrete slab construction</p>
                             </div>
@@ -518,23 +564,25 @@
 <script>
     const applicationId = {{ $application->id }};
     
-    // Define all document fields - Required (Proof of Ownership removed)
+    // Define all document fields - Required (Structural Plans is required, Structural Analysis is optional)
     const documentFields = [
         'app_letter_link',
         'bp_forms_link',
+        'zoning_compliance_link',
         'arch_plans_link',
-        'structural_plans_link',
+        'structural_plans_link',      // REQUIRED - Structural Plans and Specifications
+        'geodetic_plan_link',
         'electrical_plans_link',
         'plumbing_plans_link',
         'bom_link',
-        'structural_analysis_link',
         'barangay_clearance_link',
         'valid_id_link',
         'ptr_license_link'
     ];
     
-    // Optional documents
+    // Optional documents (Structural Design Analysis moved here)
     const optionalFields = [
+        'structural_analysis_link',   // OPTIONAL - moved from required
         'mechanical_plans_link',
         'fencing_plans_link',
         'structural_optional_link',
@@ -585,7 +633,7 @@
         showSuccessModal('Link format is valid! Make sure sharing is set to "Anyone with the link".');
     }
     
-    // Save all document links (NO application number generation here)
+    // Save all document links
     async function saveAllDocumentLinks() {
         // Validate all required fields
         const missingFields = [];
@@ -627,7 +675,6 @@
         proceedBtn.disabled = true;
         
         try {
-            // Save document links ONLY (no application number generation)
             const requestData = {
                 document_links: documentLinks,
                 application_id: applicationId
@@ -651,7 +698,6 @@
             
             showSuccessModal('All documents saved successfully! Redirecting to Step 4...');
             
-            // Mark Step 3 as complete
             const completeResponse = await fetch('/applicant/application/step3/complete', {
                 method: 'POST',
                 headers: {
@@ -678,7 +724,6 @@
     
     // Load existing data on page load
     document.addEventListener('DOMContentLoaded', function() {
-        // Add event listeners for all input fields to update progress
         documentFields.forEach(field => {
             const element = document.getElementById(field);
             if (element) {
@@ -688,7 +733,6 @@
         
         updateProgress();
         
-        // Load existing document links from the application object
         const existingLinks = @json($application->document_links ?? []);
         if (existingLinks) {
             documentFields.forEach(field => {
