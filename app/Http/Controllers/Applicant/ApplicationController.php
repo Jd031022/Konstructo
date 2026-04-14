@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use setasign\Fpdi\Tcpdf\Fpdi;
+use App\Models\OwnershipVerification;
 
 class ApplicationController extends Controller
 {
@@ -917,39 +918,14 @@ class ApplicationController extends Controller
     }
 
     public function step1(Request $request)
-    {
-        $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if ($applicationId) {
-            $application = ApplicationDocument::where('user_id', $user->id)
-                ->where('id', $applicationId)
-                ->first();
-                
-            if (!$application) {
-                return redirect()->route('applicant.applications')
-                    ->with('error', 'Application not found.');
-            }
-            
-            return view('applicant.application.step1', compact('application'));
-        } else {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application ID is required.');
-        }
-    }
-
-    public function step2(Request $request)
-    {
-        $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if (!$applicationId) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application ID is required.');
-        }
-        
+{
+    $user = Auth::user();
+    $applicationId = $request->get('id');
+    
+    if ($applicationId) {
         $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
+            ->with('ownershipVerification')  // Load existing ownership data
             ->first();
             
         if (!$application) {
@@ -957,10 +933,52 @@ class ApplicationController extends Controller
                 ->with('error', 'Application not found.');
         }
         
-        return view('applicant.application.step2', compact('application'));
+        return view('applicant.application.step1', compact('application'));
+    } else {
+        return redirect()->route('applicant.applications')
+            ->with('error', 'Application ID is required.');
     }
+}
+   public function step2(Request $request)
+{
+    $user = Auth::user();
+    $applicationId = $request->get('id');
+    
+    if (!$applicationId) {
+        return redirect()->route('applicant.applications')
+            ->with('error', 'Application ID is required.');
+    }
+    
+    // Load application with ownership verification relationship
+    $application = ApplicationDocument::where('user_id', $user->id)
+        ->where('id', $applicationId)
+        ->with('ownershipVerification')  // IMPORTANT: Load the relationship
+        ->first();
+        
+    if (!$application) {
+        return redirect()->route('applicant.applications')
+            ->with('error', 'Application not found.');
+    }
+    
+    // Check if ownership verification exists
+    $ownership = $application->ownershipVerification;
+    
+    // If no ownership record exists, redirect to step 1
+    if (!$ownership) {
+        return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+            ->with('error', 'Please complete ownership verification first.');
+    }
+    
+    // Check if required documents are submitted
+    if (empty($ownership->tct_link) || empty($ownership->tax_declaration_link) || empty($ownership->current_tax_receipt_link)) {
+        return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+            ->with('error', 'Please complete all required ownership documents.');
+    }
+    
+    return view('applicant.application.step2', compact('application'));
+}
 
-    public function step3(Request $request)
+public function step3(Request $request)
     {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -1120,4 +1138,138 @@ class ApplicationController extends Controller
             default => ucfirst(str_replace('_', ' ', $action))
         };
     }
+    /**
+ * Save ownership verification documents (New Step 1)
+ */
+public function saveOwnership(Request $request)
+{
+    Log::info('saveOwnership called', $request->all());
+    
+    $validator = Validator::make($request->all(), [
+        'application_id' => 'required|exists:application_documents,id',
+        'is_owner' => 'required|in:0,1',
+        'tct_link' => 'required|url',
+        'tax_declaration_link' => 'required|url',
+        'current_tax_receipt_link' => 'required|url',
+        'spa_link' => 'nullable|url',
+    ]);
+
+    if ($validator->fails()) {
+        Log::error('Validation failed', $validator->errors()->toArray());
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed: ' . json_encode($validator->errors()->toArray()),
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::findOrFail($request->application_id);
+        
+        // Check authorization
+        if ($application->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        
+        // Find or create ownership verification record
+        $ownership = \App\Models\OwnershipVerification::firstOrNew([
+            'application_id' => $application->id
+        ]);
+        
+        $ownership->is_owner = $request->is_owner == '1';
+        $ownership->tct_link = $request->tct_link;
+        $ownership->tax_declaration_link = $request->tax_declaration_link;
+        $ownership->current_tax_receipt_link = $request->current_tax_receipt_link;
+        
+        // Only set SPA if not owner
+        if ($request->is_owner == '0') {
+            $ownership->spa_link = $request->spa_link;
+        } else {
+            $ownership->spa_link = null;
+        }
+        
+        // Set initial statuses (pending) only for new records
+        if (!$ownership->exists) {
+            $ownership->assessor_status = 'pending';
+            $ownership->treasurer_status = 'pending';
+        }
+        
+        $ownership->save();
+        
+        // Update application step completion - Use step1_completed
+        $application->step1_completed = true;
+        $application->step1_completed_at = now();
+        $application->save();
+        
+        Log::info('Ownership verification saved successfully', [
+            'application_id' => $application->id,
+            'is_owner' => $ownership->is_owner,
+            'step1_completed' => $application->step1_completed
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Ownership documents saved successfully',
+            'data' => $ownership
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error saving ownership verification: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to save ownership documents: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Get ownership data for an application
+ */
+public function getOwnershipData($id)
+{
+    try {
+        $user = Auth::user();
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $id)
+            ->with('ownershipVerification')
+            ->first();
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        $ownership = $application->ownershipVerification;
+        
+        if (!$ownership) {
+            return response()->json([
+                'success' => true,
+                'data' => null
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'is_owner' => $ownership->is_owner,
+                'tct_link' => $ownership->tct_link,
+                'tax_declaration_link' => $ownership->tax_declaration_link,
+                'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
+                'spa_link' => $ownership->spa_link
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load ownership data: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

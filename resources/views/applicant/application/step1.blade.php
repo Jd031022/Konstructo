@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Application - Step 1: Project Information')
+@section('title', 'Application - Step 1: Ownership Verification')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -19,8 +19,8 @@
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-8 h-8 bg-[#155386] text-white rounded-full font-bold text-sm">1</div>
             <div>
-                <h2 class="text-2xl font-semibold text-gray-800">Step 1: Project Information</h2>
-                <p class="text-l text-gray-600">Please provide the basic information about your construction project</p>
+                <h2 class="text-2xl font-semibold text-gray-800">Step 1: Ownership Verification</h2>
+                <p class="text-l text-gray-600">Please provide proof of ownership documents</p>
             </div>
         </div>
     </div>
@@ -30,303 +30,177 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <span class="text-sm font-semibold text-[#155386]">Project Info</span>
+                <span class="text-sm font-semibold text-[#155386]">Ownership</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <span class="text-sm font-medium text-gray-400">Download Forms</span>
+                <span class="text-sm font-medium text-gray-400">Project Info</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <span class="text-sm font-medium text-gray-400">Upload Docs</span>
+                <span class="text-sm font-medium text-gray-400">Download Forms</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                <span class="text-sm font-medium text-gray-400">Upload Docs</span>
+                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">5</div>
                 <span class="text-sm font-medium text-gray-400">Review & Submit</span>
             </div>
         </div>
     </div>
 
-
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-8">
-            <form id="project-info-form" class="space-y-8">
+            <form id="ownership-form" class="space-y-8">
                 @csrf
                 <input type="hidden" name="application_id" value="{{ $application->id }}">
 
-                <!-- Project Title -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Project Title <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           name="project_title" 
-                           id="project_title"
-                           value="{{ $application->project_title ?? '' }}"
-                           placeholder="e.g., Two-Storey Residential Building"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">Give a descriptive name for your project</p>
-                </div>
-
-                <!-- Project Location -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Project Location <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           name="project_location" 
-                           id="project_location"
-                           value="{{ $application->project_location ?? '' }}"
-                           placeholder="e.g., Brgy. San Jose, Legazpi City"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">Complete address where the construction will take place</p>
-                </div>
-
-                <!-- Project Type -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Project Type <span class="text-red-500">*</span>
-                    </label>
-                    <select name="project_type" id="project_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent bg-white">
-                        <option value="">Select Project Type</option>
-                        <option value="residential" {{ $application->project_type == 'residential' ? 'selected' : '' }}>Residential</option>
-                        <option value="commercial" {{ $application->project_type == 'commercial' ? 'selected' : '' }}>Commercial</option>
-                        <option value="industrial" {{ $application->project_type == 'industrial' ? 'selected' : '' }}>Industrial</option>
-                        <option value="institutional" {{ $application->project_type == 'institutional' ? 'selected' : '' }}>Institutional</option>
-                        <option value="mixed_use" {{ $application->project_type == 'mixed_use' ? 'selected' : '' }}>Mixed Use</option>
-                        <option value="renovation" {{ $application->project_type == 'renovation' ? 'selected' : '' }}>Renovation</option>
-                    </select>
-                </div>
-
-                <!-- Lot Area & Floor Area -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Lot Area (sqm) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               name="lot_area" 
-                               id="lot_area"
-                               value="{{ $application->lot_area ?? '' }}"
-                               placeholder="e.g., 250"
-                               step="0.01"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                <!-- Property Ownership Status -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-8 h-8 bg-[#155386] rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Property Ownership Status</h3>
+                            <p class="text-sm text-gray-600">Please indicate your relationship to the property</p>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Floor Area (sqm) <span class="text-red-500">*</span>
+                    <div class="flex gap-6 pl-11">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="is_owner" value="1" class="w-4 h-4 text-[#155386] focus:ring-[#155386]" checked>
+                            <span class="text-gray-700 group-hover:text-[#155386] transition">Yes, I am the owner</span>
                         </label>
-                        <input type="number" 
-                               name="floor_area" 
-                               id="floor_area"
-                               value="{{ $application->floor_area ?? '' }}"
-                               placeholder="e.g., 200"
-                               step="0.01"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="is_owner" value="0" class="w-4 h-4 text-[#155386] focus:ring-[#155386]">
+                            <span class="text-gray-700 group-hover:text-[#155386] transition">No, I am authorized representative</span>
+                        </label>
                     </div>
                 </div>
 
-                <!-- Number of Floors & Estimated Cost -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Number of Floors <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               name="num_floors" 
-                               id="num_floors"
-                               value="{{ $application->num_floors ?? '1' }}"
-                               min="1"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Estimated Cost (PHP) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               name="estimated_cost" 
-                               id="estimated_cost"
-                               value="{{ $application->estimated_cost ?? '' }}"
-                               placeholder="e.g., 5000000"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    </div>
-                </div>
-
-                <!-- Project Description -->
+                <!-- Proof of Ownership Documents -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Project Description <span class="text-red-500">*</span>
-                    </label>
-                    <textarea name="project_description" 
-                              id="project_description" 
-                              rows="4"
-                              placeholder="Briefly describe the scope of your construction project..."
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">{{ $application->project_description ?? '' }}</textarea>
-                </div>
-
-                <!-- Owner/Applicant Information -->
-                <div class="border-t border-gray-200 pt-6 mt-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Owner/Applicant Information</h3>
+                    <div class="flex items-center gap-2 mb-5">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Proof of Ownership Documents</h3>
+                    </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-5">
+                        <!-- TCT / Deed of Sale Link -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Full Name <span class="text-red-500">*</span>
+                                TCT / Deed of Sale <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" 
-                                   name="owner_name" 
-                                   id="owner_name"
-                                   value="{{ $application->owner_name ?? (Auth::user()->first_name . ' ' . Auth::user()->last_name) }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            <p class="text-xs text-gray-500 mb-2">Transfer Certificate of Title or Notarized Deed of Sale</p>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m1.102-4.768a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102" />
+                                    </svg>
+                                </div>
+                                <input type="url" name="tct_link" id="tct_link" 
+                                       class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       value="{{ $application->ownership->tct_link ?? '' }}"
+                                       required>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Owner's Address <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="owner_address" 
-                                   id="owner_address"
-                                   value="{{ $application->owner_address ?? (Auth::user()->address ?? '') }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <!-- Tax Declaration Link -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Contact Number <span class="text-red-500">*</span>
+                                Tax Declaration <span class="text-red-500">*</span>
                             </label>
-                            <input type="tel" 
-                                   name="contact_number" 
-                                   id="contact_number"
-                                   value="{{ $application->contact_number ?? (Auth::user()->phone_number ?? '') }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            <p class="text-xs text-gray-500 mb-2">Current Tax Declaration</p>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <input type="url" name="tax_declaration_link" id="tax_declaration_link" 
+                                       class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       value="{{ $application->ownership->tax_declaration_link ?? '' }}"
+                                       required>
+                            </div>
                         </div>
+
+                        <!-- Current Tax Receipt Link -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Email Address <span class="text-red-500">*</span>
+                                Current Tax Receipt <span class="text-red-500">*</span>
                             </label>
-                            <input type="email" 
-                                   name="owner_email" 
-                                   id="owner_email"
-                                   value="{{ $application->owner_email ?? Auth::user()->email }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            <p class="text-xs text-gray-500 mb-2">Proof of paid real property tax</p>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <input type="url" name="current_tax_receipt_link" id="current_tax_receipt_link" 
+                                       class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
+                                       placeholder="https://drive.google.com/file/d/..." 
+                                       value="{{ $application->ownership->current_tax_receipt_link ?? '' }}"
+                                       required>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Professional Information -->
-                <div class="border-t border-gray-200 pt-6 mt-6">
-                    <div class="flex items-center gap-2 mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Professional Information</h3>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-4">Please provide the licensed professionals who will sign and seal the plans</p>
-                    
-                    <!-- Architect -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Architect's Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="architect_name" 
-                                   id="architect_name"
-                                   value="{{ $application->architect_name ?? '' }}"
-                                   placeholder="Full name of licensed architect"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                <!-- Authorization Documents (Conditional) -->
+                <div id="authorization-section" class="hidden">
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex items-center gap-2 mb-5">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Authorization Documents</h3>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Architect's License Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="architect_license" 
-                                   id="architect_license"
-                                   value="{{ $application->architect_license ?? '' }}"
-                                   placeholder="PRC License Number"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-4 mb-5 border border-yellow-200">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-sm text-yellow-800">Since you are not the property owner, you need to provide a Special Power of Attorney (SPA) from the registered owner.</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Civil Engineer -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-            Civil Engineer's Name <span class="text-red-500">*</span>
-        </label>
-        <input type="text" 
-               name="engineer_name" 
-               id="engineer_name"
-               value="{{ $application->engineer_name ?? '' }}"
-               placeholder="Full name of licensed civil engineer"
-               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-            Civil Engineer's License Number <span class="text-red-500">*</span>
-        </label>
-        <input type="text" 
-               name="engineer_license" 
-               id="engineer_license"
-               value="{{ $application->engineer_license ?? '' }}"
-               placeholder="PRC License Number"
-               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-</div>
-
-                    <!-- Professional Electrical Engineer -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Professional Electrical Engineer's Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="electrical_engineer_name" 
-                                   id="electrical_engineer_name"
-                                   value="{{ $application->electrical_engineer_name ?? '' }}"
-                                   placeholder="Full name of licensed electrical engineer"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Electrical Engineer's License Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="electrical_engineer_license" 
-                                   id="electrical_engineer_license"
-                                   value="{{ $application->electrical_engineer_license ?? '' }}"
-                                   placeholder="PRC License Number"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                    </div>
-
-                    <!-- Sanitary Engineer / Master Plumber -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Sanitary Engineer / Master Plumber's Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="sanitary_engineer_name" 
-                                   id="sanitary_engineer_name"
-                                   value="{{ $application->sanitary_engineer_name ?? '' }}"
-                                   placeholder="Full name of licensed sanitary engineer or master plumber"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Sanitary Engineer / Master Plumber's License Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="sanitary_engineer_license" 
-                                   id="sanitary_engineer_license"
-                                   value="{{ $application->sanitary_engineer_license ?? '' }}"
-                                   placeholder="PRC License Number"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                        
+                        <div class="space-y-5">
+                            <!-- SPA Link -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Special Power of Attorney (SPA) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <input type="url" name="spa_link" id="spa_link" 
+                                           class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-[#155386] transition"
+                                           placeholder="https://drive.google.com/file/d/..." 
+                                           value="{{ $application->ownership->spa_link ?? '' }}">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Required if you are an authorized representative</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -375,156 +249,173 @@
 </div>
 
 <script>
-'use strict';
+    const applicationId = {{ $application->id }};
 
-const applicationId = {{ $application->id }};
+    function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
 
-function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
+    // Toggle authorization section based on owner status
+    const isOwnerRadios = document.querySelectorAll('input[name="is_owner"]');
+    const authorizationSection = document.getElementById('authorization-section');
 
-document.getElementById('project-info-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Validate required fields
-    const requiredFields = [
-        'project_title', 'project_location', 'project_type', 
-        'lot_area', 'floor_area', 'num_floors', 'estimated_cost', 'project_description', 
-        'owner_name', 'owner_address', 'contact_number', 'owner_email',
-        'architect_name', 'architect_license',
-        'engineer_name', 'engineer_license',
-        'electrical_engineer_name', 'electrical_engineer_license',
-        'sanitary_engineer_name', 'sanitary_engineer_license'
-    ];
-    
-    let hasError = false;
-    let missingFields = [];
-    
-    for (const field of requiredFields) {
-        const input = document.getElementById(field);
-        if (!input || !input.value.trim()) {
-            missingFields.push(field.replace(/_/g, ' '));
-            input?.classList.add('border-red-500');
-            hasError = true;
-        } else {
-            input?.classList.remove('border-red-500');
+    function toggleAuthorizationSection() {
+        const isOwner = document.querySelector('input[name="is_owner"]:checked');
+        if (authorizationSection) {
+            const spaInput = document.getElementById('spa_link');
+            
+            if (isOwner && isOwner.value === '0') {
+                authorizationSection.classList.remove('hidden');
+                if (spaInput) spaInput.setAttribute('required', 'required');
+            } else {
+                authorizationSection.classList.add('hidden');
+                if (spaInput) spaInput.removeAttribute('required');
+            }
         }
     }
-    
-    if (hasError) {
-        showErrorModal(`Please fill in all required fields.\nMissing: ${missingFields.join(', ')}`);
-        return;
-    }
-    
-    // Validate email format
-    const email = document.getElementById('owner_email').value;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showErrorModal('Please enter a valid email address.');
-        document.getElementById('owner_email').classList.add('border-red-500');
-        return;
-    }
-    
-    // Validate phone number (Philippines format)
-    const phone = document.getElementById('contact_number').value;
-    const phoneRegex = /^(09|\+639)\d{9}$/;
-    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-        showErrorModal('Please enter a valid Philippine mobile number (e.g., 09171234567)');
-        document.getElementById('contact_number').classList.add('border-red-500');
-        return;
-    }
-    
-    const submitBtn = document.getElementById('submit-btn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData(this);
-    
-    try {
-        const response = await fetch('/applicant/application/save-project-info', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrf(),
-                'Accept': 'application/json'
-            },
-            body: formData
+
+    if (isOwnerRadios.length > 0) {
+        isOwnerRadios.forEach(radio => {
+            radio.addEventListener('change', toggleAuthorizationSection);
         });
+        toggleAuthorizationSection();
+    }
+
+    document.getElementById('ownership-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        const data = await response.json();
+        // Validate required fields
+        const requiredFields = [
+            { id: 'tct_link', name: 'TCT / Deed of Sale' },
+            { id: 'tax_declaration_link', name: 'Tax Declaration' },
+            { id: 'current_tax_receipt_link', name: 'Current Tax Receipt' }
+        ];
         
-        if (data.success) {
-            showSuccessModal('Project information saved! Redirecting to Step 2...');
-            setTimeout(() => {
-                window.location.href = `/applicant/application/step2?id=${applicationId}`;
-            }, 1500);
-        } else {
-            showErrorModal(data.message || 'Failed to save project information');
+        const isOwner = document.querySelector('input[name="is_owner"]:checked');
+        if (isOwner && isOwner.value === '0') {
+            requiredFields.push(
+                { id: 'spa_link', name: 'Special Power of Attorney (SPA)' }
+            );
+        }
+        
+        let hasError = false;
+        for (const field of requiredFields) {
+            const input = document.getElementById(field.id);
+            if (!input || !input.value.trim()) {
+                showErrorModal(`Please provide a link for: ${field.name}`);
+                if (input) input.classList.add('border-red-500');
+                hasError = true;
+            } else if (!isValidGoogleDriveLink(input.value.trim())) {
+                showErrorModal(`Please provide a valid Google Drive link for: ${field.name}`);
+                input.classList.add('border-red-500');
+                hasError = true;
+            } else {
+                input.classList.remove('border-red-500');
+            }
+        }
+        
+        if (hasError) return;
+        
+        const submitBtn = document.getElementById('submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+        submitBtn.disabled = true;
+        
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('/applicant/application/save-ownership', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrf(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Ownership documents saved! Redirecting to Step 2...');
+                setTimeout(() => {
+                    window.location.href = `/applicant/application/step2?id=${applicationId}`;
+                }, 1500);
+            } else {
+                showErrorModal(data.message || 'Failed to save ownership documents');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showErrorModal('An error occurred. Please try again.');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
-    } catch (error) {
-        console.error('Error:', error);
-        showErrorModal('An error occurred. Please try again.');
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-function copyApplicationNumber(){
-    const num = '{{ $application->application_number }}';
-    if(num) {
-        navigator.clipboard.writeText(num).then(()=>showSuccessModal('Application number copied!')).catch(()=>showErrorModal('Copy failed.'));
-    }
-}
-
-function showErrorModal(message){
-    const modal = document.getElementById('error-modal');
-    const messageEl = document.getElementById('error-modal-message');
-    if(modal && messageEl){
-        messageEl.textContent = message;
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    } else { alert(message); }
-}
-
-function closeErrorModal(){
-    const modal = document.getElementById('error-modal');
-    if(modal){
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-}
-
-function showSuccessModal(message){
-    const modal = document.getElementById('success-modal');
-    const messageEl = document.getElementById('success-modal-message');
-    if(modal && messageEl){
-        messageEl.textContent = message;
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => { closeSuccessModal(); }, 3000);
-    } else { alert(message); }
-}
-
-function closeSuccessModal(){
-    const modal = document.getElementById('success-modal');
-    if(modal){
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// Clear red borders when user starts typing
-const inputs = document.querySelectorAll('input, textarea, select');
-inputs.forEach(input => {
-    input.addEventListener('input', function() {
-        this.classList.remove('border-red-500');
     });
-});
+
+    function isValidGoogleDriveLink(link) {
+        const patterns = [
+            /drive\.google\.com\/file\/d\//,
+            /drive\.google\.com\/drive\/folders\//,
+            /drive\.google\.com\/open\?id=/,
+            /docs\.google\.com\/document\/d\//,
+            /drive\.google\.com\/folderview\?id=/
+        ];
+        
+        for (const pattern of patterns) {
+            if (pattern.test(link)) return true;
+        }
+        
+        return link.includes('drive.google.com') || link.includes('docs.google.com');
+    }
+
+    function showErrorModal(message){
+        const modal = document.getElementById('error-modal');
+        const messageEl = document.getElementById('error-modal-message');
+        if(modal && messageEl){
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else { alert(message); }
+    }
+
+    function closeErrorModal(){
+        const modal = document.getElementById('error-modal');
+        if(modal){
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function showSuccessModal(message){
+        const modal = document.getElementById('success-modal');
+        const messageEl = document.getElementById('success-modal-message');
+        if(modal && messageEl){
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { closeSuccessModal(); }, 3000);
+        } else { alert(message); }
+    }
+
+    function closeSuccessModal(){
+        const modal = document.getElementById('success-modal');
+        if(modal){
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Clear red borders when user starts typing
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+        });
+    });
 </script>
 
 <style>
-.animate-spin{animation:spin 1s linear infinite;}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-button:disabled{cursor:not-allowed;opacity:.65;}
+    .animate-spin{animation:spin 1s linear infinite;}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    button:disabled{cursor:not-allowed;opacity:.65;}
 </style>
 @endsection

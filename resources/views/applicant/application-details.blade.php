@@ -117,6 +117,21 @@
             </div>
         </div>
 
+        <!-- Ownership Status Card -->
+        <div id="ownership-status-card" class="mb-6 p-4 bg-teal-50 border-l-4 border-teal-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Property Ownership Status</h4>
+                    <p id="ownership-status-text" class="text-sm text-gray-700 mt-1">Loading...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Application Header -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -434,16 +449,44 @@
                         Submitted Documents
                     </h2>
 
-                    <!-- Individual Document Links -->
-                    <div class="space-y-4">
-                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2">Document Links</h3>
-                        <div id="documents-list" class="space-y-3">
-                            <div class="text-center py-8 text-gray-500">
-                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Ownership Documents Section (Step 1) -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2 mb-3 text-teal-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                Step 1: Ownership Documents
+                            </span>
+                        </h3>
+                        <div id="ownership-documents-list" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500">
+                                <svg class="w-8 h-8 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <p class="text-sm">Loading documents...</p>
+                                <p class="text-sm">Loading ownership documents...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Documents Section (Step 2) -->
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-800 border-b pb-2 mb-3 text-blue-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Step 2: Project Documents
+                            </span>
+                        </h3>
+                        <div id="documents-list" class="space-y-3">
+                            <div class="text-center py-4 text-gray-500">
+                                <svg class="w-8 h-8 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-sm">Loading project documents...</p>
                             </div>
                         </div>
                     </div>
@@ -681,9 +724,18 @@
     let updateCheckInterval = null;
     let currentAssessment = null;
     let currentBfpData = null;
+    let currentOwnershipData = null;
 
-    // Document names mapping
-    const documentNames = {
+    // Ownership document names mapping (Step 1)
+    const ownershipDocumentNames = {
+        'tct_link': 'TCT / Deed of Sale',
+        'tax_declaration_link': 'Tax Declaration',
+        'current_tax_receipt_link': 'Current Tax Receipt',
+        'spa_link': 'Special Power of Attorney (SPA)'
+    };
+
+    // Document names mapping (Step 2)
+    const projectDocumentNames = {
         'app_letter_link': 'Application Letter',
         'bp_forms_link': 'Building Permit Forms',
         'arch_plans_link': 'Architectural Plans',
@@ -763,6 +815,132 @@
         } catch (error) {
             console.error('Error checking for updates:', error);
         }
+    }
+
+    // Load ownership data
+    async function loadOwnershipData() {
+        if (!applicationId) return;
+        
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}/ownership`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentOwnershipData = data.data;
+                    displayOwnershipInfo();
+                    displayOwnershipDocuments();
+                } else {
+                    displayEmptyOwnershipDocuments();
+                }
+            } else {
+                displayEmptyOwnershipDocuments();
+            }
+        } catch (error) {
+            console.error('Error loading ownership data:', error);
+            displayEmptyOwnershipDocuments();
+        }
+    }
+
+    // Display ownership status info
+    function displayOwnershipInfo() {
+        if (!currentOwnershipData) return;
+        
+        const ownershipCard = document.getElementById('ownership-status-card');
+        const ownershipStatusText = document.getElementById('ownership-status-text');
+        
+        if (ownershipCard && ownershipStatusText) {
+            ownershipCard.classList.remove('hidden');
+            
+            if (currentOwnershipData.is_owner == 1) {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - You are registered as the property owner.';
+            } else {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - You have provided a Special Power of Attorney (SPA).';
+            }
+        }
+    }
+
+    // Display ownership documents (Step 1)
+    function displayOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        
+        if (!currentOwnershipData) {
+            displayEmptyOwnershipDocuments();
+            return;
+        }
+        
+        let html = '';
+        let hasDocuments = false;
+        
+        // Map ownership data to document links
+        const ownershipLinks = {
+            'tct_link': currentOwnershipData.tct_link,
+            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
+            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
+            'spa_link': currentOwnershipData.spa_link
+        };
+        
+        for (const [key, value] of Object.entries(ownershipLinks)) {
+            if (value && value.trim() !== '') {
+                hasDocuments = true;
+                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+                
+                // Add badge for SPA if applicable
+                const spaBadge = key === 'spa_link' ? 
+                    '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                    ${spaBadge}
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
+                            </div>
+                        </div>
+                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span class="hidden sm:inline">View</span>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        if (!hasDocuments) {
+            displayEmptyOwnershipDocuments();
+        } else {
+            container.innerHTML = html;
+        }
+    }
+
+    // Display empty ownership documents
+    function displayEmptyOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        container.innerHTML = `
+            <div class="text-center py-6 text-gray-500 animate-fade-in">
+                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <p class="text-sm">No ownership documents uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">Please complete Step 1: Ownership Verification</p>
+            </div>
+        `;
     }
 
     // Load BFP data
@@ -1045,6 +1223,7 @@
                 loadReviewActivities();
                 loadAssessmentData();
                 loadBFPData();
+                loadOwnershipData(); // Load ownership data (Step 1)
                 
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
                     displayDocumentsList(currentApplication.document_links);
@@ -1090,7 +1269,7 @@
         document.getElementById('project-title').textContent = app.project_title || 'Building Permit Application';
     }
 
-    // Display documents list
+    // Display project documents list (Step 2)
     function displayDocumentsList(documents) {
         const container = document.getElementById('documents-list');
         
@@ -1105,7 +1284,7 @@
         for (const [key, value] of Object.entries(documents)) {
             if (value && value.trim() !== '') {
                 hasDocuments = true;
-                const docName = documentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+                const docName = projectDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
                 
                 html += `
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition group">
@@ -1135,8 +1314,7 @@
             showEmptyDocuments();
         } else {
             container.innerHTML = html;
-            document.getElementById('document-status').textContent = 'Available';
-            document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            updateDocumentStatus('Available');
         }
     }
 
@@ -1144,16 +1322,28 @@
     function showEmptyDocuments() {
         const container = document.getElementById('documents-list');
         container.innerHTML = `
-            <div class="text-center py-8 text-gray-500 animate-fade-in">
-                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center py-6 text-gray-500 animate-fade-in">
+                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p class="text-sm">No documents uploaded yet</p>
-                <p class="text-xs text-gray-400 mt-1">Please upload your documents in Step 2</p>
+                <p class="text-sm">No project documents uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">Please complete Step 2: Project Information</p>
             </div>
         `;
-        document.getElementById('document-status').textContent = 'Not Uploaded';
-        document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
+        updateDocumentStatus('Not Uploaded');
+    }
+
+    // Update document status
+    function updateDocumentStatus(status) {
+        const statusEl = document.getElementById('document-status');
+        if (statusEl) {
+            statusEl.textContent = status;
+            if (status === 'Available') {
+                statusEl.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full transition-all duration-500';
+            } else {
+                statusEl.className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500';
+            }
+        }
     }
 
     // Load review activities
@@ -1507,14 +1697,6 @@
 
         // Display hard copy submission date if available
         displayHardCopySubmissionInfo(currentApplication);
-
-        if (currentApplication.google_drive_link) {
-            document.getElementById('document-status').textContent = 'Available';
-            document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-        } else {
-            document.getElementById('document-status').textContent = 'Not Uploaded';
-            document.getElementById('document-status').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
-        }
 
         updateHardCopyStatus(currentApplication.hard_copy_received);
 

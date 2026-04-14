@@ -2195,4 +2195,46 @@ class ApplicationController extends Controller
             return null;
         }
     }
+    /**
+ * Get ownership data for an application (Staff view)
+ */
+public function getOwnershipData($id)
+{
+    try {
+        $application = ApplicationDocument::with('ownershipVerification')->find($id);
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        $ownership = $application->ownershipVerification;
+        
+        if (!$ownership) {
+            return response()->json([
+                'success' => true,
+                'data' => null
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'is_owner' => $ownership->is_owner,
+                'tct_link' => $ownership->tct_link,
+                'tax_declaration_link' => $ownership->tax_declaration_link,
+                'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
+                'spa_link' => $ownership->spa_link
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load ownership data: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

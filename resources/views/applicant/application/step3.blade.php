@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Application - Step 3: Upload Documents')
+@section('title', 'Application - Step 3: Download Forms')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -10,7 +10,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Step 2: Download Forms
+            Back to Step 2: Project Information
         </a>
     </div>
 
@@ -19,8 +19,8 @@
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-600 rounded-full font-bold text-sm">1</div>
             <div>
-                <h2 class="text-2xl font-semibold text-gray-800">Step 3: Upload Documents to Google Drive</h2>
-                <p class="text-l text-gray-600">Upload each document to Google Drive and provide individual shareable links below. All original hard copies must be submitted to our office.</p>
+                <h2 class="text-2xl font-semibold text-gray-800">Step 3: Download Forms</h2>
+                <p class="text-l text-gray-600">Select the forms you need and download them. Fill them out and upload in the next step.</p>
             </div>
         </div>
     </div>
@@ -30,504 +30,217 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                <span class="text-sm font-medium text-gray-400">Project Info</span>
+                <span class="text-sm font-medium text-gray-400">Ownership</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                <span class="text-sm font-medium text-gray-400">Download Forms</span>
+                <span class="text-sm font-medium text-gray-400">Project Info</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-[#155386] text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                <span class="text-sm font-semibold text-[#155386]">Upload Docs</span>
+                <span class="text-sm font-semibold text-[#155386]">Download Forms</span>
                 <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                <span class="text-sm font-medium text-gray-400">Upload Docs</span>
+                <svg class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">5</div>
                 <span class="text-sm font-medium text-gray-400">Review & Submit</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hard Copy Notice -->
-    <div class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 rounded-r-lg">
-        <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <h4 class="font-semibold text-gray-800">Important Reminder</h4>
-                <p class="text-sm text-gray-700 mt-1">The Google Drive links are for pre-verification purposes. <span class="font-semibold">You must submit the original hard copies</span> of ALL documents to the Office of the Building Official (OBO) for final processing.</p>
             </div>
         </div>
     </div>
 
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">Document Links</h2>
-            
-            <!-- Instructions Card -->
-            <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+        <!-- Instructions -->
+        <div class="p-8 pt-10">
+            <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+                <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    How to Complete Your Application
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h4 class="font-semibold text-gray-800">How to Upload to Google Drive</h4>
-                        <ol class="mt-2 text-sm text-gray-600 list-decimal list-inside space-y-1">
-                            <li>Upload each document individually to Google Drive</li>
-                            <li>For each document, set sharing permission to <span class="font-semibold">"Anyone with the link can view"</span></li>
-                            <li>Copy each shareable link and paste it in the corresponding field below</li>
-                            <li>Make sure each link is accessible and working</li>
+                        <h4 class="font-medium text-gray-700 mb-2">Step-by-Step Guide:</h4>
+                        <ol class="space-y-3 text-sm text-gray-600">
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span><span>Select the forms you need from the checklist below</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">2</span><span>Click "Download Selected" to download all chosen forms</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-[#155386] text-white rounded-full flex items-center justify-center text-xs font-bold">3</span><span>Print and fill out the forms completely using black ink</span></li>
                         </ol>
                     </div>
-                </div>
-            </div>
-
-            <!-- Documents Grid -->
-            <form id="documents-form" class="space-y-6">
-                @csrf
-                <input type="hidden" name="application_id" value="{{ $application->id }}">
-                
-                <!-- Required Documents -->
-                <div class="space-y-6">
-                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Required Documents</h3>
-                    
-                    <!-- Application Letter -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Application Letter <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Request letter addressed to the Building Official</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="app_letter_link" 
-                                       name="app_letter_link"
-                                       value="{{ $application->document_links['app_letter_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('app_letter_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Building Permit Forms -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Building Permit Forms <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Completed BP Form (BP 102, BP 103, etc.)</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="bp_forms_link" 
-                                       name="bp_forms_link"
-                                       value="{{ $application->document_links['bp_forms_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('bp_forms_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Zoning Compliance / Locational Clearance -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Zoning Compliance / Locational Clearance <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Certificate from the City Planning and Development Office - Verifies project complies with zoning regulations</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="zoning_compliance_link" 
-                                       name="zoning_compliance_link"
-                                       value="{{ $application->document_links['zoning_compliance_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('zoning_compliance_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Architectural Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Architectural Plans (5 sets) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed architect</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="arch_plans_link" 
-                                       name="arch_plans_link"
-                                       value="{{ $application->document_links['arch_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('arch_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Structural Plans and Specifications (REQUIRED) -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Structural Plans and Specifications <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed civil engineer - Complete structural drawings including foundation, framing, and details</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="structural_plans_link" 
-                                       name="structural_plans_link"
-                                       value="{{ $application->document_links['structural_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('structural_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Site Development Plan / Geodetic Plan -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Site Development Plan / Geodetic Plan <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed geodetic engineer - Shows property boundaries, topography, and site features</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="geodetic_plan_link" 
-                                       name="geodetic_plan_link"
-                                       value="{{ $application->document_links['geodetic_plan_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('geodetic_plan_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Electrical Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Electrical Plans (5 sets) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed electrical engineer</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="electrical_plans_link" 
-                                       name="electrical_plans_link"
-                                       value="{{ $application->document_links['electrical_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('electrical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Sanitary/Plumbing Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Sanitary/Plumbing Plans (5 sets) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Signed and sealed by licensed sanitary/plumbing engineer</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="plumbing_plans_link" 
-                                       name="plumbing_plans_link"
-                                       value="{{ $application->document_links['plumbing_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('plumbing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Bill of Materials -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Bill of Materials (5 copies) <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Detailed list of materials with quantities</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="bom_link" 
-                                       name="bom_link"
-                                       value="{{ $application->document_links['bom_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('bom_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Barangay Clearance -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Barangay Clearance <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Clearance from the barangay where project is located</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="barangay_clearance_link" 
-                                       name="barangay_clearance_link"
-                                       value="{{ $application->document_links['barangay_clearance_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('barangay_clearance_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Valid ID -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Valid ID <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Government-issued ID of applicant/representative</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="valid_id_link" 
-                                       name="valid_id_link"
-                                       value="{{ $application->document_links['valid_id_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('valid_id_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PTR License No. (Updated Current Year) -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    PTR License No. <span class="text-red-500">*</span>
-                                </label>
-                                <p class="text-xs text-gray-500">Professional Tax Receipt - Must be updated for current year ({{ date('Y') }})</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="ptr_license_link" 
-                                       name="ptr_license_link"
-                                       value="{{ $application->document_links['ptr_license_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('ptr_license_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">Important Reminders:</h4>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs">1</span><span>Each form can only be downloaded once</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">2</span><span>Sign the forms where required (blue ink preferred)</span></li>
+                            <li class="flex items-start gap-2"><span class="flex-shrink-0 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center text-xs">3</span><span>Scan or take clear photos of the accomplished forms</span></li>
+                        </ul>
                     </div>
                 </div>
-                
-                <!-- Optional Documents -->
-                <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Optional Documents (If Applicable)</h3>
-                    <p class="text-sm text-gray-500 mt-2 mb-4">These documents are required only if your project includes specific features</p>
-                    
-                    <!-- Structural Design Analysis (OPTIONAL - moved here) -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Structural Design Analysis 
-                                </label>
-                                <p class="text-xs text-gray-500">Computation and analysis signed by civil engineer - Required for buildings with complex structural systems</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="structural_analysis_link" 
-                                       name="structural_analysis_link"
-                                       value="{{ $application->document_links['structural_analysis_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('structural_analysis_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Mechanical Plans and Specs -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Mechanical Plans and Specifications
-                                </label>
-                                <p class="text-xs text-gray-500">For projects with elevators, escalators, HVAC systems, or other mechanical installations</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="mechanical_plans_link" 
-                                       name="mechanical_plans_link"
-                                       value="{{ $application->document_links['mechanical_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('mechanical_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Fencing Plans -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Fencing Plans
-                                </label>
-                                <p class="text-xs text-gray-500">For perimeter fencing, gates, and boundary walls</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="fencing_plans_link" 
-                                       name="fencing_plans_link"
-                                       value="{{ $application->document_links['fencing_plans_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('fencing_plans_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Structural Plans for slab and 2+ stories (Optional) -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition mb-4">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Structural Plans 
-                                </label>
-                                <p class="text-xs text-gray-500">Required for buildings with 2 or more stories, or projects with concrete slab construction</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="structural_optional_link" 
-                                       name="structural_optional_link"
-                                       value="{{ $application->document_links['structural_optional_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('structural_optional_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- CSHP from DOLE -->
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    CSHP from DOLE
-                                </label>
-                                <p class="text-xs text-gray-500">Construction Safety and Health Program - Required for contractors with PCAB license</p>
-                            </div>
-                            <div class="flex-1">
-                                <input type="url" 
-                                       id="cshp_link" 
-                                       name="cshp_link"
-                                       value="{{ $application->document_links['cshp_link'] ?? '' }}"
-                                       placeholder="https://drive.google.com/file/d/..." 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm">
-                            </div>
-                            <div>
-                                <button type="button" onclick="testLink('cshp_link')" class="text-xs text-[#155386] hover:text-[#40798C]">Test Link</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mt-4 p-4 bg-white/50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-gray-600 flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span><span class="font-medium">Tip:</span> Once you download a form, it will be marked as downloaded and cannot be downloaded again.</span>
+                    </p>
                 </div>
-            </form>
-            
-            <!-- Progress Indicator -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">Documents Upload Progress</span>
-                    <span class="text-sm font-bold text-[#155386]" id="upload-progress">0/13</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="progress-bar" class="bg-[#155386] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2" id="progress-message">Please provide links for all required documents</p>
             </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="p-6 pt-0 flex justify-between items-center">
-            <a href="/applicant/application/step2?id={{ $application->id }}" 
-               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Previous: Download Forms
-            </a>
-            
-            <button onclick="saveAllDocumentLinks()" 
-                    id="proceed-btn"
+        <!-- Forms Checklist - Priority Order -->
+        <div class="p-8 pt-0">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Building Permit Forms Checklist</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="selectAllForms()" class="text-sm text-[#155386] hover:underline">Select All</button>
+                    <span class="text-gray-300">|</span>
+                    <button onclick="deselectAllForms()" class="text-sm text-gray-500 hover:underline">Deselect All</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <!-- 1. Building Permit Application (Primary) -->
+                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg border-2 border-[#155386] transition relative overflow-hidden">
+                    <input type="checkbox" id="form-building-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-building-permit" class="font-medium text-gray-800 cursor-pointer">Building Permit Application</label>
+                        <p class="text-xs text-gray-500">Main application form - Required for all construction projects</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- 2. Zoning Compliance -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-zoning-compliance" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-zoning-compliance" class="font-medium text-gray-800 cursor-pointer">Zoning Compliance / Locational Clearance</label>
+                        <p class="text-xs text-gray-500">Certificate from the City Planning and Development Office - Verifies project complies with zoning regulations</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- 3. Architectural Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-architectural-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-architectural-permit" class="font-medium text-gray-800 cursor-pointer">Architectural Permit</label>
+                        <p class="text-xs text-gray-500">For architectural works - Signed and sealed by licensed architect</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- 4. Civil/Structural Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-civil-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-civil-permit" class="font-medium text-gray-800 cursor-pointer">Civil/Structural Permit</label>
+                        <p class="text-xs text-gray-500">For structural works - Signed and sealed by licensed civil engineer</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- 5. Electrical Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-electrical-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-electrical-permit" class="font-medium text-gray-800 cursor-pointer">Electrical Permit</label>
+                        <p class="text-xs text-gray-500">For electrical works - Signed and sealed by licensed electrical engineer</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- 6. Sanitary/Plumbing Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-sanitary-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-sanitary-permit" class="font-medium text-gray-800 cursor-pointer">Sanitary/Plumbing Permit</label>
+                        <p class="text-xs text-gray-500">For plumbing and sanitary works - Signed and sealed by licensed sanitary engineer or master plumber</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- Divider for Optional Forms -->
+                <div class="md:col-span-2 mt-2 mb-2">
+                    <div class="border-t border-gray-200 pt-4">
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Optional Forms (if applicable to your project)</p>
+                    </div>
+                </div>
+
+                <!-- Optional: Mechanical Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-mechanical-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-mechanical-permit" class="font-medium text-gray-800 cursor-pointer">Mechanical Permit</label>
+                        <p class="text-xs text-gray-500">For mechanical installations (elevators, HVAC, etc.)</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- Optional: Electronics Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-electronics-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-electronics-permit" class="font-medium text-gray-800 cursor-pointer">Electronics Permit</label>
+                        <p class="text-xs text-gray-500">For electronics systems (fire alarms, security systems, etc.)</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- Optional: Sign Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-sign-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-sign-permit" class="font-medium text-gray-800 cursor-pointer">Sign Permit Application</label>
+                        <p class="text-xs text-gray-500">For signage and billboards</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- Optional: Fencing Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-fencing-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-fencing-permit" class="font-medium text-gray-800 cursor-pointer">Fencing Permit</label>
+                        <p class="text-xs text-gray-500">For fencing construction</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+
+                <!-- Optional: Demolition Permit -->
+                <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#155386] transition">
+                    <input type="checkbox" id="form-demolition-permit" class="form-checkbox h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386] mt-0.5">
+                    <div class="flex-1">
+                        <label for="form-demolition-permit" class="font-medium text-gray-800 cursor-pointer">Demolition Permit</label>
+                        <p class="text-xs text-gray-500">For demolition works</p>
+                    </div>
+                    <span class="text-xs text-gray-400">PDF</span>
+                </div>
+            </div>
+
+            <!-- Download Button -->
+            <div class="flex items-center justify-between p-6 bg-blue-50 rounded-xl border border-blue-200">
+                <div>
+                    <p class="font-medium text-gray-800" id="selected-count">0 forms selected</p>
+                    <p class="text-sm text-gray-600">Download all selected forms as individual PDFs (each form can only be downloaded once)</p>
+                </div>
+                <button onclick="downloadSelectedForms()" id="download-btn"
+                        class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download Selected (<span id="download-count">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- Next Step Button -->
+        <div class="p-8 pt-0 flex justify-end">
+            <button onclick="markStep3Complete()" id="next-step-btn"
                     class="inline-flex items-center px-8 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium shadow-md">
-                Save & Proceed to Review
-                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+                Continue to Step 4: Upload Documents
+                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </button>
         </div>
     </div>
@@ -562,250 +275,236 @@
 </div>
 
 <script>
-    const applicationId = {{ $application->id }};
+'use strict';
+
+const applicationId = {{ $application->id }};
+
+// Track downloaded forms to prevent re-download
+let downloadedForms = JSON.parse(localStorage.getItem(`downloaded_forms_${applicationId}`) || '{}');
+
+// Priority forms first, then optional
+const formCheckboxes = [
+    // Priority Forms (Required)
+    { id:'form-building-permit',        name:'Building Permit Application',     file:'building-permit-application.pdf', priority: true },
+    { id:'form-zoning-compliance',      name:'Zoning Compliance / Locational Clearance', file:'zoning-compliance.pdf', priority: true },
+    { id:'form-architectural-permit',   name:'Architectural Permit',           file:'architectural-permit.pdf', priority: true },
+    { id:'form-civil-permit',           name:'Civil/Structural Permit',        file:'civil-structural-permit.pdf', priority: true },
+    { id:'form-electrical-permit',      name:'Electrical Permit',              file:'electrical-permit.pdf', priority: true },
+    { id:'form-sanitary-permit',        name:'Sanitary/Plumbing Permit',       file:'sanitary-plumbing-permit.pdf', priority: true },
+    // Optional Forms
+    { id:'form-mechanical-permit',      name:'Mechanical Permit',              file:'mechanical-permit.pdf', priority: false },
+    { id:'form-electronics-permit',     name:'Electronics Permit',             file:'electronics-permit.pdf', priority: false },
+    { id:'form-sign-permit',            name:'Sign Permit Application',        file:'sign-permit-application.pdf', priority: false },
+    { id:'form-fencing-permit',         name:'Fencing Permit',                 file:'fencing-permit.pdf', priority: false },
+    { id:'form-demolition-permit',      name:'Demolition Permit',              file:'demolition-permit.pdf', priority: false }
+];
+
+function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
+
+// ─── Download Functions ───────────────────────────────────────────────────────
+function downloadFile(filename){
+    const a = document.createElement('a');
+    a.href = `/downloads/${filename}?t=${Date.now()}`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+async function downloadSelectedForms(){
+    const selectedForms = [];
     
-    // Define all document fields - Required (Structural Plans is required, Structural Analysis is optional)
-    const documentFields = [
-        'app_letter_link',
-        'bp_forms_link',
-        'zoning_compliance_link',
-        'arch_plans_link',
-        'structural_plans_link',      // REQUIRED - Structural Plans and Specifications
-        'geodetic_plan_link',
-        'electrical_plans_link',
-        'plumbing_plans_link',
-        'bom_link',
-        'barangay_clearance_link',
-        'valid_id_link',
-        'ptr_license_link'
-    ];
-    
-    // Optional documents (Structural Design Analysis moved here)
-    const optionalFields = [
-        'structural_analysis_link',   // OPTIONAL - moved from required
-        'mechanical_plans_link',
-        'fencing_plans_link',
-        'structural_optional_link',
-        'cshp_link'
-    ];
-    
-    function csrf(){ return document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'; }
-    
-    // Update progress bar
-    function updateProgress() {
-        let filledCount = 0;
-        documentFields.forEach(field => {
-            const value = document.getElementById(field)?.value.trim();
-            if (value && value !== '') {
-                filledCount++;
+    formCheckboxes.forEach((form) => {
+        const checkbox = document.getElementById(form.id);
+        if(checkbox && checkbox.checked){
+            if(downloadedForms[form.id]){
+                showErrorModal(`${form.name} has already been downloaded. Each form can only be downloaded once.`);
+                checkbox.checked = false;
+                return;
             }
-        });
-        
-        const totalRequired = documentFields.length;
-        const percentage = (filledCount / totalRequired) * 100;
-        
-        document.getElementById('upload-progress').textContent = `${filledCount}/${totalRequired}`;
-        document.getElementById('progress-bar').style.width = `${percentage}%`;
-        
-        if (filledCount === totalRequired) {
-            document.getElementById('progress-message').innerHTML = '<span class="text-green-600">✓ All required documents have links! You can now proceed.</span>';
-        } else {
-            document.getElementById('progress-message').innerHTML = `<span class="text-yellow-600">⚠️ Please provide links for ${totalRequired - filledCount} more document(s)</span>`;
-        }
-    }
-    
-    // Test individual link
-    function testLink(fieldId) {
-        const link = document.getElementById(fieldId).value.trim();
-        
-        if (!link) {
-            showErrorModal('Please enter a Google Drive link first.');
-            return;
-        }
-        
-        const isGoogleDriveLink = link.includes('drive.google.com') || link.includes('docs.google.com');
-        
-        if (!isGoogleDriveLink) {
-            showErrorModal('Please enter a valid Google Drive link.');
-            return;
-        }
-        
-        showSuccessModal('Link format is valid! Make sure sharing is set to "Anyone with the link".');
-    }
-    
-    // Save all document links
-    async function saveAllDocumentLinks() {
-        // Validate all required fields
-        const missingFields = [];
-        documentFields.forEach(field => {
-            const value = document.getElementById(field)?.value.trim();
-            if (!value) {
-                const label = document.querySelector(`label[for="${field}"]`)?.innerText || field;
-                missingFields.push(label);
-            }
-        });
-        
-        if (missingFields.length > 0) {
-            showErrorModal(`Please provide links for the following required documents:\n${missingFields.join('\n')}`);
-            return;
-        }
-        
-        // Collect all links
-        const documentLinks = {};
-        documentFields.forEach(field => {
-            documentLinks[field] = document.getElementById(field).value.trim();
-        });
-        optionalFields.forEach(field => {
-            const value = document.getElementById(field)?.value.trim();
-            if (value) {
-                documentLinks[field] = value;
-            }
-        });
-        
-        // Show loading state
-        const proceedBtn = document.getElementById('proceed-btn');
-        const originalText = proceedBtn.innerHTML;
-        proceedBtn.innerHTML = `
-            <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Saving Documents...
-        `;
-        proceedBtn.disabled = true;
-        
-        try {
-            const requestData = {
-                document_links: documentLinks,
-                application_id: applicationId
-            };
-            
-            const storeResponse = await fetch('/applicant/application/store-links', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf(),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            const storeData = await storeResponse.json();
-            
-            if (!storeResponse.ok || !storeData.success) {
-                throw new Error(storeData.message || 'Failed to save documents');
-            }
-            
-            showSuccessModal('All documents saved successfully! Redirecting to Step 4...');
-            
-            const completeResponse = await fetch('/applicant/application/step3/complete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf(),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    application_id: applicationId
-                })
-            });
-            
-            setTimeout(() => {
-                window.location.href = `/applicant/application/step4?id=${applicationId}`;
-            }, 2000);
-            
-        } catch (error) {
-            console.error('Error:', error);
-            showErrorModal(error.message || 'An error occurred. Please try again.');
-            proceedBtn.innerHTML = originalText;
-            proceedBtn.disabled = false;
-        }
-    }
-    
-    // Load existing data on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        documentFields.forEach(field => {
-            const element = document.getElementById(field);
-            if (element) {
-                element.addEventListener('input', updateProgress);
-            }
-        });
-        
-        updateProgress();
-        
-        const existingLinks = @json($application->document_links ?? []);
-        if (existingLinks) {
-            documentFields.forEach(field => {
-                if (existingLinks[field]) {
-                    const element = document.getElementById(field);
-                    if (element) element.value = existingLinks[field];
-                }
-            });
-            optionalFields.forEach(field => {
-                if (existingLinks[field]) {
-                    const element = document.getElementById(field);
-                    if (element) element.value = existingLinks[field];
-                }
-            });
-            updateProgress();
+            selectedForms.push(form);
         }
     });
     
-    function showErrorModal(message){
-        const modal = document.getElementById('error-modal');
-        const messageEl = document.getElementById('error-modal-message');
-        if(modal && messageEl){
-            messageEl.textContent = message;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        } else { alert(message); }
+    if(selectedForms.length === 0){
+        showErrorModal('Please select at least one form to download.');
+        return;
     }
     
-    function closeErrorModal(){
-        const modal = document.getElementById('error-modal');
-        if(modal){
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+    const downloadBtn = document.getElementById('download-btn');
+    if(downloadBtn) downloadBtn.disabled = true;
+    
+    showSuccessModal(`Downloading ${selectedForms.length} file(s)...`);
+    
+    for(const form of selectedForms){
+        downloadedForms[form.id] = true;
+        localStorage.setItem(`downloaded_forms_${applicationId}`, JSON.stringify(downloadedForms));
+        
+        const checkbox = document.getElementById(form.id);
+        if(checkbox){
+            checkbox.disabled = true;
+            checkbox.checked = false;
+            const parentDiv = checkbox.closest('.flex');
+            if(parentDiv){
+                parentDiv.classList.add('opacity-60', 'bg-gray-100');
+                parentDiv.classList.remove('bg-gray-50', 'bg-gradient-to-r');
+            }
         }
+        
+        downloadFile(form.file);
+        await new Promise(r => setTimeout(r, 600));
     }
     
-    function showSuccessModal(message){
-        const modal = document.getElementById('success-modal');
-        const messageEl = document.getElementById('success-modal-message');
-        if(modal && messageEl){
-            messageEl.textContent = message;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => { closeSuccessModal(); }, 3000);
-        } else { alert(message); }
-    }
+    updateSelectedCount();
     
-    function closeSuccessModal(){
-        const modal = document.getElementById('success-modal');
-        if(modal){
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+    setTimeout(()=>{ 
+        showSuccessModal('All selected files downloaded!'); 
+        if(downloadBtn) downloadBtn.disabled = false;
+    }, 600);
+}
+
+function selectAllForms(){
+    formCheckboxes.forEach(form => {
+        const cb = document.getElementById(form.id);
+        if(cb && !downloadedForms[form.id]){
+            cb.checked = true;
         }
+    });
+    updateSelectedCount();
+}
+
+function deselectAllForms(){
+    formCheckboxes.forEach(form => {
+        const cb = document.getElementById(form.id);
+        if(cb){
+            cb.checked = false;
+        }
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount(){
+    let count = 0;
+    formCheckboxes.forEach(form => {
+        const cb = document.getElementById(form.id);
+        if(cb && cb.checked) count++;
+    });
+    document.getElementById('selected-count').textContent = `${count} form${count !== 1 ? 's' : ''} selected`;
+    document.getElementById('download-count').textContent = count;
+    const downloadBtn = document.getElementById('download-btn');
+    if(downloadBtn) downloadBtn.disabled = count === 0;
+}
+
+// ─── Mark Step 3 Complete and Continue ───────────────────────────────────────
+async function markStep3Complete(){
+    // Check if at least the Building Permit Application has been downloaded
+    if(!downloadedForms['form-building-permit']){
+        showErrorModal('Please download the Building Permit Application first before proceeding.');
+        return;
     }
+    
+    const btn = document.getElementById('next-step-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`/applicant/application/step3/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf(),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                application_id: applicationId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuccessModal('Step 3 completed! Redirecting to Step 4...');
+            setTimeout(() => {
+                window.location.href = `/applicant/application/step4?id=${applicationId}`;
+            }, 1500);
+        } else {
+            showErrorModal(data.message || 'Failed to save progress');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorModal('An error occurred. Please try again.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ─── Modal Functions ─────────────────────────────────────────────────────────
+function showErrorModal(message){
+    const modal = document.getElementById('error-modal');
+    const messageEl = document.getElementById('error-modal-message');
+    if(modal && messageEl){
+        messageEl.textContent = message;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    } else { alert(message); }
+}
+
+function closeErrorModal(){
+    const modal = document.getElementById('error-modal');
+    if(modal){
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function showSuccessModal(message){
+    const modal = document.getElementById('success-modal');
+    const messageEl = document.getElementById('success-modal-message');
+    if(modal && messageEl){
+        messageEl.textContent = message;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { closeSuccessModal(); }, 3000);
+    } else { alert(message); }
+}
+
+function closeSuccessModal(){
+    const modal = document.getElementById('success-modal');
+    if(modal){
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// ─── Initialize Checkbox States ──────────────────────────────────────────────
+function initializeCheckboxStates(){
+    formCheckboxes.forEach(form => {
+        const cb = document.getElementById(form.id);
+        if(cb && downloadedForms[form.id]){
+            cb.disabled = true;
+            const parentDiv = cb.closest('.flex');
+            if(parentDiv){
+                parentDiv.classList.add('opacity-60', 'bg-gray-100');
+                parentDiv.classList.remove('bg-gray-50', 'bg-gradient-to-r');
+            }
+        }
+    });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    initializeCheckboxStates();
+    document.querySelectorAll('.form-checkbox').forEach(cb => cb.addEventListener('change', updateSelectedCount));
+    updateSelectedCount();
+});
 </script>
 
 <style>
-    .animate-spin{animation:spin 1s linear infinite;}
-    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    button:disabled{cursor:not-allowed;opacity:.65;}
-    
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .animate-slide-down {
-        animation: slideDown 0.5s ease-out;
-    }
+.animate-spin{animation:spin 1s linear infinite;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+button:disabled{cursor:not-allowed;opacity:.65;}
 </style>
 @endsection

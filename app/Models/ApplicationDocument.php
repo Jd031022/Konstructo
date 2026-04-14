@@ -145,6 +145,14 @@ class ApplicationDocument extends Model
     }
 
     /**
+     * Get the ownership verification for this application
+     */
+    public function ownershipVerification()
+    {
+        return $this->hasOne(OwnershipVerification::class, 'application_id');
+    }
+
+    /**
      * Get the review activities for this application
      */
     public function reviewActivities()
@@ -702,4 +710,6 @@ class ApplicationDocument extends Model
         }
         return 'Not assessed yet';
     }
+    
+    
 }

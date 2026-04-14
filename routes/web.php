@@ -113,6 +113,10 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/{id}', [App\Http\Controllers\Staff\ApplicationController::class, 'show'])
         ->name('applications.show');
     
+    // ========== OWNERSHIP DATA ROUTE (STAFF) ==========
+    Route::get('/applications/{id}/ownership', [App\Http\Controllers\Staff\ApplicationController::class, 'getOwnershipData'])
+        ->name('applications.ownership');
+    
     Route::post('/applications', [App\Http\Controllers\Staff\ApplicationController::class, 'store'])
         ->name('applications.store');
     
@@ -185,7 +189,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.activity-history', ['applicationId' => $id]);
     })->name('activity-history');
     
-    // ========== STEP 1: PROJECT INFORMATION ==========
+    // ========== STEP 1: OWNERSHIP VERIFICATION ==========
     Route::get('/application/step1', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -197,6 +201,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
+            ->with('ownershipVerification')
             ->first();
             
         if (!$application) {
@@ -207,11 +212,11 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         return view('applicant.application.step1', compact('application'));
     })->name('application.step1');
 
-    // Save Project Info
-    Route::post('/application/save-project-info', [ApplicationController::class, 'saveProjectInfo'])
-        ->name('application.save-project-info');
+    // Save Ownership Verification
+    Route::post('/application/save-ownership', [ApplicationController::class, 'saveOwnership'])
+        ->name('application.save-ownership');
     
-    // ========== STEP 2: DOWNLOAD FORMS ==========
+    // ========== STEP 2: PROJECT INFORMATION ==========
     Route::get('/application/step2', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -223,6 +228,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
         
         $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
+            ->with('ownershipVerification')
             ->first();
             
         if (!$application) {
@@ -230,20 +236,34 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        // Check if step 1 is completed
+        // Check if ownership verification exists and has required documents
+        $ownership = $application->ownershipVerification;
+        
+        if (!$ownership) {
+            return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+                ->with('error', 'Please complete ownership verification first.');
+        }
+        
+        // Only check that documents are submitted, NOT approval status
+        if (empty($ownership->tct_link) || empty($ownership->tax_declaration_link) || empty($ownership->current_tax_receipt_link)) {
+            return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+                ->with('error', 'Please complete all required ownership documents.');
+        }
+        
+        // Check if step1 is completed (documents saved)
         if (!$application->step1_completed) {
             return redirect()->route('applicant.application.step1', ['id' => $applicationId])
-                ->with('error', 'Please complete Step 1 (Project Information) first.');
+                ->with('error', 'Please complete ownership verification first.');
         }
         
         return view('applicant.application.step2', compact('application'));
     })->name('application.step2');
 
-    // Mark Step 2 as complete
-    Route::post('/application/step2/complete', [ApplicationController::class, 'completeStep2'])
-        ->name('application.step2.complete');
+    // Save Project Info (Step 2)
+    Route::post('/application/save-project-info', [ApplicationController::class, 'saveProjectInfo'])
+        ->name('application.save-project-info');
     
-    // ========== STEP 3: UPLOAD DOCUMENTS ==========
+    // ========== STEP 3: DOWNLOAD FORMS ==========
     Route::get('/application/step3', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -262,20 +282,20 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        // Check if step 2 is completed
-        if (!$application->step2_completed) {
+        // Check if step 2 (project info) is completed
+        if (!$application->step1_completed) {
             return redirect()->route('applicant.application.step2', ['id' => $applicationId])
-                ->with('error', 'Please complete Step 2 (Download Forms) first.');
+                ->with('error', 'Please complete Step 2 (Project Information) first.');
         }
         
         return view('applicant.application.step3', compact('application'));
     })->name('application.step3');
-    
+
     // Mark Step 3 as complete
-    Route::post('/application/step3/complete', [ApplicationController::class, 'completeStep3'])
+    Route::post('/application/step3/complete', [ApplicationController::class, 'completeStep2'])
         ->name('application.step3.complete');
     
-    // ========== STEP 4: REVIEW & SUBMIT ==========
+    // ========== STEP 4: UPLOAD DOCUMENTS ==========
     Route::get('/application/step4', function (Request $request) {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -294,14 +314,46 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
                 ->with('error', 'Application not found.');
         }
         
-        // Check if step 3 is completed
-        if (!$application->step3_completed) {
+        // Check if step 3 (download forms) is completed
+        if (!$application->step2_completed) {
             return redirect()->route('applicant.application.step3', ['id' => $applicationId])
-                ->with('error', 'Please complete Step 3 (Upload Documents) first.');
+                ->with('error', 'Please complete Step 3 (Download Forms) first.');
         }
         
         return view('applicant.application.step4', compact('application'));
     })->name('application.step4');
+    
+    // Mark Step 4 as complete
+    Route::post('/application/step4/complete', [ApplicationController::class, 'completeStep3'])
+        ->name('application.step4.complete');
+    
+    // ========== STEP 5: REVIEW & SUBMIT ==========
+    Route::get('/application/step5', function (Request $request) {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $applicationId)
+            ->first();
+            
+        if (!$application) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application not found.');
+        }
+        
+        // Check if step 4 (upload documents) is completed
+        if (!$application->step3_completed) {
+            return redirect()->route('applicant.application.step4', ['id' => $applicationId])
+                ->with('error', 'Please complete Step 4 (Upload Documents) first.');
+        }
+        
+        return view('applicant.application.step5', compact('application'));
+    })->name('application.step5');
     
     // Application Document API Routes
     Route::post('/application/store-link', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLink'])
@@ -346,6 +398,9 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     
     Route::get('/applications/{id}', [ApplicationController::class, 'show'])
         ->name('applications.show');
+
+    Route::get('/applications/{id}/ownership', [ApplicationController::class, 'getOwnershipData'])
+    ->name('applications.ownership');
     
     Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])
         ->name('applications.destroy');
