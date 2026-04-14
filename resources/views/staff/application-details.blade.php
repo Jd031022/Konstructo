@@ -112,68 +112,6 @@
             </div>
         </div>
 
-        <!-- BFP FSEC Section - Only visible to BFP staff -->
-        <div id="bfp-section" class="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-lg hidden animate-slide-down">
-            <div class="flex items-start gap-3">
-                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <h4 class="font-semibold text-gray-800">Fire Safety Evaluation Clearance (FSEC)</h4>
-                    <p class="text-sm text-gray-700 mt-1">Upload the Fire Safety Evaluation Clearance for this building permit application.</p>
-                    
-                    <!-- FSEC Upload Section -->
-                    <div class="mt-4 space-y-4">
-                        <div class="flex flex-col gap-3">
-                            <div class="flex items-center gap-3">
-                                <input type="file" id="fsec-file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
-                                <button onclick="document.getElementById('fsec-file').click()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm inline-flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                    </svg>
-                                    Upload FSEC
-                                </button>
-                                <span id="fsec-filename" class="text-sm text-gray-500">No file selected</span>
-                            </div>
-                            
-                            <!-- Existing FSEC Display -->
-                            <div id="existing-fsec-container" class="hidden">
-                                <p class="text-xs text-gray-500 mb-1">Current FSEC Document:</p>
-                                <div class="flex items-center gap-2">
-                                    <a id="fsec-link" href="#" target="_blank" class="text-sm text-red-600 hover:text-red-800 underline flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                                        </svg>
-                                        View Current FSEC
-                                    </a>
-                                    <button onclick="deleteFSEC()" class="text-xs text-red-500 hover:text-red-700">Delete</button>
-                                </div>
-                                <p id="fsec-upload-date" class="text-xs text-gray-400 mt-1"></p>
-                            </div>
-                            
-                            <div id="fsec-upload-status" class="hidden text-sm"></div>
-                        </div>
-                        
-                        <!-- BFP Additional Comments -->
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">BFP Comments / Recommendations</label>
-                            <textarea id="bfp-comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm" placeholder="Add any comments or recommendations regarding fire safety compliance..."></textarea>
-                            <div class="flex justify-end mt-2">
-                                <button onclick="saveBFPComments()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">Save Comments</button>
-                            </div>
-                            <div id="bfp-comments-display" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
-                                <p class="text-xs text-gray-500 mb-1">Previous Comments:</p>
-                                <p id="bfp-comments-text" class="text-sm text-gray-700"></p>
-                                <p id="bfp-comments-date" class="text-xs text-gray-400 mt-1"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Application Header -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -468,6 +406,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Communication Info Card -->
+                <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-fade-in">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Need to communicate with the applicant?</h4>
+                            <p class="text-sm text-gray-600">If you have concerns about the documents or need additional information, please use the <strong>chat feature</strong> to communicate directly with the applicant.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Column -->
@@ -539,9 +492,68 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
                                 <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
+                                <p class="text-xs text-gray-400 mt-1">Remarks will be saved to activity log.</p>
                             </div>
 
                             <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
+                        </div>
+                    </div>
+
+                    <!-- BFP FSEC Section - Moved under Status -->
+                    <div id="bfp-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in hidden">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-semibold text-gray-800">Fire Safety Evaluation Clearance (FSEC)</h2>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mb-4">Upload the Fire Safety Evaluation Clearance for this building permit application.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex flex-col gap-3">
+                                <div class="flex items-center gap-3">
+                                    <input type="file" id="fsec-file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                    <button onclick="document.getElementById('fsec-file').click()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm inline-flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                        </svg>
+                                        Upload FSEC
+                                    </button>
+                                    <span id="fsec-filename" class="text-sm text-gray-500">No file selected</span>
+                                </div>
+                                
+                                <div id="existing-fsec-container" class="hidden">
+                                    <p class="text-xs text-gray-500 mb-1">Current FSEC Document:</p>
+                                    <div class="flex items-center gap-2">
+                                        <a id="fsec-link" href="#" target="_blank" class="text-sm text-red-600 hover:text-red-800 underline flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                            </svg>
+                                            View Current FSEC
+                                        </a>
+                                        <button onclick="deleteFSEC()" class="text-xs text-red-500 hover:text-red-700">Delete</button>
+                                    </div>
+                                    <p id="fsec-upload-date" class="text-xs text-gray-400 mt-1"></p>
+                                </div>
+                                
+                                <div id="fsec-upload-status" class="hidden text-sm"></div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">BFP Comments / Recommendations</label>
+                                <textarea id="bfp-comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm" placeholder="Add any comments or recommendations regarding fire safety compliance..."></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button onclick="saveBFPComments()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">Save Comments</button>
+                                </div>
+                                <div id="bfp-comments-display" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
+                                    <p class="text-xs text-gray-500 mb-1">Previous Comments:</p>
+                                    <p id="bfp-comments-text" class="text-sm text-gray-700"></p>
+                                    <p id="bfp-comments-date" class="text-xs text-gray-400 mt-1"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1684,10 +1696,13 @@
         btn.innerHTML = 'Updating...';
         btn.disabled = true;
         
+        // Get remarks from textarea
+        const remarks = document.getElementById('status-remarks').value;
+        
         try {
             const payload = {
                 status: status,
-                remarks: document.getElementById('status-remarks').value,
+                remarks: remarks,
                 hardcopy_received: document.getElementById('hardcopy-checkbox').checked,
                 ...additionalData
             };
@@ -1721,7 +1736,7 @@
             const date = new Date(a.created_at);
             const diffMins = Math.floor((new Date() - date) / 60000);
             const timeAgo = diffMins < 1 ? 'just now' : diffMins < 60 ? diffMins + ' min ago' : Math.floor(diffMins / 60) + ' hours ago';
-            html += `<div class="flex gap-2 p-2 border-b"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div><div><p class="text-sm font-medium">${a.action_display || a.action}</p><p class="text-xs text-gray-500">${a.reviewer_name || 'System'} • ${timeAgo}</p>${a.remarks ? `<p class="text-xs text-gray-400 mt-1">${a.remarks.substring(0, 100)}</p>` : ''}</div></div>`;
+            html += `<div class="flex gap-2 p-2 border-b"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div><div><p class="text-sm font-medium">${a.action_display || a.action}</p><p class="text-xs text-gray-500">${a.reviewer_name || 'System'} • ${timeAgo}</p>${a.remarks ? `<p class="text-xs text-gray-400 mt-1">"${escapeHtml(a.remarks.substring(0, 100))}"</p>` : ''}</div></div>`;
         });
         container.innerHTML = html;
     }
