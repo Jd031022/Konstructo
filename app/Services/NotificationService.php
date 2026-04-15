@@ -26,6 +26,148 @@ class NotificationService
     }
 
     /**
+     * Send notification to applicant when CPDO approves application
+     */
+    public function notifyCPDOApproved(ApplicationDocument $application, User $cpdoUser)
+    {
+        Log::info('========== NOTIFY CPDO APPROVED START ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'cpdo_user_id' => $cpdoUser->id,
+            'cpdo_user_name' => $cpdoUser->first_name . ' ' . $cpdoUser->last_name
+        ]);
+        
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found for CPDO approval notification!');
+            return;
+        }
+        
+        $message = "Your application has been approved by CPDO. Other departments can now proceed with verification.";
+        $details = "The City Planning and Development Office (CPDO) has reviewed and approved your application documents. You will be notified as other departments complete their verification.";
+        
+        try {
+            $notification = new ApplicationStatusNotification(
+                $application,
+                $application->status,
+                $application->status,
+                $message,
+                $details
+            );
+            $applicant->notify($notification);
+            Log::info('✅ CPDO approval database notification sent to applicant: ' . $applicant->email);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send CPDO approval database notification: ' . $e->getMessage());
+        }
+
+        try {
+            $this->gmailService->sendCPDOApprovalEmail(
+                $applicant->email,
+                $application->application_number,
+                $applicant->first_name,
+                $application->id,
+                $cpdoUser->first_name . ' ' . $cpdoUser->last_name
+            );
+            Log::info('✅ CPDO approval email sent via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send CPDO approval email: ' . $e->getMessage());
+        }
+
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $cpdoUser->id,
+                    'action' => 'cpdo_approved',
+                    'old_status' => $application->cpdo_status ?? 'pending',
+                    'new_status' => 'approved',
+                    'remarks' => "Application approved by CPDO: {$cpdoUser->first_name} {$cpdoUser->last_name}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ CPDO approval activity logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log CPDO approval activity: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY CPDO APPROVED END ==========');
+    }
+
+    /**
+     * Send notification to applicant when CPDO rejects application
+     */
+    public function notifyCPDORejected(ApplicationDocument $application, User $cpdoUser, $remarks = null)
+    {
+        Log::info('========== NOTIFY CPDO REJECTED START ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'cpdo_user_id' => $cpdoUser->id,
+            'cpdo_user_name' => $cpdoUser->first_name . ' ' . $cpdoUser->last_name,
+            'remarks' => $remarks
+        ]);
+        
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found for CPDO rejection notification!');
+            return;
+        }
+        
+        $message = "Your application has been rejected by CPDO. Please review the remarks and resubmit.";
+        $details = $remarks ?? "The City Planning and Development Office (CPDO) has reviewed your application and found issues that need to be addressed.";
+        
+        try {
+            $notification = new ApplicationStatusNotification(
+                $application,
+                $application->status,
+                'rejected',
+                $message,
+                $details
+            );
+            $applicant->notify($notification);
+            Log::info('✅ CPDO rejection database notification sent to applicant: ' . $applicant->email);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send CPDO rejection database notification: ' . $e->getMessage());
+        }
+
+        try {
+            $this->gmailService->sendCPDORejectionEmail(
+                $applicant->email,
+                $application->application_number,
+                $applicant->first_name,
+                $application->id,
+                $cpdoUser->first_name . ' ' . $cpdoUser->last_name,
+                $remarks
+            );
+            Log::info('✅ CPDO rejection email sent via GmailService');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send CPDO rejection email: ' . $e->getMessage());
+        }
+
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $activity = $application->reviewActivities()->create([
+                    'reviewer_id' => $cpdoUser->id,
+                    'action' => 'cpdo_rejected',
+                    'old_status' => $application->cpdo_status ?? 'pending',
+                    'new_status' => 'rejected',
+                    'remarks' => $remarks ?? "Application rejected by CPDO: {$cpdoUser->first_name} {$cpdoUser->last_name}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+                Log::info('✅ CPDO rejection activity logged with ID: ' . ($activity ? $activity->id : 'null'));
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log CPDO rejection activity: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY CPDO REJECTED END ==========');
+    }
+
+    /**
      * Send email notification for application submission (with application number)
      */
     public function sendApplicationSubmittedEmail(ApplicationDocument $application, User $applicant)

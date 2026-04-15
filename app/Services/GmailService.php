@@ -188,6 +188,43 @@ class GmailService
     }
 
     /**
+     * Send CPDO approval email to applicant
+     */
+    public function sendCPDOApprovalEmail($to, $applicationNumber, $applicantName, $applicationId, $cpdoName)
+    {
+        $subject = 'CPDO Approval Received - Konstructo';
+        $htmlContent = $this->getCPDOApprovalEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName);
+        
+        Log::info('📧 Sending CPDO approval email', [
+            'to' => $to,
+            'application_number' => $applicationNumber,
+            'application_id' => $applicationId,
+            'cpdo_name' => $cpdoName
+        ]);
+        
+        return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Send CPDO rejection email to applicant
+     */
+    public function sendCPDORejectionEmail($to, $applicationNumber, $applicantName, $applicationId, $cpdoName, $remarks = null)
+    {
+        $subject = 'CPDO Decision on Your Application - Konstructo';
+        $htmlContent = $this->getCPDORejectionEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName, $remarks);
+        
+        Log::info('📧 Sending CPDO rejection email', [
+            'to' => $to,
+            'application_number' => $applicationNumber,
+            'application_id' => $applicationId,
+            'cpdo_name' => $cpdoName,
+            'has_remarks' => !empty($remarks)
+        ]);
+        
+        return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
      * Send user credentials email (username and password) to newly created users
      * 
      * @param string $to Recipient email address
@@ -314,6 +351,185 @@ class GmailService
         $htmlContent = $this->getMissingDocumentsEmailContent($applicationNumber, $applicantName, $missingDocuments, $applicationId, $remarks);
         
         return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
+     * Get CPDO approval email content
+     */
+    private function getCPDOApprovalEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+        $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+                    .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
+                    .next-steps ul { margin: 0; padding-left: 20px; }
+                    .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>CPDO Approval Received</h1>
+                        <p>Your application has been approved by the City Planning and Development Office</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>Great news! The City Planning and Development Office (CPDO) has reviewed and <strong>approved</strong> your application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='success-badge'>✓ CPDO Approved</span>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Application Number:</strong> {$applicationNumber}</p>
+                            <p><strong>Reviewed by:</strong> {$cpdoName}</p>
+                        </div>
+                        
+                        <div class='next-steps'>
+                            <h4>📋 What Happens Next?</h4>
+                            <ul>
+                                <li>Other departments can now proceed with document verification</li>
+                                <li>You will receive notifications as each department reviews your application</li>
+                                <li>Once all departments have verified, assessment will be completed</li>
+                                <li>You will be notified when your permit is ready for release</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application Status</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Thank you for your patience throughout the review process.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get CPDO rejection email content
+     */
+    private function getCPDORejectionEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName, $remarks = null)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+        $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
+        
+        $remarksHtml = '';
+        if ($remarks) {
+            $remarksHtml = '
+                <div class="remarks-box" style="background-color: #FEE2E2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626;">
+                    <strong>Reason for rejection:</strong>
+                    <p style="margin: 8px 0 0 0;">' . nl2br(htmlspecialchars($remarks)) . '</p>
+                </div>';
+        }
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .rejection-badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .next-steps { background-color: #FEE2E2; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #DC2626; }
+                    .next-steps h4 { margin: 0 0 10px 0; color: #991B1B; }
+                    .next-steps ul { margin: 0; padding-left: 20px; }
+                    .next-steps li { margin: 5px 0; color: #991B1B; font-size: 14px; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>CPDO Decision on Your Application</h1>
+                        <p>The City Planning and Development Office has reviewed your application</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>After careful review, the City Planning and Development Office (CPDO) has <strong>rejected</strong> your application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='rejection-badge'>✗ CPDO Rejected</span>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Application Number:</strong> {$applicationNumber}</p>
+                            <p><strong>Reviewed by:</strong> {$cpdoName}</p>
+                        </div>
+                        
+                        {$remarksHtml}
+                        
+                        <div class='next-steps'>
+                            <h4>📋 What You Can Do:</h4>
+                            <ul>
+                                <li>Review the reason for rejection provided above</li>
+                                <li>Make the necessary corrections or provide additional documents</li>
+                                <li>Submit a new application addressing the issues identified</li>
+                                <li>Contact CPDO directly if you need clarification</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application Details</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            If you have questions about this decision, please contact the City Planning and Development Office directly.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 
     /**

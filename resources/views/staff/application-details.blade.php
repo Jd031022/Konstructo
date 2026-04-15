@@ -17,7 +17,7 @@
         <div class="flex items-center gap-3">
             <button onclick="exportAsPDF()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
                 </svg>
                 Export PDF
             </button>
@@ -93,6 +93,36 @@
                 <div>
                     <h4 class="font-semibold text-gray-800">Assessment Completed</h4>
                     <p id="assessment-total" class="text-sm text-gray-700 mt-1">Total Building Permit Fee: ₱0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CPDO Notice (when pending) -->
+        <div id="cpdo-pending-notice" class="mb-6 p-4 bg-orange-100 border-l-4 border-orange-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">CPDO Approval Pending</h4>
+                    <p class="text-sm text-gray-700 mt-1">CPDO is reviewing the application. Document verification for other departments is disabled until CPDO approves. Ownership document verification (Step 1) is still available.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CPDO Rejected Notice -->
+        <div id="cpdo-rejected-notice" class="mb-6 p-4 bg-red-100 border-l-4 border-red-600 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">CPDO Rejected</h4>
+                    <p id="cpdo-rejection-reason" class="text-sm text-gray-700 mt-1">This application has been rejected by CPDO.</p>
                 </div>
             </div>
         </div>
@@ -402,7 +432,8 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                            <p class="text-sm text-gray-600">Click "View" to review each document. Check the checkbox to mark as verified. When ready to proceed with assessment, select "For Assessment" status to compute fees.</p>
+                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT, Treasurer can verify Tax Declaration and Tax Receipt. These are available immediately.<br>
+                            <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Engineering staff auto-checks when viewing. Other positions must manually check. CPDO must approve first before Step 2 verification begins.</p>
                         </div>
                     </div>
                 </div>
@@ -426,8 +457,129 @@
             <!-- Right Column -->
             <div class="lg:col-span-1">
                 <div class="sticky top-24 space-y-8">
+                    
+                    <!-- CPDO VERIFICATION CARD -->
+                    <div id="cpdo-card" class="bg-white rounded-2xl shadow-sm border border-orange-200 p-6 animate-fade-in">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-semibold text-gray-800">CPDO Verification</h2>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mb-4">The City Planning and Development Office (CPDO) must review and approve all documents before other departments can proceed with verification.</p>
+                        
+                        <div id="cpdo-status-display" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Current Status:</span>
+                                <span id="cpdo-status-badge" class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                            </div>
+                            <div id="cpdo-remarks-display" class="mt-2 text-xs text-gray-500 hidden">
+                                <span class="font-medium">Remarks:</span>
+                                <span id="cpdo-remarks-text"></span>
+                            </div>
+                            <div id="cpdo-approved-info" class="mt-2 text-xs text-gray-500 hidden">
+                                <span class="font-medium">Decision made by:</span>
+                                <span id="cpdo-approved-by"></span>
+                                <span class="font-medium ml-2">on:</span>
+                                <span id="cpdo-approved-at"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Form for new decision (when pending) -->
+                        <div id="cpdo-form" class="hidden">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Decision</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="cpdo_decision" value="approved" class="cpdo-radio h-4 w-4 text-green-600">
+                                        <span class="text-sm text-green-600 font-medium">Approve</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="cpdo_decision" value="rejected" class="cpdo-radio h-4 w-4 text-red-600">
+                                        <span class="text-sm text-red-600 font-medium">Reject</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Reason</label>
+                                <textarea id="cpdo-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm" placeholder="Enter remarks or reason for rejection..."></textarea>
+                            </div>
+                            
+                            <button onclick="submitCPDODecision()" id="cpdo-submit-btn" class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Submit Decision</button>
+                        </div>
+                        
+                        <!-- Edit form for changing existing decision (when already approved/rejected) -->
+                        <div id="cpdo-edit-form" class="hidden">
+                            <div class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="flex items-center gap-2 text-sm text-yellow-700 mb-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <span class="font-medium">Change Decision</span>
+                                </div>
+                                <p class="text-xs text-yellow-600 mb-3">Changing your decision will notify the applicant and update the application status.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">New Decision</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="cpdo_edit_decision" value="approved" class="cpdo-edit-radio h-4 w-4 text-green-600">
+                                        <span class="text-sm text-green-600 font-medium">Approve</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="cpdo_edit_decision" value="rejected" class="cpdo-edit-radio h-4 w-4 text-red-600">
+                                        <span class="text-sm text-red-600 font-medium">Reject</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Reason (Optional)</label>
+                                <textarea id="cpdo-edit-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm" placeholder="Enter remarks or reason for this change..."></textarea>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="cancelEditMode()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">Cancel</button>
+                                <button onclick="submitCPDOEditDecision()" id="cpdo-edit-submit-btn" class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Change Decision</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Decision Button (shows when decision exists) -->
+                        <div id="cpdo-edit-button-container" class="hidden mt-3">
+                            <button onclick="showEditMode()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit Decision
+                            </button>
+                        </div>
+                        
+                        <div id="cpdo-pending-message" class="hidden p-3 bg-orange-50 rounded-lg border border-orange-200">
+                            <div class="flex items-center gap-2 text-sm text-orange-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span>Waiting for CPDO approval. Step 2 document verification is disabled until CPDO approves. Step 1 ownership verification is still available.</span>
+                            </div>
+                        </div>
+                        
+                        <div id="cpdo-rejected-message" class="hidden p-3 bg-red-50 rounded-lg border border-red-200">
+                            <div class="flex items-center gap-2 text-sm text-red-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span>This application has been rejected by CPDO.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Status Update Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
                         
                         <div class="space-y-4">
@@ -457,7 +609,6 @@
                                 </div>
                             </div>
 
-                            <!-- Status Options - Restricted based on position -->
                             <div class="space-y-2">
                                 @php
                                     $statusOptions = [
@@ -499,7 +650,7 @@
                         </div>
                     </div>
 
-                    <!-- BFP FSEC Section - Moved under Status -->
+                    <!-- BFP FSEC Section -->
                     <div id="bfp-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in hidden">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
@@ -580,7 +731,7 @@
     </div>
 </div>
 
-<!-- Assessment Fee Modal with Dynamic Fee Fields -->
+<!-- Assessment Fee Modal -->
 <div id="assessment-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-2xl">
         <div class="bg-white rounded-2xl shadow-xl">
@@ -601,51 +752,26 @@
             </div>
             
             <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
-                <!-- Standard Fees Grid -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Line Grade (₱)</label>
-                        <input type="number" id="line-grade" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Building Fee (₱)</label>
-                        <input type="number" id="building-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Sanitary/Plumbing Fee (₱)</label>
-                        <input type="number" id="sanitary-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Mechanical Fee (₱)</label>
-                        <input type="number" id="mechanical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Electrical Fee (₱)</label>
-                        <input type="number" id="electrical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Penalties/Fines (₱)</label>
-                        <input type="number" id="penalties-fines" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()">
-                    </div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Line Grade (₱)</label><input type="number" id="line-grade" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Building Fee (₱)</label><input type="number" id="building-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Sanitary/Plumbing Fee (₱)</label><input type="number" id="sanitary-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Mechanical Fee (₱)</label><input type="number" id="mechanical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Electrical Fee (₱)</label><input type="number" id="electrical-fee" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Penalties/Fines (₱)</label><input type="number" id="penalties-fines" step="0.01" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateTotal()"></div>
                 </div>
 
-                <!-- Dynamic Additional Fees Section -->
                 <div class="mt-4 pt-3 border-t border-gray-200">
                     <div class="flex items-center justify-between mb-3">
                         <label class="text-sm font-semibold text-gray-700">Additional Fees</label>
                         <button type="button" onclick="addDynamicFee()" class="inline-flex items-center px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             Add Fee
                         </button>
                     </div>
-                    <div id="dynamic-fees-container" class="space-y-2">
-                        <!-- Dynamic fee rows will be added here -->
-                    </div>
+                    <div id="dynamic-fees-container" class="space-y-2"></div>
                 </div>
 
-                <!-- Total Amount Display -->
                 <div class="p-3 bg-indigo-50 rounded-xl mt-3">
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-semibold text-indigo-700">Total Building Permit Fee:</span>
@@ -748,13 +874,33 @@
     let feeRowCounter = 0;
     let pendingApprovalStatus = null;
     let currentOwnershipData = null;
+    let cpdoStatus = null;
+    let cpdoRemarks = null;
+    let cpdoApprovedBy = null;
+    let cpdoApprovedAt = null;
+    let reviewActivities = [];
+    let bfpData = null;
+    
+    // Ownership verification status storage
+    let ownershipVerificationStatus = {
+        tct_link: false,
+        tax_declaration_link: false,
+        current_tax_receipt_link: false,
+        spa_link: false
+    };
 
-    // Ownership document names mapping (Step 1)
     const ownershipDocumentNames = {
         'tct_link': 'TCT / Deed of Sale',
         'tax_declaration_link': 'Tax Declaration',
         'current_tax_receipt_link': 'Current Tax Receipt',
         'spa_link': 'Special Power of Attorney (SPA)'
+    };
+    
+    const ownershipVerificationPermissions = {
+        'tct_link': ['assessor'],
+        'tax_declaration_link': ['treasurer'],
+        'current_tax_receipt_link': ['treasurer'],
+        'spa_link': []
     };
 
     const documentsList = [
@@ -776,7 +922,6 @@
         { key: 'geodetic_plan_link', name: 'Geodetic Plan', category: 'Supporting' }
     ];
 
-    // Status options with allowed positions
     const statusPermissions = {
         'under-review': { allowed: ['engineer', 'architect', 'cpdo', 'administrative_aide'], label: 'Under Review' },
         'document-verification': { allowed: ['engineer', 'architect', 'cpdo', 'administrative_aide'], label: 'Document Verification' },
@@ -787,16 +932,172 @@
         'verified': { allowed: ['engineer'], label: 'Completed' }
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchCurrentUserPosition();
+    // Check if user is Engineering position (auto-check on view)
+    function isEngineeringPosition() {
+        const engineeringPositions = ['engineer', 'architect', 'cpdo', 'administrative_aide'];
+        return engineeringPositions.includes(currentUserPosition);
+    }
+    
+    // Check if user is CPDO (can view all documents anytime)
+    function isCPDOUser() {
+        return currentUserPosition === 'cpdo';
+    }
+
+    // ========== OPTIMIZED: Single function to load all data in parallel ==========
+    async function loadAllData() {
+        const loadingState = document.getElementById('loading-state');
+        const contentDiv = document.getElementById('application-content');
         
+        try {
+            const [
+                positionRes,
+                applicationRes,
+                activitiesRes,
+                ownershipRes,
+                cpdoRes,
+                assessmentRes,
+                bfpRes
+            ] = await Promise.all([
+                fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false }))
+            ]);
+            
+            if (positionRes.ok) {
+                const data = await positionRes.json();
+                currentUserPosition = data.position || '';
+            }
+            
+            if (applicationRes.ok) {
+                const data = await applicationRes.json();
+                if (data.success) {
+                    currentApplication = data.data;
+                    cpdoStatus = currentApplication.cpdo_status || 'pending';
+                    cpdoRemarks = currentApplication.cpdo_remarks || null;
+                    cpdoApprovedBy = currentApplication.cpdo_approved_by || null;
+                    cpdoApprovedAt = currentApplication.cpdo_approved_at || null;
+                }
+            }
+            
+            if (activitiesRes.ok) {
+                const data = await activitiesRes.json();
+                if (data.success) reviewActivities = data.activities || [];
+            }
+            
+            if (ownershipRes.ok) {
+                const data = await ownershipRes.json();
+                if (data.success && data.data) {
+                    currentOwnershipData = data.data;
+                }
+            }
+            
+            if (cpdoRes.ok) {
+                const data = await cpdoRes.json();
+                if (data.success && data.data) {
+                    cpdoStatus = data.data.status || cpdoStatus;
+                    cpdoRemarks = data.data.remarks || cpdoRemarks;
+                    cpdoApprovedBy = data.data.approved_by || cpdoApprovedBy;
+                    cpdoApprovedAt = data.data.approved_at || cpdoApprovedAt;
+                }
+            }
+            
+            if (assessmentRes.ok) {
+                const data = await assessmentRes.json();
+                if (data.success && data.data) {
+                    currentAssessment = data.data;
+                }
+            }
+            
+            if (bfpRes.ok) {
+                const data = await bfpRes.json();
+                if (data.success && data.data) {
+                    bfpData = data.data;
+                }
+            }
+            
+            renderAllData();
+            
+        } catch (error) {
+            console.error('Error loading data:', error);
+            showError();
+        } finally {
+            loadingState.classList.add('hidden');
+            contentDiv.classList.remove('hidden');
+        }
+    }
+    
+    function renderAllData() {
+        loadDocumentVerificationStatus();
+        loadOwnershipVerificationStatus();
+        
+        if (currentApplication) {
+            displayApplicationDetails();
+            updateTimeline(currentApplication.status);
+            updateProgress(currentApplication.status);
+            updateHardCopyStatus(currentApplication.hard_copy_received);
+            if (currentApplication.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            } else {
+                showEmptyDocuments();
+            }
+            calculateEstimatedTime();
+            displayProjectInformation(currentApplication);
+        }
+        
+        if (reviewActivities.length > 0) {
+            displayReviewActivities(reviewActivities);
+        } else {
+            showEmptyActivities();
+        }
+        
+        if (currentOwnershipData) {
+            displayOwnershipInfo();
+            displayOwnershipDocuments();
+        } else {
+            displayEmptyOwnershipDocuments();
+        }
+        
+        if (currentAssessment) {
+            document.getElementById('assessment-notice')?.classList.remove('hidden');
+            document.getElementById('assessment-total').innerHTML = `Total Building Permit Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        }
+        
+        if (bfpData) {
+            if (bfpData.fsec_link) {
+                document.getElementById('existing-fsec-container').classList.remove('hidden');
+                document.getElementById('fsec-link').href = bfpData.fsec_link;
+                if (bfpData.fsec_filename) {
+                    document.getElementById('fsec-filename').textContent = bfpData.fsec_filename;
+                }
+                if (bfpData.fsec_uploaded_at) {
+                    document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString();
+                }
+            }
+            if (bfpData.bfp_comments) {
+                document.getElementById('bfp-comments-display').classList.remove('hidden');
+                document.getElementById('bfp-comments-text').textContent = bfpData.bfp_comments;
+                if (bfpData.bfp_comments_updated_at) {
+                    document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString();
+                }
+                document.getElementById('bfp-comments').value = bfpData.bfp_comments;
+            }
+        }
+        
+        updateCPDOUI();
+        applyStatusRestrictions();
+        
+        if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+            document.getElementById('bfp-section').classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
         if (applicationId && !isNaN(applicationId)) {
-            loadApplicationDetails();
-            loadReviewActivities();
-            loadDocumentVerificationStatus();
-            loadAssessmentData();
-            loadBFPData();
-            loadOwnershipData();
+            loadAllData();
         } else {
             showError();
         }
@@ -811,46 +1112,307 @@
         document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
     });
     
-    // Load ownership data (Step 1)
-    async function loadOwnershipData() {
-        if (!applicationId) return;
+    // ========== CPDO Functions ==========
+    function updateCPDOUI() {
+        const statusBadge = document.getElementById('cpdo-status-badge');
+        const remarksDisplay = document.getElementById('cpdo-remarks-display');
+        const remarksText = document.getElementById('cpdo-remarks-text');
+        const approvedInfo = document.getElementById('cpdo-approved-info');
+        const approvedByName = document.getElementById('cpdo-approved-by');
+        const approvedAtDate = document.getElementById('cpdo-approved-at');
+        const cpdoForm = document.getElementById('cpdo-form');
+        const cpdoEditForm = document.getElementById('cpdo-edit-form');
+        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
+        const pendingMessage = document.getElementById('cpdo-pending-message');
+        const rejectedMessage = document.getElementById('cpdo-rejected-message');
+        const statusUpdateCard = document.getElementById('status-update-card');
         
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/ownership`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentOwnershipData = data.data;
-                    displayOwnershipInfo();
-                    displayOwnershipDocuments();
-                } else {
-                    displayEmptyOwnershipDocuments();
-                }
-            } else {
-                displayEmptyOwnershipDocuments();
+        if (cpdoStatus === 'approved') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
+            statusBadge.textContent = 'Approved';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
             }
-        } catch (error) {
-            console.error('Error loading ownership data:', error);
-            displayEmptyOwnershipDocuments();
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+            cpdoForm.classList.add('hidden');
+            cpdoEditForm.classList.add('hidden');
+            cpdoEditButton.classList.remove('hidden');
+            pendingMessage.classList.add('hidden');
+            rejectedMessage.classList.add('hidden');
+            if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
+            enableStep2Verification(true);
+        } else if (cpdoStatus === 'rejected') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700';
+            statusBadge.textContent = 'Rejected';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
+            }
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+            cpdoForm.classList.add('hidden');
+            cpdoEditForm.classList.add('hidden');
+            cpdoEditButton.classList.remove('hidden');
+            pendingMessage.classList.add('hidden');
+            rejectedMessage.classList.remove('hidden');
+            if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
+            enableStep2Verification(false);
+            disableStatusUpdates();
+        } else {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700';
+            statusBadge.textContent = 'Pending';
+            remarksDisplay.classList.add('hidden');
+            approvedInfo.classList.add('hidden');
+            cpdoEditButton.classList.add('hidden');
+            cpdoEditForm.classList.add('hidden');
+            rejectedMessage.classList.add('hidden');
+            pendingMessage.classList.remove('hidden');
+            
+            if (currentUserPosition === 'cpdo') {
+                cpdoForm.classList.remove('hidden');
+                pendingMessage.classList.add('hidden');
+                enableStep2Verification(false);
+            } else {
+                cpdoForm.classList.add('hidden');
+                pendingMessage.classList.remove('hidden');
+                if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
+                enableStep2Verification(false);
+                disableStatusUpdates();
+            }
         }
     }
     
-    // Display ownership status info
+    function showEditMode() {
+        const cpdoForm = document.getElementById('cpdo-form');
+        const cpdoEditForm = document.getElementById('cpdo-edit-form');
+        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
+        
+        cpdoForm.classList.add('hidden');
+        cpdoEditButton.classList.add('hidden');
+        cpdoEditForm.classList.remove('hidden');
+        
+        // Pre-fill current values
+        document.getElementById('cpdo-edit-remarks').value = cpdoRemarks || '';
+        
+        // Preselect current decision
+        if (cpdoStatus === 'approved') {
+            document.querySelector('input[name="cpdo_edit_decision"][value="approved"]').checked = true;
+        } else if (cpdoStatus === 'rejected') {
+            document.querySelector('input[name="cpdo_edit_decision"][value="rejected"]').checked = true;
+        }
+    }
+    
+    function cancelEditMode() {
+        const cpdoForm = document.getElementById('cpdo-form');
+        const cpdoEditForm = document.getElementById('cpdo-edit-form');
+        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
+        
+        cpdoEditForm.classList.add('hidden');
+        cpdoForm.classList.add('hidden');
+        cpdoEditButton.classList.remove('hidden');
+    }
+    
+    async function submitCPDOEditDecision() {
+        const selected = document.querySelector('input[name="cpdo_edit_decision"]:checked');
+        if (!selected) {
+            alert('Please select Approve or Reject');
+            return;
+        }
+        
+        const decision = selected.value;
+        const remarks = document.getElementById('cpdo-edit-remarks').value;
+        
+        if (decision === 'rejected' && !remarks.trim()) {
+            alert('Please provide a reason for rejection');
+            return;
+        }
+        
+        const btn = document.getElementById('cpdo-edit-submit-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Submitting...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ decision: decision, remarks: remarks })
+            });
+            const data = await response.json();
+            if (data.success) {
+                cpdoStatus = decision;
+                cpdoRemarks = remarks;
+                localStorage.setItem(`cpdo_status_${applicationId}`, JSON.stringify({
+                    status: cpdoStatus,
+                    remarks: cpdoRemarks
+                }));
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to submit decision');
+            }
+        } catch(error) {
+            console.error('Error:', error);
+            alert('Error submitting decision');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    // ONLY affects Step 2 document verification, NOT ownership documents
+    function enableStep2Verification(enabled) {
+        const checkboxes = document.querySelectorAll('.doc-checkbox');
+        checkboxes.forEach(cb => { cb.disabled = !enabled; });
+        
+        const viewButtons = document.querySelectorAll('#documents-checklist button');
+        viewButtons.forEach(btn => {
+            if (enabled || isCPDOUser()) {
+                btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.add('bg-[#155386]', 'text-white');
+            } else {
+                btn.classList.add('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.remove('bg-[#155386]', 'text-white');
+            }
+        });
+    }
+    
+    function disableStatusUpdates() {
+        const statusRadios = document.querySelectorAll('.status-radio');
+        statusRadios.forEach(radio => { radio.disabled = true; });
+        const updateBtn = document.getElementById('update-status-btn');
+        if (updateBtn) updateBtn.disabled = true;
+    }
+    
+    async function submitCPDODecision() {
+        const selected = document.querySelector('input[name="cpdo_decision"]:checked');
+        if (!selected) {
+            alert('Please select Approve or Reject');
+            return;
+        }
+        
+        const decision = selected.value;
+        const remarks = document.getElementById('cpdo-remarks').value;
+        
+        if (decision === 'rejected' && !remarks.trim()) {
+            alert('Please provide a reason for rejection');
+            return;
+        }
+        
+        const btn = document.getElementById('cpdo-submit-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Submitting...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ decision: decision, remarks: remarks })
+            });
+            const data = await response.json();
+            if (data.success) {
+                cpdoStatus = decision;
+                cpdoRemarks = remarks;
+                localStorage.setItem(`cpdo_status_${applicationId}`, JSON.stringify({
+                    status: cpdoStatus,
+                    remarks: cpdoRemarks
+                }));
+                updateCPDOUI();
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to submit decision');
+            }
+        } catch(error) {
+            console.error('Error:', error);
+            alert('Error submitting decision');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+    
+    // ========== Ownership Functions ==========
+    function loadOwnershipVerificationStatus() {
+        const saved = localStorage.getItem(`ownership_verification_${applicationId}`);
+        if (saved) {
+            try {
+                ownershipVerificationStatus = JSON.parse(saved);
+            } catch(e) {
+                ownershipVerificationStatus = {
+                    tct_link: false,
+                    tax_declaration_link: false,
+                    current_tax_receipt_link: false,
+                    spa_link: false
+                };
+            }
+        }
+    }
+    
+    function saveOwnershipVerificationStatus() {
+        localStorage.setItem(`ownership_verification_${applicationId}`, JSON.stringify(ownershipVerificationStatus));
+    }
+    
+    function canVerifyOwnershipDocument(documentKey) {
+        const allowedRoles = ownershipVerificationPermissions[documentKey] || [];
+        if (allowedRoles.length === 0) return false;
+        return allowedRoles.includes(currentUserPosition);
+    }
+    
+    async function toggleOwnershipVerification(documentKey, isChecked) {
+        // Ownership verification does NOT require CPDO approval
+        if (!canVerifyOwnershipDocument(documentKey)) {
+            alert(`You don't have permission to verify this document. Only ${ownershipVerificationPermissions[documentKey].join(', ')} can verify this document.`);
+            const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+            if (checkbox) checkbox.checked = !isChecked;
+            return;
+        }
+        
+        const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+        if (checkbox) checkbox.disabled = true;
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ document_key: documentKey, verified: isChecked })
+            });
+            const data = await response.json();
+            if (data.success) {
+                ownershipVerificationStatus[documentKey] = isChecked;
+                saveOwnershipVerificationStatus();
+                if (currentOwnershipData) displayOwnershipDocuments();
+                alert(data.message);
+            } else {
+                alert(data.message || 'Failed to update verification');
+                const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+                if (checkbox) checkbox.checked = !isChecked;
+            }
+        } catch(error) {
+            console.error('Error:', error);
+            alert('Error updating verification');
+            const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+            if (checkbox) checkbox.checked = !isChecked;
+        } finally {
+            if (checkbox) checkbox.disabled = false;
+        }
+    }
+    
     function displayOwnershipInfo() {
         if (!currentOwnershipData) return;
-        
         const ownershipCard = document.getElementById('ownership-status-card');
         const ownershipStatusText = document.getElementById('ownership-status-text');
-        
         if (ownershipCard && ownershipStatusText) {
             ownershipCard.classList.remove('hidden');
-            
             if (currentOwnershipData.is_owner == 1) {
                 ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - Applicant is registered as the property owner.';
             } else {
@@ -859,19 +1421,14 @@
         }
     }
     
-    // Display ownership documents (Step 1)
     function displayOwnershipDocuments() {
         const container = document.getElementById('ownership-documents-list');
-        
         if (!currentOwnershipData) {
             displayEmptyOwnershipDocuments();
             return;
         }
-        
         let html = '';
         let hasDocuments = false;
-        
-        // Map ownership data to document links
         const ownershipLinks = {
             'tct_link': currentOwnershipData.tct_link,
             'tax_declaration_link': currentOwnershipData.tax_declaration_link,
@@ -883,16 +1440,14 @@
             if (value && value.trim() !== '') {
                 hasDocuments = true;
                 const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
-                
-                // Add badge for SPA if applicable
-                const spaBadge = key === 'spa_link' ? 
-                    '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
-                
+                const isVerified = ownershipVerificationStatus[key] || false;
+                const canVerify = canVerifyOwnershipDocument(key);
+                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
                 html += `
-                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
+                    <div class="flex items-center justify-between p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
@@ -900,106 +1455,54 @@
                                 <div class="flex items-center flex-wrap gap-1">
                                     <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
                                     ${spaBadge}
+                                    ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
                                 </div>
                                 <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
                             </div>
                         </div>
-                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            <span class="hidden sm:inline">View</span>
-                        </a>
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                            ${canVerify ? `
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
+                                    <span class="text-xs text-gray-600">Verify</span>
+                                </label>
+                            ` : isVerified ? `
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-xs text-green-600">Verified</span>
+                                </div>
+                            ` : ''}
+                            <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                <span class="hidden sm:inline">View</span>
+                            </a>
+                        </div>
                     </div>
                 `;
             }
         }
-        
-        if (!hasDocuments) {
-            displayEmptyOwnershipDocuments();
-        } else {
-            container.innerHTML = html;
-        }
+        if (!hasDocuments) displayEmptyOwnershipDocuments();
+        else container.innerHTML = html;
     }
     
-    // Display empty ownership documents
     function displayEmptyOwnershipDocuments() {
         const container = document.getElementById('ownership-documents-list');
-        container.innerHTML = `
-            <div class="text-center py-6 text-gray-500 animate-fade-in">
-                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <p class="text-sm">No ownership documents uploaded yet</p>
-                <p class="text-xs text-gray-400 mt-1">Applicant has not completed Step 1: Ownership Verification</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="text-center py-6 text-gray-500 animate-fade-in"><svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg><p class="text-sm">No ownership documents uploaded yet</p><p class="text-xs text-gray-400 mt-1">Applicant has not completed Step 1: Ownership Verification</p></div>`;
     }
     
-    async function fetchCurrentUserPosition() {
-        try {
-            let position = null;
-            
-            try {
-                const response = await fetch('/staff/position/check', {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (data.position) {
-                    position = data.position;
-                }
-            } catch(e) { console.log('Position check endpoint failed'); }
-            
-            if (!position) {
-                try {
-                    const response = await fetch('/staff/position/get', {
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const data = await response.json();
-                    if (data.success && data.position) {
-                        position = data.position;
-                    }
-                } catch(e) { console.log('Position get endpoint failed'); }
-            }
-            
-            if (!position) {
-                try {
-                    const response = await fetch('/api/user/position', {
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const data = await response.json();
-                    if (data.position) {
-                        position = data.position;
-                    }
-                } catch(e) { console.log('API user position failed'); }
-            }
-            
-            currentUserPosition = position || '';
-            console.log('Current user position:', currentUserPosition);
-            
-            applyStatusRestrictions();
-            
-            if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
-                document.getElementById('bfp-section').classList.remove('hidden');
-            }
-            
-        } catch (error) {
-            console.error('Error fetching user position:', error);
-            currentUserPosition = '';
-        }
-    }
-    
+    // ========== Status Functions ==========
     function applyStatusRestrictions() {
         const isEngineer = currentUserPosition === 'engineer';
         const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
-        
         const statusRadios = document.querySelectorAll('.status-radio');
-        
         statusRadios.forEach(radio => {
             const statusValue = radio.value;
             const parentLabel = radio.closest('.status-option');
             const restrictedBadge = parentLabel?.querySelector('.status-restricted-badge');
-            
             if (restrictedStatuses.includes(statusValue)) {
                 if (!isEngineer) {
                     radio.disabled = true;
@@ -1007,56 +1510,45 @@
                         parentLabel.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-50');
                         parentLabel.style.cursor = 'not-allowed';
                     }
-                    if (restrictedBadge) {
-                        restrictedBadge.classList.remove('hidden');
-                    }
+                    if (restrictedBadge) restrictedBadge.classList.remove('hidden');
                 } else {
                     radio.disabled = false;
                     if (parentLabel) {
                         parentLabel.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-50');
                         parentLabel.style.cursor = 'pointer';
                     }
-                    if (restrictedBadge) {
-                        restrictedBadge.classList.add('hidden');
-                    }
+                    if (restrictedBadge) restrictedBadge.classList.add('hidden');
                 }
             }
         });
-        
         const restrictionNotice = document.getElementById('status-restriction-notice');
         if (restrictionNotice) {
-            if (!isEngineer) {
-                restrictionNotice.classList.remove('hidden');
-            } else {
-                restrictionNotice.classList.add('hidden');
-            }
-        }
-        
-        const updateBtn = document.getElementById('update-status-btn');
-        if (updateBtn && !isEngineer) {
-            updateBtn.title = 'Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed';
+            if (!isEngineer) restrictionNotice.classList.remove('hidden');
+            else restrictionNotice.classList.add('hidden');
         }
     }
     
     function checkStatusPermission(statusValue) {
         const isEngineer = currentUserPosition === 'engineer';
         const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
-        
         if (restrictedStatuses.includes(statusValue) && !isEngineer) {
             alert('Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
             return false;
         }
+        if (cpdoStatus !== 'approved') {
+            alert('CPDO approval is required before changing application status.');
+            return false;
+        }
         return true;
     }
-
-    // Dynamic Fee Functions
+    
+    // ========== Dynamic Fee Functions ==========
     function addDynamicFee(description = '', amount = 0) {
         const container = document.getElementById('dynamic-fees-container');
         const rowId = `dynamic-fee-${feeRowCounter}`;
-        
         const rowHtml = `
             <div id="${rowId}" class="flex gap-2 items-center p-2 bg-gray-50 rounded-lg">
-                <input type="text" placeholder="Fee description (e.g., Excavation Fee)" class="dynamic-fee-desc flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${escapeHtml(description)}" onchange="updateDynamicFeesArray()">
+                <input type="text" placeholder="Fee description" class="dynamic-fee-desc flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${escapeHtml(description)}" onchange="updateDynamicFeesArray()">
                 <input type="number" step="0.01" placeholder="Amount" class="dynamic-fee-amount w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${amount}" oninput="updateDynamicFeesArray(); calculateTotal()">
                 <button type="button" onclick="removeDynamicFee('${rowId}')" class="text-red-500 hover:text-red-700 p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1065,7 +1557,6 @@
                 </button>
             </div>
         `;
-        
         container.insertAdjacentHTML('beforeend', rowHtml);
         dynamicFees.push({ id: rowId, description: description, amount: amount });
         feeRowCounter++;
@@ -1099,9 +1590,7 @@
     
     function getDynamicFeesTotal() {
         let total = 0;
-        dynamicFees.forEach(fee => {
-            total += fee.amount || 0;
-        });
+        dynamicFees.forEach(fee => { total += fee.amount || 0; });
         return total;
     }
     
@@ -1110,57 +1599,25 @@
         container.innerHTML = '';
         dynamicFees = [];
         feeRowCounter = 0;
-        
         if (feesData && feesData.length > 0) {
-            feesData.forEach(fee => {
-                addDynamicFee(fee.description, fee.amount);
-            });
+            feesData.forEach(fee => { addDynamicFee(fee.description, fee.amount); });
         }
     }
     
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+    function calculateTotal() {
+        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
+                              (parseFloat(document.getElementById('building-fee').value) || 0) +
+                              (parseFloat(document.getElementById('sanitary-fee').value) || 0) +
+                              (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('electrical-fee').value) || 0) +
+                              (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        const dynamicTotal = getDynamicFeesTotal();
+        const total = standardTotal + dynamicTotal;
+        document.getElementById('total-amount-display').textContent = total.toFixed(2);
+        return total;
     }
-
-    async function loadBFPData() {
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/bfp-data`, {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    if (data.data.fsec_link) {
-                        document.getElementById('existing-fsec-container').classList.remove('hidden');
-                        document.getElementById('fsec-link').href = data.data.fsec_link;
-                        if (data.data.fsec_filename) {
-                            document.getElementById('fsec-filename').textContent = data.data.fsec_filename;
-                        }
-                        if (data.data.fsec_uploaded_at) {
-                            document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(data.data.fsec_uploaded_at).toLocaleDateString();
-                        }
-                    }
-                    if (data.data.bfp_comments) {
-                        document.getElementById('bfp-comments-display').classList.remove('hidden');
-                        document.getElementById('bfp-comments-text').textContent = data.data.bfp_comments;
-                        if (data.data.bfp_comments_updated_at) {
-                            document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date(data.data.bfp_comments_updated_at).toLocaleString();
-                        }
-                        document.getElementById('bfp-comments').value = data.data.bfp_comments;
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error loading BFP data:', error);
-        }
-    }
-
+    
+    // ========== BFP Functions ==========
     async function handleFSECUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1208,15 +1665,12 @@
             statusDiv.innerHTML = '<span class="text-red-600">✗ Upload failed. Please try again.</span>';
         } finally {
             event.target.value = '';
-            setTimeout(() => {
-                if (statusDiv.innerHTML) statusDiv.innerHTML = '';
-            }, 5000);
+            setTimeout(() => { if (statusDiv.innerHTML) statusDiv.innerHTML = ''; }, 5000);
         }
     }
     
     async function deleteFSEC() {
         if (!confirm('Are you sure you want to delete the uploaded FSEC file?')) return;
-        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/delete-fsec`, {
                 method: 'DELETE',
@@ -1242,7 +1696,6 @@
         const originalText = btn.innerHTML;
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
-        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/bfp-comments`, {
                 method: 'POST',
@@ -1266,23 +1719,8 @@
             btn.disabled = false;
         }
     }
-
-    async function loadAssessmentData() {
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentAssessment = data.data;
-                    document.getElementById('assessment-notice')?.classList.remove('hidden');
-                    document.getElementById('assessment-total').innerHTML = `Total Building Permit Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-                }
-            }
-        } catch (error) { console.error('Error loading assessment:', error); }
-    }
-
+    
+    // ========== Assessment Functions ==========
     function openAssessmentModal() {
         if (currentAssessment) {
             document.getElementById('line-grade').value = currentAssessment.line_grade || '';
@@ -1292,18 +1730,14 @@
             document.getElementById('electrical-fee').value = currentAssessment.electrical_fee || '';
             document.getElementById('penalties-fines').value = currentAssessment.penalties_fines || '';
             document.getElementById('assessment-notes').value = currentAssessment.assessment_notes || '';
-            
             if (currentAssessment.additional_fees) {
                 try {
-                    const fees = typeof currentAssessment.additional_fees === 'string' 
-                        ? JSON.parse(currentAssessment.additional_fees) 
-                        : currentAssessment.additional_fees;
+                    const fees = typeof currentAssessment.additional_fees === 'string' ? JSON.parse(currentAssessment.additional_fees) : currentAssessment.additional_fees;
                     loadDynamicFeesFromData(fees);
                 } catch(e) { console.error('Error parsing additional fees:', e); }
             } else {
                 loadDynamicFeesFromData([]);
             }
-            
             calculateTotal();
         } else {
             document.querySelectorAll('#assessment-modal input, #assessment-modal textarea').forEach(el => el.value = '');
@@ -1313,33 +1747,17 @@
         document.getElementById('assessment-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
-
+    
     function closeAssessmentModal() {
         document.getElementById('assessment-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
-
-    function calculateTotal() {
-        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
-                              (parseFloat(document.getElementById('building-fee').value) || 0) +
-                              (parseFloat(document.getElementById('sanitary-fee').value) || 0) +
-                              (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
-                              (parseFloat(document.getElementById('electrical-fee').value) || 0) +
-                              (parseFloat(document.getElementById('penalties-fines').value) || 0);
-        
-        const dynamicTotal = getDynamicFeesTotal();
-        const total = standardTotal + dynamicTotal;
-        
-        document.getElementById('total-amount-display').textContent = total.toFixed(2);
-        return total;
-    }
-
+    
     async function saveAssessment() {
         const btn = document.getElementById('save-assessment-btn');
         const originalText = btn.innerHTML;
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
-        
         updateDynamicFeesArray();
         
         const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
@@ -1348,14 +1766,10 @@
                               (parseFloat(document.getElementById('mechanical-fee').value) || 0) +
                               (parseFloat(document.getElementById('electrical-fee').value) || 0) +
                               (parseFloat(document.getElementById('penalties-fines').value) || 0);
-        
         const dynamicTotal = getDynamicFeesTotal();
         const total = standardTotal + dynamicTotal;
         
-        const additionalFees = dynamicFees.map(fee => ({
-            description: fee.description,
-            amount: fee.amount
-        })).filter(fee => fee.description.trim() !== '' || fee.amount > 0);
+        const additionalFees = dynamicFees.map(fee => ({ description: fee.description, amount: fee.amount })).filter(fee => fee.description.trim() !== '' || fee.amount > 0);
         
         const data = {
             line_grade: parseFloat(document.getElementById('line-grade').value) || null,
@@ -1391,177 +1805,12 @@
             btn.disabled = false;
         }
     }
-
-    async function loadApplicationDetails() {
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}`, {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            const data = await response.json();
-            if (data.success) {
-                currentApplication = data.data;
-                displayApplicationDetails();
-                updateTimeline(currentApplication.status);
-                updateProgress(currentApplication.status);
-                updateHardCopyStatus(currentApplication.hard_copy_received);
-                if (currentApplication.document_links) displayDocumentChecklist(currentApplication.document_links);
-                else showEmptyDocuments();
-                calculateEstimatedTime();
-                displayProjectInformation(currentApplication);
-            } else showError();
-        } catch (error) { console.error('Error:', error); showError(); }
-    }
-
-    function displayProjectInformation(app) {
-        document.getElementById('project-title').textContent = app.project_title || 'Not provided';
-        document.getElementById('project-location').textContent = app.project_location || 'Not provided';
-        document.getElementById('project-description').textContent = app.project_description || 'Not provided';
-        document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
-        
-        if (app.lot_area) {
-            document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
-        } else {
-            document.getElementById('lot-area').textContent = 'Not provided';
-        }
-        
-        if (app.floor_area) {
-            document.getElementById('floor-area').textContent = `${parseFloat(app.floor_area).toLocaleString()} sqm`;
-        } else {
-            document.getElementById('floor-area').textContent = 'Not provided';
-        }
-        
-        document.getElementById('num-floors').textContent = app.num_floors || 'Not provided';
-        
-        if (app.estimated_cost) {
-            document.getElementById('estimated-cost').textContent = `₱ ${parseFloat(app.estimated_cost).toLocaleString()}`;
-        } else {
-            document.getElementById('estimated-cost').textContent = 'Not provided';
-        }
-        
-        document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
-        document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
-        document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
-        document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
-        document.getElementById('electrical-engineer-name').textContent = app.electrical_engineer_name || 'Not provided';
-        document.getElementById('electrical-engineer-license').textContent = app.electrical_engineer_license || 'Not provided';
-        document.getElementById('sanitary-engineer-name').textContent = app.sanitary_engineer_name || 'Not provided';
-        document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
-    }
-
-    function calculateEstimatedTime() {
-        if (!currentApplication) return;
-        const estimatedDate = new Date(new Date(currentApplication.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
-        document.getElementById('estimated-time').textContent = estimatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-        const releaseDate = new Date(estimatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-        document.getElementById('target-release').textContent = releaseDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-
-    async function loadReviewActivities() {
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/review-activities`, {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.activities) displayReviewActivities(data.activities);
-                else showEmptyActivities();
-            } else showEmptyActivities();
-        } catch (error) { console.error('Error:', error); showEmptyActivities(); }
-    }
-
-    function loadDocumentVerificationStatus() {
-        const saved = localStorage.getItem(`doc_verification_${applicationId}`);
-        if (saved) try { documentVerificationStatus = JSON.parse(saved); } catch(e) { documentVerificationStatus = {}; }
-    }
-
-    function saveDocumentVerificationStatus() {
-        localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
-        updateVerificationStats();
-    }
-
-    async function saveDocumentVerification() {
-        const verifiedCount = Object.keys(documentVerificationStatus).length;
-        try {
-            await fetch(`/staff/applications/${applicationId}/add-note`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ note: `Verification progress: ${verifiedCount}/${documentsList.length} documents verified.` })
-            });
-            alert('Progress saved successfully!');
-        } catch(error) { alert('Progress saved locally only'); }
-    }
-
-    function resetDocumentVerification() {
-        if (confirm('Reset all verification statuses?')) {
-            documentVerificationStatus = {};
-            saveDocumentVerificationStatus();
-            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            alert('Reset complete');
-        }
-    }
-
-    function updateVerificationStats() {
-        let verified = 0;
-        documentsList.forEach(doc => { if (documentVerificationStatus[doc.key]) verified++; });
-        document.getElementById('verified-count').textContent = verified;
-        document.getElementById('total-count').textContent = documentsList.length;
-        document.getElementById('summary-verified').textContent = verified;
-        document.getElementById('summary-pending').textContent = documentsList.length - verified;
-        document.getElementById('verification-progress-bar').style.width = (verified / documentsList.length) * 100 + '%';
-    }
-
-    function displayDocumentChecklist(documents) {
-        const container = document.getElementById('documents-checklist');
-        let html = '';
-        let categories = {};
-        documentsList.forEach(doc => {
-            if (documents[doc.key] && documents[doc.key].trim()) {
-                if (!categories[doc.category]) categories[doc.category] = [];
-                categories[doc.category].push({ ...doc, link: documents[doc.key], isVerified: documentVerificationStatus[doc.key]?.verified || false });
-            }
-        });
-        for (const [category, docs] of Object.entries(categories)) {
-            html += `<div class="mb-4"><h3 class="text-sm font-semibold mb-2 border-b pb-1">${category}</h3><div class="space-y-2">`;
-            docs.forEach(doc => {
-                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${doc.isVerified ? 'bg-green-50' : 'bg-gray-50'}">
-                    <div class="flex items-center gap-2 flex-1"><input type="checkbox" class="doc-checkbox" data-doc-key="${doc.key}" onchange="toggleDocumentVerification('${doc.key}', this.checked)" ${doc.isVerified ? 'checked disabled' : ''}>
-                    <span class="text-sm">${doc.name}</span></div>
-                    ${doc.link ? `<button onclick="openDocumentLink('${doc.key}', '${doc.link.replace(/'/g, "\\'")}')" class="px-2 py-1 text-xs rounded ${doc.isVerified ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#155386] text-white'}">${doc.isVerified ? 'Viewed' : 'View'}</button>` : '<span class="text-xs text-gray-400">No file</span>'}
-                </div>`;
-            });
-            html += `</div></div>`;
-        }
-        container.innerHTML = html || '<div class="text-center py-8">No documents uploaded</div>';
-        updateVerificationStats();
-    }
-
-    function toggleDocumentVerification(key, checked) {
-        if (checked) documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
-        else delete documentVerificationStatus[key];
-        saveDocumentVerificationStatus();
-        if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-    }
-
-    function openDocumentLink(key, link) {
-        if (!documentVerificationStatus[key]?.verified) {
-            documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
-            saveDocumentVerificationStatus();
-            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            updateVerificationStats();
-        }
-        window.open(link, '_blank');
-    }
-
-    function showEmptyDocuments() {
-        document.getElementById('documents-checklist').innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
-    }
-
+    
+    // ========== Application Display Functions ==========
     function displayApplicationDetails() {
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('application-content').classList.remove('hidden');
         document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
         if (currentApplication.created_at) {
             document.getElementById('submitted-date').textContent = new Date(currentApplication.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('step-submitted-date').textContent = new Date(currentApplication.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
         if (currentApplication.updated_at) document.getElementById('updated-date').textContent = new Date(currentApplication.updated_at).toLocaleDateString();
         updateStatusUI(currentApplication.status);
@@ -1571,7 +1820,7 @@
         document.getElementById('applicant-address').textContent = currentApplication.address || 'N/A';
         document.querySelectorAll('.status-radio').forEach(radio => { if (radio.value === currentApplication.status) radio.checked = true; });
     }
-
+    
     function updateStatusUI(status) {
         const config = { 'pending': 'yellow', 'under-review': 'purple', 'document-verification': 'purple', 'for-assessment': 'indigo', 'approved': 'green', 'rejected': 'red', 'for-release': 'blue', 'verified': 'emerald' };
         const color = config[status] || 'gray';
@@ -1582,7 +1831,7 @@
         document.getElementById('current-status').textContent = text;
         document.getElementById('current-status-card').className = `p-4 bg-${color}-50 rounded-lg border border-${color}-200`;
     }
-
+    
     function updateTimeline(status) {
         const steps = ['submitted', 'under-review', 'verification', 'assessment', 'approval', 'release'];
         const stepMap = { 'pending': 0, 'under-review': 1, 'document-verification': 2, 'for-assessment': 3, 'approved': 4, 'for-release': 5, 'verified': 5, 'rejected': -1 };
@@ -1613,38 +1862,170 @@
         const progressWidth = currentIndex >= 0 ? ((currentIndex + 1) / steps.length) * 100 : 0;
         document.getElementById('progress-line').style.width = progressWidth + '%';
     }
-
+    
     function updateProgress(status) {
         const progress = { 'draft': 0, 'pending': 20, 'under-review': 35, 'document-verification': 50, 'for-assessment': 65, 'approved': 80, 'for-release': 95, 'verified': 100, 'rejected': 100 }[status] || 0;
         document.getElementById('progress-percentage').textContent = progress + '%';
         document.getElementById('progress-bar').style.width = progress + '%';
     }
-
+    
     function updateHardCopyStatus(received) {
         document.getElementById('hardcopy-notice').classList.toggle('hidden', received);
         document.getElementById('hardcopy-received-notice').classList.toggle('hidden', !received);
         document.getElementById('hardcopy-checkbox').checked = received;
     }
-
-    async function updateStatus() {
-        const selected = document.querySelector('input[name="status"]:checked');
-        if (!selected) { alert('Please select a status'); return; }
+    
+    function displayProjectInformation(app) {
+        document.getElementById('project-title').textContent = app.project_title || 'Not provided';
+        document.getElementById('project-location').textContent = app.project_location || 'Not provided';
+        document.getElementById('project-description').textContent = app.project_description || 'Not provided';
+        document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
+        if (app.lot_area) document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
+        else document.getElementById('lot-area').textContent = 'Not provided';
+        if (app.floor_area) document.getElementById('floor-area').textContent = `${parseFloat(app.floor_area).toLocaleString()} sqm`;
+        else document.getElementById('floor-area').textContent = 'Not provided';
+        document.getElementById('num-floors').textContent = app.num_floors || 'Not provided';
+        if (app.estimated_cost) document.getElementById('estimated-cost').textContent = `₱ ${parseFloat(app.estimated_cost).toLocaleString()}`;
+        else document.getElementById('estimated-cost').textContent = 'Not provided';
+        document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
+        document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
+        document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
+        document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
+        document.getElementById('electrical-engineer-name').textContent = app.electrical_engineer_name || 'Not provided';
+        document.getElementById('electrical-engineer-license').textContent = app.electrical_engineer_license || 'Not provided';
+        document.getElementById('sanitary-engineer-name').textContent = app.sanitary_engineer_name || 'Not provided';
+        document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
+    }
+    
+    function calculateEstimatedTime() {
+        if (!currentApplication) return;
+        const estimatedDate = new Date(new Date(currentApplication.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
+        document.getElementById('estimated-time').textContent = estimatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const releaseDate = new Date(estimatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+        document.getElementById('target-release').textContent = releaseDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    
+    // ========== Document Verification Functions ==========
+    function loadDocumentVerificationStatus() {
+        const saved = localStorage.getItem(`doc_verification_${applicationId}`);
+        if (saved) try { documentVerificationStatus = JSON.parse(saved); } catch(e) { documentVerificationStatus = {}; }
+    }
+    
+    function saveDocumentVerificationStatus() {
+        localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
+        updateVerificationStats();
+    }
+    
+    async function saveDocumentVerification() {
+        const verifiedCount = Object.keys(documentVerificationStatus).length;
+        try {
+            await fetch(`/staff/applications/${applicationId}/add-note`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ note: `Verification progress: ${verifiedCount}/${documentsList.length} documents verified.` })
+            });
+            alert('Progress saved successfully!');
+        } catch(error) { alert('Progress saved locally only'); }
+    }
+    
+    function resetDocumentVerification() {
+        if (confirm('Reset all verification statuses?')) {
+            documentVerificationStatus = {};
+            saveDocumentVerificationStatus();
+            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
+            alert('Reset complete');
+        }
+    }
+    
+    function updateVerificationStats() {
+        let verified = 0;
+        documentsList.forEach(doc => { if (documentVerificationStatus[doc.key]) verified++; });
+        document.getElementById('verified-count').textContent = verified;
+        document.getElementById('total-count').textContent = documentsList.length;
+        document.getElementById('summary-verified').textContent = verified;
+        document.getElementById('summary-pending').textContent = documentsList.length - verified;
+        document.getElementById('verification-progress-bar').style.width = (verified / documentsList.length) * 100 + '%';
+    }
+    
+    function displayDocumentChecklist(documents) {
+        const container = document.getElementById('documents-checklist');
+        let html = '';
+        let categories = {};
+        documentsList.forEach(doc => {
+            if (documents[doc.key] && documents[doc.key].trim()) {
+                if (!categories[doc.category]) categories[doc.category] = [];
+                categories[doc.category].push({ ...doc, link: documents[doc.key], isVerified: documentVerificationStatus[doc.key]?.verified || false });
+            }
+        });
+        for (const [category, docs] of Object.entries(categories)) {
+            html += `<div class="mb-4"><h3 class="text-sm font-semibold mb-2 border-b pb-1">${category}</h3><div class="space-y-2">`;
+            docs.forEach(doc => {
+                const isCpdo = isCPDOUser();
+                const isEngineering = isEngineeringPosition();
+                
+                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${doc.isVerified ? 'bg-green-50' : 'bg-gray-50'}">
+                    <div class="flex items-center gap-2 flex-1">
+                        <input type="checkbox" class="doc-checkbox" data-doc-key="${doc.key}" onchange="toggleDocumentVerification('${doc.key}', this.checked)" ${doc.isVerified ? 'checked disabled' : ''}>
+                        <span class="text-sm">${doc.name}</span>
+                    </div>
+                    ${doc.link ? `<button onclick="openDocumentLink('${doc.key}', '${doc.link.replace(/'/g, "\\'")}')" class="px-2 py-1 text-xs rounded ${(doc.isVerified && !isCpdo) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#155386] text-white'}">${doc.isVerified && !isCpdo ? 'Viewed' : 'View'}</button>` : '<span class="text-xs text-gray-400">No file</span>'}
+                </div>`;
+            });
+            html += `</div></div>`;
+        }
+        container.innerHTML = html || '<div class="text-center py-8">No documents uploaded</div>';
+        updateVerificationStats();
+    }
+    
+    function toggleDocumentVerification(key, checked) {
+        if (cpdoStatus !== 'approved') {
+            alert('CPDO approval is required before verifying documents.');
+            const checkbox = document.querySelector(`.doc-checkbox[data-doc-key="${key}"]`);
+            if (checkbox) checkbox.checked = false;
+            return;
+        }
+        if (checked) documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
+        else delete documentVerificationStatus[key];
+        saveDocumentVerificationStatus();
+        if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
+    }
+    
+    function openDocumentLink(key, link) {
+        // CPDO can view documents anytime (even before approval)
+        // Engineering positions auto-check when viewing
+        const isCpdo = isCPDOUser();
+        const isEngineering = isEngineeringPosition();
         
-        if (!checkStatusPermission(selected.value)) {
+        if (!isCpdo && cpdoStatus !== 'approved') {
+            alert('CPDO approval is required before accessing documents.');
             return;
         }
         
+        // Auto-check for Engineering positions (not CPDO)
+        if (isEngineering && !isCpdo && !documentVerificationStatus[key]?.verified) {
+            documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
+            saveDocumentVerificationStatus();
+            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
+            updateVerificationStats();
+        }
+        
+        window.open(link, '_blank');
+    }
+    
+    function showEmptyDocuments() {
+        document.getElementById('documents-checklist').innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
+    }
+    
+    // ========== Status Update Functions ==========
+    async function updateStatus() {
+        const selected = document.querySelector('input[name="status"]:checked');
+        if (!selected) { alert('Please select a status'); return; }
+        if (!checkStatusPermission(selected.value)) return;
         if (selected.value === 'approved') {
             pendingApprovalStatus = selected.value;
             openHardCopyDateModal();
             return;
         }
-        
-        if (selected.value === 'for-assessment') { 
-            openAssessmentModal(); 
-            return; 
-        }
-        
+        if (selected.value === 'for-assessment') { openAssessmentModal(); return; }
         await processStatusUpdate(selected.value);
     }
     
@@ -1652,11 +2033,9 @@
         document.getElementById('hardcopy-submission-date').value = '';
         document.getElementById('hardcopy-submission-time').value = '';
         document.getElementById('hardcopy-instructions').value = '';
-        
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         document.getElementById('hardcopy-submission-date').min = tomorrow.toISOString().split('T')[0];
-        
         document.getElementById('hardcopy-date-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -1669,25 +2048,13 @@
     
     async function confirmApprovalWithDate() {
         const submissionDate = document.getElementById('hardcopy-submission-date').value;
-        if (!submissionDate) {
-            alert('Please select a submission date.');
-            return;
-        }
-        
+        if (!submissionDate) { alert('Please select a submission date.'); return; }
         const submissionTime = document.getElementById('hardcopy-submission-time').value;
         const instructions = document.getElementById('hardcopy-instructions').value;
-        
         let submissionDateTime = submissionDate;
-        if (submissionTime) {
-            submissionDateTime = `${submissionDate} ${submissionTime}`;
-        }
-        
+        if (submissionTime) submissionDateTime = `${submissionDate} ${submissionTime}`;
         closeHardCopyDateModal();
-        
-        await processStatusUpdate('approved', {
-            hardcopy_submission_date: submissionDateTime,
-            hardcopy_instructions: instructions
-        });
+        await processStatusUpdate('approved', { hardcopy_submission_date: submissionDateTime, hardcopy_instructions: instructions });
     }
     
     async function processStatusUpdate(status, additionalData = {}) {
@@ -1695,39 +2062,22 @@
         const original = btn.innerHTML;
         btn.innerHTML = 'Updating...';
         btn.disabled = true;
-        
-        // Get remarks from textarea
         const remarks = document.getElementById('status-remarks').value;
-        
         try {
-            const payload = {
-                status: status,
-                remarks: remarks,
-                hardcopy_received: document.getElementById('hardcopy-checkbox').checked,
-                ...additionalData
-            };
-            
+            const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
             const response = await fetch(`/staff/applications/${applicationId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
-            if (data.success) {
-                alert('Status updated successfully');
-                location.reload();
-            } else {
-                alert(data.message || 'Failed to update status');
-            }
-        } catch(error) {
-            console.error('Error:', error);
-            alert('Error updating status');
-        } finally {
-            btn.innerHTML = original;
-            btn.disabled = false;
-        }
+            if (data.success) { alert('Status updated successfully'); location.reload(); }
+            else { alert(data.message || 'Failed to update status'); }
+        } catch(error) { console.error('Error:', error); alert('Error updating status'); }
+        finally { btn.innerHTML = original; btn.disabled = false; }
     }
-
+    
+    // ========== Activity Log Functions ==========
     function displayReviewActivities(activities) {
         const container = document.getElementById('activity-log');
         if (!activities?.length) { showEmptyActivities(); return; }
@@ -1740,16 +2090,17 @@
         });
         container.innerHTML = html;
     }
-
+    
     function showEmptyActivities() {
         document.getElementById('activity-log').innerHTML = '<div class="text-center py-8 text-gray-500">No activity yet</div>';
     }
-
+    
     function loadFullActivityHistory() { window.location.href = `/staff/applications/${applicationId}/activity-history`; }
     function exportAsPDF() { window.location.href = `/staff/applications/${applicationId}/export-pdf`; }
     function archiveApplication() { if(confirm('Archive this application?')) fetch(`/staff/applications/${applicationId}/archive`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => window.location.href = '/staff/applications'); }
     function showError() { document.getElementById('loading-state').classList.add('hidden'); document.getElementById('error-state').classList.remove('hidden'); }
     
+    // ========== Missing Documents Functions ==========
     function toggleMissingDocumentsDropdown() {
         const dropdown = document.getElementById('missing-documents-dropdown');
         dropdown.classList.toggle('hidden');
@@ -1766,9 +2117,7 @@
         });
         for (const [category, docs] of Object.entries(categories)) {
             html += `<div class="mb-2"><p class="text-xs font-semibold text-gray-500">${category}</p>`;
-            docs.forEach(doc => {
-                html += `<label class="flex items-center p-1"><input type="checkbox" class="missing-doc-checkbox mr-2" data-doc-name="${doc.name}"><span class="text-sm">${doc.name}</span></label>`;
-            });
+            docs.forEach(doc => { html += `<label class="flex items-center p-1"><input type="checkbox" class="missing-doc-checkbox mr-2" data-doc-name="${doc.name}"><span class="text-sm">${doc.name}</span></label>`; });
             html += `</div>`;
         }
         container.innerHTML = html;
@@ -1799,6 +2148,17 @@
             else alert(data.message || 'Failed');
         } catch(error) { alert('Error sending request'); }
     }
+    
+    // ========== Utility Functions ==========
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
 </script>
 
 <style>
@@ -1814,13 +2174,8 @@
     #assessment-modal .bg-white, #hardcopy-date-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .hidden { display: none; }
-    .status-option.disabled, .status-radio:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-    .status-restricted-badge {
-        font-size: 10px;
-        color: #9ca3af;
-    }
+    .status-option.disabled, .status-radio:disabled { cursor: not-allowed; opacity: 0.5; }
+    .status-restricted-badge { font-size: 10px; color: #9ca3af; }
+    .opacity-50 { opacity: 0.5; }
 </style>
 @endsection

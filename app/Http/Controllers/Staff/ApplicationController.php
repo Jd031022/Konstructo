@@ -9,6 +9,7 @@ use App\Models\ApplicationReviewActivity;
 use App\Models\AssessmentFee;
 use App\Models\BfpApplicationData;
 use App\Models\ActivityLog;
+use App\Models\OwnershipVerification;
 use App\Services\NotificationService;
 use App\Services\GmailService;
 use Illuminate\Http\Request;
@@ -551,6 +552,10 @@ class ApplicationController extends Controller
             $lotArea = $application->lot_area ? number_format($application->lot_area, 2) . ' sqm' : null;
             $floorArea = $application->floor_area ? number_format($application->floor_area, 2) . ' sqm' : null;
             
+            // Get CPDO status from application
+            $cpdoStatus = $application->cpdo_status ?? 'pending';
+            $cpdoRemarks = $application->cpdo_remarks ?? null;
+            
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -603,7 +608,10 @@ class ApplicationController extends Controller
                     'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
                     // Hard Copy Submission Details
                     'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
-                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null
+                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
+                    // CPDO Status
+                    'cpdo_status' => $cpdoStatus,
+                    'cpdo_remarks' => $cpdoRemarks
                 ]
             ]);
             
@@ -614,6 +622,162 @@ class ApplicationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading application details: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get CPDO status for an application
+     */
+    public function getCPDOStatus($id)
+    {
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'status' => $application->cpdo_status ?? 'pending',
+                    'remarks' => $application->cpdo_remarks ?? null,
+                    'approved_at' => $application->cpdo_approved_at ?? null,
+                    'approved_by' => $application->cpdo_approved_by ? User::find($application->cpdo_approved_by)?->name : null
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting CPDO status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving CPDO status'
+            ], 500);
+        }
+    }
+
+    /**
+     * Submit CPDO decision (Approve/Reject)
+     */
+    public function submitCPDODecision(Request $request, $id)
+    {
+        Log::info('========== SUBMIT CPDO DECISION START ==========');
+        Log::info('submitCPDODecision called', [
+            'application_id' => $id,
+            'decision' => $request->decision,
+            'remarks' => $request->remarks,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'decision' => 'required|string|in:approved,rejected',
+            'remarks' => 'nullable|string|max:1000'
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            $staff->load('profile');
+            $position = $staff->profile ? $staff->profile->position : null;
+            
+            // Check if user is CPDO
+            if ($position !== 'cpdo') {
+                Log::error('Unauthorized: User is not CPDO', [
+                    'user_id' => $staff->id,
+                    'position' => $position
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only CPDO staff can make this decision. Your position: ' . ($position ?? 'not set')
+                ], 403);
+            }
+            
+            $decision = $request->decision;
+            $remarks = $request->remarks;
+            $oldCPDOStatus = $application->cpdo_status ?? 'pending';
+            
+            // Update application with CPDO decision
+            $application->cpdo_status = $decision;
+            $application->cpdo_remarks = $remarks;
+            $application->cpdo_approved_at = $decision === 'approved' ? now() : null;
+            $application->cpdo_approved_by = $staff->id;
+            $application->last_updated_by = $staff->id;
+            $application->save();
+            
+            Log::info('CPDO decision saved', [
+                'application_id' => $id,
+                'decision' => $decision,
+                'old_status' => $oldCPDOStatus,
+                'new_status' => $decision
+            ]);
+            
+            // Log the activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                $decision === 'approved' ? 'cpdo_approved' : 'cpdo_rejected',
+                $oldCPDOStatus,
+                $decision,
+                $remarks ?? ($decision === 'approved' ? 'Application approved by CPDO' : 'Application rejected by CPDO'),
+                $request->ip(),
+                $request->userAgent()
+            );
+            
+            // Send notification to applicant
+            try {
+                if ($decision === 'approved') {
+                    $this->notificationService->notifyCPDOApproved($application, $staff);
+                    Log::info('✅ CPDO approval notification sent to applicant');
+                } else {
+                    $this->notificationService->notifyCPDORejected($application, $staff, $remarks);
+                    Log::info('✅ CPDO rejection notification sent to applicant');
+                }
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send CPDO notification: ' . $e->getMessage());
+            }
+            
+            Log::info('========== SUBMIT CPDO DECISION END (SUCCESS) ==========');
+            
+            return response()->json([
+                'success' => true,
+                'message' => $decision === 'approved' 
+                    ? 'Application approved by CPDO. Other departments can now proceed with verification.' 
+                    : 'Application rejected by CPDO.',
+                'data' => [
+                    'cpdo_status' => $decision,
+                    'cpdo_remarks' => $remarks,
+                    'cpdo_approved_at' => $decision === 'approved' ? now()->toISOString() : null
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('========== SUBMIT CPDO DECISION END (ERROR) ==========');
+            Log::error('Error in submitCPDODecision: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting CPDO decision: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -748,6 +912,18 @@ class ApplicationController extends Controller
             case 'bfp_comments_added':
                 $actionText = 'BFP Comments Added';
                 break;
+            case 'ownership_document_verified':
+                $actionText = 'Ownership Document Verified';
+                break;
+            case 'ownership_document_unverified':
+                $actionText = 'Ownership Document Unverified';
+                break;
+            case 'cpdo_approved':
+                $actionText = 'CPDO Approved';
+                break;
+            case 'cpdo_rejected':
+                $actionText = 'CPDO Rejected';
+                break;
             default:
                 $actionText = ucfirst(str_replace('_', ' ', $activity->action));
                 break;
@@ -810,6 +986,20 @@ class ApplicationController extends Controller
                     'success' => false,
                     'message' => 'Application not found'
                 ], 404);
+            }
+
+            // Check if CPDO has approved (unless the status is being set to rejected)
+            $cpdoStatus = $application->cpdo_status ?? 'pending';
+            if ($cpdoStatus !== 'approved' && $request->status !== 'rejected') {
+                Log::warning('CPDO approval required before status update', [
+                    'application_id' => $id,
+                    'cpdo_status' => $cpdoStatus,
+                    'requested_status' => $request->status
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CPDO approval is required before changing application status. Please wait for CPDO to review and approve the application.'
+                ], 403);
             }
 
             Log::info('Application found', [
@@ -1147,6 +1337,15 @@ class ApplicationController extends Controller
                     'success' => false,
                     'message' => 'Application not found'
                 ], 404);
+            }
+
+            // Check if CPDO has approved
+            $cpdoStatus = $application->cpdo_status ?? 'pending';
+            if ($cpdoStatus !== 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CPDO approval is required before verifying documents.'
+                ], 403);
             }
 
             $staff = auth()->user();
@@ -2159,6 +2358,191 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Verify or unverify an ownership document (for Assessor and Treasurer)
+     * NOTE: This does NOT require CPDO approval - Assessor and Treasurer can verify independently
+     */
+    public function verifyOwnershipDocument(Request $request, $id)
+    {
+        try {
+            Log::info('========== VERIFY OWNERSHIP DOCUMENT START ==========');
+            Log::info('verifyOwnershipDocument called', [
+                'application_id' => $id,
+                'document_key' => $request->document_key,
+                'verified' => $request->verified,
+                'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
+                'user_id' => auth()->id()
+            ]);
+
+            $request->validate([
+                'document_key' => 'required|string|in:tct_link,tax_declaration_link,current_tax_receipt_link,spa_link',
+                'verified' => 'required|boolean'
+            ]);
+
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                Log::error('Application not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $staff = auth()->user();
+            $staff->load('profile');
+            $position = $staff->profile ? $staff->profile->position : null;
+            
+            Log::info('User position', ['position' => $position]);
+            
+            $documentKey = $request->document_key;
+            $isVerified = $request->verified;
+            
+            // Get or create ownership verification record
+            $ownershipVerification = OwnershipVerification::firstOrCreate(
+                ['application_id' => $id],
+                [
+                    'is_owner' => true,
+                    'assessor_status' => 'pending',
+                    'treasurer_status' => 'pending'
+                ]
+            );
+            
+            $now = now();
+            $responseMessage = '';
+            
+            // Handle verification based on document type and user position
+            switch ($documentKey) {
+                case 'tct_link':
+                    // Only Assessor can verify TCT
+                    if ($position !== 'assessor') {
+                        Log::error('Unauthorized: User is not Assessor', ['position' => $position]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only the Assessor can verify TCT/Deed of Sale documents.'
+                        ], 403);
+                    }
+                    
+                    $ownershipVerification->assessor_status = $isVerified ? 'approved' : 'pending';
+                    $ownershipVerification->assessor_verified_at = $isVerified ? $now : null;
+                    $ownershipVerification->assessor_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed');
+                    $responseMessage = $isVerified ? 'TCT/Deed of Sale verified successfully' : 'TCT/Deed of Sale verification removed';
+                    Log::info('TCT verification updated', ['verified' => $isVerified, 'assessor_status' => $ownershipVerification->assessor_status]);
+                    break;
+                    
+                case 'tax_declaration_link':
+                    // Only Treasurer can verify Tax Declaration
+                    if ($position !== 'treasurer') {
+                        Log::error('Unauthorized: User is not Treasurer', ['position' => $position]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only the Treasurer can verify Tax Declaration documents.'
+                        ], 403);
+                    }
+                    
+                    $ownershipVerification->treasurer_status = $isVerified ? 'approved' : 'pending';
+                    $ownershipVerification->treasurer_verified_at = $isVerified ? $now : null;
+                    $ownershipVerification->treasurer_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed');
+                    $responseMessage = $isVerified ? 'Tax Declaration verified successfully' : 'Tax Declaration verification removed';
+                    Log::info('Tax Declaration verification updated', ['verified' => $isVerified, 'treasurer_status' => $ownershipVerification->treasurer_status]);
+                    break;
+                    
+                case 'current_tax_receipt_link':
+                    // Only Treasurer can verify Current Tax Receipt
+                    if ($position !== 'treasurer') {
+                        Log::error('Unauthorized: User is not Treasurer', ['position' => $position]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only the Treasurer can verify Current Tax Receipt documents.'
+                        ], 403);
+                    }
+                    
+                    // Store tax receipt verification in treasurer remarks
+                    $currentRemarks = $ownershipVerification->treasurer_remarks ?? '';
+                    if ($isVerified) {
+                        $newRemark = "Tax Receipt verified on " . $now->format('Y-m-d H:i:s');
+                        $ownershipVerification->treasurer_remarks = $currentRemarks 
+                            ? $currentRemarks . "\n" . $newRemark 
+                            : $newRemark;
+                        Log::info('Tax Receipt verification added', ['remark' => $newRemark]);
+                    } else {
+                        // Remove the verification remark
+                        $ownershipVerification->treasurer_remarks = preg_replace(
+                            '/Tax Receipt verified on \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n?/', 
+                            '', 
+                            $currentRemarks
+                        );
+                        $ownershipVerification->treasurer_remarks = trim($ownershipVerification->treasurer_remarks);
+                        if (empty($ownershipVerification->treasurer_remarks)) {
+                            $ownershipVerification->treasurer_remarks = null;
+                        }
+                        Log::info('Tax Receipt verification removed');
+                    }
+                    $responseMessage = $isVerified ? 'Current Tax Receipt verified successfully' : 'Current Tax Receipt verification removed';
+                    break;
+                    
+                case 'spa_link':
+                    // SPA cannot be verified by staff (only admin)
+                    Log::error('Unauthorized: SPA verification attempted by staff');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Special Power of Attorney (SPA) can only be verified by an administrator.'
+                    ], 403);
+                    
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid document type'
+                    ], 400);
+            }
+            
+            $ownershipVerification->save();
+            
+            // Log the activity
+            $this->logReviewActivity(
+                $application->id,
+                $staff->id,
+                $isVerified ? 'ownership_document_verified' : 'ownership_document_unverified',
+                null,
+                null,
+                ($isVerified ? 'Verified' : 'Unverified') . ' ' . str_replace('_', ' ', $documentKey) . ' as ' . $position,
+                $request->ip(),
+                $request->userAgent()
+            );
+            
+            Log::info('Ownership document verification updated successfully', [
+                'application_id' => $id,
+                'document_key' => $documentKey,
+                'verified' => $isVerified,
+                'verified_by' => $staff->id,
+                'position' => $position
+            ]);
+            
+            Log::info('========== VERIFY OWNERSHIP DOCUMENT END (SUCCESS) ==========');
+            
+            return response()->json([
+                'success' => true,
+                'message' => $responseMessage,
+                'data' => [
+                    'document_key' => $documentKey,
+                    'verified' => $isVerified,
+                    'verified_by' => $staff->first_name . ' ' . $staff->last_name,
+                    'verified_at' => $now->toISOString()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('========== VERIFY OWNERSHIP DOCUMENT END (ERROR) ==========');
+            Log::error('Error verifying ownership document: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Log review activity for an application
      */
     private function logReviewActivity($applicationId, $reviewerId, $action, $oldStatus = null, $newStatus = null, $remarks = null, $ipAddress = null, $userAgent = null)
@@ -2195,46 +2579,47 @@ class ApplicationController extends Controller
             return null;
         }
     }
+    
     /**
- * Get ownership data for an application (Staff view)
- */
-public function getOwnershipData($id)
-{
-    try {
-        $application = ApplicationDocument::with('ownershipVerification')->find($id);
-        
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-        
-        $ownership = $application->ownershipVerification;
-        
-        if (!$ownership) {
+     * Get ownership data for an application (Staff view)
+     */
+    public function getOwnershipData($id)
+    {
+        try {
+            $application = ApplicationDocument::with('ownershipVerification')->find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $ownership = $application->ownershipVerification;
+            
+            if (!$ownership) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null
+                ]);
+            }
+            
             return response()->json([
                 'success' => true,
-                'data' => null
+                'data' => [
+                    'is_owner' => $ownership->is_owner,
+                    'tct_link' => $ownership->tct_link,
+                    'tax_declaration_link' => $ownership->tax_declaration_link,
+                    'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
+                    'spa_link' => $ownership->spa_link
+                ]
             ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load ownership data: ' . $e->getMessage()
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'is_owner' => $ownership->is_owner,
-                'tct_link' => $ownership->tct_link,
-                'tax_declaration_link' => $ownership->tax_declaration_link,
-                'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
-                'spa_link' => $ownership->spa_link
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to load ownership data: ' . $e->getMessage()
-        ], 500);
     }
-}
 }

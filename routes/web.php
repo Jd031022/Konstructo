@@ -72,6 +72,12 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::delete('/applications/{id}/delete-fsec', [App\Http\Controllers\Staff\ApplicationController::class, 'deleteFSEC']);
     Route::post('/applications/{id}/bfp-comments', [App\Http\Controllers\Staff\ApplicationController::class, 'saveBFPComments']);
     
+    // ========== CPDO ROUTES ==========
+    Route::get('/applications/{id}/cpdo-status', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDOStatus'])
+        ->name('applications.cpdo-status');
+    Route::post('/applications/{id}/cpdo-decision', [App\Http\Controllers\Staff\ApplicationController::class, 'submitCPDODecision'])
+        ->name('applications.cpdo-decision');
+    
     // View routes (return HTML)
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
@@ -116,6 +122,10 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     // ========== OWNERSHIP DATA ROUTE (STAFF) ==========
     Route::get('/applications/{id}/ownership', [App\Http\Controllers\Staff\ApplicationController::class, 'getOwnershipData'])
         ->name('applications.ownership');
+    
+    // ========== OWNERSHIP VERIFICATION ROUTE (STAFF) ==========
+    Route::post('/applications/{id}/verify-ownership-document', [App\Http\Controllers\Staff\ApplicationController::class, 'verifyOwnershipDocument'])
+        ->name('applications.verify-ownership-document');
     
     Route::post('/applications', [App\Http\Controllers\Staff\ApplicationController::class, 'store'])
         ->name('applications.store');
