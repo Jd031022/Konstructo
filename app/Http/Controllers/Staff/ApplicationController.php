@@ -36,94 +36,122 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Display a listing of all submitted applications (excluding drafts and archived)
-     */
-    public function index()
-    {
-        try {
-            Log::info('Fetching all staff applications (excluding drafts and archived)');
-            
-            $applications = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-                ->where('is_archived', false)
-                ->whereIn('status', [
-                    'pending', 
-                    'under-review', 
-                    'document-verification',
-                    'for-assessment',
-                    'approved', 
-                    'rejected', 
-                    'for-release', 
-                    'verified'
-                ])
-                ->orderBy('created_at', 'desc')
-                ->get();
+   /**
+ * Display a listing of all submitted applications (excluding drafts and archived)
+ */
+public function index(Request $request)
+{
+    try {
+        Log::info('Fetching all staff applications');
+        
+        // Get show_archived parameter from request
+        $showArchived = $request->query('show_archived', false);
+        
+        Log::info('Show archived filter', ['show_archived' => $showArchived]);
+        
+        $query = ApplicationDocument::with(['user', 'lastUpdatedBy']);
+        
+        if ($showArchived == 'true' || $showArchived === true) {
+            // Show archived applications (both active and archived)
+            $query->where(function($q) {
+                $q->where('is_archived', true)
+                  ->orWhereIn('status', [
+                      'pending', 
+                      'under-review', 
+                      'document-verification',
+                      'for-assessment',
+                      'approved', 
+                      'rejected', 
+                      'for-release', 
+                      'verified'
+                  ]);
+            });
+            Log::info('Showing archived applications as well');
+        } else {
+            // Show only active applications (not archived and with valid statuses)
+            $query->where('is_archived', false)
+                  ->whereIn('status', [
+                      'pending', 
+                      'under-review', 
+                      'document-verification',
+                      'for-assessment',
+                      'approved', 
+                      'rejected', 
+                      'for-release', 
+                      'verified'
+                  ]);
+            Log::info('Showing only active applications');
+        }
+        
+        $applications = $query->orderBy('created_at', 'desc')->get();
 
-            $formattedApplications = [];
-            foreach ($applications as $app) {
-                $applicantName = 'Unknown';
-                if ($app->user) {
-                    $firstName = $app->user->first_name ?? '';
-                    $lastName = $app->user->last_name ?? '';
-                    $applicantName = trim($firstName . ' ' . $lastName);
-                    if (empty($applicantName)) {
-                        $applicantName = 'Unknown';
-                    }
+        $formattedApplications = [];
+        foreach ($applications as $app) {
+            $applicantName = 'Unknown';
+            if ($app->user) {
+                $firstName = $app->user->first_name ?? '';
+                $lastName = $app->user->last_name ?? '';
+                $applicantName = trim($firstName . ' ' . $lastName);
+                if (empty($applicantName)) {
+                    $applicantName = 'Unknown';
                 }
-                
-                $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
-                $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
-                
-                $lastUpdatedByName = null;
-                if ($app->lastUpdatedBy) {
-                    $firstName = $app->lastUpdatedBy->first_name ?? '';
-                    $lastName = $app->lastUpdatedBy->last_name ?? '';
-                    $lastUpdatedByName = trim($firstName . ' ' . $lastName);
-                    if (empty($lastUpdatedByName)) {
-                        $lastUpdatedByName = null;
-                    }
-                }
-                
-                $formattedApplications[] = [
-                    'id' => $app->id,
-                    'application_number' => $app->application_number ?? 'N/A',
-                    'applicant_name' => $applicantName,
-                    'email' => $app->user ? ($app->user->email ?? null) : null,
-                    'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
-                    'address' => $app->user ? ($app->user->address ?? null) : null,
-                    'google_drive_link' => $app->google_drive_link,
-                    'status' => $app->status ?? 'unknown',
-                    'rejection_reason' => $app->rejection_reason,
-                    'admin_notes' => $app->admin_notes,
-                    'created_at' => $createdAt,
-                    'updated_at' => $updatedAt,
-                    'hard_copy_received' => $app->hard_copy_received ?? false,
-                    'last_updated_by' => $app->last_updated_by,
-                    'last_updated_by_name' => $lastUpdatedByName,
-                    'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
-                    'is_archived' => $app->is_archived ?? false,
-                    'project_title' => $app->project_title ?? null
-                ];
             }
             
-            return response()->json([
-                'success' => true,
-                'applications' => $formattedApplications,
-                'total' => count($formattedApplications)
-            ]);
+            $createdAt = $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null;
+            $updatedAt = $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null;
             
-        } catch (\Exception $e) {
-            Log::error('Error loading staff applications: ' . $e->getMessage());
-            Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            $lastUpdatedByName = null;
+            if ($app->lastUpdatedBy) {
+                $firstName = $app->lastUpdatedBy->first_name ?? '';
+                $lastName = $app->lastUpdatedBy->last_name ?? '';
+                $lastUpdatedByName = trim($firstName . ' ' . $lastName);
+                if (empty($lastUpdatedByName)) {
+                    $lastUpdatedByName = null;
+                }
+            }
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Error loading applications: ' . $e->getMessage(),
-                'applications' => []
-            ], 500);
+            $formattedApplications[] = [
+                'id' => $app->id,
+                'application_number' => $app->application_number ?? 'N/A',
+                'applicant_name' => $applicantName,
+                'email' => $app->user ? ($app->user->email ?? null) : null,
+                'phone' => $app->user ? ($app->user->phone_number ?? null) : null,
+                'address' => $app->user ? ($app->user->address ?? null) : null,
+                'google_drive_link' => $app->google_drive_link,
+                'status' => $app->status ?? 'unknown',
+                'rejection_reason' => $app->rejection_reason,
+                'admin_notes' => $app->admin_notes,
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
+                'hard_copy_received' => $app->hard_copy_received ?? false,
+                'last_updated_by' => $app->last_updated_by,
+                'last_updated_by_name' => $lastUpdatedByName,
+                'last_updated_by_role' => $app->lastUpdatedBy ? ($app->lastUpdatedBy->role ?? null) : null,
+                'is_archived' => $app->is_archived ?? false,
+                'archived_at' => $app->archived_at,
+                'archive_reason' => $app->archive_reason,
+                'project_title' => $app->project_title ?? null
+            ];
         }
+        
+        return response()->json([
+            'success' => true,
+            'applications' => $formattedApplications,
+            'total' => count($formattedApplications)
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error loading staff applications: ' . $e->getMessage());
+        Log::error('Error file: ' . $e->getFile() . ':' . $e->getLine());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading applications: ' . $e->getMessage(),
+            'applications' => []
+        ], 500);
     }
+}
 
     /**
      * Get current user's position

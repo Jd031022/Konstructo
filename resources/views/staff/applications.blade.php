@@ -204,7 +204,7 @@
     </div>
 </div>
 
-<!-- Archive Modal -->
+<!-- Archive Modal (Soft Delete) -->
 <div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-md">
@@ -230,38 +230,6 @@
                             class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition flex items-center gap-2 text-sm">
                             <span id="archive-btn-text">Archive</span>
                             <span id="archive-btn-spinner" class="hidden">
-                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-full flex items-center justify-center">
-        <div class="mx-auto w-full max-w-md">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="px-6 py-4 bg-red-600 text-white">
-                    <h3 class="text-xl font-bold">Delete Application</h3>
-                </div>
-                <div class="p-6">
-                    <p class="text-gray-700 mb-6">Are you sure you want to delete this application? This action cannot be undone.</p>
-                    
-                    <div class="flex justify-end gap-3">
-                        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Cancel
-                        </button>
-                        <button onclick="confirmDelete()" id="confirm-delete-btn"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
-                            <span id="delete-btn-text">Delete</span>
-                            <span id="delete-btn-spinner" class="hidden">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -320,7 +288,6 @@
     /* Modal animations */
     #edit-status-modal,
     #archive-modal,
-    #delete-modal,
     #error-modal,
     #success-modal {
         transition: opacity 0.2s ease-in-out;
@@ -328,7 +295,6 @@
     
     #edit-status-modal .bg-white,
     #archive-modal .bg-white,
-    #delete-modal .bg-white,
     #error-modal .bg-white,
     #success-modal .bg-white {
         animation: modalSlideIn 0.3s ease-out;
@@ -480,16 +446,43 @@
     let filteredApplications = [];
     let currentPage = 1;
     const itemsPerPage = 10;
-    let deleteId = null;
     let archiveId = null;
+    let currentUserPosition = null;
 
-    // Load applications on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        loadApplications();
+    // Load user position first, then applications
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadUserPosition();
+        await loadApplications();
         setupModals();
         // Auto-refresh every 60 seconds to update aging
         setInterval(loadApplications, 60000);
     });
+
+    // Load current user position
+    async function loadUserPosition() {
+        try {
+            const response = await fetch('/staff/position/check', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                currentUserPosition = data.position || '';
+                console.log('Current user position:', currentUserPosition);
+            }
+        } catch (error) {
+            console.error('Error loading user position:', error);
+        }
+    }
+
+    // Check if user is Engineer or Architect (can see all actions)
+    function canSeeAllActions() {
+        const fullAccessRoles = ['engineer', 'architect'];
+        return fullAccessRoles.includes(currentUserPosition);
+    }
 
     // Calculate aging days since submission
     function calculateAgingDays(submittedAt) {
@@ -680,7 +673,7 @@
         updatePagination();
     }
 
-    // Create application table row with aging colors
+    // Create application table row with role-based actions
     function createApplicationRow(app) {
         const initials = app.applicant_name ? 
             app.applicant_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 
@@ -733,6 +726,43 @@
         
         const randomGradient = gradientColors[app.id % gradientColors.length];
         const rowClass = getRowClass(app.aging_days);
+        const hasFullAccess = canSeeAllActions();
+        
+        // Build actions HTML based on user role
+        let actionsHtml = `
+            <div class="flex items-center gap-2">
+                <!-- View Details - visible to all -->
+                <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </a>
+        `;
+        
+        // Only show Update Status for Engineers and Architects
+        if (hasFullAccess) {
+            actionsHtml += `
+                <button onclick="openStatusModal(${app.id}, '${escapeHtml(app.application_number)}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+            `;
+        }
+        
+        // Only show Archive and Delete for Engineers and Architects
+        if (hasFullAccess) {
+            actionsHtml += `
+                <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </button>
+            `;
+        }
+        
+        actionsHtml += `</div>`;
         
         return `
             <tr class="hover:bg-gray-50 transition ${rowClass}">
@@ -768,36 +798,7 @@
                     ${formattedUpdatedDate}
                 </td>
                 <td class="py-4 px-6">
-                    <div class="flex items-center gap-2">
-                        <!-- View Details -->
-                        <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </a>
-                        
-                        <!-- Update Status -->
-                        <button onclick="openStatusModal(${app.id}, '${escapeHtml(app.application_number)}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Archive -->
-                        <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Delete -->
-                        <button onclick="openDeleteModal(${app.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
+                    ${actionsHtml}
                 </td>
             </tr>
         `;
@@ -862,6 +863,12 @@
 
     // Open status modal
     function openStatusModal(id, appNumber, currentStatus) {
+        // Only allow if user has full access
+        if (!canSeeAllActions()) {
+            showErrorModal('You do not have permission to update application status.');
+            return;
+        }
+        
         document.getElementById('status-application-id').value = id;
         document.getElementById('status-app-number').textContent = appNumber;
         document.getElementById('new-status').value = currentStatus;
@@ -878,6 +885,13 @@
     // Update status
     async function updateStatus(event) {
         event.preventDefault();
+        
+        // Only allow if user has full access
+        if (!canSeeAllActions()) {
+            showErrorModal('You do not have permission to update application status.');
+            closeStatusModal();
+            return;
+        }
         
         const id = document.getElementById('status-application-id').value;
         const status = document.getElementById('new-status').value;
@@ -909,8 +923,14 @@
         }
     }
 
-    // Archive functions
+    // Archive functions (soft delete)
     function openArchiveModal(id) {
+        // Only allow if user has full access
+        if (!canSeeAllActions()) {
+            showErrorModal('You do not have permission to archive applications.');
+            return;
+        }
+        
         archiveId = id;
         document.getElementById('archive-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -924,6 +944,13 @@
 
     async function confirmArchive() {
         if (!archiveId) return;
+        
+        // Only allow if user has full access
+        if (!canSeeAllActions()) {
+            showErrorModal('You do not have permission to archive applications.');
+            closeArchiveModal();
+            return;
+        }
         
         const btn = document.getElementById('confirm-archive-btn');
         const btnText = document.getElementById('archive-btn-text');
@@ -967,58 +994,6 @@
         }
     }
 
-    // Delete functions
-    function openDeleteModal(id) {
-        deleteId = id;
-        document.getElementById('delete-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('delete-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        deleteId = null;
-    }
-
-    async function confirmDelete() {
-        if (!deleteId) return;
-        
-        const btn = document.getElementById('confirm-delete-btn');
-        const btnText = document.getElementById('delete-btn-text');
-        const spinner = document.getElementById('delete-btn-spinner');
-        
-        btnText.classList.add('hidden');
-        spinner.classList.remove('hidden');
-        btn.disabled = true;
-        
-        try {
-            const response = await fetch(`/staff/applications/${deleteId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal('Application deleted successfully');
-                closeDeleteModal();
-                loadApplications();
-            } else {
-                showErrorModal(data.message || 'Failed to delete application');
-            }
-        } catch (error) {
-            console.error('Error deleting application:', error);
-            showErrorModal('Failed to delete application');
-        } finally {
-            btnText.classList.remove('hidden');
-            spinner.classList.add('hidden');
-            btn.disabled = false;
-        }
-    }
-
     // Export applications
     function exportApplications() {
         console.log('Export button clicked');
@@ -1059,7 +1034,7 @@
 
     // Setup modals
     function setupModals() {
-        const modals = ['edit-status-modal', 'archive-modal', 'delete-modal', 'error-modal', 'success-modal'];
+        const modals = ['edit-status-modal', 'archive-modal', 'error-modal', 'success-modal'];
         
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
@@ -1068,7 +1043,6 @@
                     if (e.target === modal) {
                         if (modalId === 'edit-status-modal') closeStatusModal();
                         if (modalId === 'archive-modal') closeArchiveModal();
-                        if (modalId === 'delete-modal') closeDeleteModal();
                         if (modalId === 'error-modal') closeErrorModal();
                         if (modalId === 'success-modal') closeSuccessModal();
                     }
@@ -1080,7 +1054,6 @@
             if (e.key === 'Escape') {
                 closeStatusModal();
                 closeArchiveModal();
-                closeDeleteModal();
                 closeErrorModal();
                 closeSuccessModal();
             }

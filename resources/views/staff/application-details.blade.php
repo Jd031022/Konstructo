@@ -21,7 +21,7 @@
                 </svg>
                 Export PDF
             </button>
-            <button onclick="archiveApplication()" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium">
+            <button onclick="openArchiveModal()" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
@@ -390,7 +390,7 @@
                             </div>
                             <h2 class="text-lg font-semibold text-gray-800">Step 2: Project Documents</h2>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div id="verification-stats-container" class="flex items-center gap-2">
                             <span id="verified-count" class="text-sm font-semibold text-green-600">0</span>
                             <span class="text-sm text-gray-400">/</span>
                             <span id="total-count" class="text-sm font-semibold text-gray-600">0</span>
@@ -408,14 +408,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between gap-3">
+                    <div id="verification-actions-container" class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between gap-3">
                         <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Request Missing Documents
                         </button>
-                        <div class="flex gap-2">
+                        <div id="admin-verification-buttons" class="flex gap-2">
                             <button onclick="resetDocumentVerification()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">Reset All</button>
                             <button onclick="saveDocumentVerification()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">Save Progress</button>
                         </div>
@@ -433,7 +433,9 @@
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
                             <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT, Treasurer can verify Tax Declaration and Tax Receipt. These are available immediately.<br>
-                            <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Engineering staff auto-checks when viewing. Other positions must manually check. CPDO must approve first before Step 2 verification begins.</p>
+                            <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Only Engineers and Architects can verify documents. Other roles can only view documents. CPDO must approve first before Step 2 verification begins.<br>
+                            <strong>Hard Copy Check:</strong> Only Engineers and Architects can mark hard copy as received.<br>
+                            <strong>CPDO Decision:</strong> Only Engineers and Architects can edit CPDO decisions.</p>
                         </div>
                     </div>
                 </div>
@@ -488,7 +490,7 @@
                             </div>
                         </div>
                         
-                        <!-- Form for new decision (when pending) -->
+                        <!-- Form for new decision (when pending) - Only CPDO can submit -->
                         <div id="cpdo-form" class="hidden">
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Decision</label>
@@ -512,7 +514,7 @@
                             <button onclick="submitCPDODecision()" id="cpdo-submit-btn" class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Submit Decision</button>
                         </div>
                         
-                        <!-- Edit form for changing existing decision (when already approved/rejected) -->
+                        <!-- Edit form for changing existing decision - Only Engineers and Architects can edit -->
                         <div id="cpdo-edit-form" class="hidden">
                             <div class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                 <div class="flex items-center gap-2 text-sm text-yellow-700 mb-2">
@@ -521,7 +523,7 @@
                                     </svg>
                                     <span class="font-medium">Change Decision</span>
                                 </div>
-                                <p class="text-xs text-yellow-600 mb-3">Changing your decision will notify the applicant and update the application status.</p>
+                                <p class="text-xs text-yellow-600 mb-3">Changing your decision will notify the applicant and update the application status. (Only Engineers and Architects can edit)</p>
                             </div>
                             
                             <div class="mb-4">
@@ -549,7 +551,7 @@
                             </div>
                         </div>
                         
-                        <!-- Edit Decision Button (shows when decision exists) -->
+                        <!-- Edit Decision Button - Only show for Engineers and Architects -->
                         <div id="cpdo-edit-button-container" class="hidden mt-3">
                             <button onclick="showEditMode()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,8 +593,9 @@
                             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <label class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
-                                    <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]" onchange="updateHardCopyStatus(this.checked)">
+                                    <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
                                 </label>
+                                <p id="hardcopy-permission-warning" class="text-xs text-red-500 mt-1 hidden">Only Engineers and Architects can mark hard copy as received.</p>
                             </div>
 
                             <div class="p-3 bg-green-50 rounded-lg border border-green-200">
@@ -787,7 +790,243 @@
             
             <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
                 <button onclick="closeAssessmentModal()" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Cancel</button>
-                <button onclick="saveAssessment()" id="save-assessment-btn" class="px-4 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">Save Assessment & Mark as For Assessment</button>
+                <button onclick="openFinalReviewModal()" id="review-assessment-btn" class="px-4 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">Save Assessment & Mark as For Assessment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Final Review Modal -->
+<div id="final-review-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-3xl">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Final Review of Fees</h3>
+                </div>
+                <button onclick="closeFinalReviewModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm text-blue-800">Please review all fee details below before submitting. Once confirmed, the application status will be updated to "For Assessment" and the applicant will be notified.</p>
+                    </div>
+                </div>
+
+                <!-- Fee Breakdown Summary -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                        <h4 class="font-semibold text-gray-800">Fee Breakdown Summary</h4>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Line Grade:</span>
+                            <span class="font-medium">₱<span id="review-line-grade">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Building Fee:</span>
+                            <span class="font-medium">₱<span id="review-building-fee">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Sanitary/Plumbing Fee:</span>
+                            <span class="font-medium">₱<span id="review-sanitary-fee">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Mechanical Fee:</span>
+                            <span class="font-medium">₱<span id="review-mechanical-fee">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Electrical Fee:</span>
+                            <span class="font-medium">₱<span id="review-electrical-fee">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between py-1 text-sm">
+                            <span class="text-gray-600">Penalties/Fines:</span>
+                            <span class="font-medium">₱<span id="review-penalties-fines">0.00</span></span>
+                        </div>
+                        
+                        <div id="review-additional-fees-container" class="space-y-1 mt-2 pt-2 border-t border-gray-100"></div>
+                        
+                        <div class="flex justify-between py-2 mt-2 pt-2 border-t border-gray-200">
+                            <span class="font-bold text-gray-900">TOTAL AMOUNT:</span>
+                            <span class="text-xl font-bold text-indigo-600">₱<span id="review-total-amount">0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assessment Notes Review -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-xs text-gray-500 mb-1">Assessment Notes</p>
+                    <p id="review-assessment-notes" class="text-sm text-gray-700">No notes provided</p>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeFinalReviewModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Back to Edit</button>
+                <button onclick="confirmSaveAssessment()" id="confirm-assessment-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">Confirm & Submit Assessment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submitting Modal -->
+<div id="submitting-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
+        <div class="bg-white rounded-2xl shadow-xl text-center">
+            <div class="p-6">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Processing</h3>
+                <p id="submitting-message" class="text-sm text-gray-600">Please wait while we process your request...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Message Modal -->
+<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl text-center">
+            <div class="p-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h3 id="success-title" class="text-lg font-bold text-gray-900 mb-2">Success!</h3>
+                <p id="success-message" class="text-gray-600">Operation completed successfully.</p>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <button onclick="closeSuccessModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Message Modal -->
+<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl text-center">
+            <div class="p-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <h3 id="error-title" class="text-lg font-bold text-gray-900 mb-2">Error!</h3>
+                <p id="error-message" class="text-gray-600">An error occurred. Please try again.</p>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <button onclick="closeErrorModal()" class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm font-medium">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Document Modal (for Engineers and Architects) -->
+<div id="verify-doc-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Verify Document</h3>
+                </div>
+                <button onclick="closeVerifyDocModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-yellow-50 rounded-lg p-3">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p class="text-sm text-yellow-800">Please confirm that you have reviewed this document and it meets the requirements.</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Document</p>
+                    <p id="verify-doc-name" class="text-gray-800 font-medium"></p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-500 mb-1">Document Link</p>
+                    <a id="verify-doc-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">Open Document</a>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Verification Notes (Optional)</label>
+                    <textarea id="verify-doc-notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Add any notes about this verification..."></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeVerifyDocModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Cancel</button>
+                <button onclick="confirmVerifyDocument()" id="confirm-verify-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">Confirm Verification</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Archive Application</h3>
+                </div>
+                <button onclick="closeArchiveModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Archive Application</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Are you sure you want to archive this application? Archived applications can be restored later if needed.
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Archiving (Optional)</label>
+                    <textarea id="archive-reason" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Enter reason for archiving..."></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeArchiveModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Cancel</button>
+                <button onclick="confirmArchiveApplication()" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-medium">Yes, Archive</button>
             </div>
         </div>
     </div>
@@ -881,6 +1120,11 @@
     let reviewActivities = [];
     let bfpData = null;
     
+    // Document verification modal tracking
+    let pendingDocumentKey = null;
+    let pendingDocumentLink = null;
+    let pendingDocumentName = null;
+    
     // Ownership verification status storage
     let ownershipVerificationStatus = {
         tct_link: false,
@@ -932,15 +1176,220 @@
         'verified': { allowed: ['engineer'], label: 'Completed' }
     };
 
-    // Check if user is Engineering position (auto-check on view)
-    function isEngineeringPosition() {
-        const engineeringPositions = ['engineer', 'architect', 'cpdo', 'administrative_aide'];
-        return engineeringPositions.includes(currentUserPosition);
+    // Check if user can verify documents (Engineer or Architect only)
+    function canVerifyDocuments() {
+        const verifyingRoles = ['engineer', 'architect'];
+        return verifyingRoles.includes(currentUserPosition);
+    }
+    
+    // Check if user can edit CPDO decision (Engineer or Architect only)
+    function canEditCPDODecision() {
+        const editingRoles = ['engineer', 'architect'];
+        return editingRoles.includes(currentUserPosition);
+    }
+    
+    // Check if user can mark hard copy as received (Engineer or Architect only)
+    function canMarkHardCopy() {
+        const hardCopyRoles = ['engineer', 'architect'];
+        return hardCopyRoles.includes(currentUserPosition);
+    }
+    
+    // Check if user can manage verification (Reset and Save Progress - Engineer or Architect only)
+    function canManageVerification() {
+        const manageRoles = ['engineer', 'architect'];
+        return manageRoles.includes(currentUserPosition);
+    }
+    
+    // Check if user is Engineering/Architect (for auto-check on view)
+    function isEngineeringOrArchitect() {
+        const engineeringArchitectRoles = ['engineer', 'architect'];
+        return engineeringArchitectRoles.includes(currentUserPosition);
     }
     
     // Check if user is CPDO (can view all documents anytime)
     function isCPDOUser() {
         return currentUserPosition === 'cpdo';
+    }
+
+    // Modal helper functions
+    function showSuccessModal(title, message) {
+        document.getElementById('success-title').textContent = title;
+        document.getElementById('success-message').textContent = message;
+        document.getElementById('success-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSuccessModal() {
+        document.getElementById('success-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    function showErrorModal(title, message) {
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('error-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeErrorModal() {
+        document.getElementById('error-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    function showSubmittingModal(message = 'Please wait while we process your request...') {
+        document.getElementById('submitting-message').textContent = message;
+        document.getElementById('submitting-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSubmittingModal() {
+        document.getElementById('submitting-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Document verification modal functions (only for Engineers and Architects)
+    function openVerifyDocModal(documentKey, documentName, documentLink) {
+        if (!canVerifyDocuments()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can verify documents.');
+            return;
+        }
+        
+        pendingDocumentKey = documentKey;
+        pendingDocumentName = documentName;
+        pendingDocumentLink = documentLink;
+        
+        document.getElementById('verify-doc-name').textContent = documentName;
+        document.getElementById('verify-doc-link').href = documentLink;
+        document.getElementById('verify-doc-notes').value = '';
+        
+        document.getElementById('verify-doc-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeVerifyDocModal() {
+        document.getElementById('verify-doc-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        pendingDocumentKey = null;
+    }
+    
+    function confirmVerifyDocument() {
+        if (pendingDocumentKey) {
+            const notes = document.getElementById('verify-doc-notes').value;
+            // Mark as verified
+            documentVerificationStatus[pendingDocumentKey] = { 
+                verified: true, 
+                verified_at: new Date().toISOString(),
+                notes: notes 
+            };
+            saveDocumentVerificationStatus();
+            if (currentApplication?.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            closeVerifyDocModal();
+            showSuccessModal('Document Verified', `"${pendingDocumentName}" has been marked as verified.`);
+        }
+    }
+    
+    // Archive modal functions
+    function openArchiveModal() {
+        document.getElementById('archive-reason').value = '';
+        document.getElementById('archive-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeArchiveModal() {
+        document.getElementById('archive-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    async function confirmArchiveApplication() {
+        const reason = document.getElementById('archive-reason').value;
+        closeArchiveModal();
+        
+        showSubmittingModal('Archiving application...');
+        
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/archive`, { 
+                method: 'POST', 
+                headers: { 
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            });
+            closeSubmittingModal();
+            if (response.ok) {
+                showSuccessModal('Archived', 'Application has been archived successfully.');
+                setTimeout(() => window.location.href = '/staff/applications', 1500);
+            } else {
+                const data = await response.json();
+                showErrorModal('Archive Failed', data.message || 'Failed to archive application.');
+            }
+        } catch(e) {
+            closeSubmittingModal();
+            showErrorModal('Error', 'Failed to archive application.');
+        }
+    }
+    
+    // Final Review Modal Functions
+    function openFinalReviewModal() {
+        // Update all fee values for review
+        const lineGrade = parseFloat(document.getElementById('line-grade').value) || 0;
+        const buildingFee = parseFloat(document.getElementById('building-fee').value) || 0;
+        const sanitaryFee = parseFloat(document.getElementById('sanitary-fee').value) || 0;
+        const mechanicalFee = parseFloat(document.getElementById('mechanical-fee').value) || 0;
+        const electricalFee = parseFloat(document.getElementById('electrical-fee').value) || 0;
+        const penaltiesFines = parseFloat(document.getElementById('penalties-fines').value) || 0;
+        const total = calculateTotal();
+        const assessmentNotes = document.getElementById('assessment-notes').value || 'No notes provided';
+        
+        document.getElementById('review-line-grade').textContent = lineGrade.toFixed(2);
+        document.getElementById('review-building-fee').textContent = buildingFee.toFixed(2);
+        document.getElementById('review-sanitary-fee').textContent = sanitaryFee.toFixed(2);
+        document.getElementById('review-mechanical-fee').textContent = mechanicalFee.toFixed(2);
+        document.getElementById('review-electrical-fee').textContent = electricalFee.toFixed(2);
+        document.getElementById('review-penalties-fines').textContent = penaltiesFines.toFixed(2);
+        document.getElementById('review-total-amount').textContent = total.toFixed(2);
+        document.getElementById('review-assessment-notes').textContent = assessmentNotes;
+        
+        // Update additional fees in review
+        updateDynamicFeesArray();
+        const container = document.getElementById('review-additional-fees-container');
+        container.innerHTML = '';
+        if (dynamicFees.length > 0) {
+            dynamicFees.forEach(fee => {
+                if (fee.description.trim() || fee.amount > 0) {
+                    const feeDiv = document.createElement('div');
+                    feeDiv.className = 'flex justify-between py-1 text-sm';
+                    feeDiv.innerHTML = `
+                        <span class="text-gray-600">${escapeHtml(fee.description) || 'Additional Fee'}:</span>
+                        <span class="font-medium">₱${(fee.amount || 0).toFixed(2)}</span>
+                    `;
+                    container.appendChild(feeDiv);
+                }
+            });
+        } else {
+            container.innerHTML = '<div class="text-center py-2 text-gray-500 text-sm">No additional fees added</div>';
+        }
+        
+        document.getElementById('final-review-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFinalReviewModal() {
+        document.getElementById('final-review-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    async function confirmSaveAssessment() {
+        closeFinalReviewModal();
+        showSubmittingModal('Saving assessment and updating status...');
+        
+        try {
+            await saveAssessment();
+        } finally {
+            closeSubmittingModal();
+        }
     }
 
     // ========== OPTIMIZED: Single function to load all data in parallel ==========
@@ -970,6 +1419,7 @@
             if (positionRes.ok) {
                 const data = await positionRes.json();
                 currentUserPosition = data.position || '';
+                console.log('Current user position:', currentUserPosition);
             }
             
             if (applicationRes.ok) {
@@ -1089,9 +1539,43 @@
         
         updateCPDOUI();
         applyStatusRestrictions();
+        applyHardCopyPermission();
+        applyVerificationUIRestrictions();
         
         if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
             document.getElementById('bfp-section').classList.remove('hidden');
+        }
+    }
+    
+    function applyHardCopyPermission() {
+        const hardCopyCheckbox = document.getElementById('hardcopy-checkbox');
+        const warningText = document.getElementById('hardcopy-permission-warning');
+        
+        if (!canMarkHardCopy()) {
+            hardCopyCheckbox.disabled = true;
+            warningText.classList.remove('hidden');
+        } else {
+            hardCopyCheckbox.disabled = false;
+            warningText.classList.add('hidden');
+        }
+    }
+    
+    function applyVerificationUIRestrictions() {
+        const verificationActionsContainer = document.getElementById('verification-actions-container');
+        const adminButtons = document.getElementById('admin-verification-buttons');
+        
+        if (!canManageVerification() && adminButtons) {
+            adminButtons.classList.add('hidden');
+        } else if (adminButtons) {
+            adminButtons.classList.remove('hidden');
+        }
+        
+        // Also hide the verification stats if user cannot manage verification
+        const statsContainer = document.getElementById('verification-stats-container');
+        if (!canManageVerification() && statsContainer) {
+            statsContainer.classList.add('hidden');
+        } else if (statsContainer) {
+            statsContainer.classList.remove('hidden');
         }
     }
 
@@ -1110,6 +1594,17 @@
         });
         
         document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
+        
+        // Add hard copy checkbox change handler
+        document.getElementById('hardcopy-checkbox').addEventListener('change', function(e) {
+            if (!canMarkHardCopy()) {
+                e.preventDefault();
+                showErrorModal('Permission Denied', 'Only Engineers and Architects can mark hard copy as received.');
+                this.checked = !this.checked;
+                return;
+            }
+            updateHardCopyStatus(this.checked);
+        });
     });
     
     // ========== CPDO Functions ==========
@@ -1127,6 +1622,9 @@
         const rejectedMessage = document.getElementById('cpdo-rejected-message');
         const statusUpdateCard = document.getElementById('status-update-card');
         
+        // Only show edit button for Engineers and Architects when decision exists
+        const showEditButton = (cpdoStatus === 'approved' || cpdoStatus === 'rejected') && canEditCPDODecision();
+        
         if (cpdoStatus === 'approved') {
             statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
             statusBadge.textContent = 'Approved';
@@ -1141,7 +1639,11 @@
             }
             cpdoForm.classList.add('hidden');
             cpdoEditForm.classList.add('hidden');
-            cpdoEditButton.classList.remove('hidden');
+            if (showEditButton) {
+                cpdoEditButton.classList.remove('hidden');
+            } else {
+                cpdoEditButton.classList.add('hidden');
+            }
             pendingMessage.classList.add('hidden');
             rejectedMessage.classList.add('hidden');
             if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
@@ -1160,7 +1662,11 @@
             }
             cpdoForm.classList.add('hidden');
             cpdoEditForm.classList.add('hidden');
-            cpdoEditButton.classList.remove('hidden');
+            if (showEditButton) {
+                cpdoEditButton.classList.remove('hidden');
+            } else {
+                cpdoEditButton.classList.add('hidden');
+            }
             pendingMessage.classList.add('hidden');
             rejectedMessage.classList.remove('hidden');
             if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
@@ -1191,6 +1697,11 @@
     }
     
     function showEditMode() {
+        if (!canEditCPDODecision()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can edit CPDO decisions.');
+            return;
+        }
+        
         const cpdoForm = document.getElementById('cpdo-form');
         const cpdoEditForm = document.getElementById('cpdo-edit-form');
         const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
@@ -1221,9 +1732,14 @@
     }
     
     async function submitCPDOEditDecision() {
+        if (!canEditCPDODecision()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can edit CPDO decisions.');
+            return;
+        }
+        
         const selected = document.querySelector('input[name="cpdo_edit_decision"]:checked');
         if (!selected) {
-            alert('Please select Approve or Reject');
+            showErrorModal('Incomplete Selection', 'Please select Approve or Reject');
             return;
         }
         
@@ -1231,7 +1747,7 @@
         const remarks = document.getElementById('cpdo-edit-remarks').value;
         
         if (decision === 'rejected' && !remarks.trim()) {
-            alert('Please provide a reason for rejection');
+            showErrorModal('Reason Required', 'Please provide a reason for rejection');
             return;
         }
         
@@ -1240,6 +1756,8 @@
         btn.innerHTML = 'Submitting...';
         btn.disabled = true;
         
+        showSubmittingModal('Updating CPDO decision...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
                 method: 'POST',
@@ -1247,6 +1765,7 @@
                 body: JSON.stringify({ decision: decision, remarks: remarks })
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 cpdoStatus = decision;
                 cpdoRemarks = remarks;
@@ -1254,14 +1773,15 @@
                     status: cpdoStatus,
                     remarks: cpdoRemarks
                 }));
-                alert(data.message);
-                location.reload();
+                showSuccessModal('Decision Updated', data.message);
+                setTimeout(() => location.reload(), 1500);
             } else {
-                alert(data.message || 'Failed to submit decision');
+                showErrorModal('Update Failed', data.message || 'Failed to submit decision');
             }
         } catch(error) {
+            closeSubmittingModal();
             console.error('Error:', error);
-            alert('Error submitting decision');
+            showErrorModal('Error', 'Error submitting decision');
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1270,19 +1790,7 @@
     
     // ONLY affects Step 2 document verification, NOT ownership documents
     function enableStep2Verification(enabled) {
-        const checkboxes = document.querySelectorAll('.doc-checkbox');
-        checkboxes.forEach(cb => { cb.disabled = !enabled; });
-        
-        const viewButtons = document.querySelectorAll('#documents-checklist button');
-        viewButtons.forEach(btn => {
-            if (enabled || isCPDOUser()) {
-                btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
-                btn.classList.add('bg-[#155386]', 'text-white');
-            } else {
-                btn.classList.add('bg-gray-300', 'cursor-not-allowed');
-                btn.classList.remove('bg-[#155386]', 'text-white');
-            }
-        });
+        // Note: Verify buttons are now handled in displayDocumentChecklist based on role
     }
     
     function disableStatusUpdates() {
@@ -1295,7 +1803,7 @@
     async function submitCPDODecision() {
         const selected = document.querySelector('input[name="cpdo_decision"]:checked');
         if (!selected) {
-            alert('Please select Approve or Reject');
+            showErrorModal('Incomplete Selection', 'Please select Approve or Reject');
             return;
         }
         
@@ -1303,7 +1811,7 @@
         const remarks = document.getElementById('cpdo-remarks').value;
         
         if (decision === 'rejected' && !remarks.trim()) {
-            alert('Please provide a reason for rejection');
+            showErrorModal('Reason Required', 'Please provide a reason for rejection');
             return;
         }
         
@@ -1312,6 +1820,8 @@
         btn.innerHTML = 'Submitting...';
         btn.disabled = true;
         
+        showSubmittingModal('Submitting CPDO decision...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
                 method: 'POST',
@@ -1319,6 +1829,7 @@
                 body: JSON.stringify({ decision: decision, remarks: remarks })
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 cpdoStatus = decision;
                 cpdoRemarks = remarks;
@@ -1327,14 +1838,15 @@
                     remarks: cpdoRemarks
                 }));
                 updateCPDOUI();
-                alert(data.message);
-                location.reload();
+                showSuccessModal('Decision Submitted', data.message);
+                setTimeout(() => location.reload(), 1500);
             } else {
-                alert(data.message || 'Failed to submit decision');
+                showErrorModal('Submission Failed', data.message || 'Failed to submit decision');
             }
         } catch(error) {
+            closeSubmittingModal();
             console.error('Error:', error);
-            alert('Error submitting decision');
+            showErrorModal('Error', 'Error submitting decision');
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1371,7 +1883,7 @@
     async function toggleOwnershipVerification(documentKey, isChecked) {
         // Ownership verification does NOT require CPDO approval
         if (!canVerifyOwnershipDocument(documentKey)) {
-            alert(`You don't have permission to verify this document. Only ${ownershipVerificationPermissions[documentKey].join(', ')} can verify this document.`);
+            showErrorModal('Permission Denied', `You don't have permission to verify this document. Only ${ownershipVerificationPermissions[documentKey].join(', ')} can verify this document.`);
             const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
             if (checkbox) checkbox.checked = !isChecked;
             return;
@@ -1380,6 +1892,8 @@
         const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
         if (checkbox) checkbox.disabled = true;
         
+        showSubmittingModal('Updating verification status...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
                 method: 'POST',
@@ -1387,19 +1901,21 @@
                 body: JSON.stringify({ document_key: documentKey, verified: isChecked })
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 ownershipVerificationStatus[documentKey] = isChecked;
                 saveOwnershipVerificationStatus();
                 if (currentOwnershipData) displayOwnershipDocuments();
-                alert(data.message);
+                showSuccessModal('Verification Updated', data.message);
             } else {
-                alert(data.message || 'Failed to update verification');
+                showErrorModal('Update Failed', data.message || 'Failed to update verification');
                 const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
                 if (checkbox) checkbox.checked = !isChecked;
             }
         } catch(error) {
+            closeSubmittingModal();
             console.error('Error:', error);
-            alert('Error updating verification');
+            showErrorModal('Error', 'Error updating verification');
             const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
             if (checkbox) checkbox.checked = !isChecked;
         } finally {
@@ -1532,11 +2048,11 @@
         const isEngineer = currentUserPosition === 'engineer';
         const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
         if (restrictedStatuses.includes(statusValue) && !isEngineer) {
-            alert('Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
+            showErrorModal('Permission Denied', 'Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
             return false;
         }
         if (cpdoStatus !== 'approved') {
-            alert('CPDO approval is required before changing application status.');
+            showErrorModal('CPDO Approval Required', 'CPDO approval is required before changing application status.');
             return false;
         }
         return true;
@@ -1624,14 +2140,14 @@
         
         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
-            alert('Please upload PDF, JPG, or PNG files only.');
+            showErrorModal('Invalid File Type', 'Please upload PDF, JPG, or PNG files only.');
             event.target.value = '';
             return;
         }
         
         const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
-            alert('File size must be less than 10MB.');
+            showErrorModal('File Too Large', 'File size must be less than 10MB.');
             event.target.value = '';
             return;
         }
@@ -1643,6 +2159,8 @@
         statusDiv.classList.remove('hidden');
         statusDiv.innerHTML = '<span class="text-blue-600">Uploading...</span>';
         
+        showSubmittingModal('Uploading FSEC document...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/upload-fsec`, {
                 method: 'POST',
@@ -1650,19 +2168,24 @@
                 body: formData
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 statusDiv.innerHTML = '<span class="text-green-600">✓ FSEC uploaded successfully!</span>';
                 document.getElementById('fsec-filename').textContent = file.name;
                 document.getElementById('existing-fsec-container').classList.remove('hidden');
                 document.getElementById('fsec-link').href = data.link;
                 document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date().toLocaleDateString();
+                showSuccessModal('Upload Successful', 'FSEC document has been uploaded successfully.');
                 setTimeout(() => statusDiv.innerHTML = '', 3000);
             } else {
                 statusDiv.innerHTML = '<span class="text-red-600">✗ ' + (data.message || 'Upload failed') + '</span>';
+                showErrorModal('Upload Failed', data.message || 'Failed to upload FSEC document.');
             }
         } catch (error) {
+            closeSubmittingModal();
             console.error('Error uploading FSEC:', error);
             statusDiv.innerHTML = '<span class="text-red-600">✗ Upload failed. Please try again.</span>';
+            showErrorModal('Upload Error', 'An error occurred while uploading. Please try again.');
         } finally {
             event.target.value = '';
             setTimeout(() => { if (statusDiv.innerHTML) statusDiv.innerHTML = ''; }, 5000);
@@ -1671,22 +2194,27 @@
     
     async function deleteFSEC() {
         if (!confirm('Are you sure you want to delete the uploaded FSEC file?')) return;
+        
+        showSubmittingModal('Deleting FSEC document...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/delete-fsec`, {
                 method: 'DELETE',
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 document.getElementById('existing-fsec-container').classList.add('hidden');
                 document.getElementById('fsec-filename').textContent = 'No file selected';
-                alert('FSEC deleted successfully');
+                showSuccessModal('Deleted', 'FSEC document deleted successfully.');
             } else {
-                alert(data.message || 'Failed to delete FSEC');
+                showErrorModal('Delete Failed', data.message || 'Failed to delete FSEC');
             }
         } catch (error) {
+            closeSubmittingModal();
             console.error('Error deleting FSEC:', error);
-            alert('Failed to delete FSEC');
+            showErrorModal('Error', 'Failed to delete FSEC document.');
         }
     }
     
@@ -1696,6 +2224,9 @@
         const originalText = btn.innerHTML;
         btn.innerHTML = 'Saving...';
         btn.disabled = true;
+        
+        showSubmittingModal('Saving comments...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/bfp-comments`, {
                 method: 'POST',
@@ -1703,17 +2234,19 @@
                 body: JSON.stringify({ comments: comments })
             });
             const data = await response.json();
+            closeSubmittingModal();
             if (data.success) {
                 document.getElementById('bfp-comments-display').classList.remove('hidden');
                 document.getElementById('bfp-comments-text').textContent = comments;
                 document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date().toLocaleString();
-                alert('Comments saved successfully');
+                showSuccessModal('Comments Saved', 'Your comments have been saved successfully.');
             } else {
-                alert(data.message || 'Failed to save comments');
+                showErrorModal('Save Failed', data.message || 'Failed to save comments');
             }
         } catch (error) {
+            closeSubmittingModal();
             console.error('Error saving comments:', error);
-            alert('Failed to save comments');
+            showErrorModal('Error', 'Failed to save comments. Please try again.');
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1754,10 +2287,6 @@
     }
     
     async function saveAssessment() {
-        const btn = document.getElementById('save-assessment-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Saving...';
-        btn.disabled = true;
         updateDynamicFeesArray();
         
         const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) +
@@ -1792,17 +2321,14 @@
             const result = await response.json();
             if (result.success) {
                 closeAssessmentModal();
-                alert('Assessment saved successfully! Application status updated to "For Assessment".');
-                location.reload();
+                showSuccessModal('Assessment Saved', 'Assessment saved successfully! Application status updated to "For Assessment".');
+                setTimeout(() => location.reload(), 2000);
             } else {
-                alert(result.message || 'Failed to save assessment');
+                showErrorModal('Save Failed', result.message || 'Failed to save assessment');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to save assessment: ' + error.message);
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            showErrorModal('Error', 'Failed to save assessment: ' + error.message);
         }
     }
     
@@ -1873,6 +2399,15 @@
         document.getElementById('hardcopy-notice').classList.toggle('hidden', received);
         document.getElementById('hardcopy-received-notice').classList.toggle('hidden', !received);
         document.getElementById('hardcopy-checkbox').checked = received;
+        
+        // Save to server
+        if (canMarkHardCopy()) {
+            fetch(`/staff/applications/${applicationId}/hardcopy-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ hardcopy_received: received })
+            }).catch(err => console.error('Error saving hard copy status:', err));
+        }
     }
     
     function displayProjectInformation(app) {
@@ -1917,22 +2452,37 @@
     }
     
     async function saveDocumentVerification() {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can save verification progress.');
+            return;
+        }
+        
         const verifiedCount = Object.keys(documentVerificationStatus).length;
+        showSubmittingModal('Saving verification progress...');
         try {
             await fetch(`/staff/applications/${applicationId}/add-note`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ note: `Verification progress: ${verifiedCount}/${documentsList.length} documents verified.` })
             });
-            alert('Progress saved successfully!');
-        } catch(error) { alert('Progress saved locally only'); }
+            closeSubmittingModal();
+            showSuccessModal('Progress Saved', 'Document verification progress saved successfully!');
+        } catch(error) { 
+            closeSubmittingModal();
+            showErrorModal('Save Failed', 'Progress saved locally only'); 
+        }
     }
     
     function resetDocumentVerification() {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can reset verification progress.');
+            return;
+        }
+        
         if (confirm('Reset all verification statuses?')) {
             documentVerificationStatus = {};
             saveDocumentVerificationStatus();
             if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            alert('Reset complete');
+            showSuccessModal('Reset Complete', 'All document verification statuses have been reset.');
         }
     }
     
@@ -1950,65 +2500,38 @@
         const container = document.getElementById('documents-checklist');
         let html = '';
         let categories = {};
+        const canVerify = canVerifyDocuments();
+        const cpdoApproved = cpdoStatus === 'approved';
+        
         documentsList.forEach(doc => {
             if (documents[doc.key] && documents[doc.key].trim()) {
                 if (!categories[doc.category]) categories[doc.category] = [];
                 categories[doc.category].push({ ...doc, link: documents[doc.key], isVerified: documentVerificationStatus[doc.key]?.verified || false });
             }
         });
+        
         for (const [category, docs] of Object.entries(categories)) {
             html += `<div class="mb-4"><h3 class="text-sm font-semibold mb-2 border-b pb-1">${category}</h3><div class="space-y-2">`;
             docs.forEach(doc => {
-                const isCpdo = isCPDOUser();
-                const isEngineering = isEngineeringPosition();
+                const isVerified = doc.isVerified;
+                const showVerifyButton = !isVerified && doc.link && cpdoApproved && canVerify;
+                const showViewButton = doc.link;
                 
-                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${doc.isVerified ? 'bg-green-50' : 'bg-gray-50'}">
+                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${isVerified ? 'bg-green-50' : 'bg-gray-50'}">
                     <div class="flex items-center gap-2 flex-1">
-                        <input type="checkbox" class="doc-checkbox" data-doc-key="${doc.key}" onchange="toggleDocumentVerification('${doc.key}', this.checked)" ${doc.isVerified ? 'checked disabled' : ''}>
-                        <span class="text-sm">${doc.name}</span>
+                        <span class="text-sm ${isVerified ? 'line-through text-gray-500' : ''}">${doc.name}</span>
+                        ${isVerified ? '<span class="text-xs text-green-600">✓ Verified</span>' : ''}
                     </div>
-                    ${doc.link ? `<button onclick="openDocumentLink('${doc.key}', '${doc.link.replace(/'/g, "\\'")}')" class="px-2 py-1 text-xs rounded ${(doc.isVerified && !isCpdo) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#155386] text-white'}">${doc.isVerified && !isCpdo ? 'Viewed' : 'View'}</button>` : '<span class="text-xs text-gray-400">No file</span>'}
+                    <div class="flex gap-2">
+                        ${showViewButton ? `<a href="${doc.link}" target="_blank" class="px-2 py-1 text-xs rounded bg-[#155386] text-white hover:bg-[#40798C]">View</a>` : '<span class="text-xs text-gray-400">No file</span>'}
+                        ${showVerifyButton ? `<button onclick="openVerifyDocModal('${doc.key}', '${escapeHtml(doc.name)}', '${doc.link}')" class="px-2 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700">Verify</button>` : ''}
+                    </div>
                 </div>`;
             });
             html += `</div></div>`;
         }
         container.innerHTML = html || '<div class="text-center py-8">No documents uploaded</div>';
         updateVerificationStats();
-    }
-    
-    function toggleDocumentVerification(key, checked) {
-        if (cpdoStatus !== 'approved') {
-            alert('CPDO approval is required before verifying documents.');
-            const checkbox = document.querySelector(`.doc-checkbox[data-doc-key="${key}"]`);
-            if (checkbox) checkbox.checked = false;
-            return;
-        }
-        if (checked) documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
-        else delete documentVerificationStatus[key];
-        saveDocumentVerificationStatus();
-        if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-    }
-    
-    function openDocumentLink(key, link) {
-        // CPDO can view documents anytime (even before approval)
-        // Engineering positions auto-check when viewing
-        const isCpdo = isCPDOUser();
-        const isEngineering = isEngineeringPosition();
-        
-        if (!isCpdo && cpdoStatus !== 'approved') {
-            alert('CPDO approval is required before accessing documents.');
-            return;
-        }
-        
-        // Auto-check for Engineering positions (not CPDO)
-        if (isEngineering && !isCpdo && !documentVerificationStatus[key]?.verified) {
-            documentVerificationStatus[key] = { verified: true, verified_at: new Date().toISOString() };
-            saveDocumentVerificationStatus();
-            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            updateVerificationStats();
-        }
-        
-        window.open(link, '_blank');
     }
     
     function showEmptyDocuments() {
@@ -2018,7 +2541,7 @@
     // ========== Status Update Functions ==========
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
-        if (!selected) { alert('Please select a status'); return; }
+        if (!selected) { showErrorModal('No Status Selected', 'Please select a status'); return; }
         if (!checkStatusPermission(selected.value)) return;
         if (selected.value === 'approved') {
             pendingApprovalStatus = selected.value;
@@ -2048,7 +2571,7 @@
     
     async function confirmApprovalWithDate() {
         const submissionDate = document.getElementById('hardcopy-submission-date').value;
-        if (!submissionDate) { alert('Please select a submission date.'); return; }
+        if (!submissionDate) { showErrorModal('Date Required', 'Please select a submission date.'); return; }
         const submissionTime = document.getElementById('hardcopy-submission-time').value;
         const instructions = document.getElementById('hardcopy-instructions').value;
         let submissionDateTime = submissionDate;
@@ -2063,6 +2586,9 @@
         btn.innerHTML = 'Updating...';
         btn.disabled = true;
         const remarks = document.getElementById('status-remarks').value;
+        
+        showSubmittingModal('Updating application status...');
+        
         try {
             const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
             const response = await fetch(`/staff/applications/${applicationId}/status`, {
@@ -2071,9 +2597,18 @@
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
-            if (data.success) { alert('Status updated successfully'); location.reload(); }
-            else { alert(data.message || 'Failed to update status'); }
-        } catch(error) { console.error('Error:', error); alert('Error updating status'); }
+            closeSubmittingModal();
+            if (data.success) {
+                showSuccessModal('Status Updated', 'Application status has been updated successfully.');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showErrorModal('Update Failed', data.message || 'Failed to update status');
+            }
+        } catch(error) { 
+            closeSubmittingModal();
+            console.error('Error:', error); 
+            showErrorModal('Error', 'Error updating status'); 
+        }
         finally { btn.innerHTML = original; btn.disabled = false; }
     }
     
@@ -2097,7 +2632,6 @@
     
     function loadFullActivityHistory() { window.location.href = `/staff/applications/${applicationId}/activity-history`; }
     function exportAsPDF() { window.location.href = `/staff/applications/${applicationId}/export-pdf`; }
-    function archiveApplication() { if(confirm('Archive this application?')) fetch(`/staff/applications/${applicationId}/archive`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => window.location.href = '/staff/applications'); }
     function showError() { document.getElementById('loading-state').classList.add('hidden'); document.getElementById('error-state').classList.remove('hidden'); }
     
     // ========== Missing Documents Functions ==========
@@ -2136,17 +2670,26 @@
     
     async function sendDocumentRequest() {
         const selected = Array.from(document.querySelectorAll('.missing-doc-checkbox:checked')).map(cb => cb.getAttribute('data-doc-name'));
-        if (selected.length === 0) { alert('Select at least one document'); return; }
+        if (selected.length === 0) { showErrorModal('No Documents Selected', 'Please select at least one document to request.'); return; }
         const remarks = document.getElementById('document-request-remarks').value;
+        
+        showSubmittingModal('Sending document request...');
+        
         try {
             const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ documents: selected, remarks: remarks })
             });
             const data = await response.json();
-            if (data.success) { alert('Request sent successfully'); toggleMissingDocumentsDropdown(); }
-            else alert(data.message || 'Failed');
-        } catch(error) { alert('Error sending request'); }
+            closeSubmittingModal();
+            if (data.success) { 
+                showSuccessModal('Request Sent', 'Missing documents request has been sent to the applicant.');
+                toggleMissingDocumentsDropdown(); 
+            } else showErrorModal('Request Failed', data.message || 'Failed to send request');
+        } catch(error) { 
+            closeSubmittingModal();
+            showErrorModal('Error', 'Error sending request'); 
+        }
     }
     
     // ========== Utility Functions ==========
@@ -2171,7 +2714,7 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; }
     @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
-    #assessment-modal .bg-white, #hardcopy-date-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
+    #assessment-modal .bg-white, #hardcopy-date-modal .bg-white, #final-review-modal .bg-white, #success-modal .bg-white, #error-modal .bg-white, #verify-doc-modal .bg-white, #archive-modal .bg-white, #submitting-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .hidden { display: none; }
     .status-option.disabled, .status-radio:disabled { cursor: not-allowed; opacity: 0.5; }

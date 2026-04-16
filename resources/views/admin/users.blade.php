@@ -200,97 +200,104 @@
                     <form id="user-form" onsubmit="saveUser(event)">
                         <input type="hidden" id="user-id">
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- First Name -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="first_name" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <!-- Last Name -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="last_name" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <!-- Middle Name -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                                <input type="text" id="middle_name"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <!-- Suffix -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
-                                <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                    <option value="">None</option>
-                                    <option value="Jr.">Jr.</option>
-                                    <option value="Sr.">Sr.</option>
-                                    <option value="II">II</option>
-                                    <option value="III">III</option>
-                                    <option value="IV">IV</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Email -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-                                <input type="email" id="email" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                            </div>
-                            
-                            <!-- Username -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
-                                <input type="text" id="username" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
-                            </div>
-                            
-                            <!-- Password Fields -->
-                            <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
-                                    <input type="password" id="password" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
-                                    <input type="password" id="password_confirmation" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                </div>
-                            </div>
-                            
-                            <!-- Role -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
-                                <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                    <option value="">Select Role</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="staff">Staff</option>
-                                    <option value="applicant">Applicant</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Position (Staff only) -->
-                            <div id="position-field" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Position <span class="text-red-500">*</span></label>
-                                <select id="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                                    <option value="">Select Position</option>
-                                    <option value="engineer">Engineer</option>
-                                    <option value="architect">Architect</option>
-                                    <option value="BFP">BFP</option>
-                                    <option value="cpdo">CPDO</option>
-                                    <option value="administrative_aide">Administrative Aide</option>
-                                    <option value="treasurer">Treasurer</option>
-                                    <option value="assessor">Assessor</option>
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
-                            </div>
-                        </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- First Name -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
+        <input type="text" id="first_name" required
+            placeholder="First name"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+    
+    <!-- Last Name -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
+        <input type="text" id="last_name" required
+            placeholder="Last name"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+    
+    <!-- Middle Name -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
+        <input type="text" id="middle_name"
+            placeholder="Middle name (optional)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+    
+    <!-- Suffix -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
+        <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+            <option value="">None</option>
+            <option value="Jr.">Jr.</option>
+            <option value="Sr.">Sr.</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+        </select>
+    </div>
+    
+    <!-- Email -->
+    <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
+        <input type="email" id="email" required
+            placeholder="example@email.com"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+    </div>
+    
+    <!-- Username -->
+    <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
+        <input type="text" id="username" required
+            placeholder="Username"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+        <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
+    </div>
+    
+    <!-- Password Fields -->
+    <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
+            <input type="password" id="password" 
+                placeholder="Password"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
+            <input type="password" id="password_confirmation" 
+                placeholder="Confirm password"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+        </div>
+    </div>
+    
+    <!-- Role -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
+        <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+            <option value="applicant">Applicant</option>
+        </select>
+    </div>
+    
+    <!-- Position (Staff only) -->
+    <div id="position-field" class="hidden">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Position <span class="text-red-500">*</span></label>
+        <select id="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+            <option value="">Select Position</option>
+            <option value="engineer">Engineer</option>
+            <option value="architect">Architect</option>
+            <option value="BFP">BFP</option>
+            <option value="cpdo">CPDO</option>
+            <option value="administrative_aide">Administrative Aide</option>
+            <option value="treasurer">Treasurer</option>
+            <option value="assessor">Assessor</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
+    </div>
+</div>
                         
                         <div class="mt-8 flex justify-end gap-3">
                             <button type="button" onclick="closeUserModal()" 

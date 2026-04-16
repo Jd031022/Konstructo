@@ -3,7 +3,6 @@
 @section('title', 'Staff Dashboard')
 
 @section('content')
-<!-- Original Dashboard Content -->
 <div class="p-4 md:p-6 bg-gray-50 min-h-screen max-w-7xl mx-auto" id="dashboardContent">
     <!-- PAGE HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -24,9 +23,8 @@
         @endif
     </div>
 
-    <!-- TOP STATS - 4 cards in one row with blue icons -->
+    <!-- TOP STATS - 4 cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stats-container">
-        <!-- Stats will be loaded dynamically -->
         <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
             <div class="h-16 bg-gray-200 rounded"></div>
         </div>
@@ -48,7 +46,7 @@
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800">Monthly Application Trend</h2>
-                    <p class="text-xs text-gray-500 mt-1">Application volume over the last 4 weeks</p>
+                    <p class="text-xs text-gray-500 mt-1">Application volume over time</p>
                 </div>
                 <div class="relative">
                     <select id="trend-period" class="appearance-none border border-gray-200 rounded-lg text-sm px-4 py-2.5 pr-8 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
@@ -62,20 +60,28 @@
                 </div>
             </div>
 
-            <!-- BAR GRAPH with Y-axis -->
-            <div class="relative h-72">
-                
-                <!-- Grid lines -->
-                <div class="absolute left-8 right-0 top-0 h-full">
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
-                    <div class="border-b border-dashed border-gray-200 h-1/4"></div>
+            <!-- BAR GRAPH -->
+            <div class="relative h-80">
+                <!-- Y-Axis Labels -->
+                <div id="y-axis-labels" class="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-right pr-2 text-xs text-gray-400">
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
                 </div>
                 
-                <!-- Bars container with loading state -->
-                <div id="weekly-bars" class="ml-12 h-full flex items-end justify-around relative z-10">
-                    <!-- Initial loading state -->
+                <!-- Grid lines -->
+                <div class="absolute left-12 right-0 top-0 bottom-8">
+                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 0%"></div>
+                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 25%"></div>
+                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 50%"></div>
+                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 75%"></div>
+                    <div class="absolute w-full border-t border-gray-100" style="bottom: 0%"></div>
+                </div>
+                
+                <!-- Bars container -->
+                <div id="weekly-bars" class="absolute left-12 right-0 top-0 bottom-8 flex items-end justify-around gap-2 overflow-x-auto pb-2">
                     <div class="absolute inset-0 flex items-center justify-center">
                         <div class="text-center">
                             <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -89,7 +95,7 @@
             </div>
 
             <!-- Summary Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-4 border-t border-gray-100" id="summary-stats">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100" id="summary-stats">
                 <div class="text-center">
                     <p class="text-xs text-gray-500">Total</p>
                     <p class="text-lg font-bold text-gray-800" id="total-apps">0</p>
@@ -110,15 +116,15 @@
         </div>
 
         <!-- DONUT CHART - Overall -->
-        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center">
+        <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between w-full mb-6">
                 <h2 class="text-lg font-semibold text-gray-700">Application Status</h2>
                 <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
             </div>
 
             <!-- Donut Chart Container -->
-            <div class="relative w-48 h-48 mb-6">
-                <div id="donut-chart" class="w-full h-full rounded-full shadow-inner"></div>
+            <div class="relative w-48 h-48 mx-auto mb-6">
+                <canvas id="donut-chart" width="192" height="192"></canvas>
                 <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
                     <span class="text-xl font-bold text-gray-700" id="completion-percentage">0%</span>
                     <span class="text-[10px] text-gray-500">complete</span>
@@ -155,7 +161,6 @@
             </div>
 
             <div id="recent-activity-list" class="space-y-4 text-sm">
-                <!-- Recent activities will be loaded dynamically -->
                 <div class="flex items-center justify-center p-4">
                     <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -181,7 +186,6 @@
             </div>
 
             <div id="deadline-list" class="space-y-4">
-                <!-- Deadlines will be loaded dynamically -->
                 <div class="flex items-center justify-center p-4">
                     <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -193,7 +197,10 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    let donutChart = null;
+
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, loading dashboard data...');
         
@@ -202,15 +209,14 @@
         
         // Add event listener for period change
         document.getElementById('trend-period')?.addEventListener('change', function() {
-            loadDashboardData(this.value);
+            loadTrendData();
         });
     });
 
-    // DASHBOARD FUNCTIONS
-    async function loadDashboardData(period = 'this_month') {
+    async function loadDashboardData() {
         try {
             await loadStats();
-            await loadWeeklyTrend(period);
+            await loadTrendData();
             await loadRecentActivities();
             await loadDeadlines();
         } catch (error) {
@@ -221,6 +227,8 @@
     async function loadStats() {
         try {
             const response = await fetch('/staff/applications/stats');
+            if (!response.ok) throw new Error('Failed to load stats');
+            
             const stats = await response.json();
             
             const statsContainer = document.getElementById('stats-container');
@@ -236,11 +244,11 @@
                         <div>
                             <p class="text-gray-500 text-sm font-medium">Total Applications</p>
                             <p class="text-2xl font-bold text-gray-800 mt-1">${stats.total || 0}</p>
-                            <p class="text-xs text-green-600 mt-2 flex items-center gap-1">
+                            <p class="text-xs ${growthPercent >= 0 ? 'text-green-600' : 'text-red-600'} mt-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${growthPercent >= 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'}" />
                                 </svg>
-                                +${growthPercent}% from last month
+                                ${Math.abs(growthPercent)}% from last month
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -256,11 +264,11 @@
                         <div>
                             <p class="text-gray-500 text-sm font-medium">Pending Review</p>
                             <p class="text-2xl font-bold text-gray-800 mt-1">${stats.pending || 0}</p>
-                            <p class="text-xs text-red-600 mt-2 flex items-center gap-1">
+                            <p class="text-xs text-blue-600 mt-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                +${stats.new_today || 0} new today
+                                ${stats.new_today || 0} new today
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -280,7 +288,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
-                                ${stats.completion_rate || 0}% on-time rate
+                                ${stats.completion_rate || 0}% completion rate
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -291,14 +299,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-red-500 group">
+                <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-purple-500 group">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm font-medium">For Release</p>
                             <p class="text-2xl font-bold text-gray-800 mt-1">${stats.for_release || 0}</p>
-                            <p class="text-xs text-orange-600 mt-2 flex items-center gap-1">
+                            <p class="text-xs text-purple-600 mt-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                                 </svg>
                                 Ready for pickup
                             </p>
@@ -317,334 +325,14 @@
             updateDonutChart(stats);
         } catch (error) {
             console.error('Error loading stats:', error);
-        }
-    }
-
-    async function loadWeeklyTrend(period) {
-        try {
-            const response = await fetch(`/staff/applications/weekly-trend?period=${period}`);
-            const data = await response.json();
-            const barsContainer = document.getElementById('weekly-bars');
-            const weeks = data.weeks || ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-            const values = data.values || [45, 62, 58, 71];
-            const colors = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#0F3B5A] to-[#155386]'];
-            const maxValue = Math.max(...values);
-            const scaleFactor = maxValue > 0 ? 160 / maxValue : 1;
-            let barsHtml = '';
-            let total = 0;
-            
-            weeks.forEach((week, index) => {
-                const height = Math.max(20, values[index] * scaleFactor);
-                total += values[index];
-                barsHtml += `
-                    <div class="flex flex-col items-center w-16 group">
-                        <div class="relative">
-                            <div class="w-10 bg-gradient-to-t ${colors[index % colors.length]} rounded-t-lg group-hover:brightness-110 group-hover:scale-105 transition-all" style="height: ${height}px;"></div>
-                            <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">${values[index]} applications</span>
-                        </div>
-                        <p class="mt-3 text-sm font-medium text-gray-600">${week}</p>
-                        <span class="text-sm font-bold text-[#155386]">${values[index]}</span>
-                    </div>
-                `;
-            });
-            
-            barsContainer.innerHTML = barsHtml;
-            const avg = Math.round(total / weeks.length);
-            const peak = Math.max(...values);
-            
-            document.getElementById('total-apps').textContent = total;
-            document.getElementById('avg-apps').textContent = avg;
-            document.getElementById('peak-apps').textContent = peak;
-            
-            if (values.length >= 2) {
-                const growth = ((values[values.length-1] - values[0]) / values[0] * 100).toFixed(1);
-                document.getElementById('growth-rate').textContent = (growth > 0 ? '+' : '') + growth + '%';
-                document.getElementById('growth-rate').className = growth >= 0 ? 'text-lg font-bold text-green-600' : 'text-lg font-bold text-red-600';
-            }
-        } catch (error) {
-            console.error('Error loading weekly trend:', error);
-        }
-    }
-
-    function updateDonutChart(stats) {
-        const total = stats.total || 0;
-        const pending = stats.pending || 0;
-        const underReview = stats.under_review || 0;
-        const approved = stats.approved || 0;
-        const forRelease = stats.for_release || 0;
-        const verified = stats.verified || 0;
-        const rejected = stats.rejected || 0;
-        
-        const pendingPercent = total > 0 ? (pending / total * 100).toFixed(1) : 0;
-        const underReviewPercent = total > 0 ? (underReview / total * 100).toFixed(1) : 0;
-        const approvedPercent = total > 0 ? (approved / total * 100).toFixed(1) : 0;
-        const forReleasePercent = total > 0 ? (forRelease / total * 100).toFixed(1) : 0;
-        const verifiedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
-        const rejectedPercent = total > 0 ? (rejected / total * 100).toFixed(1) : 0;
-        
-        document.getElementById('completion-percentage').textContent = verifiedPercent + '%';
-        
-        const completedPercent = verifiedPercent;
-        const pendingTotal = (parseFloat(pendingPercent) + parseFloat(underReviewPercent)).toFixed(1);
-        const otherTotal = (parseFloat(approvedPercent) + parseFloat(forReleasePercent) + parseFloat(rejectedPercent)).toFixed(1);
-        const pendingAngle = pendingTotal * 3.6;
-        const completedAngle = completedPercent * 3.6;
-        
-        const donutChart = document.getElementById('donut-chart');
-        donutChart.style.background = `conic-gradient(
-            #F59E0B 0deg ${pendingAngle}deg, 
-            #10B981 ${pendingAngle}deg ${pendingAngle + completedAngle}deg,
-            #94A3B8 ${pendingAngle + completedAngle}deg 360deg
-        )`;
-        
-        const legend = document.getElementById('status-legend');
-        legend.innerHTML = `
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                        <span class="text-sm text-gray-600">Pending/Under Review</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${pendingTotal}%</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingTotal}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                        <span class="text-sm text-gray-600">Completed</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${completedPercent}%</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${completedPercent}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
-                        <span class="text-sm text-gray-600">Other</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${otherTotal}%</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-gray-400 h-1.5 rounded-full" style="width: ${otherTotal}%"></div>
-                </div>
-            </div>
-        `;
-    }
-
-    async function loadRecentActivities() {
-        try {
-            const response = await fetch('/staff/applications/recent-activities');
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            
-            const activities = await response.json();
-            const listContainer = document.getElementById('recent-activity-list');
-            
-            if (!Array.isArray(activities)) {
-                console.error('Activities is not an array:', activities);
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-sm">Unable to load activities</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            if (!activities || activities.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-sm">No recent activities</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Limit to 5 most recent activities
-            const recentActivities = activities.slice(0, 5);
-            let activitiesHtml = '';
-            
-            recentActivities.forEach(activity => {
-                const timeAgo = getTimeAgo(activity.created_at);
-                
-                let iconColor = 'bg-blue-100 text-blue-600';
-                let icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                `;
-                
-                if (activity.action === 'approved') {
-                    iconColor = 'bg-green-100 text-green-600';
-                    icon = `
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    `;
-                } else if (activity.action === 'released') {
-                    iconColor = 'bg-purple-100 text-purple-600';
-                    icon = `
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                    `;
-                } else if (activity.action === 'registered') {
-                    iconColor = 'bg-amber-100 text-amber-600';
-                    icon = `
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
-                    `;
-                }
-                
-                activitiesHtml += `
-                    <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center">
-                                ${icon}
-                            </div>
-                            <span class="font-medium text-gray-700">${activity.description || 'Unknown activity'}</span>
-                        </div>
-                        <span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded-full">${timeAgo}</span>
-                    </li>
-                `;
-            });
-            
-            listContainer.innerHTML = activitiesHtml;
-            
-        } catch (error) {
-            console.error('Error loading recent activities:', error);
-            document.getElementById('recent-activity-list').innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <p class="text-sm">Failed to load activities</p>
+            document.getElementById('stats-container').innerHTML = `
+                <div class="col-span-4 text-center py-8 text-red-500 bg-white rounded-xl">
+                    <p>Failed to load statistics</p>
+                    <button onclick="loadStats()" class="mt-2 text-sm text-[#155386] hover:underline">Try again</button>
                 </div>
             `;
         }
     }
-
-    async function loadDeadlines() {
-        try {
-            const response = await fetch('/staff/applications/upcoming-deadlines');
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            
-            const deadlines = await response.json();
-            const listContainer = document.getElementById('deadline-list');
-            const deadlineCount = document.getElementById('deadline-count');
-            
-            if (!Array.isArray(deadlines)) {
-                console.error('Deadlines is not an array:', deadlines);
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p class="text-sm">Unable to load deadlines</p>
-                    </div>
-                `;
-                deadlineCount.textContent = '0 due soon';
-                return;
-            }
-            
-            deadlineCount.textContent = `${deadlines.length || 0} due soon`;
-            
-            if (!deadlines || deadlines.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p class="text-sm">No upcoming deadlines</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Limit to 5 deadlines (they already are from the API, but just to be safe)
-            const recentDeadlines = deadlines.slice(0, 5);
-            let deadlinesHtml = '';
-            
-            recentDeadlines.forEach(deadline => {
-                const daysLeft = deadline.days_left;
-                let colorClass = 'text-red-600';
-                let bgColor = 'bg-red-100';
-                
-                if (daysLeft > 5) {
-                    colorClass = 'text-yellow-600';
-                    bgColor = 'bg-yellow-100';
-                } else if (daysLeft > 2) {
-                    colorClass = 'text-orange-600';
-                    bgColor = 'bg-orange-100';
-                }
-                
-                deadlinesHtml += `
-                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full ${bgColor} flex items-center justify-center ${colorClass}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">${deadline.application_name || 'Unknown'}</p>
-                                <p class="text-xs text-gray-500">${deadline.applicant_name || 'Unknown'}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-bold ${colorClass}">${daysLeft} days left</p>
-                            <p class="text-xs text-gray-400">${deadline.due_date || 'N/A'}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            listContainer.innerHTML = deadlinesHtml;
-            
-        } catch (error) {
-            console.error('Error loading deadlines:', error);
-            document.getElementById('deadline-list').innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <p class="text-sm">Failed to load deadlines</p>
-                </div>
-            `;
-            document.getElementById('deadline-count').textContent = '0 due soon';
-        }
-    }
-
-    function getTimeAgo(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const seconds = Math.floor((now - date) / 1000);
-        
-        if (seconds < 60) return 'just now';
-        if (seconds < 3600) return Math.floor(seconds / 60) + ' mins ago';
-        if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-        return Math.floor(seconds / 86400) + ' days ago';
-    }
-    
-    // Load trend data functions
-    document.addEventListener('DOMContentLoaded', function() {
-        loadTrendData();
-        document.getElementById('trend-period').addEventListener('change', function() {
-            loadTrendData();
-        });
-    });
 
     async function loadTrendData() {
         const period = document.getElementById('trend-period').value;
@@ -663,66 +351,80 @@
         `;
         
         try {
-            const response = await fetch(`/staff/applications/trend?period=${period}`);
+            const response = await fetch(`/staff/applications/weekly-trend?period=${period}`);
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            
             const data = await response.json();
-            if (data.success) {
-                renderTrendChart(data);
+            
+            let values = [];
+            let labels = [];
+            
+            if (data.values && data.labels) {
+                values = data.values;
+                labels = data.labels;
+            } else if (data.weeks && data.values) {
+                labels = data.weeks;
+                values = data.values;
+            } else if (Array.isArray(data)) {
+                values = data.map(d => d.count || 0);
+                labels = data.map(d => d.label || d.week || 'Week');
             } else {
-                showErrorState('No data available');
+                values = [0, 0, 0, 0];
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
             }
+            
+            if (values.length === 0 || values.every(v => v === 0)) {
+                showErrorState('No data available for this period');
+                return;
+            }
+            
+            renderTrendChart(values, labels);
         } catch (error) {
             console.error('Error loading trend data:', error);
-            showErrorState('Failed to load data');
+            showErrorState('Failed to load chart data');
         }
     }
 
-    function renderTrendChart(data) {
+    function renderTrendChart(values, labels) {
         const barsContainer = document.getElementById('weekly-bars');
-        const values = data.values || [];
-        const labels = data.labels || [];
-        
-        if (values.length === 0) {
-            showErrorState('No data available');
-            return;
-        }
-        
         const maxValue = Math.max(...values, 1);
-        updateYAxisLabels(maxValue);
-        
-        let barsHtml = '';
         const gradientColors = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#9EC5CB] to-[#B8D8E3]'];
         
+        let barsHtml = '';
+        
         values.forEach((value, index) => {
-            const percentage = (value / maxValue) * 100;
+            const percentage = Math.max(4, (value / maxValue) * 100);
             const colorIndex = index % gradientColors.length;
             const formattedValue = value.toLocaleString();
+            const label = labels[index] || `Week ${index + 1}`;
             
             barsHtml += `
-                <div class="group relative flex flex-col items-center justify-end h-full w-16">
-                    <div class="relative w-10 bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
-                         style="height: ${percentage}%; min-height: 4px;">
-                        <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
-                            ${formattedValue} applications
-                        </div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full text-xs font-medium text-[#155386] opacity-0 group-hover:opacity-100 transition">
-                            ${value}
+                <div class="group relative flex flex-col items-center justify-end h-full flex-1 min-w-[60px]">
+                    <div class="relative w-full max-w-[60px] mx-auto">
+                        <div class="w-full bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
+                             style="height: ${percentage}%; min-height: 30px;">
+                            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
+                                ${formattedValue} applications
+                            </div>
                         </div>
                     </div>
-                    <span class="mt-2 text-xs font-medium text-gray-600 truncate w-full text-center" title="${labels[index]}">
-                        ${labels[index]}
+                    <span class="mt-2 text-xs font-medium text-gray-600 truncate w-full text-center px-1" title="${label}">
+                        ${label.length > 10 ? label.substring(0, 8) + '...' : label}
                     </span>
+                    <span class="text-[10px] font-bold text-[#155386]">${value}</span>
                 </div>
             `;
         });
         
         barsContainer.innerHTML = barsHtml;
+        updateYAxisLabels(maxValue);
         updateSummaryStats(values);
     }
 
     function updateYAxisLabels(maxValue) {
         const yAxisLabels = document.getElementById('y-axis-labels');
-        const labels = [Math.ceil(maxValue), Math.ceil(maxValue * 0.75), Math.ceil(maxValue * 0.5), Math.ceil(maxValue * 0.25), 0];
+        const labels = [maxValue, Math.ceil(maxValue * 0.75), Math.ceil(maxValue * 0.5), Math.ceil(maxValue * 0.25), 0];
+        
         if (yAxisLabels) {
             yAxisLabels.innerHTML = labels.map(label => `<span>${label.toLocaleString()}</span>`).join('');
         }
@@ -730,7 +432,7 @@
 
     function updateSummaryStats(values) {
         const total = values.reduce((a, b) => a + b, 0);
-        const avg = Math.round(total / values.length);
+        const avg = values.length > 0 ? Math.round(total / values.length) : 0;
         const peak = Math.max(...values);
         
         const half = Math.floor(values.length / 2);
@@ -743,7 +445,7 @@
         let growthClass = 'text-gray-800';
         
         if (firstHalfAvg > 0) {
-            growth = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg * 100).toFixed(1);
+            growth = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg * 100);
             growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
         }
         
@@ -752,7 +454,8 @@
         document.getElementById('peak-apps').textContent = peak.toLocaleString();
         
         const growthElement = document.getElementById('growth-rate');
-        growthElement.textContent = growth > 0 ? `+${growth}%` : `${growth}%`;
+        const growthDisplay = Math.abs(growth).toFixed(1);
+        growthElement.textContent = growth > 0 ? `+${growthDisplay}%` : growth < 0 ? `-${growthDisplay}%` : '0%';
         growthElement.className = `text-lg font-bold ${growthClass}`;
     }
 
@@ -775,6 +478,354 @@
         document.getElementById('peak-apps').textContent = '-';
         document.getElementById('growth-rate').textContent = '-';
     }
+
+    function updateDonutChart(stats) {
+        const total = stats.total || 0;
+        const pending = stats.pending || 0;
+        const underReview = stats.under_review || 0;
+        const approved = stats.approved || 0;
+        const forRelease = stats.for_release || 0;
+        const verified = stats.verified || 0;
+        const rejected = stats.rejected || 0;
+        
+        const completedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
+        document.getElementById('completion-percentage').textContent = completedPercent + '%';
+        
+        const ctx = document.getElementById('donut-chart').getContext('2d');
+        
+        if (donutChart) {
+            donutChart.destroy();
+        }
+        
+        donutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Under Review', 'Approved', 'For Release', 'Completed', 'Rejected'],
+                datasets: [{
+                    data: [pending, underReview, approved, forRelease, verified, rejected],
+                    backgroundColor: ['#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#22C55E', '#EF4444'],
+                    borderWidth: 0,
+                    hoverOffset: 10,
+                    cutout: '65%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        const pendingPercent = total > 0 ? (pending / total * 100).toFixed(1) : 0;
+        const underReviewPercent = total > 0 ? (underReview / total * 100).toFixed(1) : 0;
+        const approvedPercent = total > 0 ? (approved / total * 100).toFixed(1) : 0;
+        const forReleasePercent = total > 0 ? (forRelease / total * 100).toFixed(1) : 0;
+        const verifiedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
+        const rejectedPercent = total > 0 ? (rejected / total * 100).toFixed(1) : 0;
+        
+        const legend = document.getElementById('status-legend');
+        legend.innerHTML = `
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #F59E0B"></div>
+                        <span class="text-sm text-gray-600">Pending</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${pendingPercent}% (${pending})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingPercent}%"></div>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #8B5CF6"></div>
+                        <span class="text-sm text-gray-600">Under Review</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${underReviewPercent}% (${underReview})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: ${underReviewPercent}%"></div>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #10B981"></div>
+                        <span class="text-sm text-gray-600">Approved</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${approvedPercent}% (${approved})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${approvedPercent}%"></div>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #3B82F6"></div>
+                        <span class="text-sm text-gray-600">For Release</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${forReleasePercent}% (${forRelease})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${forReleasePercent}%"></div>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #22C55E"></div>
+                        <span class="text-sm text-gray-600">Completed</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${verifiedPercent}% (${verified})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-green-500 h-1.5 rounded-full" style="width: ${verifiedPercent}%"></div>
+                </div>
+            </div>
+            ${rejected > 0 ? `
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: #EF4444"></div>
+                        <span class="text-sm text-gray-600">Rejected</span>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">${rejectedPercent}% (${rejected})</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-red-500 h-1.5 rounded-full" style="width: ${rejectedPercent}%"></div>
+                </div>
+            </div>
+            ` : ''}
+        `;
+    }
+
+    async function loadRecentActivities() {
+        try {
+            const response = await fetch('/staff/applications/recent-activities');
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const activities = await response.json();
+            const listContainer = document.getElementById('recent-activity-list');
+            
+            if (!activities || activities.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm">No recent activities</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const recentActivities = activities.slice(0, 5);
+            let activitiesHtml = '';
+            
+            recentActivities.forEach(activity => {
+                const timeAgo = getTimeAgo(activity.created_at);
+                const actionDisplay = activity.action_display || activity.action || 'Activity';
+                const reviewerName = activity.reviewer_name || 'System';
+                const remarks = activity.remarks;
+                
+                let iconColor = 'bg-blue-100 text-blue-600';
+                let icon = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                `;
+                
+                if (activity.action === 'status_updated') {
+                    if (activity.new_status === 'approved') {
+                        iconColor = 'bg-green-100 text-green-600';
+                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+                    } else if (activity.new_status === 'rejected') {
+                        iconColor = 'bg-red-100 text-red-600';
+                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                    } else if (activity.new_status === 'for-assessment') {
+                        iconColor = 'bg-indigo-100 text-indigo-600';
+                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
+                    }
+                } else if (activity.action === 'hard_copy_received') {
+                    iconColor = 'bg-indigo-100 text-indigo-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
+                } else if (activity.action === 'application_submitted') {
+                    iconColor = 'bg-emerald-100 text-emerald-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>`;
+                } else if (activity.action === 'document_verified') {
+                    iconColor = 'bg-green-100 text-green-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (activity.action === 'note_added') {
+                    iconColor = 'bg-yellow-100 text-yellow-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>`;
+                } else if (activity.action === 'cpdo_approved') {
+                    iconColor = 'bg-cyan-100 text-cyan-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`;
+                } else if (activity.action === 'fsec_uploaded') {
+                    iconColor = 'bg-red-100 text-red-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>`;
+                }
+                
+                activitiesHtml += `
+                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+                                ${icon}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(actionDisplay)}</p>
+                                <p class="text-xs text-gray-400">by ${escapeHtml(reviewerName)}</p>
+                                ${remarks ? `<p class="text-xs text-gray-500 mt-1 italic">"${escapeHtml(remarks.substring(0, 100))}"</p>` : ''}
+                            </div>
+                        </div>
+                        <span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded-full flex-shrink-0 ml-2">${timeAgo}</span>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = activitiesHtml;
+            
+        } catch (error) {
+            console.error('Error loading recent activities:', error);
+            document.getElementById('recent-activity-list').innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    <p class="text-sm">Failed to load activities</p>
+                    <button onclick="loadRecentActivities()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
+                </div>
+            `;
+        }
+    }
+
+    async function loadDeadlines() {
+        try {
+            const response = await fetch('/staff/applications/upcoming-deadlines');
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const deadlines = await response.json();
+            const listContainer = document.getElementById('deadline-list');
+            const deadlineCount = document.getElementById('deadline-count');
+            
+            if (!deadlines || deadlines.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm">No upcoming deadlines</p>
+                    </div>
+                `;
+                deadlineCount.textContent = '0 due soon';
+                return;
+            }
+            
+            deadlineCount.textContent = `${deadlines.length} due soon`;
+            
+            const recentDeadlines = deadlines.slice(0, 5);
+            let deadlinesHtml = '';
+            
+            recentDeadlines.forEach(deadline => {
+                let daysLeft = deadline.days_left;
+                daysLeft = Math.max(0, Math.floor(parseFloat(daysLeft) || 0));
+                
+                let colorClass = 'text-red-600';
+                let bgColor = 'bg-red-100';
+                
+                if (daysLeft > 7) {
+                    colorClass = 'text-yellow-600';
+                    bgColor = 'bg-yellow-100';
+                } else if (daysLeft > 3) {
+                    colorClass = 'text-orange-600';
+                    bgColor = 'bg-orange-100';
+                } else if (daysLeft > 1) {
+                    colorClass = 'text-red-600';
+                    bgColor = 'bg-red-100';
+                } else if (daysLeft <= 1) {
+                    colorClass = 'text-red-700 font-bold';
+                    bgColor = 'bg-red-200';
+                }
+                
+                const appName = deadline.application_name || 'Unknown Application';
+                const applicantName = deadline.applicant_name || 'Unknown';
+                const dueDate = deadline.due_date || 'N/A';
+                const daysText = daysLeft === 0 ? 'Due today!' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+                
+                deadlinesHtml += `
+                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-full ${bgColor} flex items-center justify-center ${colorClass} flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-medium text-gray-800 truncate">${escapeHtml(appName)}</p>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(applicantName)}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0 ml-2">
+                            <p class="text-xs font-bold ${colorClass}">${daysText}</p>
+                            <p class="text-xs text-gray-400">${dueDate}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = deadlinesHtml;
+            
+        } catch (error) {
+            console.error('Error loading deadlines:', error);
+            document.getElementById('deadline-list').innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    <p class="text-sm">Failed to load deadlines</p>
+                    <button onclick="loadDeadlines()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
+                </div>
+            `;
+            document.getElementById('deadline-count').textContent = '0 due soon';
+        }
+    }
+
+    function getTimeAgo(dateString) {
+        if (!dateString) return 'unknown';
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return Math.floor(seconds / 60) + ' mins ago';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+        if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+        return date.toLocaleDateString();
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 </script>
 
 <style>
@@ -794,6 +845,18 @@
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+    }
+    
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+    
+    .group-hover\:scale-105:hover {
+        transform: scale(1.05);
+    }
+    
+    .group-hover\:scale-110:hover {
+        transform: scale(1.1);
     }
 </style>
 @endsection
