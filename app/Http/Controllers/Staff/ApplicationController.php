@@ -1081,6 +1081,67 @@ class ApplicationController extends Controller
                 'hardcopy_submission_date' => $application->hardcopy_submission_date
             ]);
 
+            // ========== AUTO-ARCHIVE WHEN STATUS CHANGES TO VERIFIED ==========
+            $wasAutoArchived = false;
+            if ($statusChanged && $newStatus === 'verified') {
+                Log::info('Application status changed to VERIFIED - triggering auto-archive', [
+                    'application_id' => $application->id,
+                    'application_number' => $application->application_number
+                ]);
+                
+                try {
+                    // Archive the application automatically
+                    $application->is_archived = true;
+                    $application->archived_at = now();
+                    $application->archived_by = $staff->id;
+                    $application->archive_reason = 'Auto-archived: Application completed (status set to VERIFIED)';
+                    $application->save();
+                    $wasAutoArchived = true;
+                    
+                    Log::info('Application auto-archived successfully', [
+                        'application_id' => $application->id,
+                        'archived_by' => $staff->id,
+                        'archived_at' => $application->archived_at
+                    ]);
+                    
+                    // Log the auto-archive activity
+                    $this->logReviewActivity(
+                        $application->id,
+                        $staff->id,
+                        'application_archived',
+                        $oldStatus,
+                        $newStatus,
+                        'Application auto-archived upon completion (status set to VERIFIED)',
+                        $request->ip(),
+                        $request->userAgent()
+                    );
+                    
+                    // Create activity log entry
+                    if (class_exists('App\Models\ActivityLog')) {
+                        ActivityLog::create([
+                            'user_id' => $staff->id,
+                            'action' => 'application_auto_archived',
+                            'description' => 'Application auto-archived upon completion',
+                            'metadata' => json_encode([
+                                'application_id' => $application->id,
+                                'application_number' => $application->application_number,
+                                'old_status' => $oldStatus,
+                                'new_status' => $newStatus
+                            ]),
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent(),
+                            'status' => 'success'
+                        ]);
+                    }
+                    
+                } catch (\Exception $e) {
+                    Log::error('Failed to auto-archive application on verified status', [
+                        'application_id' => $application->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             if ($statusChanged) {
                 Log::info('Creating review activity for status change');
                 
@@ -1204,10 +1265,13 @@ class ApplicationController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'status' => $application->status,
+                    'application_number' => $application->application_number,
                     'hard_copy_received' => $application->hard_copy_received,
                     'hard_copy_received_at' => $application->hard_copy_received_at,
                     'hardcopy_submission_date' => $application->hardcopy_submission_date,
-                    'hardcopy_instructions' => $application->hardcopy_instructions
+                    'hardcopy_instructions' => $application->hardcopy_instructions,
+                    'is_archived' => $application->is_archived,
+                    'was_auto_archived' => $wasAutoArchived
                 ]
             ]);
             
