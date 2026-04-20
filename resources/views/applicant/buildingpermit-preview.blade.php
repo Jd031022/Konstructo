@@ -7,11 +7,11 @@
 
     <!-- Back Button -->
     <div class="mb-8">
-        <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
+        <a href="{{ route('applicant.dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-[#155386] transition group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back
+            Back to Dashboard
         </a>
     </div>
 
@@ -27,7 +27,7 @@
                 <h1 class="text-3xl md:text-4xl font-bold mb-2">Building Permit Application</h1>
                 <p class="text-white/80 text-lg">Everything you need to know before applying for a building permit</p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap justify-center gap-3">
                 <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-sm font-medium">Processing Time: 7-10 days</span>
                 <span class="px-4 py-2 bg-green-500/30 backdrop-blur-sm rounded-xl text-sm font-medium">Online Application</span>
             </div>
@@ -41,7 +41,7 @@
         <div class="lg:col-span-2 space-y-8">
 
             <!-- What is Building Permit Card -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="w-12 h-12 bg-[#155386]/10 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Requirements Card -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="w-12 h-12 bg-[#155386]/10 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,31 +79,31 @@
                             Basic Requirements
                         </h3>
                         <ul class="space-y-3">
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Duly accomplished Building Permit Application Form</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Transfer Certificate of Title (TCT) or Condominium Certificate of Title (CCT)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Tax Declaration of the lot and building (if applicable)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Current Tax Receipt of Real Property Tax</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
@@ -119,31 +119,31 @@
                             Technical Requirements
                         </h3>
                         <ul class="space-y-3">
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Architectural Plans (5 sets, signed and sealed by architect)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Structural Plans (signed and sealed by civil engineer)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Sanitary / Plumbing Plans (signed by sanitary engineer)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm text-gray-600">Electrical Plans (signed by professional electrical engineer)</span>
                             </li>
-                            <li class="flex items-start gap-3">
+                            <li class="flex items-start gap-3 group cursor-pointer hover:bg-gray-50 p-1 rounded-lg transition">
                                 <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
@@ -155,7 +155,7 @@
             </div>
 
             <!-- Process Flow Card -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="w-12 h-12 bg-[#155386]/10 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,8 +172,8 @@
                     <!-- Steps -->
                     <div class="space-y-8">
                         <!-- Step 1 -->
-                        <div class="relative flex gap-6">
-                            <div class="w-16 h-16 bg-[#155386] rounded-2xl flex items-center justify-center shadow-lg z-10">
+                        <div class="relative flex gap-6 group cursor-pointer">
+                            <div class="w-16 h-16 bg-[#155386] rounded-2xl flex items-center justify-center shadow-lg z-10 group-hover:scale-110 transition-transform duration-300">
                                 <span class="text-white font-bold text-xl">1</span>
                             </div>
                             <div class="flex-1 pt-2">
@@ -183,9 +183,9 @@
                         </div>
 
                         <!-- Step 2 -->
-                        <div class="relative flex gap-6">
-                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10">
-                                <span class="text-gray-600 font-bold text-xl">2</span>
+                        <div class="relative flex gap-6 group cursor-pointer">
+                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10 group-hover:bg-[#155386] group-hover:text-white transition-all duration-300">
+                                <span class="text-gray-600 font-bold text-xl group-hover:text-white">2</span>
                             </div>
                             <div class="flex-1 pt-2">
                                 <h3 class="font-semibold text-lg text-gray-800 mb-1">Document Review</h3>
@@ -194,9 +194,9 @@
                         </div>
 
                         <!-- Step 3 -->
-                        <div class="relative flex gap-6">
-                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10">
-                                <span class="text-gray-600 font-bold text-xl">3</span>
+                        <div class="relative flex gap-6 group cursor-pointer">
+                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10 group-hover:bg-[#155386] group-hover:text-white transition-all duration-300">
+                                <span class="text-gray-600 font-bold text-xl group-hover:text-white">3</span>
                             </div>
                             <div class="flex-1 pt-2">
                                 <h3 class="font-semibold text-lg text-gray-800 mb-1">Payment of Fees</h3>
@@ -205,9 +205,9 @@
                         </div>
 
                         <!-- Step 4 -->
-                        <div class="relative flex gap-6">
-                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10">
-                                <span class="text-gray-600 font-bold text-xl">4</span>
+                        <div class="relative flex gap-6 group cursor-pointer">
+                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center z-10 group-hover:bg-[#155386] group-hover:text-white transition-all duration-300">
+                                <span class="text-gray-600 font-bold text-xl group-hover:text-white">4</span>
                             </div>
                             <div class="flex-1 pt-2">
                                 <h3 class="font-semibold text-lg text-gray-800 mb-1">Permit Issuance</h3>
@@ -222,7 +222,7 @@
         <!-- Right Column - Sidebar -->
         <div class="lg:col-span-1 space-y-8">
             <!-- Summary Card -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="bg-white rounded-3xl shadow-lg p-8 sticky top-8 hover:shadow-xl transition-shadow duration-300">
                 <h2 class="text-xl font-bold text-gray-800 mb-6">Application Summary</h2>
 
                 <!-- Fee Estimate -->
@@ -286,10 +286,13 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3">
-                    <a href="#" id="proceed-application-btn" class="block w-full px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 font-medium text-center shadow-lg hover:shadow-xl">
+                    <button id="proceed-application-btn" class="w-full px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:from-[#1F363D] hover:to-[#1F363D] transition-all duration-300 font-medium text-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         Proceed to Application
-                    </a>
-                    <button onclick="downloadChecklist()" class="block w-full px-6 py-4 border-2 border-[#155386] text-[#155386] rounded-xl hover:bg-[#155386]/5 transition-all duration-300 font-medium text-center">
+                    </button>
+                    <button onclick="downloadChecklist()" class="w-full px-6 py-4 border-2 border-[#155386] text-[#155386] rounded-xl hover:bg-[#155386]/5 transition-all duration-300 font-medium text-center">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -299,22 +302,22 @@
             </div>
 
             <!-- Contact Card -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
                 <h3 class="font-semibold text-gray-800 mb-4">Need Help?</h3>
                 <div class="space-y-3">
-                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <div class="flex items-center gap-3 text-sm text-gray-600 group cursor-pointer hover:text-[#155386] transition">
                         <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                         </svg>
                         <span>(052) 123-4567</span>
                     </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <div class="flex items-center gap-3 text-sm text-gray-600 group cursor-pointer hover:text-[#155386] transition">
                         <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         <span>obo@ligao.gov.ph</span>
                     </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <div class="flex items-center gap-3 text-sm text-gray-600 group cursor-pointer hover:text-[#155386] transition">
                         <svg class="w-5 h-5 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -330,33 +333,33 @@
     </div>
 
     <!-- FAQ Section -->
-    <div class="mt-8 bg-white rounded-3xl shadow-lg p-8">
+    <div class="mt-8 bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Frequently Asked Questions</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-                <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+            <div class="space-y-2 group cursor-pointer">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2 group-hover:text-[#155386] transition">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
                     How long does it take to get a building permit?
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">Processing typically takes 7-10 working days from complete submission of requirements.</p>
             </div>
-            <div class="space-y-2">
-                <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+            <div class="space-y-2 group cursor-pointer">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2 group-hover:text-[#155386] transition">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
                     Can I apply without hiring an architect?
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">No, plans must be signed and sealed by licensed professionals (architect/engineer).</p>
             </div>
-            <div class="space-y-2">
-                <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+            <div class="space-y-2 group cursor-pointer">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2 group-hover:text-[#155386] transition">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
                     What if my documents are incomplete?
                 </h3>
                 <p class="text-sm text-gray-500 pl-4">You'll receive a notice of incomplete requirements and have 15 days to comply.</p>
             </div>
-            <div class="space-y-2">
-                <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+            <div class="space-y-2 group cursor-pointer">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2 group-hover:text-[#155386] transition">
                     <span class="w-1 h-5 bg-[#155386] rounded-full"></span>
                     Is the building permit renewable?
                 </h3>
@@ -369,9 +372,9 @@
     <div class="mt-8 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-3xl p-8 text-white text-center shadow-xl">
         <h2 class="text-2xl font-bold mb-2">Ready to Start Your Application?</h2>
         <p class="text-white/80 mb-6">Begin your building permit application online today</p>
-        <a href="#" id="cta-application-btn" class="inline-block px-8 py-4 bg-white text-[#155386] rounded-xl hover:bg-gray-100 transition-all duration-300 font-semibold shadow-lg">
+        <button id="cta-application-btn" class="inline-block px-8 py-4 bg-white text-[#155386] rounded-xl hover:bg-gray-100 transition-all duration-300 font-semibold shadow-lg transform hover:-translate-y-0.5">
             Apply Now
-        </a>
+        </button>
     </div>
 </div>
 
@@ -382,8 +385,36 @@ function getCsrfToken() {
     return token || '{{ csrf_token() }}';
 }
 
+// Show loading state on buttons
+function setLoadingState(button, isLoading) {
+    if (isLoading) {
+        button.disabled = true;
+        button.innerHTML = `
+            <svg class="animate-spin h-5 w-5 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+        `;
+    } else {
+        button.disabled = false;
+        const originalText = button.classList.contains('bg-gradient-to-r') ? 
+            '<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Proceed to Application' :
+            'Apply Now';
+        button.innerHTML = originalText;
+    }
+}
+
 // Create draft and redirect to step 1
 async function createDraftAndRedirect() {
+    const proceedBtn = document.getElementById('proceed-application-btn');
+    const ctaBtn = document.getElementById('cta-application-btn');
+    const buttonToUse = proceedBtn && !proceedBtn.disabled ? proceedBtn : ctaBtn;
+    
+    if (!buttonToUse) return;
+    
+    setLoadingState(buttonToUse, true);
+    
     try {
         const response = await fetch('/applicant/application/create-draft', {
             method: 'POST',
@@ -399,71 +430,123 @@ async function createDraftAndRedirect() {
         if (data.success && data.data && data.data.id) {
             window.location.href = '/applicant/application/step1?id=' + data.data.id;
         } else if (data.limit_reached) {
-            alert('You have reached the maximum limit of 3 applications.');
+            alert('You have reached the maximum limit of 3 applications. Please complete or delete existing applications before creating a new one.');
+            setLoadingState(buttonToUse, false);
         } else {
-            alert(data.message || 'Failed to create new application');
+            alert(data.message || 'Failed to create new application. Please try again.');
+            setLoadingState(buttonToUse, false);
         }
     } catch (error) {
         console.error('Error creating draft:', error);
-        alert('An error occurred. Please try again.');
+        alert('An error occurred. Please check your internet connection and try again.');
+        setLoadingState(buttonToUse, false);
     }
 }
 
 // Proceed to Application button
-document.getElementById('proceed-application-btn')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    createDraftAndRedirect();
-});
+const proceedBtn = document.getElementById('proceed-application-btn');
+if (proceedBtn) {
+    proceedBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        createDraftAndRedirect();
+    });
+}
 
 // CTA Apply Now button
-document.getElementById('cta-application-btn')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    createDraftAndRedirect();
-});
+const ctaBtn = document.getElementById('cta-application-btn');
+if (ctaBtn) {
+    ctaBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        createDraftAndRedirect();
+    });
+}
 
 // Download Checklist Function
 function downloadChecklist() {
     const checklist = [
-        "BUILDING PERMIT APPLICATION CHECKLIST",
-        "=====================================",
+        "═══════════════════════════════════════════════════════════",
+        "              BUILDING PERMIT APPLICATION CHECKLIST",
+        "═══════════════════════════════════════════════════════════",
         "",
-        "BASIC REQUIREMENTS:",
+        "📋 BASIC REQUIREMENTS:",
+        "───────────────────────────────────────────────────────────",
         "☐ Duly accomplished Building Permit Application Form",
         "☐ Transfer Certificate of Title (TCT) or Condominium Certificate of Title (CCT)",
         "☐ Tax Declaration of the lot and building",
         "☐ Current Tax Receipt of Real Property Tax",
         "☐ Lot Plan / Vicinity Map (duly signed by Geodetic Engineer)",
         "",
-        "TECHNICAL REQUIREMENTS:",
+        "📐 TECHNICAL REQUIREMENTS:",
+        "───────────────────────────────────────────────────────────",
         "☐ Architectural Plans (5 sets, signed and sealed by architect)",
         "☐ Structural Plans (signed and sealed by civil engineer)",
         "☐ Sanitary / Plumbing Plans (signed by sanitary engineer)",
         "☐ Electrical Plans (signed by professional electrical engineer)",
         "☐ Construction Safety and Health Program",
         "",
-        "ADDITIONAL REQUIREMENTS (if applicable):",
+        "⚠️  ADDITIONAL REQUIREMENTS (if applicable):",
+        "───────────────────────────────────────────────────────────",
         "☐ Locational Clearance",
         "☐ Environmental Compliance Certificate (ECC)",
         "☐ Fire Safety Evaluation Clearance",
         "",
-        "NOTES:",
+        "📌 IMPORTANT NOTES:",
+        "───────────────────────────────────────────────────────────",
         "- All plans must be printed and bound",
         "- Bring original documents for verification",
-        "- Pay fees at the City Treasurer's Office"
+        "- Pay fees at the City Treasurer's Office",
+        "- Processing time: 7-10 working days",
+        "",
+        "📞 CONTACT INFORMATION:",
+        "───────────────────────────────────────────────────────────",
+        "Office of the Building Official (OBO)",
+        "2F City Hall, Legazpi City",
+        "Phone: (052) 123-4567",
+        "Email: obo@ligao.gov.ph",
+        "",
+        "Office hours: Monday - Friday, 8:00 AM - 5:00 PM",
+        "",
+        "═══════════════════════════════════════════════════════════",
+        "Generated on: " + new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        }),
+        "═══════════════════════════════════════════════════════════"
     ].join('\n');
 
     const blob = new Blob([checklist], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'building-permit-checklist.txt';
+    a.download = 'building-permit-checklist-' + new Date().toISOString().slice(0, 10) + '.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    alert('Checklist downloaded successfully!');
+    // Show success message
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in-up';
+    toast.innerHTML = '✅ Checklist downloaded successfully!';
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
+
+// Add smooth scroll animation for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
 </script>
 
 <style>
@@ -483,8 +566,32 @@ function downloadChecklist() {
         }
     }
 
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .animate-fade-in {
         animation: fadeIn 0.5s ease-out;
+    }
+    
+    .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
     }
 
     .max-h-\[450px\]::-webkit-scrollbar {
@@ -498,6 +605,20 @@ function downloadChecklist() {
     .max-h-\[450px\]::-webkit-scrollbar-thumb {
         background: #155386;
         border-radius: 4px;
+    }
+    
+    /* Hover effects for cards */
+    .bg-white {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .bg-white:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    button, a {
+        transition: all 0.2s ease;
     }
 </style>
 @endsection

@@ -837,4 +837,608 @@ class UserController extends Controller
             return response()->json(['error' => 'Failed to load pending applicants'], 500);
         }
     }
+
+      /**
+     * Export users with multiple format options
+     */
+    public function exportUsers(Request $request)
+    {
+        try {
+            $format = $request->get('format', 'csv');
+            $users = $this->getUsersForExport($request);
+            
+            switch ($format) {
+                case 'csv':
+                    return $this->exportAsCSV($users);
+                case 'excel':
+                    return $this->exportAsExcel($users);
+                case 'pdf':
+                    return $this->exportAsPDF($users);
+                case 'html':
+                default:
+                    return $this->exportAsHTML($users);
+            }
+        } catch (\Exception $e) {
+            Log::error('Users export failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get filtered users for export
+     */
+    private function getUsersForExport(Request $request)
+    {
+        $query = User::query();
+        
+        // Apply filters similar to the page
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('username', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+        
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+        
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Export as CSV (Excel compatible)
+     */
+    private function exportAsCSV($users)
+    {
+        $filename = 'users_export_' . date('Y-m-d_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ];
+        
+        $callback = function() use ($users) {
+            $handle = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM for Excel compatibility
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Headers
+            fputcsv($handle, [
+                'User ID',
+                'Name',
+                'Email',
+                'Username',
+                'Role',
+                'Position',
+                'Status',
+                'Registered Date',
+                'Last Active',
+                'Email Verified'
+            ]);
+            
+            foreach ($users as $user) {
+                $fullName = trim($user->first_name . ' ' . ($user->middle_name ? $user->middle_name . ' ' : '') . $user->last_name);
+                $positionDisplay = $this->getPositionDisplay($user->position, $user->role);
+                $status = ($user->is_active ?? true) ? 'Active' : 'Inactive';
+                $emailVerified = $user->email_verified_at ? 'Yes' : 'No';
+                
+                fputcsv($handle, [
+                    $user->id,
+                    $fullName,
+                    $user->email,
+                    $user->username,
+                    ucfirst($user->role),
+                    $positionDisplay,
+                    $status,
+                    $user->created_at ? $user->created_at->format('Y-m-d') : '',
+                    $user->last_login_at ? date('Y-m-d', strtotime($user->last_login_at)) : 'Never',
+                    $emailVerified
+                ]);
+            }
+            
+            fclose($handle);
+        };
+        
+        return response()->streamDownload($callback, $filename, $headers);
+    }
+
+    /**
+     * Export as Excel (XLSX using CSV format with .xlsx extension)
+     */
+    private function exportAsExcel($users)
+    {
+        $filename = 'users_export_' . date('Y-m-d_His') . '.xlsx';
+        
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ];
+        
+        $callback = function() use ($users) {
+            $handle = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Headers
+            fputcsv($handle, [
+                'User ID',
+                'Name',
+                'Email',
+                'Username',
+                'Role',
+                'Position',
+                'Status',
+                'Registered Date',
+                'Last Active',
+                'Email Verified'
+            ]);
+            
+            foreach ($users as $user) {
+                $fullName = trim($user->first_name . ' ' . ($user->middle_name ? $user->middle_name . ' ' : '') . $user->last_name);
+                $positionDisplay = $this->getPositionDisplay($user->position, $user->role);
+                $status = ($user->is_active ?? true) ? 'Active' : 'Inactive';
+                $emailVerified = $user->email_verified_at ? 'Yes' : 'No';
+                
+                fputcsv($handle, [
+                    $user->id,
+                    $fullName,
+                    $user->email,
+                    $user->username,
+                    ucfirst($user->role),
+                    $positionDisplay,
+                    $status,
+                    $user->created_at ? $user->created_at->format('Y-m-d') : '',
+                    $user->last_login_at ? date('Y-m-d', strtotime($user->last_login_at)) : 'Never',
+                    $emailVerified
+                ]);
+            }
+            
+            fclose($handle);
+        };
+        
+        return response()->streamDownload($callback, $filename, $headers);
+    }
+
+    /**
+     * Export as PDF
+     */
+    private function exportAsPDF($users)
+    {
+        $stats = [
+            'total' => $users->count(),
+            'admins' => $users->where('role', 'admin')->count(),
+            'staff' => $users->where('role', 'staff')->count(),
+            'applicants' => $users->where('role', 'applicant')->count(),
+            'active' => $users->filter(function($u) { return $u->is_active ?? true; })->count(),
+        ];
+        
+        $html = $this->generatePDFHTML($users, $stats);
+        
+        // Use DomPDF if installed, otherwise fallback to HTML
+        if (class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
+            $pdf = Pdf::loadHTML($html);
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->download('users_export_' . date('Y-m-d_His') . '.pdf');
+        }
+        
+        // Fallback to HTML download
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="users_export_' . date('Y-m-d_His') . '.html"');
+    }
+
+    /**
+     * Export as HTML
+     */
+    private function exportAsHTML($users)
+    {
+        $stats = [
+            'total' => $users->count(),
+            'admins' => $users->where('role', 'admin')->count(),
+            'staff' => $users->where('role', 'staff')->count(),
+            'applicants' => $users->where('role', 'applicant')->count(),
+            'active' => $users->filter(function($u) { return $u->is_active ?? true; })->count(),
+        ];
+        
+        $html = $this->generateHTMLExport($users, $stats);
+        
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="users_export_' . date('Y-m-d_His') . '.html"');
+    }
+
+    /**
+     * Generate PDF HTML content
+     */
+    private function generatePDFHTML($users, $stats)
+    {
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Konstructo Users Export - ' . date('Y-m-d H:i:s') . '</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: "Poppins", Arial, sans-serif;
+                    padding: 20px;
+                    color: #333;
+                    font-size: 10px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #155386;
+                }
+                .header h1 {
+                    color: #155386;
+                    font-size: 20px;
+                }
+                .header p {
+                    color: #666;
+                    font-size: 10px;
+                }
+                .stats {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    flex-wrap: wrap;
+                }
+                .stat-box {
+                    background: #f5f5f5;
+                    padding: 10px;
+                    border-radius: 8px;
+                    text-align: center;
+                    min-width: 100px;
+                }
+                .stat-box .label {
+                    font-size: 9px;
+                    color: #666;
+                }
+                .stat-box .value {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #155386;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 15px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background: #155386;
+                    color: white;
+                    font-size: 9px;
+                }
+                td {
+                    font-size: 9px;
+                }
+                tr:nth-child(even) {
+                    background: #f9f9f9;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    padding-top: 10px;
+                    border-top: 1px solid #ddd;
+                    font-size: 8px;
+                    color: #999;
+                }
+                .status-active { color: #10b981; font-weight: bold; }
+                .status-inactive { color: #ef4444; font-weight: bold; }
+                .role-badge {
+                    display: inline-block;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 8px;
+                }
+                .role-admin { background: #e9d5ff; color: #6b21a5; }
+                .role-staff { background: #dbeafe; color: #1e40af; }
+                .role-applicant { background: #e5e7eb; color: #374151; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Konstructo Users Export</h1>
+                <p>Generated on: ' . date('F d, Y g:i:s A') . '</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box"><div class="label">Total Users</div><div class="value">' . $stats['total'] . '</div></div>
+                <div class="stat-box"><div class="label">Admins</div><div class="value">' . $stats['admins'] . '</div></div>
+                <div class="stat-box"><div class="label">Staff</div><div class="value">' . $stats['staff'] . '</div></div>
+                <div class="stat-box"><div class="label">Applicants</div><div class="value">' . $stats['applicants'] . '</div></div>
+                <div class="stat-box"><div class="label">Active</div><div class="value">' . $stats['active'] . '</div></div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody>';
+        
+        foreach ($users as $user) {
+            $fullName = trim($user->first_name . ' ' . ($user->middle_name ? $user->middle_name . ' ' : '') . $user->last_name);
+            $roleClass = $user->role === 'admin' ? 'role-admin' : ($user->role === 'staff' ? 'role-staff' : 'role-applicant');
+            $statusClass = ($user->is_active ?? true) ? 'status-active' : 'status-inactive';
+            $statusText = ($user->is_active ?? true) ? 'Active' : 'Inactive';
+            $positionDisplay = $this->getPositionDisplay($user->position, $user->role);
+            
+            $html .= '<tr>
+                        <td>' . $user->id . '</td>
+                        <td>' . htmlspecialchars($fullName) . '</td>
+                        <td>' . htmlspecialchars($user->email) . '</td>
+                        <td>' . htmlspecialchars($user->username) . '</td>
+                        <td><span class="role-badge ' . $roleClass . '">' . ucfirst($user->role) . '</span></td>
+                        <td>' . htmlspecialchars($positionDisplay) . '</td>
+                        <td class="' . $statusClass . '">' . $statusText . '</td>
+                        <td>' . ($user->created_at ? $user->created_at->format('Y-m-d') : '') . '</td>
+                     </tr>';
+        }
+        
+        $html .= '</tbody>
+            </table>
+            
+            <div class="footer">
+                <p>Konstructo - Smart Infrastructure Oversight</p>
+                <p>This report was generated automatically on ' . date('Y-m-d H:i:s') . '</p>
+            </div>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+
+    /**
+     * Generate HTML Export content
+     */
+    private function generateHTMLExport($users, $stats)
+    {
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Konstructo Users Export - ' . date('Y-m-d H:i:s') . '</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: "Poppins", -apple-system, Arial, sans-serif;
+                    background: #f0f2f5;
+                    padding: 30px 20px;
+                    color: #1a1a2e;
+                }
+                .container {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 20px;
+                    padding: 30px;
+                    box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+                }
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #e9ecef;
+                    flex-wrap: wrap;
+                }
+                .header h1 {
+                    color: #155386;
+                    font-size: 28px;
+                    font-weight: 600;
+                }
+                .header-date {
+                    color: #6c757d;
+                    font-size: 14px;
+                }
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }
+                .stat-card {
+                    background: #f8f9fa;
+                    border-radius: 16px;
+                    padding: 20px;
+                    text-align: center;
+                    border: 1px solid #e5e7eb;
+                }
+                .stat-label {
+                    font-size: 13px;
+                    color: #6c757d;
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                }
+                .stat-value {
+                    font-size: 32px;
+                    font-weight: 700;
+                    color: #155386;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    padding: 12px 15px;
+                    text-align: left;
+                    border-bottom: 1px solid #e9ecef;
+                }
+                th {
+                    background: #f8f9fa;
+                    font-weight: 600;
+                    font-size: 12px;
+                    color: #495057;
+                    text-transform: uppercase;
+                }
+                td {
+                    font-size: 13px;
+                }
+                tr:hover {
+                    background: #f8f9fa;
+                }
+                .role-badge {
+                    display: inline-block;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-size: 11px;
+                    font-weight: 500;
+                }
+                .role-admin { background: #e9d5ff; color: #6b21a5; }
+                .role-staff { background: #dbeafe; color: #1e40af; }
+                .role-applicant { background: #e5e7eb; color: #374151; }
+                .status-active { color: #10b981; font-weight: 600; }
+                .status-inactive { color: #ef4444; font-weight: 600; }
+                .footer {
+                    text-align: center;
+                    padding: 20px;
+                    color: #6c757d;
+                    font-size: 11px;
+                    border-top: 1px solid #e9ecef;
+                    margin-top: 20px;
+                }
+                .print-btn {
+                    background: #155386;
+                    color: white;
+                    border: none;
+                    padding: 8px 18px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-family: "Poppins", sans-serif;
+                }
+                @media print {
+                    body { background: white; padding: 0; }
+                    .container { box-shadow: none; padding: 15px; }
+                    .print-btn { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div>
+                        <h1>Konstructo Users Export</h1>
+                        <div class="header-date">Generated: ' . date('F d, Y g:i:s A') . '</div>
+                    </div>
+                    <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value">' . $stats['total'] . '</div></div>
+                    <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-value">' . $stats['admins'] . '</div></div>
+                    <div class="stat-card"><div class="stat-label">Staff</div><div class="stat-value">' . $stats['staff'] . '</div></div>
+                    <div class="stat-card"><div class="stat-label">Applicants</div><div class="stat-value">' . $stats['applicants'] . '</div></div>
+                    <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value">' . $stats['active'] . '</div></div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Position</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+        
+        foreach ($users as $user) {
+            $fullName = trim($user->first_name . ' ' . ($user->middle_name ? $user->middle_name . ' ' : '') . $user->last_name);
+            $roleClass = $user->role === 'admin' ? 'role-admin' : ($user->role === 'staff' ? 'role-staff' : 'role-applicant');
+            $statusClass = ($user->is_active ?? true) ? 'status-active' : 'status-inactive';
+            $statusText = ($user->is_active ?? true) ? 'Active' : 'Inactive';
+            $positionDisplay = $this->getPositionDisplay($user->position, $user->role);
+            
+            $html .= '<tr>
+                        <td>' . $user->id . '</td>
+                        <td>' . htmlspecialchars($fullName) . '</td>
+                        <td>' . htmlspecialchars($user->email) . '</td>
+                        <td>' . htmlspecialchars($user->username) . '</td>
+                        <td><span class="role-badge ' . $roleClass . '">' . ucfirst($user->role) . '</span></td>
+                        <td>' . htmlspecialchars($positionDisplay) . '</td>
+                        <td class="' . $statusClass . '">' . $statusText . '</td>
+                        <td>' . ($user->created_at ? $user->created_at->format('M d, Y') : 'N/A') . '</td>
+                        <td>' . ($user->last_login_at ? date('M d, Y', strtotime($user->last_login_at)) : 'Never') . '</td>
+                     </tr>';
+        }
+        
+        $html .= '</tbody>
+                    </table>
+                </div>
+                
+                <div class="footer">
+                    <p>Konstructo - Smart Infrastructure Oversight</p>
+                    <p>Report ID: KUS-' . date('Ymd') . '-' . rand(1000, 9999) . ' | Generated: ' . date('Y-m-d H:i:s') . '</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+
+    /**
+     * Get position display text
+     */
+    private function getPositionDisplay($position, $role)
+    {
+        if ($role !== 'staff' || !$position) return '—';
+        
+        $positionMap = [
+            'engineer' => 'Engineer',
+            'architect' => 'Architect',
+            'BFP' => 'BFP',
+            'bfp' => 'BFP',
+            'cpdo' => 'CPDO',
+            'administrative_aide' => 'Admin Aide',
+            'treasurer' => 'Treasurer',
+            'assessor' => 'Assessor'
+        ];
+        
+        return $positionMap[$position] ?? ucfirst($position);
+    }
 }

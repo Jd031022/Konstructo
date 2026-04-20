@@ -173,6 +173,9 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     
     Route::get('/archived-applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportArchived'])
         ->name('archived-applications.export');
+    
+    Route::get('/dashboard/export', [App\Http\Controllers\Staff\DashboardController::class, 'exportDashboard'])
+    ->name('dashboard.export');
 });
 
 // Applicant UI Routes
@@ -567,6 +570,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     
     Route::post('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'store'])
         ->name('announcements.store');
+
+Route::get('/dashboard/export', [App\Http\Controllers\Admin\DashboardController::class, 'exportDashboard'])
+    ->name('dashboard.export');
+Route::get('/users/export', [App\Http\Controllers\Admin\UserController::class, 'exportUsers'])
+    ->name('users.export');
+    Route::get('/archived-applications/export', [App\Http\Controllers\Admin\ApplicationController::class, 'exportArchivedApplications'])
+    ->name('archived-applications.export');
     
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
     Route::get('/users/list', [App\Http\Controllers\Admin\UserController::class, 'getUsers'])->name('users.list');

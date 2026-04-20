@@ -14,11 +14,66 @@
         
         <!-- Action Buttons -->
         <div class="mt-4 md:mt-0 flex items-center gap-3">
-            <button onclick="exportApplications()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+<div class="relative inline-block">
+    <button onclick="toggleExportDropdown()" 
+        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Export
+        <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+    
+    <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+        <a href="{{ route('staff.applications.export', array_merge(request()->query(), ['format' => 'excel'])) }}" 
+           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <svg class="inline w-4 h-4 mr-2 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export as Excel
+        </a>
+        <a href="{{ route('staff.applications.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" 
+           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <svg class="inline w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Export as PDF
+        </a>
+    </div>
+</div>
+
+<script>
+function toggleExportDropdown() {
+    const dropdown = document.getElementById('export-dropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('export-dropdown');
+    const button = event.target.closest('.relative');
+    if (!button && dropdown && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Also close dropdown when Escape key is pressed
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const dropdown = document.getElementById('export-dropdown');
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+            dropdown.classList.add('hidden');
+        }
+    }
+});
+</script>
+            <button onclick="openNewApplicationModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Export Report
+                New Application
             </button>
         </div>
     </div>
@@ -42,8 +97,6 @@
                 <option value="">All Status</option>
                 <option value="pending">Pending Review</option>
                 <option value="under-review">Under Review</option>
-                <option value="document-verification">Document Verification</option>
-                <option value="for-assessment">For Assessment</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
                 <option value="for-release">For Release</option>
@@ -118,7 +171,6 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Application #</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Applicant</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted</th>
@@ -143,6 +195,119 @@
         </div>
     </div>
 
+</div>
+
+<!-- New Application Modal -->
+<div id="new-application-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-3xl">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
+                    <h3 class="text-xl font-bold">New Application</h3>
+                    <button onclick="closeNewApplicationModal()" class="text-white hover:text-gray-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
+                    <form id="new-application-form" onsubmit="submitNewApplication(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Applicant Information -->
+                            <div class="md:col-span-2">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Applicant Information</h4>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
+                                <input type="text" 
+                                       id="first-name"
+                                       required
+                                       placeholder="e.g., Juan"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
+                                <input type="text" 
+                                       id="last-name"
+                                       required
+                                       placeholder="e.g., Dela Cruz"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" 
+                                       id="email"
+                                       required
+                                       placeholder="juandelacruz@email.com"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number <span class="text-red-500">*</span></label>
+                                <input type="tel" 
+                                       id="phone"
+                                       required
+                                       placeholder="0917 123 4567"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Project Information -->
+                            <div class="md:col-span-2 mt-4">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-4">Project Information</h4>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Project Address <span class="text-red-500">*</span></label>
+                                <input type="text" 
+                                       id="address"
+                                       required
+                                       placeholder="e.g., Brgy. San Jose, Legazpi City"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Project Type <span class="text-red-500">*</span></label>
+                                <select id="project-type" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent bg-white">
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="residential">Residential</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="industrial">Industrial</option>
+                                    <option value="renovation">Renovation</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Google Drive Link <span class="text-red-500">*</span></label>
+                                <input type="url" 
+                                       id="google-drive-link"
+                                       required
+                                       placeholder="https://drive.google.com/drive/folders/..."
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <!-- Modal Footer -->
+                        <div class="mt-8 flex justify-end gap-3">
+                            <button type="button" onclick="closeNewApplicationModal()" 
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition text-sm">
+                                Create Application
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Edit Status Modal -->
@@ -175,8 +340,6 @@
                             <select id="new-status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent bg-white">
                                 <option value="pending">Pending Review</option>
                                 <option value="under-review">Under Review</option>
-                                <option value="document-verification">Document Verification</option>
-                                <option value="for-assessment">For Assessment</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                                 <option value="for-release">For Release</option>
@@ -204,7 +367,7 @@
     </div>
 </div>
 
-<!-- Archive Modal (Soft Delete) -->
+<!-- Archive Modal -->
 <div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-md">
@@ -230,6 +393,38 @@
                             class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition flex items-center gap-2 text-sm">
                             <span id="archive-btn-text">Archive</span>
                             <span id="archive-btn-spinner" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="px-6 py-4 bg-red-600 text-white">
+                    <h3 class="text-xl font-bold">Delete Application</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-6">Are you sure you want to delete this application? This action cannot be undone.</p>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmDelete()" id="confirm-delete-btn"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                            <span id="delete-btn-text">Delete</span>
+                            <span id="delete-btn-spinner" class="hidden">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -286,15 +481,19 @@
 <!-- Aging Tooltip Styles -->
 <style>
     /* Modal animations */
+    #new-application-modal,
     #edit-status-modal,
     #archive-modal,
+    #delete-modal,
     #error-modal,
     #success-modal {
         transition: opacity 0.2s ease-in-out;
     }
     
+    #new-application-modal .bg-white,
     #edit-status-modal .bg-white,
     #archive-modal .bg-white,
+    #delete-modal .bg-white,
     #error-modal .bg-white,
     #success-modal .bg-white {
         animation: modalSlideIn 0.3s ease-out;
@@ -446,50 +645,23 @@
     let filteredApplications = [];
     let currentPage = 1;
     const itemsPerPage = 10;
+    let deleteId = null;
     let archiveId = null;
-    let currentUserPosition = null;
 
-    // Load user position first, then applications
-    document.addEventListener('DOMContentLoaded', async function() {
-        await loadUserPosition();
-        await loadApplications();
+    // Load applications on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadApplications();
         setupModals();
         // Auto-refresh every 60 seconds to update aging
         setInterval(loadApplications, 60000);
     });
 
-    // Load current user position
-    async function loadUserPosition() {
-        try {
-            const response = await fetch('/staff/position/check', {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                currentUserPosition = data.position || '';
-                console.log('Current user position:', currentUserPosition);
-            }
-        } catch (error) {
-            console.error('Error loading user position:', error);
-        }
-    }
-
-    // Check if user is Engineer or Architect (can see all actions)
-    function canSeeAllActions() {
-        const fullAccessRoles = ['engineer', 'architect'];
-        return fullAccessRoles.includes(currentUserPosition);
-    }
-
     // Calculate aging days since submission
-    function calculateAgingDays(submittedAt) {
+    function calculateAgingDays(submittedAt, lastUpdatedAt) {
         const submittedDate = new Date(submittedAt);
         const currentDate = new Date();
         const daysDiff = Math.floor((currentDate - submittedDate) / (1000 * 60 * 60 * 24));
-        return Math.max(0, daysDiff);
+        return daysDiff;
     }
     
     // Get aging status based on days
@@ -574,7 +746,7 @@
                 applications = data.applications || [];
                 // Add aging calculation to each application
                 applications = applications.map(app => {
-                    const days = calculateAgingDays(app.created_at);
+                    const days = calculateAgingDays(app.created_at, app.updated_at);
                     app.aging_days = days;
                     app.aging_status = getAgingStatus(days);
                     return app;
@@ -673,7 +845,7 @@
         updatePagination();
     }
 
-    // Create application table row with role-based actions
+    // Create application table row with aging colors
     function createApplicationRow(app) {
         const initials = app.applicant_name ? 
             app.applicant_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 
@@ -682,8 +854,6 @@
         const statusColors = {
             'pending': 'bg-yellow-100 text-yellow-600',
             'under-review': 'bg-purple-100 text-purple-600',
-            'document-verification': 'bg-indigo-100 text-indigo-600',
-            'for-assessment': 'bg-indigo-100 text-indigo-600',
             'approved': 'bg-green-100 text-green-600',
             'rejected': 'bg-red-100 text-red-600',
             'for-release': 'bg-blue-100 text-blue-600',
@@ -693,8 +863,6 @@
         const statusText = {
             'pending': 'Pending Review',
             'under-review': 'Under Review',
-            'document-verification': 'Document Verification',
-            'for-assessment': 'For Assessment',
             'approved': 'Approved',
             'rejected': 'Rejected',
             'for-release': 'For Release',
@@ -726,48 +894,11 @@
         
         const randomGradient = gradientColors[app.id % gradientColors.length];
         const rowClass = getRowClass(app.aging_days);
-        const hasFullAccess = canSeeAllActions();
-        
-        // Build actions HTML based on user role
-        let actionsHtml = `
-            <div class="flex items-center gap-2">
-                <!-- View Details - visible to all -->
-                <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                </a>
-        `;
-        
-        // Only show Update Status for Engineers and Architects
-        if (hasFullAccess) {
-            actionsHtml += `
-                <button onclick="openStatusModal(${app.id}, '${escapeHtml(app.application_number)}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                </button>
-            `;
-        }
-        
-        // Only show Archive and Delete for Engineers and Architects
-        if (hasFullAccess) {
-            actionsHtml += `
-                <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                </button>
-            `;
-        }
-        
-        actionsHtml += `</div>`;
         
         return `
             <tr class="hover:bg-gray-50 transition ${rowClass}">
                 <td class="py-4 px-6">
-                    <span class="font-mono text-sm font-medium text-[#155386]">${escapeHtml(app.application_number)}</span>
+                    <span class="font-mono text-sm font-medium text-[#155386]">${app.application_number}</span>
                 </td>
                 <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
@@ -775,8 +906,8 @@
                             ${initials}
                         </div>
                         <div>
-                            <span class="font-medium text-gray-800">${escapeHtml(app.applicant_name || 'N/A')}</span>
-                            <p class="text-xs text-gray-500">${escapeHtml(app.email || '')}</p>
+                            <span class="font-medium text-gray-800">${app.applicant_name || 'N/A'}</span>
+                            <p class="text-xs text-gray-500">${app.email || ''}</p>
                         </div>
                     </div>
                 </td>
@@ -798,18 +929,39 @@
                     ${formattedUpdatedDate}
                 </td>
                 <td class="py-4 px-6">
-                    ${actionsHtml}
+                    <div class="flex items-center gap-2">
+                        <!-- View Details -->
+                        <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </a>
+                        
+                        <!-- Update Status -->
+                        <button onclick="openStatusModal(${app.id}, '${app.application_number}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Archive -->
+                        <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Delete -->
+                        <button onclick="openDeleteModal(${app.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
-    }
-    
-    // Escape HTML to prevent XSS
-    function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
     }
 
     // Update pagination
@@ -863,12 +1015,6 @@
 
     // Open status modal
     function openStatusModal(id, appNumber, currentStatus) {
-        // Only allow if user has full access
-        if (!canSeeAllActions()) {
-            showErrorModal('You do not have permission to update application status.');
-            return;
-        }
-        
         document.getElementById('status-application-id').value = id;
         document.getElementById('status-app-number').textContent = appNumber;
         document.getElementById('new-status').value = currentStatus;
@@ -885,13 +1031,6 @@
     // Update status
     async function updateStatus(event) {
         event.preventDefault();
-        
-        // Only allow if user has full access
-        if (!canSeeAllActions()) {
-            showErrorModal('You do not have permission to update application status.');
-            closeStatusModal();
-            return;
-        }
         
         const id = document.getElementById('status-application-id').value;
         const status = document.getElementById('new-status').value;
@@ -923,14 +1062,8 @@
         }
     }
 
-    // Archive functions (soft delete)
+    // Archive functions
     function openArchiveModal(id) {
-        // Only allow if user has full access
-        if (!canSeeAllActions()) {
-            showErrorModal('You do not have permission to archive applications.');
-            return;
-        }
-        
         archiveId = id;
         document.getElementById('archive-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -944,13 +1077,6 @@
 
     async function confirmArchive() {
         if (!archiveId) return;
-        
-        // Only allow if user has full access
-        if (!canSeeAllActions()) {
-            showErrorModal('You do not have permission to archive applications.');
-            closeArchiveModal();
-            return;
-        }
         
         const btn = document.getElementById('confirm-archive-btn');
         const btnText = document.getElementById('archive-btn-text');
@@ -994,18 +1120,121 @@
         }
     }
 
-    // Export applications
-    function exportApplications() {
-        console.log('Export button clicked');
+    // Delete functions
+    function openDeleteModal(id) {
+        deleteId = id;
+        document.getElementById('delete-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        deleteId = null;
+    }
+
+    async function confirmDelete() {
+        if (!deleteId) return;
+        
+        const btn = document.getElementById('confirm-delete-btn');
+        const btnText = document.getElementById('delete-btn-text');
+        const spinner = document.getElementById('delete-btn-spinner');
+        
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
+        
         try {
-            window.location.href = '/staff/applications/export';
-            console.log('Redirect initiated to:', '/staff/applications/export');
+            const response = await fetch(`/staff/applications/${deleteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Application deleted successfully');
+                closeDeleteModal();
+                loadApplications();
+            } else {
+                showErrorModal(data.message || 'Failed to delete application');
+            }
         } catch (error) {
-            console.error('Error during export:', error);
+            console.error('Error deleting application:', error);
+            showErrorModal('Failed to delete application');
+        } finally {
+            btnText.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            btn.disabled = false;
         }
     }
 
+    // Submit new application
+    async function submitNewApplication(event) {
+        event.preventDefault();
+        
+        const formData = {
+            first_name: document.getElementById('first-name').value,
+            last_name: document.getElementById('last-name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value,
+            google_drive_link: document.getElementById('google-drive-link').value
+        };
+        
+        try {
+            const response = await fetch('/staff/applications', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Application created successfully');
+                closeNewApplicationModal();
+                loadApplications();
+                document.getElementById('new-application-form').reset();
+            } else {
+                showErrorModal(data.message || 'Failed to create application');
+            }
+        } catch (error) {
+            console.error('Error creating application:', error);
+            showErrorModal('Failed to create application');
+        }
+    }
+
+// Export applications - Fixed to use correct route
+function exportApplications() {
+    console.log('Export button clicked');
+    try {
+        // Use the staff applications export route (since this is staff view)
+        window.location.href = '/staff/applications/export';
+        console.log('Redirect initiated to:', '/staff/applications/export');
+    } catch (error) {
+        console.error('Error during export:', error);
+        showErrorModal('Failed to export applications. Please try again.');
+    }
+}
     // Modal functions
+    function openNewApplicationModal() {
+        document.getElementById('new-application-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewApplicationModal() {
+        document.getElementById('new-application-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
     function showSuccessModal(message) {
         document.getElementById('success-modal-message').textContent = message;
         document.getElementById('success-modal').classList.remove('hidden');
@@ -1034,15 +1263,17 @@
 
     // Setup modals
     function setupModals() {
-        const modals = ['edit-status-modal', 'archive-modal', 'error-modal', 'success-modal'];
+        const modals = ['new-application-modal', 'edit-status-modal', 'archive-modal', 'delete-modal', 'error-modal', 'success-modal'];
         
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.addEventListener('click', function(e) {
                     if (e.target === modal) {
+                        if (modalId === 'new-application-modal') closeNewApplicationModal();
                         if (modalId === 'edit-status-modal') closeStatusModal();
                         if (modalId === 'archive-modal') closeArchiveModal();
+                        if (modalId === 'delete-modal') closeDeleteModal();
                         if (modalId === 'error-modal') closeErrorModal();
                         if (modalId === 'success-modal') closeSuccessModal();
                     }
@@ -1052,12 +1283,15 @@
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
+                closeNewApplicationModal();
                 closeStatusModal();
                 closeArchiveModal();
+                closeDeleteModal();
                 closeErrorModal();
                 closeSuccessModal();
             }
         });
     }
+    
 </script>
 @endsection
