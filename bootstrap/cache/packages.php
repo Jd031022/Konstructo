@@ -59,6 +59,13 @@
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
   ),
+  'leonardolima/laravel-security-check' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'LaravelSecurityCheck\\LaravelSecurityCheckServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 

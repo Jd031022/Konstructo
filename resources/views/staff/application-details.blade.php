@@ -432,7 +432,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT, Treasurer can verify Tax Declaration and Tax Receipt. These are available immediately.<br>
+                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT/Deed of Sale. Treasurer can verify Current Tax Receipt. Tax Declaration verification is for Assessor only. Special Power of Attorney (SPA) cannot be verified by staff.<br>
                             <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Only Engineers and Architects can verify documents. Other roles can only view documents. CPDO must approve first before Step 2 verification begins.<br>
                             <strong>Hard Copy Check:</strong> Only Engineers and Architects can mark hard copy as received.<br>
                             <strong>CPDO Decision:</strong> Only Engineers and Architects can edit CPDO decisions.</p>
@@ -1125,14 +1125,11 @@
     let pendingDocumentLink = null;
     let pendingDocumentName = null;
     
-    // Ownership verification status storage
-    let ownershipVerificationStatus = {
-        tct_link: false,
-        tax_declaration_link: false,
-        current_tax_receipt_link: false,
-        spa_link: false
-    };
-
+    // ========== UPDATED: Ownership verification permissions ==========
+    // Assessor can verify: TCT/Deed of Sale (tct_link) ONLY
+    // Treasurer can verify: Current Tax Receipt (current_tax_receipt_link) ONLY
+    // Tax Declaration (tax_declaration_link) - Assessor can verify (not Treasurer)
+    // SPA cannot be verified by staff
     const ownershipDocumentNames = {
         'tct_link': 'TCT / Deed of Sale',
         'tax_declaration_link': 'Tax Declaration',
@@ -1142,9 +1139,17 @@
     
     const ownershipVerificationPermissions = {
         'tct_link': ['assessor'],
-        'tax_declaration_link': ['treasurer'],
-        'current_tax_receipt_link': ['treasurer'],
-        'spa_link': []
+        'tax_declaration_link': ['assessor'],  // UPDATED: Assessor only, not Treasurer
+        'current_tax_receipt_link': ['treasurer'],  // UPDATED: Treasurer only
+        'spa_link': []  // No staff can verify SPA
+    };
+    
+    // Ownership verification status storage
+    let ownershipVerificationStatus = {
+        tct_link: false,
+        tax_declaration_link: false,
+        current_tax_receipt_link: false,
+        spa_link: false
     };
 
     const documentsList = [
@@ -1883,7 +1888,17 @@
     async function toggleOwnershipVerification(documentKey, isChecked) {
         // Ownership verification does NOT require CPDO approval
         if (!canVerifyOwnershipDocument(documentKey)) {
-            showErrorModal('Permission Denied', `You don't have permission to verify this document. Only ${ownershipVerificationPermissions[documentKey].join(', ')} can verify this document.`);
+            let permissionMessage = `You don't have permission to verify this document. `;
+            if (documentKey === 'tct_link') {
+                permissionMessage += `Only Assessor can verify TCT/Deed of Sale.`;
+            } else if (documentKey === 'tax_declaration_link') {
+                permissionMessage += `Only Assessor can verify Tax Declaration.`;
+            } else if (documentKey === 'current_tax_receipt_link') {
+                permissionMessage += `Only Treasurer can verify Current Tax Receipt.`;
+            } else {
+                permissionMessage += `No staff can verify this document.`;
+            }
+            showErrorModal('Permission Denied', permissionMessage);
             const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
             if (checkbox) checkbox.checked = !isChecked;
             return;
@@ -1959,6 +1974,17 @@
                 const isVerified = ownershipVerificationStatus[key] || false;
                 const canVerify = canVerifyOwnershipDocument(key);
                 const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+                
+                // Show who can verify info
+                let verifyInfo = '';
+                if (key === 'tct_link') {
+                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
+                } else if (key === 'tax_declaration_link') {
+                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
+                } else if (key === 'current_tax_receipt_link') {
+                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Treasurer only)</span>';
+                }
+                
                 html += `
                     <div class="flex items-center justify-between p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -1971,6 +1997,7 @@
                                 <div class="flex items-center flex-wrap gap-1">
                                     <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
                                     ${spaBadge}
+                                    ${verifyInfo}
                                     ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
                                 </div>
                                 <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>

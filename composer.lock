@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "287798d3d67a04bf277552757c885a91",
+    "content-hash": "7b1ed405fa98163d20b6a1167fdd1c94",
     "packages": [
         {
             "name": "brick/math",
@@ -8243,6 +8243,60 @@
                 "source": "https://github.com/laravel/sail"
             },
             "time": "2026-02-06T12:16:02+00:00"
+        },
+        {
+            "name": "leonardolima/laravel-security-check",
+            "version": "v1.3.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/leonardo403/laravel-security-check.git",
+                "reference": "ea37ad7d0f56695f37b6f9d1f6f6aac6a4cfc7dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/leonardo403/laravel-security-check/zipball/ea37ad7d0f56695f37b6f9d1f6f6aac6a4cfc7dd",
+                "reference": "ea37ad7d0f56695f37b6f9d1f6f6aac6a4cfc7dd",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaravelSecurityCheck\\LaravelSecurityCheckServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaravelSecurityCheck\\": "src/",
+                    "LaravelSecurityCheck\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Leonardo Lima",
+                    "email": "leonardo403@gmail.com"
+                }
+            ],
+            "description": "Security validator for Laravel projects",
+            "keywords": [
+                "check",
+                "laravel",
+                "security"
+            ],
+            "support": {
+                "issues": "https://github.com/leonardo403/laravel-security-check/issues",
+                "source": "https://github.com/leonardo403/laravel-security-check/tree/v1.3.6"
+            },
+            "time": "2026-01-20T03:13:00+00:00"
         },
         {
             "name": "mockery/mockery",
