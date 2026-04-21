@@ -432,10 +432,10 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT/Deed of Sale. Treasurer can verify Current Tax Receipt. Tax Declaration verification is for Assessor only. Special Power of Attorney (SPA) cannot be verified by staff.<br>
+                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT/Deed of Sale and Tax Declaration. Treasurer can verify Current Tax Receipt. Special Power of Attorney (SPA) cannot be verified by staff.<br>
                             <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Only Engineers and Architects can verify documents. Other roles can only view documents. CPDO must approve first before Step 2 verification begins.<br>
                             <strong>Hard Copy Check:</strong> Only Engineers and Architects can mark hard copy as received.<br>
-                            <strong>CPDO Decision:</strong> Only Engineers and Architects can edit CPDO decisions.</p>
+                            <strong>CPDO Decision:</strong> Only CPDO staff can approve or reject applications. Once submitted, the decision is final and cannot be changed.</p>
                         </div>
                     </div>
                 </div>
@@ -471,7 +471,7 @@
                             <h2 class="text-lg font-semibold text-gray-800">CPDO Verification</h2>
                         </div>
                         
-                        <p class="text-sm text-gray-600 mb-4">The City Planning and Development Office (CPDO) must review and approve all documents before other departments can proceed with verification.</p>
+                        <p class="text-sm text-gray-600 mb-4">The City Planning and Development Office (CPDO) must review and approve all documents before other departments can proceed with verification. <strong class="text-red-600">Once submitted, the decision is FINAL and cannot be changed.</strong></p>
                         
                         <div id="cpdo-status-display" class="mb-4 p-3 bg-gray-50 rounded-lg">
                             <div class="flex justify-between items-center">
@@ -493,7 +493,7 @@
                         <!-- Form for new decision (when pending) - Only CPDO can submit -->
                         <div id="cpdo-form" class="hidden">
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Decision</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Decision <span class="text-red-500">*</span></label>
                                 <div class="flex gap-4">
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <input type="radio" name="cpdo_decision" value="approved" class="cpdo-radio h-4 w-4 text-green-600">
@@ -507,58 +507,11 @@
                             </div>
                             
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Reason</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Reason <span id="remarks-required-star" class="text-red-500 hidden">*</span></label>
                                 <textarea id="cpdo-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm" placeholder="Enter remarks or reason for rejection..."></textarea>
                             </div>
                             
-                            <button onclick="submitCPDODecision()" id="cpdo-submit-btn" class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Submit Decision</button>
-                        </div>
-                        
-                        <!-- Edit form for changing existing decision - Only Engineers and Architects can edit -->
-                        <div id="cpdo-edit-form" class="hidden">
-                            <div class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                <div class="flex items-center gap-2 text-sm text-yellow-700 mb-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                    <span class="font-medium">Change Decision</span>
-                                </div>
-                                <p class="text-xs text-yellow-600 mb-3">Changing your decision will notify the applicant and update the application status. (Only Engineers and Architects can edit)</p>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">New Decision</label>
-                                <div class="flex gap-4">
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="cpdo_edit_decision" value="approved" class="cpdo-edit-radio h-4 w-4 text-green-600">
-                                        <span class="text-sm text-green-600 font-medium">Approve</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="cpdo_edit_decision" value="rejected" class="cpdo-edit-radio h-4 w-4 text-red-600">
-                                        <span class="text-sm text-red-600 font-medium">Reject</span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Reason (Optional)</label>
-                                <textarea id="cpdo-edit-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm" placeholder="Enter remarks or reason for this change..."></textarea>
-                            </div>
-                            
-                            <div class="flex gap-2">
-                                <button onclick="cancelEditMode()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">Cancel</button>
-                                <button onclick="submitCPDOEditDecision()" id="cpdo-edit-submit-btn" class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Change Decision</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Edit Decision Button - Only show for Engineers and Architects -->
-                        <div id="cpdo-edit-button-container" class="hidden mt-3">
-                            <button onclick="showEditMode()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit Decision
-                            </button>
+                            <button onclick="openCPDOConfirmationModal()" id="cpdo-submit-btn" class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">Submit Decision</button>
                         </div>
                         
                         <div id="cpdo-pending-message" class="hidden p-3 bg-orange-50 rounded-lg border border-orange-200">
@@ -576,6 +529,15 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                                 <span>This application has been rejected by CPDO.</span>
+                            </div>
+                        </div>
+                        
+                        <div id="cpdo-approved-message" class="hidden p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div class="flex items-center gap-2 text-sm text-green-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>This application has been approved by CPDO. Document verification can now proceed.</span>
                             </div>
                         </div>
                     </div>
@@ -729,6 +691,64 @@
                         <button onclick="loadFullActivityHistory()" class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">View Full History →</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CPDO Confirmation Modal -->
+<div id="cpdo-confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Confirm CPDO Decision</h3>
+                </div>
+                <button onclick="closeCPDOConfirmationModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-red-50 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-red-800">⚠️ Warning: This action is FINAL</h4>
+                            <p class="text-sm text-red-700 mt-1">Once you submit your decision, it cannot be changed or edited. Please review your decision carefully before confirming.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Decision Summary:</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Decision:</span>
+                            <span id="confirm-decision-text" class="text-sm font-bold text-orange-600">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Remarks:</span>
+                            <span id="confirm-remarks-text" class="text-sm text-gray-700">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-gray-500 text-center">By confirming, you acknowledge that this decision is final and cannot be reversed.</p>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeCPDOConfirmationModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">Cancel</button>
+                <button onclick="confirmCPDODecision()" id="confirm-cpdo-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">Yes, Submit Final Decision</button>
             </div>
         </div>
     </div>
@@ -1125,11 +1145,11 @@
     let pendingDocumentLink = null;
     let pendingDocumentName = null;
     
-    // ========== UPDATED: Ownership verification permissions ==========
-    // Assessor can verify: TCT/Deed of Sale (tct_link) ONLY
-    // Treasurer can verify: Current Tax Receipt (current_tax_receipt_link) ONLY
-    // Tax Declaration (tax_declaration_link) - Assessor can verify (not Treasurer)
-    // SPA cannot be verified by staff
+    // CPDO decision tracking for confirmation modal
+    let pendingCPDODecision = null;
+    let pendingCPDORemarks = null;
+    
+    // Ownership verification permissions
     const ownershipDocumentNames = {
         'tct_link': 'TCT / Deed of Sale',
         'tax_declaration_link': 'Tax Declaration',
@@ -1139,9 +1159,9 @@
     
     const ownershipVerificationPermissions = {
         'tct_link': ['assessor'],
-        'tax_declaration_link': ['assessor'],  // UPDATED: Assessor only, not Treasurer
-        'current_tax_receipt_link': ['treasurer'],  // UPDATED: Treasurer only
-        'spa_link': []  // No staff can verify SPA
+        'tax_declaration_link': ['assessor'],
+        'current_tax_receipt_link': ['treasurer'],
+        'spa_link': []
     };
     
     // Ownership verification status storage
@@ -1187,12 +1207,6 @@
         return verifyingRoles.includes(currentUserPosition);
     }
     
-    // Check if user can edit CPDO decision (Engineer or Architect only)
-    function canEditCPDODecision() {
-        const editingRoles = ['engineer', 'architect'];
-        return editingRoles.includes(currentUserPosition);
-    }
-    
     // Check if user can mark hard copy as received (Engineer or Architect only)
     function canMarkHardCopy() {
         const hardCopyRoles = ['engineer', 'architect'];
@@ -1205,13 +1219,7 @@
         return manageRoles.includes(currentUserPosition);
     }
     
-    // Check if user is Engineering/Architect (for auto-check on view)
-    function isEngineeringOrArchitect() {
-        const engineeringArchitectRoles = ['engineer', 'architect'];
-        return engineeringArchitectRoles.includes(currentUserPosition);
-    }
-    
-    // Check if user is CPDO (can view all documents anytime)
+    // Check if user is CPDO (can approve/reject applications)
     function isCPDOUser() {
         return currentUserPosition === 'cpdo';
     }
@@ -1252,6 +1260,106 @@
         document.body.style.overflow = 'auto';
     }
     
+    // CPDO Confirmation Modal Functions
+    function openCPDOConfirmationModal() {
+    const selected = document.querySelector('input[name="cpdo_decision"]:checked');
+    if (!selected) {
+        showErrorModal('Incomplete Selection', 'Please select Approve or Reject');
+        return;
+    }
+    
+    const decision = selected.value;
+    const remarks = document.getElementById('cpdo-remarks').value;
+    
+    if (decision === 'rejected' && !remarks.trim()) {
+        showErrorModal('Reason Required', 'Please provide a reason for rejection');
+        return;
+    }
+    
+    // Store values before showing modal
+    pendingCPDODecision = decision;
+    pendingCPDORemarks = remarks;
+    
+    const decisionText = decision === 'approved' ? 'APPROVE' : 'REJECT';
+    document.getElementById('confirm-decision-text').innerHTML = `<span class="${decision === 'approved' ? 'text-green-600' : 'text-red-600'}">${decisionText}</span>`;
+    document.getElementById('confirm-remarks-text').textContent = remarks || '(No remarks provided)';
+    
+    document.getElementById('cpdo-confirmation-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+    
+    function closeCPDOConfirmationModal() {
+        document.getElementById('cpdo-confirmation-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        pendingCPDODecision = null;
+        pendingCPDORemarks = null;
+    }
+    
+   async function confirmCPDODecision() {
+    // Store values locally first before closing modal
+    const decision = pendingCPDODecision;
+    const remarks = pendingCPDORemarks;
+    
+    if (!decision) {
+        showErrorModal('Error', 'No decision was selected. Please try again.');
+        return;
+    }
+    
+    // Close modal first
+    closeCPDOConfirmationModal();
+    
+    const btn = document.getElementById('cpdo-submit-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Submitting...';
+    btn.disabled = true;
+    
+    showSubmittingModal('Submitting CPDO decision...');
+    
+    try {
+        // Get CSRF token from meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        const requestBody = {
+            decision: decision,
+            remarks: remarks || ''
+        };
+        
+        console.log('Sending request:', requestBody);
+        
+        const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            cpdoStatus = decision;
+            cpdoRemarks = remarks;
+            showSuccessModal('Decision Submitted', data.message);
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showErrorModal('Submission Failed', data.message || 'Failed to submit decision');
+        }
+    } catch(error) {
+        closeSubmittingModal();
+        console.error('Error:', error);
+        showErrorModal('Error', 'Error submitting decision: ' + (error.message || 'Unknown error'));
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        // Clear the pending variables
+        pendingCPDODecision = null;
+        pendingCPDORemarks = null;
+    }
+}
+    
     // Document verification modal functions (only for Engineers and Architects)
     function openVerifyDocModal(documentKey, documentName, documentLink) {
         if (!canVerifyDocuments()) {
@@ -1280,7 +1388,6 @@
     function confirmVerifyDocument() {
         if (pendingDocumentKey) {
             const notes = document.getElementById('verify-doc-notes').value;
-            // Mark as verified
             documentVerificationStatus[pendingDocumentKey] = { 
                 verified: true, 
                 verified_at: new Date().toISOString(),
@@ -1314,10 +1421,11 @@
         showSubmittingModal('Archiving application...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/archive`, { 
                 method: 'POST', 
                 headers: { 
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ reason: reason })
@@ -1338,7 +1446,6 @@
     
     // Final Review Modal Functions
     function openFinalReviewModal() {
-        // Update all fee values for review
         const lineGrade = parseFloat(document.getElementById('line-grade').value) || 0;
         const buildingFee = parseFloat(document.getElementById('building-fee').value) || 0;
         const sanitaryFee = parseFloat(document.getElementById('sanitary-fee').value) || 0;
@@ -1357,7 +1464,6 @@
         document.getElementById('review-total-amount').textContent = total.toFixed(2);
         document.getElementById('review-assessment-notes').textContent = assessmentNotes;
         
-        // Update additional fees in review
         updateDynamicFeesArray();
         const container = document.getElementById('review-additional-fees-container');
         container.innerHTML = '';
@@ -1397,12 +1503,14 @@
         }
     }
 
-    // ========== OPTIMIZED: Single function to load all data in parallel ==========
+    // Load all data in parallel
     async function loadAllData() {
         const loadingState = document.getElementById('loading-state');
         const contentDiv = document.getElementById('application-content');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
             const [
                 positionRes,
                 applicationRes,
@@ -1413,12 +1521,12 @@
                 bfpRes
             ] = await Promise.all([
                 fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).catch(() => ({ ok: false }))
+                fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+                fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false }))
             ]);
             
             if (positionRes.ok) {
@@ -1566,7 +1674,6 @@
     }
     
     function applyVerificationUIRestrictions() {
-        const verificationActionsContainer = document.getElementById('verification-actions-container');
         const adminButtons = document.getElementById('admin-verification-buttons');
         
         if (!canManageVerification() && adminButtons) {
@@ -1575,7 +1682,6 @@
             adminButtons.classList.remove('hidden');
         }
         
-        // Also hide the verification stats if user cannot manage verification
         const statsContainer = document.getElementById('verification-stats-container');
         if (!canManageVerification() && statsContainer) {
             statsContainer.classList.add('hidden');
@@ -1600,7 +1706,6 @@
         
         document.getElementById('fsec-file').addEventListener('change', handleFSECUpload);
         
-        // Add hard copy checkbox change handler
         document.getElementById('hardcopy-checkbox').addEventListener('change', function(e) {
             if (!canMarkHardCopy()) {
                 e.preventDefault();
@@ -1609,6 +1714,21 @@
                 return;
             }
             updateHardCopyStatus(this.checked);
+        });
+        
+        // Show required star when reject is selected
+        const cpdoRadios = document.querySelectorAll('input[name="cpdo_decision"]');
+        cpdoRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const remarksRequiredStar = document.getElementById('remarks-required-star');
+                if (this.value === 'rejected') {
+                    remarksRequiredStar.classList.remove('hidden');
+                    document.getElementById('cpdo-remarks').required = true;
+                } else {
+                    remarksRequiredStar.classList.add('hidden');
+                    document.getElementById('cpdo-remarks').required = false;
+                }
+            });
         });
     });
     
@@ -1621,14 +1741,10 @@
         const approvedByName = document.getElementById('cpdo-approved-by');
         const approvedAtDate = document.getElementById('cpdo-approved-at');
         const cpdoForm = document.getElementById('cpdo-form');
-        const cpdoEditForm = document.getElementById('cpdo-edit-form');
-        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
         const pendingMessage = document.getElementById('cpdo-pending-message');
         const rejectedMessage = document.getElementById('cpdo-rejected-message');
+        const approvedMessage = document.getElementById('cpdo-approved-message');
         const statusUpdateCard = document.getElementById('status-update-card');
-        
-        // Only show edit button for Engineers and Architects when decision exists
-        const showEditButton = (cpdoStatus === 'approved' || cpdoStatus === 'rejected') && canEditCPDODecision();
         
         if (cpdoStatus === 'approved') {
             statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
@@ -1643,14 +1759,9 @@
                 approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
             }
             cpdoForm.classList.add('hidden');
-            cpdoEditForm.classList.add('hidden');
-            if (showEditButton) {
-                cpdoEditButton.classList.remove('hidden');
-            } else {
-                cpdoEditButton.classList.add('hidden');
-            }
             pendingMessage.classList.add('hidden');
             rejectedMessage.classList.add('hidden');
+            approvedMessage.classList.remove('hidden');
             if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
             enableStep2Verification(true);
         } else if (cpdoStatus === 'rejected') {
@@ -1666,14 +1777,9 @@
                 approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
             }
             cpdoForm.classList.add('hidden');
-            cpdoEditForm.classList.add('hidden');
-            if (showEditButton) {
-                cpdoEditButton.classList.remove('hidden');
-            } else {
-                cpdoEditButton.classList.add('hidden');
-            }
             pendingMessage.classList.add('hidden');
             rejectedMessage.classList.remove('hidden');
+            approvedMessage.classList.add('hidden');
             if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
             enableStep2Verification(false);
             disableStatusUpdates();
@@ -1682,9 +1788,8 @@
             statusBadge.textContent = 'Pending';
             remarksDisplay.classList.add('hidden');
             approvedInfo.classList.add('hidden');
-            cpdoEditButton.classList.add('hidden');
-            cpdoEditForm.classList.add('hidden');
             rejectedMessage.classList.add('hidden');
+            approvedMessage.classList.add('hidden');
             pendingMessage.classList.remove('hidden');
             
             if (currentUserPosition === 'cpdo') {
@@ -1701,101 +1806,8 @@
         }
     }
     
-    function showEditMode() {
-        if (!canEditCPDODecision()) {
-            showErrorModal('Permission Denied', 'Only Engineers and Architects can edit CPDO decisions.');
-            return;
-        }
-        
-        const cpdoForm = document.getElementById('cpdo-form');
-        const cpdoEditForm = document.getElementById('cpdo-edit-form');
-        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
-        
-        cpdoForm.classList.add('hidden');
-        cpdoEditButton.classList.add('hidden');
-        cpdoEditForm.classList.remove('hidden');
-        
-        // Pre-fill current values
-        document.getElementById('cpdo-edit-remarks').value = cpdoRemarks || '';
-        
-        // Preselect current decision
-        if (cpdoStatus === 'approved') {
-            document.querySelector('input[name="cpdo_edit_decision"][value="approved"]').checked = true;
-        } else if (cpdoStatus === 'rejected') {
-            document.querySelector('input[name="cpdo_edit_decision"][value="rejected"]').checked = true;
-        }
-    }
-    
-    function cancelEditMode() {
-        const cpdoForm = document.getElementById('cpdo-form');
-        const cpdoEditForm = document.getElementById('cpdo-edit-form');
-        const cpdoEditButton = document.getElementById('cpdo-edit-button-container');
-        
-        cpdoEditForm.classList.add('hidden');
-        cpdoForm.classList.add('hidden');
-        cpdoEditButton.classList.remove('hidden');
-    }
-    
-    async function submitCPDOEditDecision() {
-        if (!canEditCPDODecision()) {
-            showErrorModal('Permission Denied', 'Only Engineers and Architects can edit CPDO decisions.');
-            return;
-        }
-        
-        const selected = document.querySelector('input[name="cpdo_edit_decision"]:checked');
-        if (!selected) {
-            showErrorModal('Incomplete Selection', 'Please select Approve or Reject');
-            return;
-        }
-        
-        const decision = selected.value;
-        const remarks = document.getElementById('cpdo-edit-remarks').value;
-        
-        if (decision === 'rejected' && !remarks.trim()) {
-            showErrorModal('Reason Required', 'Please provide a reason for rejection');
-            return;
-        }
-        
-        const btn = document.getElementById('cpdo-edit-submit-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Submitting...';
-        btn.disabled = true;
-        
-        showSubmittingModal('Updating CPDO decision...');
-        
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ decision: decision, remarks: remarks })
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                cpdoStatus = decision;
-                cpdoRemarks = remarks;
-                localStorage.setItem(`cpdo_status_${applicationId}`, JSON.stringify({
-                    status: cpdoStatus,
-                    remarks: cpdoRemarks
-                }));
-                showSuccessModal('Decision Updated', data.message);
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showErrorModal('Update Failed', data.message || 'Failed to submit decision');
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            console.error('Error:', error);
-            showErrorModal('Error', 'Error submitting decision');
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    }
-    
-    // ONLY affects Step 2 document verification, NOT ownership documents
     function enableStep2Verification(enabled) {
-        // Note: Verify buttons are now handled in displayDocumentChecklist based on role
+        // Step 2 verification is handled in displayDocumentChecklist based on cpdoStatus and role
     }
     
     function disableStatusUpdates() {
@@ -1803,59 +1815,6 @@
         statusRadios.forEach(radio => { radio.disabled = true; });
         const updateBtn = document.getElementById('update-status-btn');
         if (updateBtn) updateBtn.disabled = true;
-    }
-    
-    async function submitCPDODecision() {
-        const selected = document.querySelector('input[name="cpdo_decision"]:checked');
-        if (!selected) {
-            showErrorModal('Incomplete Selection', 'Please select Approve or Reject');
-            return;
-        }
-        
-        const decision = selected.value;
-        const remarks = document.getElementById('cpdo-remarks').value;
-        
-        if (decision === 'rejected' && !remarks.trim()) {
-            showErrorModal('Reason Required', 'Please provide a reason for rejection');
-            return;
-        }
-        
-        const btn = document.getElementById('cpdo-submit-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Submitting...';
-        btn.disabled = true;
-        
-        showSubmittingModal('Submitting CPDO decision...');
-        
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/cpdo-decision`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ decision: decision, remarks: remarks })
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                cpdoStatus = decision;
-                cpdoRemarks = remarks;
-                localStorage.setItem(`cpdo_status_${applicationId}`, JSON.stringify({
-                    status: cpdoStatus,
-                    remarks: cpdoRemarks
-                }));
-                updateCPDOUI();
-                showSuccessModal('Decision Submitted', data.message);
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showErrorModal('Submission Failed', data.message || 'Failed to submit decision');
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            console.error('Error:', error);
-            showErrorModal('Error', 'Error submitting decision');
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
     }
     
     // ========== Ownership Functions ==========
@@ -1886,7 +1845,6 @@
     }
     
     async function toggleOwnershipVerification(documentKey, isChecked) {
-        // Ownership verification does NOT require CPDO approval
         if (!canVerifyOwnershipDocument(documentKey)) {
             let permissionMessage = `You don't have permission to verify this document. `;
             if (documentKey === 'tct_link') {
@@ -1910,9 +1868,10 @@
         showSubmittingModal('Updating verification status...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify({ document_key: documentKey, verified: isChecked })
             });
             const data = await response.json();
@@ -1975,7 +1934,6 @@
                 const canVerify = canVerifyOwnershipDocument(key);
                 const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
                 
-                // Show who can verify info
                 let verifyInfo = '';
                 if (key === 'tct_link') {
                     verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
@@ -2189,9 +2147,10 @@
         showSubmittingModal('Uploading FSEC document...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/upload-fsec`, {
                 method: 'POST',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 'X-CSRF-TOKEN': csrfToken },
                 body: formData
             });
             const data = await response.json();
@@ -2225,9 +2184,10 @@
         showSubmittingModal('Deleting FSEC document...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/delete-fsec`, {
                 method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
             });
             const data = await response.json();
             closeSubmittingModal();
@@ -2255,9 +2215,10 @@
         showSubmittingModal('Saving comments...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/bfp-comments`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                 body: JSON.stringify({ comments: comments })
             });
             const data = await response.json();
@@ -2340,9 +2301,10 @@
         };
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                 body: JSON.stringify(data)
             });
             const result = await response.json();
@@ -2427,11 +2389,11 @@
         document.getElementById('hardcopy-received-notice').classList.toggle('hidden', !received);
         document.getElementById('hardcopy-checkbox').checked = received;
         
-        // Save to server
         if (canMarkHardCopy()) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             fetch(`/staff/applications/${applicationId}/hardcopy-status`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify({ hardcopy_received: received })
             }).catch(err => console.error('Error saving hard copy status:', err));
         }
@@ -2487,8 +2449,9 @@
         const verifiedCount = Object.keys(documentVerificationStatus).length;
         showSubmittingModal('Saving verification progress...');
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             await fetch(`/staff/applications/${applicationId}/add-note`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify({ note: `Verification progress: ${verifiedCount}/${documentsList.length} documents verified.` })
             });
             closeSubmittingModal();
@@ -2617,10 +2580,11 @@
         showSubmittingModal('Updating application status...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
             const response = await fetch(`/staff/applications/${applicationId}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
@@ -2703,8 +2667,9 @@
         showSubmittingModal('Sending document request...');
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify({ documents: selected, remarks: remarks })
             });
             const data = await response.json();
@@ -2741,7 +2706,7 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; }
     @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
-    #assessment-modal .bg-white, #hardcopy-date-modal .bg-white, #final-review-modal .bg-white, #success-modal .bg-white, #error-modal .bg-white, #verify-doc-modal .bg-white, #archive-modal .bg-white, #submitting-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
+    #assessment-modal .bg-white, #hardcopy-date-modal .bg-white, #final-review-modal .bg-white, #success-modal .bg-white, #error-modal .bg-white, #verify-doc-modal .bg-white, #archive-modal .bg-white, #submitting-modal .bg-white, #cpdo-confirmation-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
     @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .hidden { display: none; }
     .status-option.disabled, .status-radio:disabled { cursor: not-allowed; opacity: 0.5; }

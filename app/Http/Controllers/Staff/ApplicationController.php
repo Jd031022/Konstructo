@@ -689,6 +689,7 @@ public function index(Request $request)
 
     /**
      * Submit CPDO decision (Approve/Reject)
+     * ONLY CPDO staff can submit. Decision is FINAL and cannot be changed.
      */
     public function submitCPDODecision(Request $request, $id)
     {
@@ -724,11 +725,23 @@ public function index(Request $request)
                 ], 404);
             }
 
+            // Check if decision has already been made
+            if ($application->cpdo_status !== null && $application->cpdo_status !== 'pending') {
+                Log::error('CPDO decision already made', [
+                    'application_id' => $id,
+                    'current_status' => $application->cpdo_status
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A CPDO decision has already been made for this application. Decisions are final and cannot be changed.'
+                ], 403);
+            }
+
             $staff = auth()->user();
             $staff->load('profile');
             $position = $staff->profile ? $staff->profile->position : null;
             
-            // Check if user is CPDO
+            // Check if user is CPDO - ONLY CPDO can submit decisions
             if ($position !== 'cpdo') {
                 Log::error('Unauthorized: User is not CPDO', [
                     'user_id' => $staff->id,
@@ -747,7 +760,7 @@ public function index(Request $request)
             // Update application with CPDO decision
             $application->cpdo_status = $decision;
             $application->cpdo_remarks = $remarks;
-            $application->cpdo_approved_at = $decision === 'approved' ? now() : null;
+            $application->cpdo_approved_at = $decision === 'approved' ? now() : ($decision === 'rejected' ? now() : null);
             $application->cpdo_approved_by = $staff->id;
             $application->last_updated_by = $staff->id;
             $application->save();
@@ -794,7 +807,7 @@ public function index(Request $request)
                 'data' => [
                     'cpdo_status' => $decision,
                     'cpdo_remarks' => $remarks,
-                    'cpdo_approved_at' => $decision === 'approved' ? now()->toISOString() : null
+                    'cpdo_approved_at' => now()->toISOString()
                 ]
             ]);
             
@@ -2528,7 +2541,7 @@ public function index(Request $request)
                     break;
                     
                 case 'tax_declaration_link':
-                    // Only Assessor can verify Tax Declaration (UPDATED: Treasurer cannot verify this)
+                    // Only Assessor can verify Tax Declaration
                     if ($position !== 'assessor') {
                         Log::error('Unauthorized: User is not Assessor', ['position' => $position]);
                         return response()->json([
