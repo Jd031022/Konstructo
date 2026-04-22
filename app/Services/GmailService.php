@@ -188,6 +188,23 @@ class GmailService
     }
 
     /**
+     * Send CPDO Assessment email with printable receipt
+     */
+    public function sendCPDOAssessmentEmail($to, $applicantName, $applicationNumber, $assessmentData, $applicationId)
+    {
+        $subject = 'CPDO Fee Assessment for Building Permit Application - Konstructo';
+        $htmlContent = $this->getCPDOAssessmentEmailContent($applicantName, $applicationNumber, $assessmentData, $applicationId);
+        
+        Log::info('📧 Sending CPDO assessment email', [
+            'to' => $to,
+            'application_number' => $applicationNumber,
+            'total_amount' => $assessmentData['total_cpdo_amount'] ?? 0
+        ]);
+        
+        return $this->sendEmailInternal($to, $subject, $htmlContent);
+    }
+
+    /**
      * Send CPDO approval email to applicant
      */
     public function sendCPDOApprovalEmail($to, $applicationNumber, $applicantName, $applicationId, $cpdoName)
@@ -226,13 +243,6 @@ class GmailService
 
     /**
      * Send user credentials email (username and password) to newly created users
-     * 
-     * @param string $to Recipient email address
-     * @param string $name Recipient's full name
-     * @param string $username User's username
-     * @param string $password Plain text password
-     * @param bool $isReset Whether this is a password reset email
-     * @return bool
      */
     public function sendCredentialsEmail($to, $name, $username, $password, $isReset = false)
     {
@@ -325,7 +335,7 @@ class GmailService
     }
 
     /**
-     * Send assessment completed email with fee breakdown - UPDATED to show all fees including additional fees
+     * Send assessment completed email with fee breakdown
      */
     public function sendAssessmentEmail($to, $applicationNumber, $applicantName, $assessmentData, $applicationId)
     {
@@ -354,87 +364,363 @@ class GmailService
     }
 
     /**
-     * Get CPDO approval email content
+ * Get CPDO approval email content
+ */
+private function getCPDOApprovalEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName)
+{
+    $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+    $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
+    
+    $formattedNumber = $applicationNumber;
+    if (strlen($applicationNumber) === 10) {
+        $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                          substr($applicationNumber, 2, 4) . '-' . 
+                          substr($applicationNumber, 6, 4);
+    }
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>CPDO Approval</title>
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .content { padding: 30px; }
+            .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+            .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+            .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981; }
+            .next-steps { background-color: #e6f7e6; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+            .next-steps h4 { margin: 0 0 12px 0; color: #065f46; font-size: 16px; }
+            .next-steps ul { margin: 0; padding-left: 20px; }
+            .next-steps li { margin: 8px 0; color: #065f46; font-size: 14px; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 20px; background-color: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>CPDO Approval Received</h1>
+                <p>Your application has been approved by the City Planning and Development Office</p>
+            </div>
+            <div class='content'>
+                <div class='greeting'>{$greeting}</div>
+                
+                <p>Great news! The City Planning and Development Office (CPDO) has reviewed and <strong>approved</strong> your application.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='success-badge'>✓ CPDO Approved</span>
+                </div>
+                
+                <div class='info-box'>
+                    <p><strong>Application Number:</strong> {$formattedNumber}</p>
+                    <p><strong>Reviewed by:</strong> {$cpdoName}</p>
+                </div>
+                
+                <div class='next-steps'>
+                    <h4>📋 What Happens Next?</h4>
+                    <ul>
+                        <li>Other departments can now proceed with document verification</li>
+                        <li>You will receive notifications as each department reviews your application</li>
+                        <li>Once all departments have verified, assessment will be completed</li>
+                        <li>You will be notified when your permit is ready for release</li>
+                    </ul>
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='{$appUrl}' class='button'>View Application Status</a>
+                </div>
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #666; text-align: center;'>
+                    Thank you for your patience throughout the review process.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+    /**
+     * Get CPDO Assessment email content with printable receipt
      */
-    private function getCPDOApprovalEmailContent($applicationNumber, $applicantName, $applicationId, $cpdoName)
+    private function getCPDOAssessmentEmailContent($applicantName, $applicationNumber, $assessmentData, $applicationId)
     {
         $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+        $printUrl = env('APP_URL') . "/applicant/print-receipt/{$applicationId}";
         $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
         
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
-                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
-                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
-                    .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
-                    .next-steps ul { margin: 0; padding-left: 20px; }
-                    .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>CPDO Approval Received</h1>
-                        <p>Your application has been approved by the City Planning and Development Office</p>
+        $formatAmount = function($amount) {
+            if (!$amount || $amount == 0) return '₱0.00';
+            return '₱' . number_format($amount, 2);
+        };
+        
+        $totalAmount = $assessmentData['total_cpdo_amount'] ?? 0;
+        $assessmentDate = $assessmentData['assessment_date'] ?? date('F d, Y');
+        $assessedBy = $assessmentData['cpdo_assessed_by'] ?? 'CPDO Staff';
+        $assessmentNotes = $assessmentData['cpdo_assessment_notes'] ?? null;
+        
+        // Escape values
+        $escapedApplicantName = htmlspecialchars($applicantName, ENT_QUOTES, 'UTF-8');
+        $escapedAssessmentDate = htmlspecialchars($assessmentDate, ENT_QUOTES, 'UTF-8');
+        $escapedAssessedBy = htmlspecialchars($assessedBy, ENT_QUOTES, 'UTF-8');
+        $escapedApplicationNumber = htmlspecialchars($applicationNumber, ENT_QUOTES, 'UTF-8');
+        
+        // Build fee rows
+        $feeRows = '';
+        
+        if (($assessmentData['zonal_location_fee'] ?? 0) > 0) {
+            $feeRows .= '<tr><td>Locational Clearance</td><td>' . $formatAmount($assessmentData['zonal_location_fee']) . '</td></tr>';
+        }
+        if (($assessmentData['palc_fee'] ?? 0) > 0) {
+            $feeRows .= '<tr><td>PALC Fee</td><td>' . $formatAmount($assessmentData['palc_fee']) . '</td></tr>';
+        }
+        if (($assessmentData['development_permit_fee'] ?? 0) > 0) {
+            $feeRows .= '<tr><td>Development Permit</td><td>' . $formatAmount($assessmentData['development_permit_fee']) . '</td></tr>';
+        }
+        if (($assessmentData['alteration_permit_fee'] ?? 0) > 0) {
+            $feeRows .= '<tr><td>Alteration Permit</td><td>' . $formatAmount($assessmentData['alteration_permit_fee']) . '</td></tr>';
+        }
+        if (($assessmentData['site_zoning_certificate_fee'] ?? 0) > 0) {
+            $feeRows .= '<tr><td>Site/Zoning Certificate</td><td>' . $formatAmount($assessmentData['site_zoning_certificate_fee']) . '</td></tr>';
+        }
+        
+        // Additional fees
+        $additionalFees = $assessmentData['cpdo_additional_fees'] ?? [];
+        if (is_string($additionalFees)) {
+            $additionalFees = json_decode($additionalFees, true);
+        }
+        
+        if (is_array($additionalFees) && count($additionalFees) > 0) {
+            foreach ($additionalFees as $fee) {
+                $amount = is_array($fee) ? ($fee['amount'] ?? 0) : 0;
+                $description = is_array($fee) ? ($fee['description'] ?? 'Additional Fee') : 'Additional Fee';
+                if ($amount > 0) {
+                    $feeRows .= '<tr><td>' . htmlspecialchars($description, ENT_QUOTES, 'UTF-8') . '</td><td>' . $formatAmount($amount) . '</td></tr>';
+                }
+            }
+        }
+        
+        $notesHtml = '';
+        if ($assessmentNotes) {
+            $notesHtml = '<div class="notes-section"><strong>Notes:</strong> ' . nl2br(htmlspecialchars($assessmentNotes, ENT_QUOTES, 'UTF-8')) . '</div>';
+        }
+        
+        $currentYear = date('Y');
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>CPDO Fee Assessment</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            line-height: 1.5; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #155386 0%, #40798C 100%); 
+            color: white; 
+            padding: 25px 20px; 
+            text-align: center; 
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+        .content { padding: 30px; }
+        .greeting { font-size: 16px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+        
+        /* Receipt Styles */
+        .receipt-container { 
+            border: 2px solid #155386; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0;
+        }
+        .receipt-header { 
+            text-align: center; 
+            border-bottom: 2px solid #155386; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px;
+        }
+        .receipt-header h2 { margin: 0; color: #155386; font-size: 18px; }
+        .receipt-header p { margin: 5px 0; font-size: 12px; color: #666; }
+        .receipt-title { text-align: center; margin: 15px 0; }
+        .receipt-title h3 { margin: 0; text-transform: uppercase; font-size: 14px; }
+        .receipt-details { margin: 20px 0; }
+        .receipt-details table { width: 100%; border-collapse: collapse; }
+        .receipt-details td { padding: 8px; border: none; }
+        .receipt-details td:first-child { font-weight: 600; width: 40%; }
+        .receipt-items { margin: 20px 0; }
+        .receipt-items table { width: 100%; border-collapse: collapse; }
+        .receipt-items th, .receipt-items td { border: 1px solid #dee2e6; padding: 10px; text-align: left; }
+        .receipt-items th { background: #f8f9fa; }
+        .receipt-items td:last-child { text-align: right; }
+        .receipt-total { margin: 20px 0; text-align: right; }
+        .receipt-total table { width: 100%; }
+        .receipt-total td { padding: 8px; }
+        .receipt-total .total-label { font-weight: bold; font-size: 16px; }
+        .receipt-total .total-amount { font-weight: bold; font-size: 18px; color: #155386; }
+        .signature-section { margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 30px; }
+        .signature-line { margin-top: 30px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
+        .signature-box { text-align: center; flex: 1; min-width: 200px; }
+        .signature-box .line { border-top: 1px solid #333; width: 100%; margin: 30px 0 5px; }
+        .signature-box .name { font-weight: bold; margin-top: 10px; }
+        .signature-box .title { font-size: 12px; color: #666; }
+        .signature-box .wet-signature-note { font-size: 10px; color: #dc2626; font-style: italic; margin-top: 5px; }
+        
+        .button-container { text-align: center; margin: 20px 0; }
+        .button { 
+            display: inline-block; 
+            background: #155386; 
+            color: white; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            margin: 0 5px; 
+            font-weight: 600; 
+            font-size: 14px; 
+        }
+        .print-button { background: #6c757d; }
+        .button:hover { opacity: 0.9; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; margin: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+            .receipt-container { border: 1px solid #000; }
+            .signature-box .line { border-top: 1px solid #000; }
+            .button-container, .header { display: none; }
+        }
+        
+        @media (max-width: 600px) {
+            .signature-line { flex-direction: column; gap: 20px; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>Konstructo</h1>
+            <p>Building Permit Application System</p>
+        </div>
+        <div class='content'>
+            <div class='greeting'>{$greeting}</div>
+            
+            <p>The City Planning and Development Office (CPDO) has completed the fee assessment for your building permit application.</p>
+            
+            <!-- Printable Receipt -->
+            <div class='receipt-container' id='printable-receipt'>
+                <div class='receipt-header'>
+                    <h2>CITY GOVERNMENT OF LIGAO</h2>
+                    <p>CITY PLANNING AND DEVELOPMENT OFFICE</p>
+                    <p>CPDO Fee Assessment Receipt</p>
+                </div>
+                
+                <div class='receipt-title'>
+                    <h3>OFFICIAL FEE ASSESSMENT</h3>
+                </div>
+                
+                <div class='receipt-details'>
+                    <table>
+                        <tr><td>Application Number:</td><td><strong>{$escapedApplicationNumber}</strong></td></tr>
+                        <tr><td>Applicant Name:</td><td><strong>{$escapedApplicantName}</strong></td></tr>
+                        <tr><td>Assessment Date:</td><td><strong>{$escapedAssessmentDate}</strong></td></tr>
+                    </table>
+                </div>
+                
+                <div class='receipt-items'>
+                    <h4>Fee Breakdown:</h4>
+                    <table>
+                        <thead><tr><th>Description</th><th>Amount</th></tr></thead>
+                        <tbody>{$feeRows}</tbody>
+                    </table>
+                </div>
+                
+                <div class='receipt-total'>
+                    <table>
+                        <tr><td class='total-label'>TOTAL CPDO FEES:</td><td class='total-amount'>{$formatAmount($totalAmount)}</td></tr>
+                    </table>
+                </div>
+                
+                {$notesHtml}
+                
+                <div class='signature-section'>
+                    <div class='signature-line'>
+                        <div class='signature-box'>
+                            <div class='line'></div>
+                            <div class='name'>ASSESSED BY:</div>
+                            <div class='title'>(Signature over Printed Name)</div>
+                            <div class='wet-signature-note'>* Wet signature required *</div>
+                        </div>
+                        <div class='signature-box'>
+                            <div class='line'></div>
+                            <div class='name'>OSCAR D. AQUINO, EnP</div>
+                            <div class='title'>ACDH I / Acting CPDC</div>
+                            <div class='wet-signature-note'>* Wet signature required *</div>
+                        </div>
                     </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>Great news! The City Planning and Development Office (CPDO) has reviewed and <strong>approved</strong> your application.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='success-badge'>✓ CPDO Approved</span>
-                        </div>
-                        
-                        <div class='info-box'>
-                            <p><strong>Application Number:</strong> {$applicationNumber}</p>
-                            <p><strong>Reviewed by:</strong> {$cpdoName}</p>
-                        </div>
-                        
-                        <div class='next-steps'>
-                            <h4>📋 What Happens Next?</h4>
-                            <ul>
-                                <li>Other departments can now proceed with document verification</li>
-                                <li>You will receive notifications as each department reviews your application</li>
-                                <li>Once all departments have verified, assessment will be completed</li>
-                                <li>You will be notified when your permit is ready for release</li>
-                            </ul>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>View Application Status</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Thank you for your patience throughout the review process.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    <div style='margin-top: 20px; text-align: center; font-size: 11px; color: #666;'>
+                        <p>Assessment Date: {$escapedAssessmentDate} | Assessed by: {$escapedAssessedBy}</p>
                     </div>
                 </div>
-            </body>
-            </html>
-        ";
+            </div>
+            
+            <div class='button-container no-print'>
+                <a href='{$printUrl}' target='_blank' class='button print-button'>🖨️ Print Assessment Receipt</a>
+                <a href='{$appUrl}' class='button'>View Application Details</a>
+            </div>
+            
+            <div class='no-print' style='background: #e6f7e6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;'>
+                <h4 style='margin: 0 0 10px 0; color: #065f46;'>📋 Next Steps:</h4>
+                <ul style='margin: 0; padding-left: 20px;'>
+                    <li>Click the "Print Assessment Receipt" button above to open a printable version</li>
+                    <li>Print the receipt and bring it to the CPDO office for the wet signature</li>
+                    <li>Proceed to payment at the designated cashier</li>
+                </ul>
+            </div>
+            
+            <p style='font-size: 14px; color: #666; text-align: center; margin-top: 20px;'>
+                If you have any questions, please contact the City Planning and Development Office.
+            </p>
+        </div>
+        <div style='padding: 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 12px; color: #666; text-align: center;'>
+            <p>Konstructo — Smart Infrastructure Oversight</p>
+            <p>&copy; {$currentYear} Konstructo. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
     }
 
     /**
@@ -648,7 +934,6 @@ class GmailService
         $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
         $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
         
-        // Format the application number for display with dashes for readability
         $formattedNumber = $applicationNumber;
         if (strlen($applicationNumber) === 10) {
             $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
@@ -656,7 +941,6 @@ class GmailService
                               substr($applicationNumber, 6, 4);
         }
         
-        // Parse the application number to show meaning
         $year = substr($applicationNumber, 0, 2);
         $zipcode = substr($applicationNumber, 2, 4);
         $sequence = substr($applicationNumber, 6, 4);
@@ -751,7 +1035,7 @@ class GmailService
     }
 
     /**
-     * Get assessment email content with fee breakdown - UPDATED to show all fees including additional fees
+     * Get assessment email content with fee breakdown
      */
     private function getAssessmentEmailContent($applicationNumber, $applicantName, $assessmentData, $applicationId)
     {
@@ -763,7 +1047,6 @@ class GmailService
             return '₱' . number_format($amount, 2);
         };
         
-        // Build standard fees section
         $standardFeesHtml = '';
         $standardFees = [
             ['label' => 'Line Grade Fee', 'value' => $assessmentData['line_grade'] ?? null],
@@ -785,10 +1068,8 @@ class GmailService
             }
         }
         
-        // Build additional fees section (dynamic)
         $additionalFeesHtml = '';
         $additionalFees = $assessmentData['additional_fees'] ?? [];
-        
         if (is_string($additionalFees)) {
             $additionalFees = json_decode($additionalFees, true);
         }
@@ -798,7 +1079,6 @@ class GmailService
             foreach ($additionalFees as $fee) {
                 $amount = is_array($fee) ? ($fee['amount'] ?? 0) : 0;
                 $description = is_array($fee) ? ($fee['description'] ?? 'Additional Fee') : 'Additional Fee';
-                
                 if ($amount && $amount > 0) {
                     $hasAdditionalFees = true;
                     $additionalFeesHtml .= '
@@ -810,7 +1090,6 @@ class GmailService
             }
         }
         
-        // Build penalties section
         $penaltiesHtml = '';
         if (($assessmentData['penalties_fines'] ?? 0) > 0) {
             $penaltiesHtml .= '
@@ -832,7 +1111,6 @@ class GmailService
                 </div>';
         }
         
-        // Build complete fee breakdown section
         $feeBreakdownHtml = '';
         if ($hasStandardFees || $hasAdditionalFees || $penaltiesHtml) {
             $feeBreakdownHtml = '<div class="fee-summary" style="background-color: #f8f9fa; border-radius: 12px; padding: 20px; margin: 25px 0; border: 1px solid #e5e7eb;">';
@@ -1246,7 +1524,6 @@ class GmailService
         
         $color = $statusColors[$status] ?? ['bg' => '#6B7280', 'light' => '#F3F4F6'];
         
-        // Additional content for approved status (hard copy submission details)
         $additionalContent = '';
         if ($status === 'approved' && !empty($additionalData)) {
             $submissionDate = $additionalData['hardcopy_submission_date'] ?? null;

@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Assessment Notice -->
+        <!-- Assessment Notice (Building Permit Fee) -->
         <div id="assessment-notice" class="mb-6 p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -550,6 +550,58 @@
             <!-- Right Column -->
             <div class="lg:col-span-1">
                 <div class="sticky top-8 space-y-8">
+                    
+                    <!-- CPDO STATUS AND ASSESSMENT CARD (Combined) -->
+                    <div id="cpdo-card" class="bg-white rounded-2xl shadow-sm border border-orange-200 p-6 animate-fade-in">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-semibold text-gray-800">CPDO Verification</h2>
+                        </div>
+                        
+                        <!-- CPDO Status Display -->
+                        <div id="cpdo-status-display" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">CPDO Status:</span>
+                                <span id="cpdo-status-badge" class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                            </div>
+                            <div id="cpdo-remarks-display" class="mt-2 text-xs text-gray-500 hidden">
+                                <span class="font-medium">Remarks:</span>
+                                <span id="cpdo-remarks-text"></span>
+                            </div>
+                            <div id="cpdo-approved-info" class="mt-2 text-xs text-gray-500 hidden">
+                                <span class="font-medium">Decision made by:</span>
+                                <span id="cpdo-approved-by"></span>
+                                <span class="font-medium ml-2">on:</span>
+                                <span id="cpdo-approved-at"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- CPDO Assessment Details (only shown if approved and assessment exists) -->
+                        <div id="cpdo-assessment-section" class="hidden mt-4 pt-4 border-t border-orange-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-sm font-semibold text-gray-800">CPDO Fee Assessment</h3>
+                            </div>
+                            <div id="cpdo-assessment-details" class="space-y-2">
+                                <div class="text-center py-4 text-gray-500 text-sm">
+                                    <svg class="w-8 h-8 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <p>Loading assessment details...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Current Status Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
@@ -743,6 +795,11 @@
     let currentAssessment = null;
     let currentBfpData = null;
     let currentOwnershipData = null;
+    let currentCPDOAssessment = null;
+    let cpdoStatus = null;
+    let cpdoRemarks = null;
+    let cpdoApprovedBy = null;
+    let cpdoApprovedAt = null;
 
     // Toggle reviewers section
     function toggleReviewersSection() {
@@ -847,6 +904,210 @@
         } catch (error) {
             console.error('Error checking for updates:', error);
         }
+    }
+
+    // Load CPDO data (status and assessment)
+    async function loadCPDOData() {
+        if (!applicationId) return;
+        
+        try {
+            const csrfToken = getCsrfToken();
+            
+            // Load CPDO status
+            const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
+                if (statusData.success && statusData.data) {
+                    cpdoStatus = statusData.data.status || 'pending';
+                    cpdoRemarks = statusData.data.remarks || null;
+                    cpdoApprovedBy = statusData.data.approved_by || null;
+                    cpdoApprovedAt = statusData.data.approved_at || null;
+                    displayCPDOStatus();
+                }
+            }
+            
+            // Load CPDO assessment (only if approved)
+            const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (assessmentResponse.ok) {
+                const assessmentData = await assessmentResponse.json();
+                if (assessmentData.success && assessmentData.data && assessmentData.data.assessment_date) {
+                    currentCPDOAssessment = assessmentData.data;
+                    displayCPDOAssessment();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading CPDO data:', error);
+        }
+    }
+
+    // Display CPDO Status
+    function displayCPDOStatus() {
+        const statusBadge = document.getElementById('cpdo-status-badge');
+        const remarksDisplay = document.getElementById('cpdo-remarks-display');
+        const remarksText = document.getElementById('cpdo-remarks-text');
+        const approvedInfo = document.getElementById('cpdo-approved-info');
+        const approvedByName = document.getElementById('cpdo-approved-by');
+        const approvedAtDate = document.getElementById('cpdo-approved-at');
+        const assessmentSection = document.getElementById('cpdo-assessment-section');
+        
+        if (!statusBadge) return;
+        
+        if (cpdoStatus === 'approved') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
+            statusBadge.textContent = 'Approved';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
+            }
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+            // Show assessment section
+            if (assessmentSection) {
+                assessmentSection.classList.remove('hidden');
+            }
+        } else if (cpdoStatus === 'rejected') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700';
+            statusBadge.textContent = 'Rejected';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
+            }
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+            if (assessmentSection) {
+                assessmentSection.classList.add('hidden');
+            }
+        } else {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700';
+            statusBadge.textContent = 'Pending';
+            remarksDisplay.classList.add('hidden');
+            approvedInfo.classList.add('hidden');
+            if (assessmentSection) {
+                assessmentSection.classList.add('hidden');
+            }
+        }
+    }
+
+    // Display CPDO Assessment
+    function displayCPDOAssessment() {
+        if (!currentCPDOAssessment) return;
+        
+        const assessmentDetails = document.getElementById('cpdo-assessment-details');
+        if (!assessmentDetails) return;
+        
+        let hasFees = false;
+        let html = '<div class="space-y-2">';
+        
+        // Assessment date
+        if (currentCPDOAssessment.assessment_date) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
+        }
+        
+        html += `<div class="border-t border-orange-200 my-2"></div>`;
+        
+        // Zonal/Location Permit Fee section
+        let hasZonalFees = false;
+        if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasZonalFees = true;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasZonalFees = true;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasZonalFees = true;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasZonalFees = true;
+            hasFees = true;
+        }
+        
+        if (hasZonalFees) {
+            html += `<div class="border-t border-orange-100 my-2"></div>`;
+        }
+        
+        // Site/Zoning Certificate
+        if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        
+        // Additional fees
+        if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
+            html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
+            currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
+                if (fee.amount && parseFloat(fee.amount) > 0) {
+                    const description = fee.description || 'Additional Fee';
+                    html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+                    hasFees = true;
+                }
+            });
+        }
+        
+        // Total
+        if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+            html += `
+                <div class="border-t border-orange-200 mt-2 pt-2">
+                    <div class="flex justify-between font-bold">
+                        <span class="text-orange-800">Total CPDO Fees:</span>
+                        <span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                </div>
+            `;
+            hasFees = true;
+        }
+        
+        // Notes
+        if (currentCPDOAssessment.cpdo_assessment_notes) {
+            html += `
+                <div class="mt-3 pt-2 border-t border-orange-200">
+                    <p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p>
+                </div>
+            `;
+        }
+        
+        // Assessed by info
+        if (currentCPDOAssessment.cpdo_assessed_by) {
+            html += `
+                <div class="mt-2 text-xs text-gray-400">
+                    Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        if (!hasFees) {
+            html = '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
+        }
+        
+        assessmentDetails.innerHTML = html;
     }
 
     // Load ownership data
@@ -1251,11 +1512,17 @@
             if (data.success && data.data) {
                 currentApplication = data.data;
                 previousStatus = currentApplication.status;
+                // Also get cpdo_status from the response if available
+                if (currentApplication.cpdo_status) {
+                    cpdoStatus = currentApplication.cpdo_status;
+                    cpdoRemarks = currentApplication.cpdo_remarks || null;
+                }
                 displayApplicationDetails();
                 loadReviewActivities();
                 loadAssessmentData();
                 loadBFPData();
                 loadOwnershipData(); // Load ownership data (Step 1)
+                loadCPDOData(); // Load CPDO status and assessment
                 
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
                     displayDocumentsList(currentApplication.document_links);
@@ -1516,6 +1783,9 @@
                 } else if (reviewer.lastAction === 'bfp_comments_added') {
                     statusText = 'Added Comments';
                     statusClass = 'bg-amber-100 text-amber-600';
+                } else if (reviewer.lastAction === 'cpdo_assessment_saved') {
+                    statusText = 'CPDO Assessment';
+                    statusClass = 'bg-orange-100 text-orange-600';
                 }
             }
             
@@ -1665,6 +1935,10 @@
                 iconColor = 'bg-amber-100';
                 iconTextColor = 'text-amber-600';
                 iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>`;
+            } else if (activity.action === 'cpdo_assessment_saved') {
+                iconColor = 'bg-orange-100';
+                iconTextColor = 'text-orange-600';
+                iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`;
             }
             
             const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
@@ -1683,6 +1957,8 @@
                 actionDisplay = 'FSEC Document Uploaded';
             } else if (activity.action === 'bfp_comments_added') {
                 actionDisplay = 'BFP Comments Added';
+            } else if (activity.action === 'cpdo_assessment_saved') {
+                actionDisplay = 'CPDO Assessment Completed';
             } else {
                 actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             }
@@ -2018,9 +2294,29 @@
         summary += `Email: ${currentApplication.owner_email || 'N/A'}\n\n`;
         
         if (currentAssessment && currentAssessment.total_amount) {
-            summary += `ASSESSMENT FEE\n`;
-            summary += `--------------\n`;
+            summary += `BUILDING PERMIT FEE ASSESSMENT\n`;
+            summary += `-----------------------------\n`;
             summary += `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
+        }
+        
+        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount) {
+            summary += `CPDO FEE ASSESSMENT\n`;
+            summary += `-------------------\n`;
+            summary += `Total CPDO Fees: ₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString()}\n`;
+            if (currentCPDOAssessment.assessment_date) {
+                summary += `Assessment Date: ${currentCPDOAssessment.assessment_date}\n`;
+            }
+            summary += `\n`;
+        }
+        
+        if (cpdoStatus) {
+            summary += `CPDO STATUS\n`;
+            summary += `-----------\n`;
+            summary += `Status: ${cpdoStatus.toUpperCase()}\n`;
+            if (cpdoRemarks) {
+                summary += `Remarks: ${cpdoRemarks}\n`;
+            }
+            summary += `\n`;
         }
         
         summary += `Generated on: ${new Date().toLocaleString()}\n`;

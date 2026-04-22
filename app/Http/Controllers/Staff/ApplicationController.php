@@ -823,6 +823,227 @@ public function index(Request $request)
         }
     }
 
+   /**
+ * Save CPDO assessment fees after approval
+ */
+public function saveCPDOAssessment(Request $request, $id)
+{
+    Log::info('========== SAVE CPDO ASSESSMENT START ==========');
+    Log::info('saveCPDOAssessment called', [
+        'application_id' => $id,
+        'data' => $request->all(),
+        'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+    ]);
+
+    $validator = Validator::make($request->all(), [
+        'assessment_date' => 'required|date',
+        'zonal_location_fee' => 'nullable|numeric|min:0',
+        'palc_fee' => 'nullable|numeric|min:0',
+        'development_permit_fee' => 'nullable|numeric|min:0',
+        'alteration_permit_fee' => 'nullable|numeric|min:0',
+        'site_zoning_certificate_fee' => 'nullable|numeric|min:0',
+        'total_cpdo_amount' => 'nullable|numeric|min:0',
+        'cpdo_assessment_notes' => 'nullable|string',
+        'cpdo_additional_fees' => 'nullable|array'
+    ]);
+
+    if ($validator->fails()) {
+        Log::error('Validation failed', ['errors' => $validator->errors()]);
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
+            Log::error('Application not found', ['id' => $id]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+
+        $staff = auth()->user();
+        $staff->load('profile');
+        $position = $staff->profile ? $staff->profile->position : null;
+        
+        // Only CPDO can save this assessment
+        if ($position !== 'cpdo') {
+            Log::error('Unauthorized: User is not CPDO', ['position' => $position]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Only CPDO staff can save this assessment.'
+            ], 403);
+        }
+
+        // Calculate total
+        $total = ($request->zonal_location_fee ?? 0) +
+                 ($request->palc_fee ?? 0) +
+                 ($request->development_permit_fee ?? 0) +
+                 ($request->alteration_permit_fee ?? 0) +
+                 ($request->site_zoning_certificate_fee ?? 0);
+        
+        // Add additional fees
+        $additionalFeesTotal = 0;
+        $additionalFees = $request->cpdo_additional_fees ?? [];
+        foreach ($additionalFees as $fee) {
+            $additionalFeesTotal += $fee['amount'] ?? 0;
+        }
+        $total += $additionalFeesTotal;
+        
+        // Save CPDO assessment data to application
+        $application->cpdo_assessment_date = $request->assessment_date;
+        $application->cpdo_zonal_location_fee = $request->zonal_location_fee;
+        $application->cpdo_palc_fee = $request->palc_fee;
+        $application->cpdo_development_permit_fee = $request->development_permit_fee;
+        $application->cpdo_alteration_permit_fee = $request->alteration_permit_fee;
+        $application->cpdo_site_zoning_certificate_fee = $request->site_zoning_certificate_fee;
+        $application->cpdo_total_amount = $total;
+        $application->cpdo_assessment_notes = $request->cpdo_assessment_notes;
+        $application->cpdo_additional_fees = json_encode($additionalFees);
+        $application->cpdo_assessed_by = $staff->id;
+        $application->cpdo_assessed_at = now();
+        $application->save();
+        
+        Log::info('CPDO Assessment saved successfully', [
+            'application_id' => $id,
+            'total_amount' => $total
+        ]);
+        
+        // Log the activity
+        $this->logReviewActivity(
+            $application->id,
+            $staff->id,
+            'cpdo_assessment_saved',
+            null,
+            $application->status,
+            "CPDO assessment saved with total fee: ₱" . number_format($total, 2),
+            $request->ip(),
+            $request->userAgent()
+        );
+        
+        // ========== SEND EMAIL NOTIFICATION TO APPLICANT ==========
+        try {
+            // Prepare assessment data for email
+            $assessmentData = [
+                'assessment_date' => $request->assessment_date,
+                'zonal_location_fee' => $request->zonal_location_fee,
+                'palc_fee' => $request->palc_fee,
+                'development_permit_fee' => $request->development_permit_fee,
+                'alteration_permit_fee' => $request->alteration_permit_fee,
+                'site_zoning_certificate_fee' => $request->site_zoning_certificate_fee,
+                'total_cpdo_amount' => $total,
+                'cpdo_assessment_notes' => $request->cpdo_assessment_notes,
+                'cpdo_additional_fees' => $additionalFees,
+                'cpdo_assessed_by' => $staff->first_name . ' ' . $staff->last_name
+            ];
+            
+            $applicantEmail = $application->user->email;
+            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            $applicationNumber = $application->application_number;
+            
+            Log::info('📧 Attempting to send CPDO assessment email to applicant', [
+                'to' => $applicantEmail,
+                'application_number' => $applicationNumber,
+                'total_amount' => $total
+            ]);
+            
+            $emailSent = $this->gmailService->sendCPDOAssessmentEmail(
+                $applicantEmail,
+                $applicantName,
+                $applicationNumber,
+                $assessmentData,
+                $application->id
+            );
+            
+            if ($emailSent) {
+                Log::info('✅ CPDO assessment email sent successfully to ' . $applicantEmail);
+            } else {
+                Log::error('❌ Failed to send CPDO assessment email to ' . $applicantEmail);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('❌ Exception sending CPDO assessment email: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'CPDO assessment saved successfully and applicant notified',
+            'data' => [
+                'total_amount' => $total
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('========== SAVE CPDO ASSESSMENT END (ERROR) ==========');
+        Log::error('Error in saveCPDOAssessment: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving CPDO assessment: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Get CPDO assessment data for an application
+     */
+    public function getCPDOAssessment($id)
+    {
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $additionalFees = [];
+            if ($application->cpdo_additional_fees) {
+                $additionalFees = json_decode($application->cpdo_additional_fees, true) ?: [];
+            }
+            
+            $assessedByName = null;
+            if ($application->cpdo_assessed_by) {
+                $assessor = User::find($application->cpdo_assessed_by);
+                if ($assessor) {
+                    $assessedByName = $assessor->first_name . ' ' . $assessor->last_name;
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'assessment_date' => $application->cpdo_assessment_date,
+                    'zonal_location_fee' => $application->cpdo_zonal_location_fee,
+                    'palc_fee' => $application->cpdo_palc_fee,
+                    'development_permit_fee' => $application->cpdo_development_permit_fee,
+                    'alteration_permit_fee' => $application->cpdo_alteration_permit_fee,
+                    'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee,
+                    'total_cpdo_amount' => $application->cpdo_total_amount,
+                    'cpdo_assessment_notes' => $application->cpdo_assessment_notes,
+                    'cpdo_additional_fees' => $additionalFees,
+                    'cpdo_assessed_by' => $assessedByName,
+                    'cpdo_assessed_at' => $application->cpdo_assessed_at
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error getting CPDO assessment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving CPDO assessment'
+            ], 500);
+        }
+    }
+
     /**
      * Get review activities for an application - FIXED to remove duplicates
      */
@@ -964,6 +1185,9 @@ public function index(Request $request)
                 break;
             case 'cpdo_rejected':
                 $actionText = 'CPDO Rejected';
+                break;
+            case 'cpdo_assessment_saved':
+                $actionText = 'CPDO Assessment Saved';
                 break;
             default:
                 $actionText = ucfirst(str_replace('_', ' ', $activity->action));
@@ -2733,4 +2957,5 @@ public function index(Request $request)
             ], 500);
         }
     }
+   
 }

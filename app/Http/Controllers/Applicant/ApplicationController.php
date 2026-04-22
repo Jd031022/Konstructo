@@ -1272,4 +1272,56 @@ public function getOwnershipData($id)
         ], 500);
     }
 }
+/**
+ * Print CPDO Assessment (standalone printable page)
+ */
+public function printCPDOAssessment($id)
+{
+    try {
+        $user = Auth::user();
+        
+        $application = ApplicationDocument::with('user')
+            ->where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+        
+        if (!$application) {
+            abort(404, 'Application not found');
+        }
+        
+        // Get CPDO assessment data
+        $assessmentData = [
+            'assessment_date' => $application->cpdo_assessment_date,
+            'zonal_location_fee' => $application->cpdo_zonal_location_fee,
+            'palc_fee' => $application->cpdo_palc_fee,
+            'development_permit_fee' => $application->cpdo_development_permit_fee,
+            'alteration_permit_fee' => $application->cpdo_alteration_permit_fee,
+            'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee,
+            'total_cpdo_amount' => $application->cpdo_total_amount,
+            'cpdo_assessment_notes' => $application->cpdo_assessment_notes,
+            'cpdo_additional_fees' => json_decode($application->cpdo_additional_fees, true) ?? [],
+            'cpdo_assessed_by' => $application->cpdo_assessed_by ? 
+                (\App\Models\User::find($application->cpdo_assessed_by)?->first_name . ' ' . \App\Models\User::find($application->cpdo_assessed_by)?->last_name) : 
+                'CPDO Staff'
+        ];
+        
+        $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+        
+        $formatAmount = function($amount) {
+            if (!$amount || $amount == 0) return '₱0.00';
+            return '₱' . number_format($amount, 2);
+        };
+        
+        return view('applicant.print-cpdo-receipt', [
+            'application' => $application,
+            'applicantName' => $applicantName,
+            'assessmentData' => $assessmentData,
+            'formatAmount' => $formatAmount
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error printing CPDO assessment: ' . $e->getMessage());
+        abort(500, 'Unable to print assessment');
+    }
+}
 }
