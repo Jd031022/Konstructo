@@ -121,31 +121,38 @@
             console.log('Application storage cleared');
         }
 
-        // Check for logout flag from server
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
+        // Check for pending surveys (only for applicants)
+        @auth
+            @if(auth()->user()->role === 'applicant')
+                setTimeout(checkPendingSurveys, 3000); // Delay to ensure everything is loaded
+            @endif
+        @endauth
+
+        // Function to check for pending surveys
+        async function checkPendingSurveys() {
+            try {
+                const response = await fetch('/applicant/survey/pending', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
+                        // Show survey modal for the first pending survey
+                        const firstSurvey = data.pending_surveys[0];
+                        if (window.showSurveyModal) {
+                            window.showSurveyModal(firstSurvey.id, firstSurvey.service_availed);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking pending surveys:', error);
             }
-            
-            // Check for clear_storage flag from server - using Laravel's json directive
-            let shouldClearStorage = {{ session('clear_storage') ? 'true' : 'false' }};
-            
-            if (shouldClearStorage) {
-                clearApplicationStorage();
-                console.log('Storage cleared on logout (session flash)');
-            }
-            
-            // Check for clear_storage in URL parameter (optional)
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('clear_storage') === 'true') {
-                clearApplicationStorage();
-                // Remove the parameter from URL without refreshing
-                const url = new URL(window.location);
-                url.searchParams.delete('clear_storage');
-                window.history.replaceState({}, '', url);
-            }
-        });
+        }
 
         // Listen for logout events from AJAX requests
         window.addEventListener('user-logout', function() {
@@ -196,6 +203,8 @@
             }
         };
     </script>
+    
+    @include('partials.survey-modal')
     
     @stack('scripts')
 </body>

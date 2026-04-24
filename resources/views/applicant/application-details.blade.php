@@ -849,6 +849,7 @@
         if (applicationId && !isNaN(applicationId)) {
             loadApplicationDetails();
             startRealTimeUpdates();
+            checkPendingSurveys();
         } else {
             showError();
         }
@@ -2378,6 +2379,34 @@
     function closeSuccessModal() {
         document.getElementById('success-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+    }
+
+    // Check for pending surveys
+    async function checkPendingSurveys() {
+        try {
+            const response = await fetch('/applicant/survey/pending', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
+                    // Show survey modal for the first pending survey
+                    const firstSurvey = data.pending_surveys[0];
+                    setTimeout(() => {
+                        if (window.showSurveyModal) {
+                            window.showSurveyModal(firstSurvey.id, firstSurvey.service_availed);
+                        }
+                    }, 2000); // Delay to ensure modal is loaded
+                }
+            }
+        } catch (error) {
+            console.error('Error checking pending surveys:', error);
+        }
     }
 
     function setupModals() {

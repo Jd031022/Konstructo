@@ -212,6 +212,16 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/applications/{id}/review-activities', [ApplicationController::class, 'getReviewActivities'])->name('applications.review-activities');
     Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
     
+    // Survey routes
+    Route::post('/survey/submit', [ApplicationController::class, 'submitSurvey'])->name('survey.submit');
+    Route::get('/survey/pending', [ApplicationController::class, 'checkPendingSurvey'])->name('survey.pending');
+    Route::get('/survey/page1', function () {
+        return redirect()->route('applicant.dashboard');
+    })->name('survey.page1');
+    Route::get('/survey/page2', function () {
+        return redirect()->route('applicant.dashboard');
+    })->name('survey.page2');
+    
     // ========== APPLICATION DOCUMENT ROUTES ==========
     Route::post('/application/store-link', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLink'])->name('application.store-link');
     Route::post('/application/store-links', [App\Http\Controllers\ApplicationDocumentController::class, 'storeLinks'])->name('application.store-links');

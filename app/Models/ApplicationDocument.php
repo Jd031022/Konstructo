@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ApplicationDocument extends Model
 {
@@ -174,6 +175,14 @@ class ApplicationDocument extends Model
     public function assessmentFee()
     {
         return $this->hasOne(AssessmentFee::class, 'application_id');
+    }
+
+    /**
+     * Get the client satisfaction surveys for this application
+     */
+    public function clientSatisfactionSurveys()
+    {
+        return $this->hasMany(ClientSatisfactionSurvey::class, 'application_id');
     }
 
     /**

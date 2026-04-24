@@ -10,6 +10,7 @@ use App\Models\AssessmentFee;
 use App\Models\BfpApplicationData;
 use App\Models\ActivityLog;
 use App\Models\OwnershipVerification;
+use App\Models\ClientSatisfactionSurvey;
 use App\Services\NotificationService;
 use App\Services\GmailService;
 use Illuminate\Http\Request;
@@ -1524,6 +1525,28 @@ public function saveCPDOAssessment(Request $request, $id)
 
             Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
             
+            // Check if survey should be triggered
+            $showSurvey = false;
+            if ($statusChanged && $newStatus === 'verified') {
+                // Check if user has already completed the survey for this application
+                $existingSurvey = ClientSatisfactionSurvey::where('application_id', $application->id)
+                    ->where('user_id', $application->user_id)
+                    ->exists();
+                
+                if (!$existingSurvey) {
+                    $showSurvey = true;
+                    Log::info('Survey will be triggered for completed application', [
+                        'application_id' => $application->id,
+                        'user_id' => $application->user_id
+                    ]);
+                } else {
+                    Log::info('Survey already completed for this application, skipping', [
+                        'application_id' => $application->id,
+                        'user_id' => $application->user_id
+                    ]);
+                }
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Application status updated successfully',
@@ -1536,7 +1559,8 @@ public function saveCPDOAssessment(Request $request, $id)
                     'hardcopy_submission_date' => $application->hardcopy_submission_date,
                     'hardcopy_instructions' => $application->hardcopy_instructions,
                     'is_archived' => $application->is_archived,
-                    'was_auto_archived' => $wasAutoArchived
+                    'was_auto_archived' => $wasAutoArchived,
+                    'show_survey' => $showSurvey
                 ]
             ]);
             

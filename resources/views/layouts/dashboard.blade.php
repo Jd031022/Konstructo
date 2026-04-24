@@ -363,6 +363,37 @@
         });
     </script>
 
+    @include('partials.survey-modal')
+
+    <script>
+        // Check for pending surveys on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            @auth
+                // Only check for surveys if user is authenticated
+                try {
+                    const response = await fetch('/applicant/survey/pending', {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
+                            // Show survey modal for the first pending application
+                            const firstPending = data.pending_surveys[0];
+                            window.showSurveyModal(firstPending.id, firstPending.service_availed || '');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking for pending surveys:', error);
+                }
+            @endauth
+        });
+    </script>
+
     @stack('scripts')
 </body>
 </html>
