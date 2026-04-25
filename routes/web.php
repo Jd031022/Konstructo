@@ -119,6 +119,11 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/{id}/ownership', [App\Http\Controllers\Staff\ApplicationController::class, 'getOwnershipData'])->name('applications.ownership');
     Route::post('/applications/{id}/verify-ownership-document', [App\Http\Controllers\Staff\ApplicationController::class, 'verifyOwnershipDocument'])->name('applications.verify-ownership-document');
     
+    // ========== SURVEY ROUTES ==========
+    Route::get('/surveys', function () { return view('staff.surveys'); })->name('surveys');
+    Route::get('/surveys/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getSurveys'])->name('surveys.data');
+Route::get('/surveys/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportSurveys'])->name('surveys.export');
+    
     // ========== ARCHIVE ROUTES ==========
     Route::get('/archived-applications', function () { return view('staff.archived-applications'); })->name('archived-applications');
     Route::get('/archived-applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getArchivedApplications'])->name('archived-applications.data');
@@ -227,7 +232,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     
     // Survey routes
     Route::post('/survey/submit', [ApplicationController::class, 'submitSurvey'])->name('survey.submit');
-    Route::get('/survey/pending', [ApplicationController::class, 'checkPendingSurvey'])->name('survey.pending');
+    Route::get('/survey/pending', [ApplicationController::class, 'getPendingSurveys'])->name('survey.pending');
     Route::get('/survey/page1', function () {
         return redirect()->route('applicant.dashboard');
     })->name('survey.page1');

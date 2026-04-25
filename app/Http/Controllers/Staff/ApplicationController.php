@@ -2982,4 +2982,766 @@ public function saveCPDOAssessment(Request $request, $id)
         }
     }
    
+    /**
+ * Get all submitted client satisfaction surveys
+ */
+public function getSurveys(Request $request)
+{
+    try {
+        $query = ClientSatisfactionSurvey::with(['user', 'application']);
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($userQuery) use ($search) {
+                    $userQuery->where('first_name', 'LIKE', "%{$search}%")
+                              ->orWhere('last_name', 'LIKE', "%{$search}%")
+                              ->orWhere('email', 'LIKE', "%{$search}%");
+                })
+                  ->orWhereHas('application', function($appQuery) use ($search) {
+                      $appQuery->where('application_number', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->date_from . ' 00:00:00');
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+        }
+
+        if ($request->filled('client_type')) {
+            $query->where('client_type', $request->client_type);
+        }
+
+        if ($request->filled('sex')) {
+            $query->where('sex', $request->sex);
+        }
+
+        // Get period for trend data
+        $period = $request->get('period', 'this_month');
+        
+        // Calculate statistics
+        $stats = $this->calculateSurveyStatistics($query, $period);
+        
+        // Get paginated results
+        $perPage = $request->get('per_page', 15);
+        $surveys = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        $formattedSurveys = $surveys->getCollection()->map(function($survey) {
+            return [
+                'id' => $survey->id,
+                'application_number' => $survey->application ? $survey->application->application_number : 'N/A',
+                'applicant_name' => $survey->user ? $survey->user->first_name . ' ' . $survey->user->last_name : 'Unknown',
+                'email' => $survey->user ? $survey->user->email : null,
+                'client_type' => $survey->client_type,
+                'sex' => $survey->sex,
+                'age' => $survey->age,
+                'survey_date' => $survey->survey_date,
+                'cc1_awareness' => $survey->cc1_awareness,
+                'cc2_helpfulness' => $survey->cc2_helpfulness,
+                'cc3_help_level' => $survey->cc3_help_level,
+                'sqd0_satisfied' => $survey->sqd0_satisfied,
+                'sqd1_reasonable_time' => $survey->sqd1_reasonable_time,
+                'sqd2_requirements_followed' => $survey->sqd2_requirements_followed,
+                'sqd3_steps_easy' => $survey->sqd3_steps_easy,
+                'sqd4_info_easy_find' => $survey->sqd4_info_easy_find,
+                'sqd5_reasonable_fees' => $survey->sqd5_reasonable_fees,
+                'sqd6_fair_treatment' => $survey->sqd6_fair_treatment,
+                'sqd7_courteous_staff' => $survey->sqd7_courteous_staff,
+                'sqd8_got_what_needed' => $survey->sqd8_got_what_needed,
+                'suggestions' => $survey->suggestions,
+                'email_contact' => $survey->email,
+                'created_at' => $survey->created_at
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats,
+            'surveys' => $formattedSurveys,
+            'pagination' => [
+                'current_page' => $surveys->currentPage(),
+                'last_page' => $surveys->lastPage(),
+                'per_page' => $surveys->perPage(),
+                'total' => $surveys->total(),
+                'from' => $surveys->firstItem(),
+                'to' => $surveys->lastItem()
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error fetching surveys: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch surveys: ' . $e->getMessage()
+        ], 500);
+    }
 }
+
+/**
+ * Calculate survey statistics for charts
+ */
+private function calculateSurveyStatistics($query, $period = 'this_month')
+{
+    try {
+        // Get all surveys for stats (without pagination)
+        $allSurveys = clone $query;
+        $surveys = $allSurveys->get();
+        
+        $total = $surveys->count();
+        
+        // Calculate average rating from SQD questions
+        $allRatings = [];
+        $ratingDistribution = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+        $sqdSums = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        $sqdCounts = 0;
+        
+        foreach ($surveys as $survey) {
+            $ratings = [];
+            for ($i = 0; $i <= 8; $i++) {
+                $sqdField = 'sqd' . $i . '_satisfied';
+                if ($i == 0) $sqdField = 'sqd0_satisfied';
+                elseif ($i == 1) $sqdField = 'sqd1_reasonable_time';
+                elseif ($i == 2) $sqdField = 'sqd2_requirements_followed';
+                elseif ($i == 3) $sqdField = 'sqd3_steps_easy';
+                elseif ($i == 4) $sqdField = 'sqd4_info_easy_find';
+                elseif ($i == 5) $sqdField = 'sqd5_reasonable_fees';
+                elseif ($i == 6) $sqdField = 'sqd6_fair_treatment';
+                elseif ($i == 7) $sqdField = 'sqd7_courteous_staff';
+                elseif ($i == 8) $sqdField = 'sqd8_got_what_needed';
+                
+                $value = $survey->$sqdField;
+                if ($value && is_numeric($value)) {
+                    $ratings[] = (int)$value;
+                    $sqdSums[$i] += (int)$value;
+                }
+            }
+            
+            $sqdCounts++;
+            $avgRating = count($ratings) > 0 ? array_sum($ratings) / count($ratings) : 0;
+            $allRatings[] = $avgRating;
+            
+            // Round to nearest integer for distribution
+            $roundedRating = round($avgRating);
+            if ($roundedRating >= 1 && $roundedRating <= 5) {
+                $ratingDistribution[$roundedRating]++;
+            }
+        }
+        
+        $avgOverallRating = count($allRatings) > 0 ? array_sum($allRatings) / count($allRatings) : 0;
+        $highestRating = count($allRatings) > 0 ? max($allRatings) : 0;
+        $lowestRating = count($allRatings) > 0 ? min($allRatings) : 0;
+        
+        // Calculate response rate (surveys vs total applications)
+        $totalApplications = ApplicationDocument::whereIn('status', ['verified', 'completed'])->count();
+        $responseRate = $totalApplications > 0 ? ($total / $totalApplications) * 100 : 0;
+        
+        // Get client type distribution
+        $clientTypes = [
+            'citizen' => $surveys->where('client_type', 'citizen')->count(),
+            'business' => $surveys->where('client_type', 'business')->count(),
+            'government' => $surveys->where('client_type', 'government')->count()
+        ];
+        
+        // Calculate SQD averages
+        $sqdScores = [];
+        for ($i = 0; $i < 9; $i++) {
+            $sqdScores[] = $sqdCounts > 0 ? round($sqdSums[$i] / $sqdCounts, 1) : 0;
+        }
+        
+        // Get trend data based on period
+        $trendData = $this->getTrendData($period);
+        
+        // Get this month count
+        $thisMonthCount = (clone $query)->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+        
+        return [
+            'total' => $total,
+            'avg_rating' => round($avgOverallRating, 1),
+            'highest_rating' => round($highestRating, 1),
+            'lowest_rating' => round($lowestRating, 1),
+            'response_rate' => round($responseRate, 1),
+            'this_month' => $thisMonthCount,
+            'trend_labels' => $trendData['labels'],
+            'trend_values' => $trendData['values'],
+            'rating_distribution' => $ratingDistribution,
+            'client_types' => $clientTypes,
+            'sqd_scores' => $sqdScores
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error('Error calculating survey statistics: ' . $e->getMessage());
+        return [
+            'total' => 0,
+            'avg_rating' => 0,
+            'highest_rating' => 0,
+            'lowest_rating' => 0,
+            'response_rate' => 0,
+            'this_month' => 0,
+            'trend_labels' => ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            'trend_values' => [0, 0, 0, 0],
+            'rating_distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
+            'client_types' => ['citizen' => 0, 'business' => 0, 'government' => 0],
+            'sqd_scores' => [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+    }
+}
+
+/**
+ * Get trend data based on period
+ */
+private function getTrendData($period)
+{
+    $query = ClientSatisfactionSurvey::query();
+    
+    switch ($period) {
+        case 'this_month':
+            // Get weekly data for current month
+            $weeks = [];
+            $values = [];
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
+            
+            for ($week = 1; $week <= 4; $week++) {
+                $startDate = now()->setMonth($currentMonth)->setYear($currentYear)->startOfMonth()->addWeeks($week - 1);
+                $endDate = (clone $startDate)->addDays(6);
+                
+                if ($week == 4) {
+                    $endDate = now()->setMonth($currentMonth)->setYear($currentYear)->endOfMonth();
+                }
+                
+                $count = ClientSatisfactionSurvey::whereBetween('created_at', [$startDate, $endDate])->count();
+                $avgRating = $this->getAverageRatingForPeriod($startDate, $endDate);
+                
+                $weeks[] = "Week {$week}";
+                $values[] = round($avgRating, 1);
+            }
+            return ['labels' => $weeks, 'values' => $values];
+            
+        case 'last_month':
+            // Get weekly data for last month
+            $lastMonth = now()->subMonth();
+            $weeks = [];
+            $values = [];
+            
+            for ($week = 1; $week <= 4; $week++) {
+                $startDate = $lastMonth->copy()->startOfMonth()->addWeeks($week - 1);
+                $endDate = (clone $startDate)->addDays(6);
+                
+                if ($week == 4) {
+                    $endDate = $lastMonth->copy()->endOfMonth();
+                }
+                
+                $avgRating = $this->getAverageRatingForPeriod($startDate, $endDate);
+                $weeks[] = "Week {$week}";
+                $values[] = round($avgRating, 1);
+            }
+            return ['labels' => $weeks, 'values' => $values];
+            
+        case 'this_year':
+        default:
+            // Get monthly data for current year
+            $months = [];
+            $values = [];
+            
+            for ($month = 1; $month <= 12; $month++) {
+                $startDate = now()->setMonth($month)->startOfMonth();
+                $endDate = now()->setMonth($month)->endOfMonth();
+                $avgRating = $this->getAverageRatingForPeriod($startDate, $endDate);
+                
+                $months[] = date('M', mktime(0, 0, 0, $month, 1));
+                $values[] = round($avgRating, 1);
+            }
+            return ['labels' => $months, 'values' => $values];
+    }
+}
+
+/**
+ * Get average rating for a date period
+ */
+private function getAverageRatingForPeriod($startDate, $endDate)
+{
+    $surveys = ClientSatisfactionSurvey::whereBetween('created_at', [$startDate, $endDate])->get();
+    
+    if ($surveys->isEmpty()) {
+        return 0;
+    }
+    
+    $allRatings = [];
+    foreach ($surveys as $survey) {
+        $ratings = [];
+        for ($i = 0; $i <= 8; $i++) {
+            $sqdField = $this->getSqdFieldName($i);
+            $value = $survey->$sqdField;
+            if ($value && is_numeric($value)) {
+                $ratings[] = (int)$value;
+            }
+        }
+        if (count($ratings) > 0) {
+            $allRatings[] = array_sum($ratings) / count($ratings);
+        }
+    }
+    
+    return count($allRatings) > 0 ? array_sum($allRatings) / count($allRatings) : 0;
+}
+
+/**
+ * Get SQD field name by index
+ */
+private function getSqdFieldName($index)
+{
+    $fields = [
+        0 => 'sqd0_satisfied',
+        1 => 'sqd1_reasonable_time',
+        2 => 'sqd2_requirements_followed',
+        3 => 'sqd3_steps_easy',
+        4 => 'sqd4_info_easy_find',
+        5 => 'sqd5_reasonable_fees',
+        6 => 'sqd6_fair_treatment',
+        7 => 'sqd7_courteous_staff',
+        8 => 'sqd8_got_what_needed'
+    ];
+    return $fields[$index];
+}
+
+    /**
+     * Export surveys to CSV
+     */
+    public function exportSurveys(Request $request)
+    {
+        try {
+            $query = ClientSatisfactionSurvey::with(['user', 'application']);
+
+            // Apply filters if provided
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('user', function($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'LIKE', "%{$search}%")
+                                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                                  ->orWhere('email', 'LIKE', "%{$search}%");
+                    })
+                      ->orWhereHas('application', function($appQuery) use ($search) {
+                          $appQuery->where('application_number', 'LIKE', "%{$search}%");
+                      });
+                });
+            }
+
+            if ($request->filled('date_from')) {
+                $query->where('created_at', '>=', $request->date_from . ' 00:00:00');
+            }
+
+            if ($request->filled('date_to')) {
+                $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+            }
+
+            if ($request->filled('client_type')) {
+                $query->where('client_type', $request->client_type);
+            }
+
+            if ($request->filled('sex')) {
+                $query->where('sex', $request->sex);
+            }
+
+            $surveys = $query->orderBy('created_at', 'desc')->get();
+
+            $filename = 'client_satisfaction_surveys_' . date('Y-m-d') . '.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function() use ($surveys) {
+                $handle = fopen('php://output', 'w');
+
+                // Write headers
+                fputcsv($handle, [
+                    'Application Number',
+                    'Applicant Name',
+                    'Email',
+                    'Client Type',
+                    'Sex',
+                    'Age',
+                    'Survey Date',
+                    'CC1 Awareness',
+                    'CC2 Helpfulness',
+                    'CC3 Help Level',
+                    'SQD0 Satisfied',
+                    'SQD1 Reasonable Time',
+                    'SQD2 Requirements Followed',
+                    'SQD3 Steps Easy',
+                    'SQD4 Info Easy Find',
+                    'SQD5 Reasonable Fees',
+                    'SQD6 Fair Treatment',
+                    'SQD7 Courteous Staff',
+                    'SQD8 Got What Needed',
+                    'Suggestions',
+                    'Contact Email',
+                    'Submitted At'
+                ]);
+
+                foreach ($surveys as $survey) {
+                    fputcsv($handle, [
+                        $survey->application ? $survey->application->application_number : 'N/A',
+                        $survey->user ? $survey->user->first_name . ' ' . $survey->user->last_name : 'Unknown',
+                        $survey->user ? $survey->user->email : '',
+                        $survey->client_type,
+                        $survey->sex,
+                        $survey->age,
+                        $survey->survey_date,
+                        $survey->cc1_awareness,
+                        $survey->cc2_helpfulness,
+                        $survey->cc3_help_level,
+                        $survey->sqd0_satisfied,
+                        $survey->sqd1_reasonable_time,
+                        $survey->sqd2_requirements_followed,
+                        $survey->sqd3_steps_easy,
+                        $survey->sqd4_info_easy_find,
+                        $survey->sqd5_reasonable_fees,
+                        $survey->sqd6_fair_treatment,
+                        $survey->sqd7_courteous_staff,
+                        $survey->sqd8_got_what_needed,
+                        $survey->suggestions,
+                        $survey->email,
+                        $survey->created_at ? $survey->created_at->format('Y-m-d H:i:s') : ''
+                    ]);
+                }
+
+                fclose($handle);
+            };
+
+            return response()->streamDownload($callback, $filename, $headers);
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting surveys: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting surveys: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate Dashboard PDF HTML content
+     */
+    private function generateDashboardPDFHTML($stats, $trendData, $recentActivities, $deadlines)
+    {
+        $total = $stats['total'];
+        $pending = $stats['pending'];
+        $underReview = $stats['under_review'];
+        $approved = $stats['approved'];
+        $forRelease = $stats['for_release'];
+        $verified = $stats['verified'];
+        $rejected = $stats['rejected'];
+        $completionRate = $stats['completion_rate'];
+        $trendChange = $stats['trend_change'] ?? 0;
+        $avgProcessingTime = $stats['avg_processing_time'] ?? 0;
+        $pendingAging = $stats['pending_aging'] ?? 0;
+        
+        $statusColors = [
+            'pending' => '#F59E0B',
+            'under-review' => '#8B5CF6',
+            'approved' => '#10B981',
+            'rejected' => '#EF4444',
+            'for-release' => '#3B82F6',
+            'verified' => '#22C55E'
+        ];
+        
+        $maxTrendValue = !empty($trendData) ? max(array_column($trendData, 'count')) : 1;
+        $totalTrend = array_sum(array_column($trendData, 'count'));
+        $avgTrend = !empty($trendData) ? round($totalTrend / count($trendData)) : 0;
+        
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Konstructo Dashboard Export - ' . date('Y-m-d H:i:s') . '</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: "Poppins", -apple-system, Arial, sans-serif; background: #f0f2f5; padding: 30px 20px; color: #1a1a2e; }
+                .container { max-width: 1300px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 5px 25px rgba(0,0,0,0.08); }
+                .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
+                .header h1 { color: #155386; font-size: 28px; font-weight: 600; }
+                .header-date { color: #6c757d; font-size: 14px; }
+                .print-btn { background: #155386; color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: "Poppins", sans-serif; font-weight: 500; }
+                .print-btn:hover { background: #1F363D; }
+                .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+                .stat-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+                .stat-label { font-size: 13px; color: #6c757d; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+                .stat-value { font-size: 32px; font-weight: 700; color: #155386; }
+                .stat-trend { font-size: 12px; margin-top: 8px; color: #10b981; font-weight: 500; }
+                .stat-trend.negative { color: #ef4444; }
+                .section { margin-bottom: 30px; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; }
+                .section-header { background: linear-gradient(135deg, #155386 0%, #1F363D 100%); padding: 15px 20px; color: white; font-weight: 600; font-size: 16px; }
+                .section-content { padding: 20px; }
+                .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+                .chart-container { display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding: 20px 0; min-height: 280px; width: 100%; }
+                .chart-bar-wrapper { flex: 1; text-align: center; min-width: 35px; max-width: 60px; }
+                .chart-bar { background: linear-gradient(180deg, #155386 0%, #40798C 100%); border-radius: 8px 8px 4px 4px; margin: 0 auto; width: 100%; max-width: 45px; transition: height 0.3s ease; }
+                .chart-label { font-size: 9px; color: #6c757d; margin-top: 8px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .chart-value { font-size: 10px; font-weight: 600; color: #155386; margin-top: 4px; }
+                .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e9ecef; }
+                th { background: #f8f9fa; font-weight: 600; font-size: 12px; color: #495057; text-transform: uppercase; letter-spacing: 0.5px; }
+                td { font-size: 13px; font-weight: 400; }
+                tr:hover { background: #f8f9fa; }
+                .summary-stats { display: flex; justify-content: space-around; background: #f8f9fa; border-radius: 12px; padding: 15px; margin-top: 20px; text-align: center; flex-wrap: wrap; gap: 15px; }
+                .summary-stats div { font-size: 13px; font-weight: 500; }
+                .summary-stats strong { font-weight: 700; color: #155386; }
+                .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 11px; border-top: 1px solid #e9ecef; margin-top: 20px; }
+                .progress-bar-container { width: 100%; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+                .progress-bar-fill { background: linear-gradient(90deg, #155386 0%, #40798C 100%); height: 6px; border-radius: 10px; transition: width 0.3s ease; }
+                
+                @media print {
+                    body { background: white; padding: 0; margin: 0; }
+                    .container { box-shadow: none; padding: 15px; max-width: 100%; border-radius: 0; }
+                    .print-btn { display: none; }
+                    .section-header { background: #155386 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                    .chart-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                    .stats-grid { gap: 12px; }
+                    .stat-card { padding: 12px; }
+                    .stat-value { font-size: 24px; }
+                    .section { page-break-inside: avoid; break-inside: avoid; }
+                    .stats-grid { page-break-inside: avoid; break-inside: avoid; }
+                }
+                
+                @media (max-width: 768px) {
+                    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+                    .two-columns { grid-template-columns: 1fr; gap: 20px; }
+                    .chart-container { overflow-x: auto; justify-content: flex-start; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div>
+                        <h1>Konstructo Dashboard Export</h1>
+                        <div class="header-date">Generated: ' . date('F d, Y g:i:s A') . '</div>
+                    </div>
+                    <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Applications</div>
+                        <div class="stat-value">' . number_format($total) . '</div>
+                        <div class="stat-trend ' . ($trendChange >= 0 ? '' : 'negative') . '">' . ($trendChange >= 0 ? '↑' : '↓') . ' ' . abs($trendChange) . '% from last month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Review</div>
+                        <div class="stat-value">' . number_format($pending) . '</div>
+                        <div class="stat-trend">⏰ ' . $pendingAging . ' pending over 7 days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value">' . number_format($verified) . '</div>
+                        <div class="stat-trend">✓ ' . $completionRate . '% completion rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Processing Time</div>
+                        <div class="stat-value">' . $avgProcessingTime . ' days</div>
+                        <div class="stat-trend">Average time to complete</div>
+                    </div>
+                </div>
+                
+                <div class="two-columns">
+                    <!-- Application Trend Chart -->
+                    <div class="section">
+                        <div class="section-header">Application Trend (Last 30 Days)</div>
+                        <div class="section-content">
+                            <div class="chart-container">';
+        
+        foreach ($trendData as $item) {
+            $height = $maxTrendValue > 0 ? ($item['count'] / $maxTrendValue) * 180 : 20;
+            $height = max($height, 25);
+            $html .= '
+                                <div class="chart-bar-wrapper">
+                                    <div class="chart-bar" style="height: ' . $height . 'px;"></div>
+                                    <div class="chart-label">' . $item['label'] . '</div>
+                                    <div class="chart-value">' . $item['count'] . '</div>
+                                </div>';
+        }
+        
+        $html .= '
+                            </div>
+                            <div class="summary-stats">
+                                <div><strong>Total:</strong> ' . number_format($totalTrend) . '</div>
+                                <div><strong>Average:</strong> ' . number_format($avgTrend) . '</div>
+                                <div><strong>Peak:</strong> ' . number_format($maxTrendValue) . '</div>
+                                <div><strong>Period:</strong> 30 days</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Distribution -->
+                    <div class="section">
+                        <div class="section-header">Application Status</div>
+                        <div class="section-content">
+                            <table>
+                                <thead>
+                                    <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+                                </thead>
+                                <tbody>';
+        
+        $statusList = [
+            ['key' => 'pending', 'label' => 'Pending', 'count' => $pending],
+            ['key' => 'under-review', 'label' => 'Under Review', 'count' => $underReview],
+            ['key' => 'approved', 'label' => 'Approved', 'count' => $approved],
+            ['key' => 'for-release', 'label' => 'For Release', 'count' => $forRelease],
+            ['key' => 'verified', 'label' => 'Completed', 'count' => $verified],
+            ['key' => 'rejected', 'label' => 'Rejected', 'count' => $rejected],
+        ];
+        
+        foreach ($statusList as $status) {
+            $count = $status['count'];
+            $percent = $total > 0 ? round(($count / $total) * 100, 1) : 0;
+            $color = $statusColors[$status['key']] ?? '#6c757d';
+            $html .= '<tr>
+                                <td><span class="status-badge" style="background:' . $color . '20; color:' . $color . ';">' . $status['label'] . '</span></td>
+                                <td>' . number_format($count) . '</span></td>
+                                <td>' . $percent . '%</span></td>
+                              </tr>';
+        }
+        
+        $html .= '
+                                </tbody>
+                            </table>
+                            <div class="progress-bar-container" style="margin-top: 15px;">
+                                <div class="progress-bar-fill" style="width: ' . $completionRate . '%;"></div>
+                            </div>
+                            <div class="summary-stats" style="margin-top: 10px;">
+                                <div><strong>Completion Rate:</strong> ' . $completionRate . '%</div>
+                                <div><strong>In Progress:</strong> ' . number_format($pending + $underReview) . '</div>
+                                <div><strong>Completed:</strong> ' . number_format($verified + $approved + $forRelease) . '</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activities -->
+                <div class="section">
+                    <div class="section-header">Recent Activities</div>
+                    <div class="section-content">
+                        <table>
+                            <thead>
+                                <tr><th>Date & Time</th><th>Action</th><th>Reviewer</th><th>Remarks</th></tr>
+                            </thead>
+                            <tbody>';
+        
+        foreach ($recentActivities as $activity) {
+            $actionDisplay = $activity->action_display ?? $activity->action ?? 'Activity';
+            $actionLower = strtolower($actionDisplay);
+            
+            $badgeColor = '#6c757d';
+            if (strpos($actionLower, 'approve') !== false) $badgeColor = '#10b981';
+            elseif (strpos($actionLower, 'reject') !== false) $badgeColor = '#ef4444';
+            elseif (strpos($actionLower, 'pending') !== false) $badgeColor = '#f59e0b';
+            elseif (strpos($actionLower, 'review') !== false) $badgeColor = '#8b5cf6';
+            
+            $html .= '<tr>
+                                <td>' . ($activity->created_at ? $activity->created_at->format('Y-m-d H:i') : '') . '</span></td>
+                                <td><span class="status-badge" style="background:' . $badgeColor . '20; color:' . $badgeColor . ';">' . htmlspecialchars($actionDisplay) . '</span></span></td>
+                                <td>' . htmlspecialchars($activity->reviewer_name ?? 'System') . '</span></td>
+                                <td>' . htmlspecialchars(substr($activity->remarks ?? '', 0, 60)) . (strlen($activity->remarks ?? '') > 60 ? '...' : '') . '</span></td>
+                              </tr>';
+        }
+        
+        $html .= '
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Deadlines -->
+                <div class="section">
+                    <div class="section-header">Upcoming Deadlines</div>
+                    <div class="section-content">
+                        <table>
+                            <thead>
+                                <tr><th>Application #</th><th>Applicant</th><th>Days Left</th><th>Due Date</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>';
+        
+        // Convert to array if it's a collection
+        $deadlinesArray = $deadlines instanceof \Illuminate\Support\Collection ? $deadlines->toArray() : $deadlines;
+        
+        foreach ($deadlinesArray as $deadline) {
+            $daysLeft = $deadline['days_left'];
+            $dueClass = '';
+            $dueText = '';
+            
+            if ($daysLeft <= 1) {
+                $dueClass = 'style="background:#ef444420; color:#dc2626;"';
+                $dueText = 'Urgent';
+            } elseif ($daysLeft <= 3) {
+                $dueClass = 'style="background:#f59e0b20; color:#d97706;"';
+                $dueText = 'Warning';
+            } else {
+                $dueClass = 'style="background:#10b98120; color:#16a34a;"';
+                $dueText = 'On Track';
+            }
+            
+            $html .= '<tr>
+                                <td><strong>' . htmlspecialchars($deadline['application_name']) . '</strong></span></td>
+                                <td>' . htmlspecialchars($deadline['applicant_name']) . '</span></td>
+                                <td><span ' . $dueClass . ' class="status-badge">' . $deadline['days_left'] . ' days</span></span></td>
+                                <td>' . $deadline['due_date'] . '</span></td>
+                                <td><span ' . $dueClass . ' class="status-badge">' . $dueText . '</span></span></td>
+                              </tr>';
+        }
+        
+        $html .= '
+                            </tbody>
+                        </table>
+                        <div class="summary-stats" style="margin-top: 15px;">
+                            <div><strong>⚠️ Urgent (0-1 days):</strong> ' . count(array_filter($deadlinesArray, fn($d) => $d['days_left'] <= 1)) . '</div>
+                            <div><strong>⚠️ Warning (2-3 days):</strong> ' . count(array_filter($deadlinesArray, fn($d) => $d['days_left'] >= 2 && $d['days_left'] <= 3)) . '</div>
+                            <div><strong>✅ On Track (4+ days):</strong> ' . count(array_filter($deadlinesArray, fn($d) => $d['days_left'] >= 4)) . '</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Executive Summary -->
+                <div class="section">
+                    <div class="section-header">Executive Summary</div>
+                    <div class="section-content">
+                        <div class="summary-stats" style="flex-wrap: wrap; gap: 20px;">
+                            <div><strong>Total Applications:</strong> ' . number_format($total) . '</div>
+                            <div><strong>Pending Review:</strong> ' . number_format($pending) . ' (' . ($total > 0 ? round(($pending / $total) * 100) : 0) . '%)</div>
+                            <div><strong>Under Review:</strong> ' . number_format($underReview) . ' (' . ($total > 0 ? round(($underReview / $total) * 100) : 0) . '%)</div>
+                            <div><strong>Completed:</strong> ' . number_format($verified + $approved + $forRelease) . ' (' . ($total > 0 ? round((($verified + $approved + $forRelease) / $total) * 100) : 0) . '%)</div>
+                            <div><strong>Rejected:</strong> ' . number_format($rejected) . ' (' . ($total > 0 ? round(($rejected / $total) * 100) : 0) . '%)</div>
+                            <div><strong>Average Processing Time:</strong> ' . $avgProcessingTime . ' days</div>
+                            <div><strong>Aging Applications (&gt;7 days):</strong> ' . $pendingAging . '</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p>Konstructo - Smart Infrastructure Oversight</p>
+                    <p>This report was generated automatically. For questions, contact your system administrator.</p>
+                    <p>Report ID: DASH-' . date('Ymd') . '-' . rand(1000, 9999) . ' | Generated: ' . date('Y-m-d H:i:s') . '</p>
+                </div>
+            </div>
+            
+            <script>
+                // Auto-trigger print dialog when page loads (optional)
+                // window.onload = function() { setTimeout(function() { window.print(); }, 500); };
+            </script>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+}
+   

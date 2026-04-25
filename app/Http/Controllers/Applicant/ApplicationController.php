@@ -1001,26 +1001,165 @@ public function step3(Request $request)
         return view('applicant.application.step3', compact('application'));
     }
 
-    public function step4(Request $request)
-    {
+    /**
+ * Submit client satisfaction survey
+ */
+public function submitSurvey(Request $request)
+{
+    try {
         $user = Auth::user();
-        $applicationId = $request->get('id');
-        
-        if (!$applicationId) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application ID is required.');
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
         }
-        
-        $application = ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $applicationId)
+
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id',
+            'client_type' => 'required|in:citizen,business,government',
+            'survey_date' => 'required|date',
+            'sex' => 'required|in:male,female',
+            'age' => 'required|integer|min:1|max:120',
+            'cc1_awareness' => 'required|in:1,2,3,4',
+            'cc2_helpfulness' => 'nullable|in:1,2,3,4,5',
+            'cc3_help_level' => 'nullable|in:1,2,3,4',
+            'sqd0_satisfied' => 'required|in:1,2,3,4,5',
+            'sqd1_reasonable_time' => 'required|in:1,2,3,4,5',
+            'sqd2_requirements_followed' => 'required|in:1,2,3,4,5',
+            'sqd3_steps_easy' => 'required|in:1,2,3,4,5',
+            'sqd4_info_easy_find' => 'required|in:1,2,3,4,5',
+            'sqd5_reasonable_fees' => 'required|in:1,2,3,4,5',
+            'sqd6_fair_treatment' => 'required|in:1,2,3,4,5',
+            'sqd7_courteous_staff' => 'required|in:1,2,3,4,5',
+            'sqd8_got_what_needed' => 'required|in:1,2,3,4,5',
+            'suggestions' => 'nullable|string',
+            'email' => 'nullable|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $application = ApplicationDocument::findOrFail($request->application_id);
+
+        // Check if user owns this application
+        if ($application->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        // Check if survey already exists for this application
+        $existingSurvey = ClientSatisfactionSurvey::where('application_id', $request->application_id)
+            ->where('user_id', $user->id)
             ->first();
-            
-        if (!$application) {
-            return redirect()->route('applicant.applications')
-                ->with('error', 'Application not found.');
+
+        if ($existingSurvey) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Survey already submitted for this application'
+            ], 409);
         }
-        
-        return view('applicant.application.step4', compact('application'));
+
+        // Create the survey - ADD service_availed field
+        $survey = ClientSatisfactionSurvey::create([
+            'application_id' => $request->application_id,
+            'user_id' => $user->id,
+            'service_availed' => 'Building Permit Application', // ADD THIS LINE - Provide a default service
+            'client_type' => $request->client_type,
+            'survey_date' => $request->survey_date,
+            'sex' => $request->sex,
+            'age' => $request->age,
+            'cc1_awareness' => $request->cc1_awareness,
+            'cc2_helpfulness' => $request->cc2_helpfulness,
+            'cc3_help_level' => $request->cc3_help_level,
+            'sqd0_satisfied' => $request->sqd0_satisfied,
+            'sqd1_reasonable_time' => $request->sqd1_reasonable_time,
+            'sqd2_requirements_followed' => $request->sqd2_requirements_followed,
+            'sqd3_steps_easy' => $request->sqd3_steps_easy,
+            'sqd4_info_easy_find' => $request->sqd4_info_easy_find,
+            'sqd5_reasonable_fees' => $request->sqd5_reasonable_fees,
+            'sqd6_fair_treatment' => $request->sqd6_fair_treatment,
+            'sqd7_courteous_staff' => $request->sqd7_courteous_staff,
+            'sqd8_got_what_needed' => $request->sqd8_got_what_needed,
+            'suggestions' => $request->suggestions,
+            'email' => $request->email
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Thank you for your feedback! Your survey has been submitted successfully.',
+            'data' => $survey
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error submitting survey: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to submit survey: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Check if there's a pending survey for an application
+     */
+    public function checkPendingSurvey(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            $applicationId = $request->query('application_id');
+
+            if (!$applicationId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application ID is required'
+                ], 400);
+            }
+
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->first();
+
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $existingSurvey = ClientSatisfactionSurvey::where('application_id', $applicationId)
+                ->where('user_id', $user->id)
+                ->exists();
+
+            return response()->json([
+                'success' => true,
+                'has_pending_survey' => !$existingSurvey,
+                'survey_submitted' => $existingSurvey
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error checking pending survey: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check survey status'
+            ], 500);
+        }
     }
 
     /**
@@ -1327,135 +1466,9 @@ public function printCPDOAssessment($id)
 }
 
     /**
-     * Submit client satisfaction survey
+     * Get all pending surveys for the user
      */
-    public function submitSurvey(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
-            }
-
-            $validator = Validator::make($request->all(), [
-                'application_id' => 'required|exists:application_documents,id',
-                'client_type' => 'required|in:citizen,business,government',
-                'survey_date' => 'required|date',
-                'sex' => 'required|in:male,female',
-                'age' => 'required|integer|min:1|max:120',
-                'region_of_residence' => 'nullable|string|max:255',
-                'service_availed' => 'required|string|max:255',
-                
-                // CC Questions
-                'cc1_awareness' => 'required|in:1,2,3,4',
-                'cc2_helpfulness' => 'nullable|in:1,2,3,4,5',
-                'cc3_help_level' => 'nullable|in:1,2,3,4',
-                
-                // SQD Questions
-                'sqd0_satisfied' => 'required|in:1,2,3,4,5',
-                'sqd1_reasonable_time' => 'required|in:1,2,3,4,5',
-                'sqd2_requirements_followed' => 'required|in:1,2,3,4,5',
-                'sqd3_steps_easy' => 'required|in:1,2,3,4,5',
-                'sqd4_info_easy_find' => 'required|in:1,2,3,4,5',
-                'sqd5_reasonable_fees' => 'required|in:1,2,3,4,5',
-                'sqd6_fair_treatment' => 'required|in:1,2,3,4,5',
-                'sqd7_courteous_staff' => 'required|in:1,2,3,4,5',
-                'sqd8_got_what_needed' => 'required|in:1,2,3,4,5',
-                
-                // Optional fields
-                'suggestions' => 'nullable|string|max:1000',
-                'email' => 'nullable|email|max:255'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            // Verify the application belongs to the user and is completed
-            $application = ApplicationDocument::where('id', $request->application_id)
-                ->where('user_id', $user->id)
-                ->where('status', 'verified')
-                ->first();
-
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found or not completed'
-                ], 404);
-            }
-
-            // Check if survey already exists
-            $existingSurvey = ClientSatisfactionSurvey::where('application_id', $request->application_id)
-                ->where('user_id', $user->id)
-                ->first();
-
-            if ($existingSurvey) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Survey already submitted for this application'
-                ], 409);
-            }
-
-            // Create the survey
-            $survey = ClientSatisfactionSurvey::create([
-                'application_id' => $request->application_id,
-                'user_id' => $user->id,
-                'client_type' => $request->client_type,
-                'survey_date' => $request->survey_date,
-                'sex' => $request->sex,
-                'age' => $request->age,
-                'region_of_residence' => $request->region_of_residence,
-                'service_availed' => $request->service_availed,
-                'cc1_awareness' => $request->cc1_awareness,
-                'cc2_helpfulness' => $request->cc2_helpfulness,
-                'cc3_help_level' => $request->cc3_help_level,
-                'sqd0_satisfied' => $request->sqd0_satisfied,
-                'sqd1_reasonable_time' => $request->sqd1_reasonable_time,
-                'sqd2_requirements_followed' => $request->sqd2_requirements_followed,
-                'sqd3_steps_easy' => $request->sqd3_steps_easy,
-                'sqd4_info_easy_find' => $request->sqd4_info_easy_find,
-                'sqd5_reasonable_fees' => $request->sqd5_reasonable_fees,
-                'sqd6_fair_treatment' => $request->sqd6_fair_treatment,
-                'sqd7_courteous_staff' => $request->sqd7_courteous_staff,
-                'sqd8_got_what_needed' => $request->sqd8_got_what_needed,
-                'suggestions' => $request->suggestions,
-                'email' => $request->email
-            ]);
-
-            Log::info('Client satisfaction survey submitted', [
-                'survey_id' => $survey->id,
-                'application_id' => $request->application_id,
-                'user_id' => $user->id
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Thank you for your feedback! Your survey has been submitted successfully.',
-                'data' => [
-                    'survey_id' => $survey->id
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error submitting survey: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while submitting the survey'
-            ], 500);
-        }
-    }
-
-    /**
-     * Check if user has any pending surveys
-     */
-    public function checkPendingSurvey()
+    public function getPendingSurveys()
     {
         try {
             $user = Auth::user();
@@ -1495,4 +1508,5 @@ public function printCPDOAssessment($id)
             ], 500);
         }
     }
+    
 }

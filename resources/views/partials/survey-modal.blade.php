@@ -1,6 +1,308 @@
+<script>
+// Define the Alpine component first (before DOMContentLoaded)
+document.addEventListener('alpine:init', () => {
+    console.log('Alpine initializing survey modal component');
+    
+    Alpine.data('surveyModal', () => ({
+        showModal: false,
+        currentPage: 1,
+        isSubmitting: false,
+        applicationId: null,
+        serviceAvailed: 'Building Permit Application',
+        form: {
+            client_type: '',
+            survey_date: new Date().toISOString().split('T')[0],
+            sex: '',
+            age: '',
+            cc1_awareness: '',
+            cc2_helpfulness: '',
+            cc3_help_level: '',
+            sqd0_satisfied: '',
+            sqd1_reasonable_time: '',
+            sqd2_requirements_followed: '',
+            sqd3_steps_easy: '',
+            sqd4_info_easy_find: '',
+            sqd5_reasonable_fees: '',
+            sqd6_fair_treatment: '',
+            sqd7_courteous_staff: '',
+            sqd8_got_what_needed: '',
+            suggestions: '',
+            email: ''
+        },
+
+        init() {
+            console.log('Survey modal component initialized');
+            // Make this instance globally available
+            window.surveyModal = this;
+        },
+
+        resetForm() {
+            this.form = {
+                client_type: '',
+                survey_date: new Date().toISOString().split('T')[0],
+                sex: '',
+                age: '',
+                cc1_awareness: '',
+                cc2_helpfulness: '',
+                cc3_help_level: '',
+                sqd0_satisfied: '',
+                sqd1_reasonable_time: '',
+                sqd2_requirements_followed: '',
+                sqd3_steps_easy: '',
+                sqd4_info_easy_find: '',
+                sqd5_reasonable_fees: '',
+                sqd6_fair_treatment: '',
+                sqd7_courteous_staff: '',
+                sqd8_got_what_needed: '',
+                suggestions: '',
+                email: ''
+            };
+            this.currentPage = 1;
+            this.isSubmitting = false;
+        },
+
+        openModal(applicationId, serviceAvailed = '') {
+            console.log('openModal called with:', applicationId, serviceAvailed);
+            this.resetForm();
+            this.applicationId = applicationId;
+            this.serviceAvailed = serviceAvailed || 'Building Permit Application';
+            this.showModal = true;
+            document.body.style.overflow = 'hidden';
+        },
+
+        closeModal() {
+            this.showModal = false;
+            this.resetForm();
+            document.body.style.overflow = 'auto';
+        },
+
+        nextPage() {
+            // Validate page 1 fields before proceeding
+            if (this.currentPage === 1) {
+                if (!this.form.client_type) {
+                    alert('Please select client type');
+                    return;
+                }
+                if (!this.form.sex) {
+                    alert('Please select sex');
+                    return;
+                }
+                if (!this.form.age || this.form.age < 1 || this.form.age > 120) {
+                    alert('Please enter a valid age (1-120)');
+                    return;
+                }
+                if (!this.form.cc1_awareness) {
+                    alert('Please answer the Citizen Charter awareness question');
+                    return;
+                }
+            }
+            
+            if (this.currentPage < 2) {
+                this.currentPage++;
+                // Scroll to top of modal
+                setTimeout(() => {
+                    const modalContent = document.querySelector('#survey-modal .overflow-y-auto');
+                    if (modalContent) modalContent.scrollTop = 0;
+                }, 50);
+            }
+        },
+
+        previousPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                setTimeout(() => {
+                    const modalContent = document.querySelector('#survey-modal .overflow-y-auto');
+                    if (modalContent) modalContent.scrollTop = 0;
+                }, 50);
+            }
+        },
+
+        async submitSurvey() {
+            if (this.isSubmitting) return;
+
+            // Validate all required fields on page 2
+            if (!this.form.sqd0_satisfied) {
+                alert('Please answer question SQD0 about your satisfaction');
+                return;
+            }
+            if (!this.form.sqd1_reasonable_time) {
+                alert('Please answer question SQD1 about reasonable time');
+                return;
+            }
+            if (!this.form.sqd2_requirements_followed) {
+                alert('Please answer question SQD2 about requirements');
+                return;
+            }
+            if (!this.form.sqd3_steps_easy) {
+                alert('Please answer question SQD3 about steps');
+                return;
+            }
+            if (!this.form.sqd4_info_easy_find) {
+                alert('Please answer question SQD4 about finding information');
+                return;
+            }
+            if (!this.form.sqd5_reasonable_fees) {
+                alert('Please answer question SQD5 about fees');
+                return;
+            }
+            if (!this.form.sqd6_fair_treatment) {
+                alert('Please answer question SQD6 about fair treatment');
+                return;
+            }
+            if (!this.form.sqd7_courteous_staff) {
+                alert('Please answer question SQD7 about staff courtesy');
+                return;
+            }
+            if (!this.form.sqd8_got_what_needed) {
+                alert('Please answer question SQD8 about getting what you needed');
+                return;
+            }
+
+            this.isSubmitting = true;
+
+            try {
+                // Prepare form data with service_availed included
+                const formData = {
+                    application_id: this.applicationId,
+                    service_availed: this.serviceAvailed,
+                    client_type: this.form.client_type,
+                    survey_date: this.form.survey_date,
+                    sex: this.form.sex,
+                    age: this.form.age,
+                    cc1_awareness: this.form.cc1_awareness,
+                    cc2_helpfulness: this.form.cc2_helpfulness,
+                    cc3_help_level: this.form.cc3_help_level,
+                    sqd0_satisfied: this.form.sqd0_satisfied,
+                    sqd1_reasonable_time: this.form.sqd1_reasonable_time,
+                    sqd2_requirements_followed: this.form.sqd2_requirements_followed,
+                    sqd3_steps_easy: this.form.sqd3_steps_easy,
+                    sqd4_info_easy_find: this.form.sqd4_info_easy_find,
+                    sqd5_reasonable_fees: this.form.sqd5_reasonable_fees,
+                    sqd6_fair_treatment: this.form.sqd6_fair_treatment,
+                    sqd7_courteous_staff: this.form.sqd7_courteous_staff,
+                    sqd8_got_what_needed: this.form.sqd8_got_what_needed,
+                    suggestions: this.form.suggestions,
+                    email: this.form.email
+                };
+
+                console.log('Submitting survey data:', formData);
+
+                const response = await fetch('/applicant/survey/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Thank you for your feedback! Your survey has been submitted successfully.');
+                    this.closeModal();
+                    // Refresh page after survey submission
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    alert(data.message || 'Failed to submit survey');
+                }
+            } catch (error) {
+                console.error('Survey submission error:', error);
+                alert('An error occurred while submitting the survey. Please try again.');
+            } finally {
+                this.isSubmitting = false;
+            }
+        }
+    }));
+});
+
+// Global function to trigger survey modal
+window.showSurveyModal = function(applicationId, serviceAvailed = '') {
+    console.log('showSurveyModal called with:', applicationId, serviceAvailed);
+    
+    // Check if the modal component is available
+    if (window.surveyModal) {
+        console.log('Modal component found, opening...');
+        window.surveyModal.openModal(applicationId, serviceAvailed);
+    } else {
+        console.log('Modal component not ready yet, waiting...');
+        // Wait for component to be available
+        const checkInterval = setInterval(() => {
+            if (window.surveyModal) {
+                clearInterval(checkInterval);
+                console.log('Modal component now available, opening...');
+                window.surveyModal.openModal(applicationId, serviceAvailed);
+            }
+        }, 100);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            console.error('Modal component failed to initialize');
+            alert('Survey form is loading. Please refresh the page and try again.');
+        }, 5000);
+    }
+};
+
+// Function to check for pending surveys
+async function checkPendingSurveys() {
+    try {
+        const response = await fetch('/applicant/survey/pending', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Pending surveys response:', data);
+            if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
+                const firstPending = data.pending_surveys[0];
+                console.log('Found pending survey for application:', firstPending.id);
+                if (window.showSurveyModal) {
+                    window.showSurveyModal(firstPending.id, firstPending.service_availed || 'Building Permit Application');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error checking for pending surveys:', error);
+    }
+}
+
+// Debug function to check if modal is ready
+window.checkSurveyModalReady = function() {
+    console.log('Survey modal ready:', !!window.surveyModal);
+    console.log('Modal component:', window.surveyModal);
+    return !!window.surveyModal;
+};
+
+// Auto-check for pending surveys when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, checking for pending surveys...');
+    // Wait for Alpine to initialize
+    setTimeout(() => {
+        checkPendingSurveys();
+    }, 2000);
+});
+</script>
+
+<style>
+[x-cloak] { display: none !important; }
+</style>
+
 <!-- Client Satisfaction Survey Modal -->
-<div id="survey-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 px-4" x-data="surveyModal()" x-show="showModal" x-transition>
-    <div class="relative top-4 mx-auto p-4 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+<div 
+    id="survey-modal" 
+    x-data="surveyModal" 
+    x-cloak
+    x-show="showModal"
+    class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full px-4 z-50"
+    style="display: none;"
+    @click.away="closeModal()">
+    <div class="relative top-4 mx-auto p-4 w-full max-w-6xl max-h-[85vh] overflow-y-auto" @click.stop>
         <div class="bg-white rounded-2xl shadow-xl">
             <!-- Header -->
             <div class="bg-[#155386] text-white px-6 py-4 rounded-t-2xl">
@@ -65,16 +367,6 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Age *</label>
                                 <input type="number" x-model="form.age" required min="1" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
                             </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Region of residence</label>
-                            <input type="text" x-model="form.region_of_residence" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Service Availed *</label>
-                            <input type="text" x-model="form.service_availed" required readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed">
                         </div>
 
                         <!-- CC1 -->
@@ -157,244 +449,97 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Service Quality Dimensions (SQD)</h3>
                         <p class="text-sm text-gray-600 mb-6">
-                            Please check mark (✔) your answer to the following questions.
+                            Please rate your agreement with the following statements.
                         </p>
 
                         <!-- SQD Questions -->
-                        <div class="space-y-6">
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD0. I am satisfied with the service that I availed.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd0_satisfied" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd0_satisfied" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd0_satisfied" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd0_satisfied" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd0_satisfied" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD1. I spent a reasonable amount of time for my transaction.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd1_reasonable_time" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd1_reasonable_time" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd1_reasonable_time" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd1_reasonable_time" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd1_reasonable_time" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD2. The office followed the transaction's requirements and steps based on the information provided.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd2_requirements_followed" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd2_requirements_followed" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd2_requirements_followed" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd2_requirements_followed" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd2_requirements_followed" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD3. The steps (including payment) I needed to do for my transaction were easy and simple.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd3_steps_easy" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd3_steps_easy" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd3_steps_easy" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd3_steps_easy" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd3_steps_easy" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD4. I easily found information about my transaction from the office or its website.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd4_info_easy_find" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd4_info_easy_find" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd4_info_easy_find" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd4_info_easy_find" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd4_info_easy_find" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD5. I paid a reasonable amount of fees for my transaction.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd5_reasonable_fees" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd5_reasonable_fees" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd5_reasonable_fees" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd5_reasonable_fees" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd5_reasonable_fees" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD6. I feel the office was fair to everyone, or "walang palakasan", during my transaction.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd6_fair_treatment" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd6_fair_treatment" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd6_fair_treatment" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd6_fair_treatment" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd6_fair_treatment" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD7. I was treated courteously by the staff, and (if asked for help) the staff was helpful.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd7_courteous_staff" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd7_courteous_staff" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd7_courteous_staff" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd7_courteous_staff" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd7_courteous_staff" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="font-medium text-gray-900 mb-3">SQD8. I got what I needed from the government office, or (if denied) denial of request was sufficiently explained to me.</p>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd8_got_what_needed" value="1" class="mr-2">
-                                        <span class="text-sm">1. Strongly Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd8_got_what_needed" value="2" class="mr-2">
-                                        <span class="text-sm">2. Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd8_got_what_needed" value="3" class="mr-2">
-                                        <span class="text-sm">3. Neither Agree nor Disagree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd8_got_what_needed" value="4" class="mr-2">
-                                        <span class="text-sm">4. Agree</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" x-model="form.sqd8_got_what_needed" value="5" class="mr-2">
-                                        <span class="text-sm">5. Strongly Agree</span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-medium text-gray-900">Service Quality Dimensions</th>
+                                        <th class="border border-gray-300 px-2 py-3 text-center font-medium text-gray-700 text-xs">1<br>Strongly<br>Disagree</th>
+                                        <th class="border border-gray-300 px-2 py-3 text-center font-medium text-gray-700 text-xs">2<br>Disagree</th>
+                                        <th class="border border-gray-300 px-2 py-3 text-center font-medium text-gray-700 text-xs">3<br>Neither</th>
+                                        <th class="border border-gray-300 px-2 py-3 text-center font-medium text-gray-700 text-xs">4<br>Agree</th>
+                                        <th class="border border-gray-300 px-2 py-3 text-center font-medium text-gray-700 text-xs">5<br>Strongly<br>Agree</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD0. I am satisfied with the service that I availed.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd0_satisfied" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd0_satisfied" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd0_satisfied" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd0_satisfied" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd0_satisfied" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD1. I spent a reasonable amount of time for my transaction.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd1_reasonable_time" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd1_reasonable_time" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd1_reasonable_time" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd1_reasonable_time" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd1_reasonable_time" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD2. The office followed the transaction's requirements and steps based on the information provided.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd2_requirements_followed" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd2_requirements_followed" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd2_requirements_followed" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd2_requirements_followed" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd2_requirements_followed" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD3. The steps (including payment) I needed to do for my transaction were easy and simple.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd3_steps_easy" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd3_steps_easy" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd3_steps_easy" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd3_steps_easy" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd3_steps_easy" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD4. I easily found information about my transaction from the office or its website.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd4_info_easy_find" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd4_info_easy_find" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd4_info_easy_find" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd4_info_easy_find" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd4_info_easy_find" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD5. I paid a reasonable amount of fees for my transaction.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd5_reasonable_fees" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd5_reasonable_fees" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd5_reasonable_fees" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd5_reasonable_fees" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd5_reasonable_fees" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD6. I feel the office was fair to everyone, or "walang palakasan", during my transaction.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd6_fair_treatment" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd6_fair_treatment" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd6_fair_treatment" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd6_fair_treatment" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd6_fair_treatment" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD7. I was treated courteously by the staff, and (if asked for help) the staff was helpful.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd7_courteous_staff" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd7_courteous_staff" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd7_courteous_staff" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd7_courteous_staff" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd7_courteous_staff" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 px-4 py-3">SQD8. I got what I needed from the government office, or (if denied) denial of request was sufficiently explained to me.</td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd8_got_what_needed" value="1" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd8_got_what_needed" value="2" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd8_got_what_needed" value="3" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd8_got_what_needed" value="4" class="w-4 h-4"></td>
+                                        <td class="border border-gray-300 px-2 py-3 text-center"><input type="radio" x-model="form.sqd8_got_what_needed" value="5" class="w-4 h-4"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
                         <!-- Optional Fields -->
@@ -430,143 +575,3 @@
         </div>
     </div>
 </div>
-
-<script>
-function surveyModal() {
-    return {
-        showModal: false,
-        currentPage: 1,
-        isSubmitting: false,
-        applicationId: null,
-        form: {
-            client_type: '',
-            survey_date: new Date().toISOString().split('T')[0],
-            sex: '',
-            age: '',
-            region_of_residence: '',
-            service_availed: '',
-            cc1_awareness: '',
-            cc2_helpfulness: '',
-            cc3_help_level: '',
-            sqd0_satisfied: '',
-            sqd1_reasonable_time: '',
-            sqd2_requirements_followed: '',
-            sqd3_steps_easy: '',
-            sqd4_info_easy_find: '',
-            sqd5_reasonable_fees: '',
-            sqd6_fair_treatment: '',
-            sqd7_courteous_staff: '',
-            sqd8_got_what_needed: '',
-            suggestions: '',
-            email: ''
-        },
-
-        openModal(applicationId, serviceAvailed = '') {
-            this.applicationId = applicationId;
-            this.form.service_availed = serviceAvailed || 'Building Permit Application';
-            this.showModal = true;
-            this.currentPage = 1;
-            this.resetForm();
-        },
-
-        closeModal() {
-            this.showModal = false;
-            this.currentPage = 1;
-            this.resetForm();
-        },
-
-        resetForm() {
-            this.form = {
-                client_type: '',
-                survey_date: new Date().toISOString().split('T')[0],
-                sex: '',
-                age: '',
-                region_of_residence: '',
-                service_availed: '',
-                cc1_awareness: '',
-                cc2_helpfulness: '',
-                cc3_help_level: '',
-                sqd0_satisfied: '',
-                sqd1_reasonable_time: '',
-                sqd2_requirements_followed: '',
-                sqd3_steps_easy: '',
-                sqd4_info_easy_find: '',
-                sqd5_reasonable_fees: '',
-                sqd6_fair_treatment: '',
-                sqd7_courteous_staff: '',
-                sqd8_got_what_needed: '',
-                suggestions: '',
-                email: ''
-            };
-        },
-
-        nextPage() {
-            if (this.currentPage < 2) {
-                this.currentPage++;
-            }
-        },
-
-        previousPage() {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-            }
-        },
-
-        async submitSurvey() {
-            if (this.isSubmitting) return;
-
-            this.isSubmitting = true;
-
-            try {
-                const formData = {
-                    application_id: this.applicationId,
-                    ...this.form
-                };
-
-                const response = await fetch('/applicant/survey/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Show success message
-                    this.showSuccessMessage(data.message);
-                    this.closeModal();
-                } else {
-                    // Show error
-                    this.showErrorMessage(data.message || 'Failed to submit survey');
-                }
-            } catch (error) {
-                console.error('Survey submission error:', error);
-                this.showErrorMessage('An error occurred while submitting the survey');
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-
-        showSuccessMessage(message) {
-            // You can implement a toast notification here
-            alert(message);
-        },
-
-        showErrorMessage(message) {
-            // You can implement a toast notification here
-            alert(message);
-        }
-    }
-}
-
-// Global function to trigger survey modal
-window.showSurveyModal = function(applicationId, serviceAvailed = '') {
-    const modal = document.querySelector('#survey-modal');
-    if (modal && modal._x_dataStack) {
-        modal._x_dataStack[0].openModal(applicationId, serviceAvailed);
-    }
-};
-</script>
