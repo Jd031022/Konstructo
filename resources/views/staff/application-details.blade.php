@@ -541,150 +541,287 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- CPDO ASSESSMENT CARD (shows only after CPDO approval) -->
-                    <div id="cpdo-assessment-card" class="bg-white rounded-2xl shadow-sm border border-indigo-200 p-6 animate-fade-in hidden">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
-                                </svg>
-                            </div>
-                            <h2 class="text-lg font-semibold text-gray-800">CPDO Fee Assessment</h2>
-                            <span id="cpdo-assessment-status" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
-                        </div>
-                        
-                        
-                        <!-- Display existing assessment -->
-                        <div id="cpdo-assessment-display" class="hidden">
-                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-medium text-gray-700">Assessment Date:</span>
-                                    <span id="display-assessment-date" class="text-sm text-gray-600"></span>
-                                </div>
-                                <div class="border-t border-gray-200 my-3"></div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">Zonal/Location Permit Fee:</span>
-                                        <span id="display-zonal-fee" class="font-medium">₱0.00</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">PALC Fee:</span>
-                                        <span id="display-palc-fee" class="font-medium">₱0.00</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">Development Permit Fee:</span>
-                                        <span id="display-dev-fee" class="font-medium">₱0.00</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">Alteration Permit Fee:</span>
-                                        <span id="display-alt-fee" class="font-medium">₱0.00</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">Site/Zoning Certificate:</span>
-                                        <span id="display-zoning-fee" class="font-medium">₱0.00</span>
-                                    </div>
-                                    <div id="display-cpdo-additional-fees-container" class="space-y-1"></div>
-                                    <div class="border-t border-gray-200 pt-2 mt-2">
-                                        <div class="flex justify-between font-semibold">
-                                            <span>Total CPDO Fees:</span>
-                                            <span id="display-total-cpdo" class="text-indigo-600">₱0.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="display-cpdo-notes" class="mt-3 p-2 bg-gray-100 rounded text-sm text-gray-600 hidden">
-                                    <span class="font-medium">Notes:</span>
-                                    <span id="display-notes-text"></span>
-                                </div>
-                                <div class="mt-3 text-xs text-gray-400">
-                                    Assessed by: <span id="display-assessed-by"></span> on <span id="display-assessed-at"></span>
-                                </div>
-                            </div>
-                            <button onclick="editCPDOAssessment()" class="w-full px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition text-sm font-medium">Edit Assessment</button>
-                        </div>
-                        
-                        <!-- Assessment Form (shown when no assessment or editing) -->
-                        <div id="cpdo-assessment-form" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Assessment Date <span class="text-red-500">*</span></label>
-                                <input type="date" id="cpdo-assessment-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            </div>
-                            
-                            <!-- Auto-filled applicant info -->
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <p class="text-xs text-gray-500 mb-2">Applicant Information (Auto-filled)</p>
-                                <div class="grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <span class="text-gray-500">Client Name:</span>
-                                        <span id="cpdo-client-name" class="font-medium block"></span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Address:</span>
-                                        <span id="cpdo-client-address" class="font-medium block"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Fee breakdown -->
-                            <div class="border-t border-gray-200 pt-3">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Zonal/Location Permit Fee</h4>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Locational Clearance (₱)</label>
-                                        <input type="number" id="cpdo-zonal-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">PALC (₱)</label>
-                                        <input type="number" id="cpdo-palc-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Development Permit (₱)</label>
-                                        <input type="number" id="cpdo-dev-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Alteration Permit (₱)</label>
-                                        <input type="number" id="cpdo-alt-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="border-t border-gray-200 pt-3">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Certifications/Clearance</h4>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Site/Zoning Certificate (₱)</label>
-                                    <input type="number" id="cpdo-zoning-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
-                                </div>
-                            </div>
-                            
-                            <!-- Additional Fees -->
-                            <div class="border-t border-gray-200 pt-3">
-                                <div class="flex items-center justify-between mb-3">
-                                    <label class="text-sm font-semibold text-gray-700">Additional Fees</label>
-                                    <button type="button" onclick="addCPDODynamicFee()" class="inline-flex items-center px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                        Add Fee
-                                    </button>
-                                </div>
-                                <div id="cpdo-dynamic-fees-container" class="space-y-2"></div>
-                            </div>
-                            
-                            <!-- Total -->
-                            <div class="p-3 bg-indigo-50 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm font-semibold text-indigo-700">Total CPDO Fees:</span>
-                                    <span class="text-xl font-bold text-indigo-700">₱<span id="cpdo-total-display">0.00</span></span>
-                                </div>
-                            </div>
-                            
-                            <!-- Notes -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Assessment Notes</label>
-                                <textarea id="cpdo-assessment-notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Add any notes about this assessment..."></textarea>
-                            </div>
-                            
-                            <button onclick="saveCPDOAssessment()" id="save-cpdo-assessment-btn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">Save CPDO Assessment</button>
-                        </div>
+<!-- CPDO FEE ASSESSMENT CARD (shows only after CPDO approval) -->
+<div id="cpdo-assessment-card" class="bg-white rounded-2xl shadow-sm border border-indigo-200 p-6 animate-fade-in hidden">
+    <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-800">CPDO Fee Assessment</h2>
+        <span id="cpdo-assessment-status" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
+    </div>
+    
+    <!-- OR Payment Verification Section -->
+    <div id="or-verification-section" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="text-md font-semibold text-gray-800">Official Receipt (OR) Verification</h3>
+        </div>
+        
+        <div id="or-display-section">
+            <div id="or-loading" class="text-center py-4">
+                <svg class="animate-spin h-6 w-6 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-sm text-gray-500 mt-2">Loading OR information...</p>
+            </div>
+            
+            <div id="or-content" class="hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700">OR Link:</span>
+                        <a id="or-link-display" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
                     </div>
+                    <span id="or-status-badge" class="text-xs px-2 py-1 rounded-full"></span>
+                </div>
+                
+                <div id="or-verification-actions" class="mt-3 flex gap-2">
+                    <button onclick="verifyOR()" id="verify-or-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium hidden">
+                        Verify OR
+                    </button>
+                    <button onclick="openRejectORModal()" id="reject-or-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium hidden">
+                        Reject OR
+                    </button>
+                </div>
+                
+                <div id="or-rejection-reason" class="mt-3 p-3 bg-red-50 rounded-lg hidden">
+                    <p class="text-xs text-red-600"><strong>Rejection Reason:</strong> <span id="or-rejection-text"></span></p>
+                </div>
+                
+                <div id="or-verification-info" class="mt-3 text-xs text-gray-500 hidden">
+                    <p>Verified by: <span id="or-verified-by"></span> on <span id="or-verified-at"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Certificates Upload Section (only visible after OR is verified) -->
+    <div id="certificates-section" class="hidden">
+        <div class="border-t border-indigo-200 pt-4 mb-4">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <h3 class="text-md font-semibold text-gray-800">Required Certificates</h3>
+                <span class="text-xs text-gray-500">(Only CPDO can upload)</span>
+            </div>
+            
+            <!-- Zoning Certificate Section -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
+                    </div>
+                    <span id="zoning-cert-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
+                </div>
+                
+                <div id="zoning-cert-display" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <a id="zoning-cert-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
+                        </div>
+                        <button onclick="removeCertificate('zoning_cert')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
+                    </div>
+                    <div id="zoning-cert-meta" class="mt-2 text-xs text-gray-400"></div>
+                </div>
+                
+                <div id="zoning-cert-form" class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Zoning Certificate <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="url" id="zoning-cert-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
+                            <button onclick="uploadCertificate('zoning_cert')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium">Upload</button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Locational Clearance Section -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
+                    </div>
+                    <span id="locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
+                </div>
+                
+                <div id="locational-display" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <a id="locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
+                        </div>
+                        <button onclick="removeCertificate('locational_clearance')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
+                    </div>
+                    <div id="locational-meta" class="mt-2 text-xs text-gray-400"></div>
+                </div>
+                
+                <div id="locational-form" class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Locational Clearance <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="url" id="locational-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
+                            <button onclick="uploadCertificate('locational_clearance')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">Upload</button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Display existing assessment -->
+    <div id="cpdo-assessment-display" class="hidden">
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700">Assessment Date:</span>
+                <span id="display-assessment-date" class="text-sm text-gray-600"></span>
+            </div>
+            <div class="border-t border-gray-200 my-3"></div>
+            <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Zonal/Location Permit Fee:</span>
+                    <span id="display-zonal-fee" class="font-medium">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">PALC Fee:</span>
+                    <span id="display-palc-fee" class="font-medium">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Development Permit Fee:</span>
+                    <span id="display-dev-fee" class="font-medium">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Alteration Permit Fee:</span>
+                    <span id="display-alt-fee" class="font-medium">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Site/Zoning Certificate:</span>
+                    <span id="display-zoning-fee" class="font-medium">₱0.00</span>
+                </div>
+                <div id="display-cpdo-additional-fees-container" class="space-y-1"></div>
+                <div class="border-t border-gray-200 pt-2 mt-2">
+                    <div class="flex justify-between font-semibold">
+                        <span>Total CPDO Fees:</span>
+                        <span id="display-total-cpdo" class="text-indigo-600">₱0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div id="display-cpdo-notes" class="mt-3 p-2 bg-gray-100 rounded text-sm text-gray-600 hidden">
+                <span class="font-medium">Notes:</span>
+                <span id="display-notes-text"></span>
+            </div>
+            <div class="mt-3 text-xs text-gray-400">
+                Assessed by: <span id="display-assessed-by"></span> on <span id="display-assessed-at"></span>
+            </div>
+        </div>
+        <button onclick="editCPDOAssessment()" class="w-full px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition text-sm font-medium">Edit Assessment</button>
+    </div>
+    
+    <!-- Assessment Form (shown when no assessment or editing) -->
+    <div id="cpdo-assessment-form" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Assessment Date <span class="text-red-500">*</span></label>
+            <input type="date" id="cpdo-assessment-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+        
+        <!-- Auto-filled applicant info -->
+        <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs text-gray-500 mb-2">Applicant Information (Auto-filled)</p>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                    <span class="text-gray-500">Client Name:</span>
+                    <span id="cpdo-client-name" class="font-medium block"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Address:</span>
+                    <span id="cpdo-client-address" class="font-medium block"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fee breakdown -->
+        <div class="border-t border-gray-200 pt-3">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Zonal/Location Permit Fee</h4>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Locational Clearance (₱)</label>
+                    <input type="number" id="cpdo-zonal-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">PALC (₱)</label>
+                    <input type="number" id="cpdo-palc-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Development Permit (₱)</label>
+                    <input type="number" id="cpdo-dev-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Alteration Permit (₱)</label>
+                    <input type="number" id="cpdo-alt-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
+                </div>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-3">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Certifications/Clearance</h4>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Site/Zoning Certificate (₱)</label>
+                <input type="number" id="cpdo-zoning-fee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0.00" oninput="calculateCPDOTotal()">
+            </div>
+        </div>
+        
+        <!-- Additional Fees -->
+        <div class="border-t border-gray-200 pt-3">
+            <div class="flex items-center justify-between mb-3">
+                <label class="text-sm font-semibold text-gray-700">Additional Fees</label>
+                <button type="button" onclick="addCPDODynamicFee()" class="inline-flex items-center px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    Add Fee
+                </button>
+            </div>
+            <div id="cpdo-dynamic-fees-container" class="space-y-2"></div>
+        </div>
+        
+        <!-- Total -->
+        <div class="p-3 bg-indigo-50 rounded-lg">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-semibold text-indigo-700">Total CPDO Fees:</span>
+                <span class="text-xl font-bold text-indigo-700">₱<span id="cpdo-total-display">0.00</span></span>
+            </div>
+        </div>
+        
+        <!-- Notes -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Assessment Notes</label>
+            <textarea id="cpdo-assessment-notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Add any notes about this assessment..."></textarea>
+        </div>
+        
+        <button onclick="saveCPDOAssessment()" id="save-cpdo-assessment-btn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">Save CPDO Assessment</button>
+    </div>
+</div>
 
                     <!-- Status Update Card -->
                     <div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
@@ -1959,72 +2096,73 @@
         }
     }
     
-    function renderAllData() {
-        loadDocumentVerificationStatus();
-        loadOwnershipVerificationStatus();
-        
-        if (currentApplication) {
-            displayApplicationDetails();
-            updateTimeline(currentApplication.status);
-            updateProgress(currentApplication.status);
-            updateHardCopyStatus(currentApplication.hard_copy_received);
-            if (currentApplication.document_links) {
-                displayDocumentChecklist(currentApplication.document_links);
-            } else {
-                showEmptyDocuments();
-            }
-            calculateEstimatedTime();
-            displayProjectInformation(currentApplication);
-        }
-        
-        if (reviewActivities.length > 0) {
-            displayReviewActivities(reviewActivities);
+   function renderAllData() {
+    loadDocumentVerificationStatus();
+    loadOwnershipVerificationStatus();
+    loadPaymentProof(); // Add this line to load OR data
+    
+    if (currentApplication) {
+        displayApplicationDetails();
+        updateTimeline(currentApplication.status);
+        updateProgress(currentApplication.status);
+        updateHardCopyStatus(currentApplication.hard_copy_received);
+        if (currentApplication.document_links) {
+            displayDocumentChecklist(currentApplication.document_links);
         } else {
-            showEmptyActivities();
+            showEmptyDocuments();
         }
-        
-        if (currentOwnershipData) {
-            displayOwnershipInfo();
-            displayOwnershipDocuments();
-        } else {
-            displayEmptyOwnershipDocuments();
-        }
-        
-        if (currentAssessment) {
-            document.getElementById('assessment-notice')?.classList.remove('hidden');
-            document.getElementById('assessment-total').innerHTML = `Total Building Permit Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        }
-        
-        if (bfpData) {
-            if (bfpData.fsec_link) {
-                document.getElementById('existing-fsec-container').classList.remove('hidden');
-                document.getElementById('fsec-link').href = bfpData.fsec_link;
-                if (bfpData.fsec_filename) {
-                    document.getElementById('fsec-filename').textContent = bfpData.fsec_filename;
-                }
-                if (bfpData.fsec_uploaded_at) {
-                    document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString();
-                }
+        calculateEstimatedTime();
+        displayProjectInformation(currentApplication);
+    }
+    
+    if (reviewActivities.length > 0) {
+        displayReviewActivities(reviewActivities);
+    } else {
+        showEmptyActivities();
+    }
+    
+    if (currentOwnershipData) {
+        displayOwnershipInfo();
+        displayOwnershipDocuments();
+    } else {
+        displayEmptyOwnershipDocuments();
+    }
+    
+    if (currentAssessment) {
+        document.getElementById('assessment-notice')?.classList.remove('hidden');
+        document.getElementById('assessment-total').innerHTML = `Total Building Permit Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    }
+    
+    if (bfpData) {
+        if (bfpData.fsec_link) {
+            document.getElementById('existing-fsec-container').classList.remove('hidden');
+            document.getElementById('fsec-link').href = bfpData.fsec_link;
+            if (bfpData.fsec_filename) {
+                document.getElementById('fsec-filename').textContent = bfpData.fsec_filename;
             }
-            if (bfpData.bfp_comments) {
-                document.getElementById('bfp-comments-display').classList.remove('hidden');
-                document.getElementById('bfp-comments-text').textContent = bfpData.bfp_comments;
-                if (bfpData.bfp_comments_updated_at) {
-                    document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString();
-                }
-                document.getElementById('bfp-comments').value = bfpData.bfp_comments;
+            if (bfpData.fsec_uploaded_at) {
+                document.getElementById('fsec-upload-date').textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString();
             }
         }
-        
-        updateCPDOUI();
-        applyStatusRestrictions();
-        applyHardCopyPermission();
-        applyVerificationUIRestrictions();
-        
-        if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
-            document.getElementById('bfp-section').classList.remove('hidden');
+        if (bfpData.bfp_comments) {
+            document.getElementById('bfp-comments-display').classList.remove('hidden');
+            document.getElementById('bfp-comments-text').textContent = bfpData.bfp_comments;
+            if (bfpData.bfp_comments_updated_at) {
+                document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString();
+            }
+            document.getElementById('bfp-comments').value = bfpData.bfp_comments;
         }
     }
+    
+    updateCPDOUI();
+    applyStatusRestrictions();
+    applyHardCopyPermission();
+    applyVerificationUIRestrictions();
+    
+    if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+        document.getElementById('bfp-section').classList.remove('hidden');
+    }
+}
     
     function applyHardCopyPermission() {
         const hardCopyCheckbox = document.getElementById('hardcopy-checkbox');
@@ -3072,6 +3210,409 @@
             return m;
         });
     }
+
+    // Payment Proof / OR Variables
+let currentPaymentProof = null;
+
+// Load OR/Payment Proof data
+async function loadPaymentProof() {
+    if (!applicationId) return;
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const loadingDiv = document.getElementById('or-loading');
+        const contentDiv = document.getElementById('or-content');
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+                currentPaymentProof = data.data;
+                loadingDiv.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+                displayPaymentProof();
+                return;
+            }
+        }
+        
+        // No payment proof found
+        loadingDiv.innerHTML = `
+            <div class="text-center py-4 text-gray-500">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-sm">No Official Receipt uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">The applicant will upload the OR after assessment is completed</p>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading payment proof:', error);
+        const loadingDiv = document.getElementById('or-loading');
+        loadingDiv.innerHTML = `
+            <div class="text-center py-4 text-red-500">
+                <p class="text-sm">Error loading OR information</p>
+            </div>
+        `;
+    }
+}
+
+// Display Payment Proof with verification options
+function displayPaymentProof() {
+    if (!currentPaymentProof) return;
+    
+    const orLink = document.getElementById('or-link-display');
+    const statusBadge = document.getElementById('or-status-badge');
+    const verifyBtn = document.getElementById('verify-or-btn');
+    const rejectBtn = document.getElementById('reject-or-btn');
+    const rejectionDiv = document.getElementById('or-rejection-reason');
+    const rejectionText = document.getElementById('or-rejection-text');
+    const verificationInfo = document.getElementById('or-verification-info');
+    const certificatesSection = document.getElementById('certificates-section');
+    
+    // Set OR link
+    if (currentPaymentProof.or_link) {
+        orLink.href = currentPaymentProof.or_link;
+        orLink.textContent = currentPaymentProof.or_link.length > 50 ? 
+            currentPaymentProof.or_link.substring(0, 50) + '...' : 
+            currentPaymentProof.or_link;
+    }
+    
+    // Check if user is CPDO
+    const isCPDO = currentUserPosition === 'cpdo';
+    
+    // Update based on status
+    if (currentPaymentProof.status === 'pending') {
+        statusBadge.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+        statusBadge.textContent = 'Pending Verification';
+        rejectionDiv.classList.add('hidden');
+        verificationInfo.classList.add('hidden');
+        certificatesSection.classList.add('hidden');
+        
+        if (isCPDO) {
+            verifyBtn.classList.remove('hidden');
+            rejectBtn.classList.remove('hidden');
+        } else {
+            verifyBtn.classList.add('hidden');
+            rejectBtn.classList.add('hidden');
+        }
+        
+    } else if (currentPaymentProof.status === 'verified') {
+        statusBadge.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        statusBadge.textContent = 'Verified ✓';
+        verifyBtn.classList.add('hidden');
+        rejectBtn.classList.add('hidden');
+        rejectionDiv.classList.add('hidden');
+        verificationInfo.classList.remove('hidden');
+        certificatesSection.classList.remove('hidden');
+        
+        // Show verification info
+        if (currentPaymentProof.verified_by && currentPaymentProof.verifier) {
+            document.getElementById('or-verified-by').textContent = currentPaymentProof.verifier.full_name || 'Staff';
+            document.getElementById('or-verified-at').textContent = new Date(currentPaymentProof.verified_at).toLocaleString();
+        } else if (currentPaymentProof.verified_by) {
+            document.getElementById('or-verified-by').textContent = 'Staff ID: ' + currentPaymentProof.verified_by;
+            document.getElementById('or-verified-at').textContent = new Date(currentPaymentProof.verified_at).toLocaleString();
+        }
+        
+        // Load certificates after OR is verified
+        loadCertificates();
+        
+    } else if (currentPaymentProof.status === 'rejected') {
+        statusBadge.className = 'text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
+        statusBadge.textContent = 'Rejected';
+        rejectionDiv.classList.remove('hidden');
+        rejectionText.textContent = currentPaymentProof.rejection_reason || 'No reason provided';
+        verificationInfo.classList.add('hidden');
+        certificatesSection.classList.add('hidden');
+        
+        if (isCPDO) {
+            verifyBtn.classList.remove('hidden');
+            rejectBtn.classList.remove('hidden');
+        } else {
+            verifyBtn.classList.add('hidden');
+            rejectBtn.classList.add('hidden');
+        }
+    }
+}
+
+// Verify OR
+async function verifyOR() {
+    if (!currentPaymentProof) {
+        showErrorModal('Error', 'Payment proof not found');
+        return;
+    }
+    
+    const btn = document.getElementById('verify-or-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Verifying...';
+    btn.disabled = true;
+    
+    showSubmittingModal('Verifying Official Receipt...');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/verify`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            showSuccessModal('OR Verified', 'Official Receipt has been verified successfully. You can now upload the required certificates.');
+            await loadPaymentProof(); // Reload to show updated status
+        } else {
+            showErrorModal('Verification Failed', data.message || 'Failed to verify OR');
+        }
+    } catch (error) {
+        closeSubmittingModal();
+        console.error('Error verifying OR:', error);
+        showErrorModal('Error', 'Failed to verify OR. Please try again.');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Open Reject OR Modal
+function openRejectORModal() {
+    if (!currentPaymentProof) return;
+    
+    const reason = prompt('Please provide a reason for rejecting the Official Receipt:');
+    if (!reason || reason.trim() === '') {
+        showErrorModal('Reason Required', 'Please provide a reason for rejection.');
+        return;
+    }
+    
+    rejectOR(reason.trim());
+}
+
+// Reject OR
+async function rejectOR(reason) {
+    const btn = document.getElementById('reject-or-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Rejecting...';
+    btn.disabled = true;
+    
+    showSubmittingModal('Rejecting Official Receipt...');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/reject`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            showSuccessModal('OR Rejected', 'Official Receipt has been rejected. The applicant will be notified.');
+            await loadPaymentProof(); // Reload to show updated status
+        } else {
+            showErrorModal('Rejection Failed', data.message || 'Failed to reject OR');
+        }
+    } catch (error) {
+        closeSubmittingModal();
+        console.error('Error rejecting OR:', error);
+        showErrorModal('Error', 'Failed to reject OR. Please try again.');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Load Certificates (Zoning Cert and Locational Clearance)
+function loadCertificates() {
+    if (!currentPaymentProof) return;
+    
+    const isCPDO = currentUserPosition === 'cpdo';
+    
+    // Zoning Certificate
+    if (currentPaymentProof.zoning_cert_link) {
+        document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        document.getElementById('zoning-cert-status').textContent = 'Uploaded';
+        document.getElementById('zoning-cert-display').classList.remove('hidden');
+        document.getElementById('zoning-cert-form').classList.add('hidden');
+        document.getElementById('zoning-cert-link').href = currentPaymentProof.zoning_cert_link;
+        
+        let metaText = '';
+        if (currentPaymentProof.zoning_cert_uploaded_at) {
+            metaText += `Uploaded: ${new Date(currentPaymentProof.zoning_cert_uploaded_at).toLocaleString()}`;
+        }
+        if (currentPaymentProof.zoning_cert_uploader && currentPaymentProof.zoning_cert_uploader.full_name) {
+            metaText += metaText ? ' by ' : 'By: ';
+            metaText += currentPaymentProof.zoning_cert_uploader.full_name;
+        }
+        document.getElementById('zoning-cert-meta').textContent = metaText;
+    } else {
+        document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+        document.getElementById('zoning-cert-status').textContent = 'Not Uploaded';
+        document.getElementById('zoning-cert-display').classList.add('hidden');
+        if (isCPDO) {
+            document.getElementById('zoning-cert-form').classList.remove('hidden');
+        } else {
+            document.getElementById('zoning-cert-form').classList.add('hidden');
+        }
+    }
+    
+    // Locational Clearance
+    if (currentPaymentProof.locational_clearance_link) {
+        document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        document.getElementById('locational-status').textContent = 'Uploaded';
+        document.getElementById('locational-display').classList.remove('hidden');
+        document.getElementById('locational-form').classList.add('hidden');
+        document.getElementById('locational-link').href = currentPaymentProof.locational_clearance_link;
+        
+        let metaText = '';
+        if (currentPaymentProof.locational_clearance_uploaded_at) {
+            metaText += `Uploaded: ${new Date(currentPaymentProof.locational_clearance_uploaded_at).toLocaleString()}`;
+        }
+        if (currentPaymentProof.locational_clearance_uploader && currentPaymentProof.locational_clearance_uploader.full_name) {
+            metaText += metaText ? ' by ' : 'By: ';
+            metaText += currentPaymentProof.locational_clearance_uploader.full_name;
+        }
+        document.getElementById('locational-meta').textContent = metaText;
+    } else {
+        document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+        document.getElementById('locational-status').textContent = 'Not Uploaded';
+        document.getElementById('locational-display').classList.add('hidden');
+        if (isCPDO) {
+            document.getElementById('locational-form').classList.remove('hidden');
+        } else {
+            document.getElementById('locational-form').classList.add('hidden');
+        }
+    }
+}
+
+// Upload Certificate (Zoning Cert or Locational Clearance)
+async function uploadCertificate(type) {
+    if (!currentPaymentProof) {
+        showErrorModal('Error', 'Payment proof not found');
+        return;
+    }
+    
+    let link, button, inputId;
+    if (type === 'zoning_cert') {
+        inputId = 'zoning-cert-link-input';
+        button = document.querySelector('#zoning-cert-form button');
+    } else {
+        inputId = 'locational-link-input';
+        button = document.querySelector('#locational-form button');
+    }
+    
+    link = document.getElementById(inputId).value.trim();
+    
+    if (!link) {
+        showErrorModal('Link Required', 'Please provide a Google Drive link to the certificate.');
+        return;
+    }
+    
+    // Validate Google Drive link
+    if (!link.includes('drive.google.com') && !link.includes('docs.google.com')) {
+        showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+        return;
+    }
+    
+    const originalText = button.innerHTML;
+    button.innerHTML = 'Uploading...';
+    button.disabled = true;
+    
+    showSubmittingModal(`Uploading ${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'}...`);
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/upload-certificate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                type: type,
+                link: link
+            })
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            showSuccessModal('Upload Successful', data.message);
+            document.getElementById(inputId).value = '';
+            await loadPaymentProof(); // Reload to show updated certificates
+        } else {
+            showErrorModal('Upload Failed', data.message || 'Failed to upload certificate');
+        }
+    } catch (error) {
+        closeSubmittingModal();
+        console.error('Error uploading certificate:', error);
+        showErrorModal('Error', 'Failed to upload certificate. Please try again.');
+    } finally {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
+// Remove Certificate
+async function removeCertificate(type) {
+    if (!currentPaymentProof) {
+        showErrorModal('Error', 'Payment proof not found');
+        return;
+    }
+    
+    const confirmMsg = type === 'zoning_cert' 
+        ? 'Are you sure you want to remove the Zoning Certificate?' 
+        : 'Are you sure you want to remove the Locational Clearance?';
+    
+    if (!confirm(confirmMsg)) return;
+    
+    showSubmittingModal('Removing certificate...');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/remove-certificate`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ type: type })
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            showSuccessModal('Removed', `${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'} has been removed.`);
+            await loadPaymentProof(); // Reload to show updated status
+        } else {
+            showErrorModal('Remove Failed', data.message || 'Failed to remove certificate');
+        }
+    } catch (error) {
+        closeSubmittingModal();
+        console.error('Error removing certificate:', error);
+        showErrorModal('Error', 'Failed to remove certificate. Please try again.');
+    }
+}
 </script>
 
 <style>

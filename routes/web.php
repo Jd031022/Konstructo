@@ -88,6 +88,15 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::post('/applications/{id}/cpdo-assessment', [App\Http\Controllers\Staff\ApplicationController::class, 'saveCPDOAssessment'])->name('applications.cpdo-assessment');
     Route::get('/applications/{id}/cpdo-assessment', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDOAssessment'])->name('applications.get-cpdo-assessment');
     
+    // ========== PAYMENT PROOF ROUTES (STAFF) ==========
+    Route::post('/payment-proof/{id}/verify', [App\Http\Controllers\Staff\PaymentProofController::class, 'verify'])->name('payment-proof.verify');
+    Route::post('/payment-proof/{id}/reject', [App\Http\Controllers\Staff\PaymentProofController::class, 'reject'])->name('payment-proof.reject');
+    Route::get('/applications/{applicationId}/payment-proof', [App\Http\Controllers\Staff\PaymentProofController::class, 'getPaymentProof'])->name('applications.payment-proof');
+    
+    // ========== CPDO CERTIFICATE UPLOAD ROUTES ==========
+    Route::post('/payment-proof/{id}/upload-certificate', [App\Http\Controllers\Staff\PaymentProofController::class, 'uploadCertificate'])->name('payment-proof.upload-certificate');
+    Route::delete('/payment-proof/{id}/remove-certificate', [App\Http\Controllers\Staff\PaymentProofController::class, 'removeCertificate'])->name('payment-proof.remove-certificate');
+    
     // ========== VIEW ROUTES ==========
     Route::get('/dashboard', function () { return view('staff.dashboard'); })->name('dashboard');
     Route::get('/application-details/{id}', function ($id) { return view('staff.application-details', ['applicationId' => $id]); })->name('application.details');
@@ -211,6 +220,10 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/applications/{id}/ownership', [ApplicationController::class, 'getOwnershipData'])->name('applications.ownership');
     Route::get('/applications/{id}/review-activities', [ApplicationController::class, 'getReviewActivities'])->name('applications.review-activities');
     Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
+    
+    // ========== PAYMENT PROOF ROUTES (APPLICANT) ==========
+    Route::post('/payment-proof/upload', [App\Http\Controllers\Applicant\PaymentProofController::class, 'upload'])->name('payment-proof.upload');
+    Route::get('/payment-proof/{applicationId}', [App\Http\Controllers\Applicant\PaymentProofController::class, 'getPaymentProof'])->name('payment-proof.get');
     
     // Survey routes
     Route::post('/survey/submit', [ApplicationController::class, 'submitSurvey'])->name('survey.submit');
@@ -364,6 +377,7 @@ Route::get('/test-gmail', function() {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
 Route::get('/print-receipt/{id}', [ApplicationController::class, 'printCPDOAssessment'])->name('print-receipt');
 Route::get('/chat', function () { return view('chat.index'); })->middleware(['auth'])->name('chat');
 
@@ -415,5 +429,4 @@ Route::get('/test-fpdf', function() {
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
     }
-    
 });

@@ -580,8 +580,8 @@
                             </div>
                         </div>
                         
-                        <!-- CPDO Assessment Details (only shown if approved and assessment exists) -->
-                        <div id="cpdo-assessment-section" class="hidden mt-4 pt-4 border-t border-orange-200">
+                        <!-- CPDO Assessment Details (shown when assessment exists regardless of status?) -->
+                        <div id="cpdo-assessment-section" class="mt-4 pt-4 border-t border-orange-200">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                                     <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -599,6 +599,105 @@
                                     <p>Loading assessment details...</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Proof (OR Upload) - Shows only after CPDO assessment is approved -->
+                    <div id="payment-proof-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in hidden">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-semibold text-gray-800">Payment Proof (Official Receipt)</h2>
+                            <span id="payment-status-badge" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mb-4">Please upload your Official Receipt (OR) as proof of payment for the CPDO assessment fees.</p>
+                        
+                        <!-- Payment Proof Display (when already uploaded) -->
+                        <div id="payment-proof-display" class="hidden">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Uploaded OR:</span>
+                                    <span id="payment-status-text" class="text-xs px-2 py-1 rounded-full"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <a id="payment-proof-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
+                                </div>
+                                <div id="payment-rejection-reason" class="mt-3 p-2 bg-red-50 rounded-lg hidden">
+                                    <p class="text-xs text-red-600"><strong>Rejection Reason:</strong> <span id="rejection-reason-text"></span></p>
+                                </div>
+                            </div>
+                            <button onclick="showPaymentProofForm()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">Update OR Link</button>
+                        </div>
+                        
+                        <!-- Payment Proof Form -->
+                        <div id="payment-proof-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to OR <span class="text-red-500">*</span></label>
+                                <input type="url" 
+                                       id="or-link" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                       placeholder="https://drive.google.com/file/d/...">
+                                <p class="text-xs text-gray-400 mt-1">Paste the Google Drive link to your Official Receipt</p>
+                            </div>
+                            
+                            <button onclick="uploadPaymentProof()" id="upload-or-btn" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                                Upload Official Receipt
+                            </button>
+                        </div>
+                        
+                        <!-- Certificates Uploaded by CPDO Section -->
+                        <div id="cpdo-certificates-section" class="mt-6 pt-4 border-t border-green-200 hidden">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-sm font-semibold text-gray-800">CPDO Issued Certificates</h3>
+                                <span class="text-xs text-gray-500">(Uploaded by CPDO)</span>
+                            </div>
+                            
+                            <!-- Zoning Certificate Display -->
+                            <div id="zoning-cert-container" class="mb-3 p-3 bg-gray-50 rounded-lg hidden">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-800">Zoning Certificate</p>
+                                        <a id="zoning-cert-link" href="#" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline break-all">View Certificate</a>
+                                    </div>
+                                </div>
+                                <div id="zoning-cert-meta" class="mt-2 text-xs text-gray-400"></div>
+                            </div>
+                            
+                            <!-- Locational Clearance Display -->
+                            <div id="locational-cert-container" class="mb-3 p-3 bg-gray-50 rounded-lg hidden">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-800">Locational Clearance</p>
+                                        <a id="locational-cert-link" href="#" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline break-all">View Clearance</a>
+                                    </div>
+                                </div>
+                                <div id="locational-cert-meta" class="mt-2 text-xs text-gray-400"></div>
+                            </div>
+                            
+                            <p class="text-xs text-gray-500 italic mt-2">These certificates are issued by CPDO after OR verification.</p>
                         </div>
                     </div>
 
@@ -770,6 +869,58 @@
     </div>
 </div>
 
+<style>
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
+    #error-modal, #success-modal { transition: opacity 0.2s ease-in-out; }
+    #error-modal .bg-white, #success-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
+    @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+    
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-slide-down { animation: slideDown 0.3s ease-out; }
+    
+    @keyframes scalePulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .scale-animation { animation: scalePulse 0.5s ease-in-out; }
+    
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .animate-pulse { animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .animate-bounce { animation: bounce 1s infinite; }
+    
+    @keyframes progressLoading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    .loading-progress-animation { position: relative; width: 100%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%); background-size: 200% 100%; animation: progressLoading 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; mix-blend-mode: overlay; }
+    
+    @keyframes lineLoading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    .loading-line-animation { position: relative; width: 100%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%); background-size: 200% 100%; animation: lineLoading 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; mix-blend-mode: overlay; }
+    
+    @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+    .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+    
+    @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); transform: scale(1); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
+    .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; border: 2px solid rgba(21,83,134,0.3); }
+    
+    .pointer-events-none { pointer-events: none; }
+    .break-all { word-break: break-all; }
+    .step-item { transition: transform 0.3s ease; }
+    .step-item:hover { transform: translateY(-2px); }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+    .duration-500 { transition-duration: 500ms; }
+    .duration-700 { transition-duration: 700ms; }
+    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .min-w-0 { min-width: 0; }
+    .hidden { display: none; }
+    .sticky { position: sticky; }
+    .top-8 { top: 2rem; }
+    .overflow-x-auto { overflow-x: auto; }
+    .min-w-[600px] { min-width: 600px; }
+</style>
+
 <script>
     // CSRF token helper
     function getCsrfToken() {
@@ -934,7 +1085,7 @@
                 }
             }
             
-            // Load CPDO assessment (only if approved)
+            // Load CPDO assessment (always try to load, regardless of status)
             const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
                 headers: {
                     'Accept': 'application/json',
@@ -945,13 +1096,44 @@
             
             if (assessmentResponse.ok) {
                 const assessmentData = await assessmentResponse.json();
-                if (assessmentData.success && assessmentData.data && assessmentData.data.assessment_date) {
+                if (assessmentData.success && assessmentData.data) {
                     currentCPDOAssessment = assessmentData.data;
-                    displayCPDOAssessment();
+                    displayCPDOAssessment(); // This will show the fee breakdown
+                    
+                    // Check if we should show the payment proof card
+                    // Show if CPDO is approved
+                    const shouldShowPaymentProof = (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo');
+                    const paymentProofCard = document.getElementById('payment-proof-card');
+                    
+                    if (shouldShowPaymentProof && paymentProofCard) {
+                        console.log('Showing payment proof card - CPDO approved');
+                        paymentProofCard.classList.remove('hidden');
+                        loadPaymentProof();
+                    } else if (paymentProofCard) {
+                        console.log('Hiding payment proof card. CPDO status:', cpdoStatus);
+                        paymentProofCard.classList.add('hidden');
+                    }
+                }
+            } else if (cpdoStatus === 'approved') {
+                // If CPDO status endpoint says approved but assessment endpoint failed,
+                // still show payment proof card
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) {
+                    console.log('CPDO approved but assessment fetch failed, still showing payment proof card');
+                    paymentProofCard.classList.remove('hidden');
+                    loadPaymentProof();
                 }
             }
         } catch (error) {
             console.error('Error loading CPDO data:', error);
+            // If CPDO is approved but there was an error, still try to show payment proof
+            if (cpdoStatus === 'approved') {
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) {
+                    paymentProofCard.classList.remove('hidden');
+                    loadPaymentProof();
+                }
+            }
         }
     }
 
@@ -963,11 +1145,10 @@
         const approvedInfo = document.getElementById('cpdo-approved-info');
         const approvedByName = document.getElementById('cpdo-approved-by');
         const approvedAtDate = document.getElementById('cpdo-approved-at');
-        const assessmentSection = document.getElementById('cpdo-assessment-section');
         
         if (!statusBadge) return;
         
-        if (cpdoStatus === 'approved') {
+        if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
             statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
             statusBadge.textContent = 'Approved';
             if (remarksText && cpdoRemarks) {
@@ -978,10 +1159,6 @@
                 approvedInfo.classList.remove('hidden');
                 approvedByName.textContent = cpdoApprovedBy;
                 approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
-            }
-            // Show assessment section
-            if (assessmentSection) {
-                assessmentSection.classList.remove('hidden');
             }
         } else if (cpdoStatus === 'rejected') {
             statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700';
@@ -995,21 +1172,15 @@
                 approvedByName.textContent = cpdoApprovedBy;
                 approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
             }
-            if (assessmentSection) {
-                assessmentSection.classList.add('hidden');
-            }
         } else {
             statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700';
             statusBadge.textContent = 'Pending';
             remarksDisplay.classList.add('hidden');
             approvedInfo.classList.add('hidden');
-            if (assessmentSection) {
-                assessmentSection.classList.add('hidden');
-            }
         }
     }
 
-    // Display CPDO Assessment
+    // Display CPDO Assessment (Fee Breakdown)
     function displayCPDOAssessment() {
         if (!currentCPDOAssessment) return;
         
@@ -1022,9 +1193,8 @@
         // Assessment date
         if (currentCPDOAssessment.assessment_date) {
             html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
+            html += `<div class="border-t border-orange-200 my-2"></div>`;
         }
-        
-        html += `<div class="border-t border-orange-200 my-2"></div>`;
         
         // Zonal/Location Permit Fee section
         let hasZonalFees = false;
@@ -1816,7 +1986,7 @@
             `;
         });
         
-        // Auto-expand if there are reviewers (show first one, collapse rest)
+        // Auto-expand if there are reviewers
         const content = document.getElementById('reviewers-collapsible-content');
         const chevron = document.getElementById('reviewers-chevron');
         if (reviewers.length > 0) {
@@ -2438,57 +2608,241 @@
             clearInterval(updateCheckInterval);
         }
     });
-</script>
 
-<style>
-    .animate-spin { animation: spin 1s linear infinite; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    
-    #error-modal, #success-modal { transition: opacity 0.2s ease-in-out; }
-    #error-modal .bg-white, #success-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
-    @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-    
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-slide-down { animation: slideDown 0.3s ease-out; }
-    
-    @keyframes scalePulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    .scale-animation { animation: scalePulse 0.5s ease-in-out; }
-    
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    .animate-pulse { animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    .animate-bounce { animation: bounce 1s infinite; }
-    
-    @keyframes progressLoading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-    .loading-progress-animation { position: relative; width: 100%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%); background-size: 200% 100%; animation: progressLoading 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; mix-blend-mode: overlay; }
-    
-    @keyframes lineLoading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-    .loading-line-animation { position: relative; width: 100%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 75%, transparent 100%); background-size: 200% 100%; animation: lineLoading 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; mix-blend-mode: overlay; }
-    
-    @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
-    .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
-    
-    @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); transform: scale(1); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
-    .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; border: 2px solid rgba(21,83,134,0.3); }
-    
-    .pointer-events-none { pointer-events: none; }
-    .break-all { word-break: break-all; }
-    .step-item { transition: transform 0.3s ease; }
-    .step-item:hover { transform: translateY(-2px); }
-    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-    .duration-500 { transition-duration: 500ms; }
-    .duration-700 { transition-duration: 700ms; }
-    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .min-w-0 { min-width: 0; }
-    .hidden { display: none; }
-    .sticky { position: sticky; }
-    .top-8 { top: 2rem; }
-    .overflow-x-auto { overflow-x: auto; }
-    .min-w-[600px] { min-width: 600px; }
-</style>
+    // Payment Proof variables
+    let currentPaymentProof = null;
+
+    // Load payment proof data
+    async function loadPaymentProof() {
+        if (!applicationId) return;
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentPaymentProof = data.data;
+                    displayPaymentProof();
+                    displayCPDOCertificates(); // Display certificates if any
+                    return;
+                }
+            }
+            // No payment proof yet - show form
+            const form = document.getElementById('payment-proof-form');
+            const display = document.getElementById('payment-proof-display');
+            if (form) form.classList.remove('hidden');
+            if (display) display.classList.add('hidden');
+        } catch (error) {
+            console.error('Error loading payment proof:', error);
+            // Show form on error
+            const form = document.getElementById('payment-proof-form');
+            const display = document.getElementById('payment-proof-display');
+            if (form) form.classList.remove('hidden');
+            if (display) display.classList.add('hidden');
+        }
+    }
+
+    // Display CPDO Certificates (Zoning and Locational)
+    function displayCPDOCertificates() {
+        if (!currentPaymentProof) return;
+        
+        const certificatesSection = document.getElementById('cpdo-certificates-section');
+        const zoningContainer = document.getElementById('zoning-cert-container');
+        const locationalContainer = document.getElementById('locational-cert-container');
+        
+        let hasAnyCertificate = false;
+        
+        // Zoning Certificate
+        if (currentPaymentProof.zoning_cert_link) {
+            zoningContainer.classList.remove('hidden');
+            document.getElementById('zoning-cert-link').href = currentPaymentProof.zoning_cert_link;
+            
+            let metaText = '';
+            if (currentPaymentProof.zoning_cert_uploaded_at) {
+                metaText += `Uploaded: ${new Date(currentPaymentProof.zoning_cert_uploaded_at).toLocaleString()}`;
+            }
+            if (currentPaymentProof.zoning_cert_uploader && currentPaymentProof.zoning_cert_uploader.full_name) {
+                metaText += metaText ? ' by ' : 'By: ';
+                metaText += currentPaymentProof.zoning_cert_uploader.full_name;
+            }
+            document.getElementById('zoning-cert-meta').textContent = metaText;
+            hasAnyCertificate = true;
+        } else {
+            zoningContainer.classList.add('hidden');
+        }
+        
+        // Locational Clearance
+        if (currentPaymentProof.locational_clearance_link) {
+            locationalContainer.classList.remove('hidden');
+            document.getElementById('locational-cert-link').href = currentPaymentProof.locational_clearance_link;
+            
+            let metaText = '';
+            if (currentPaymentProof.locational_clearance_uploaded_at) {
+                metaText += `Uploaded: ${new Date(currentPaymentProof.locational_clearance_uploaded_at).toLocaleString()}`;
+            }
+            if (currentPaymentProof.locational_clearance_uploader && currentPaymentProof.locational_clearance_uploader.full_name) {
+                metaText += metaText ? ' by ' : 'By: ';
+                metaText += currentPaymentProof.locational_clearance_uploader.full_name;
+            }
+            document.getElementById('locational-cert-meta').textContent = metaText;
+            hasAnyCertificate = true;
+        } else {
+            locationalContainer.classList.add('hidden');
+        }
+        
+        // Show/hide the entire certificates section
+        if (hasAnyCertificate) {
+            certificatesSection.classList.remove('hidden');
+        } else {
+            certificatesSection.classList.add('hidden');
+        }
+    }
+
+    // Display payment proof
+    function displayPaymentProof() {
+        if (!currentPaymentProof) return;
+        
+        const statusBadge = document.getElementById('payment-status-badge');
+        const statusText = document.getElementById('payment-status-text');
+        const proofLink = document.getElementById('payment-proof-link');
+        const rejectionDiv = document.getElementById('payment-rejection-reason');
+        const rejectionText = document.getElementById('rejection-reason-text');
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        
+        // Set link
+        proofLink.href = currentPaymentProof.or_link;
+        
+        // Set status
+        if (currentPaymentProof.status === 'pending') {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            statusBadge.textContent = 'Pending Verification';
+            statusText.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            statusText.textContent = 'Pending Verification';
+            rejectionDiv.classList.add('hidden');
+            form.classList.remove('hidden');
+            display.classList.remove('hidden');
+        } else if (currentPaymentProof.status === 'verified') {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            statusBadge.textContent = 'Verified ✓';
+            statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            statusText.textContent = 'Verified';
+            rejectionDiv.classList.add('hidden');
+            form.classList.add('hidden');
+            display.classList.remove('hidden');
+        } else if (currentPaymentProof.status === 'rejected') {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
+            statusBadge.textContent = 'Rejected';
+            statusText.className = 'text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
+            statusText.textContent = 'Rejected - Please re-upload';
+            if (currentPaymentProof.rejection_reason) {
+                rejectionDiv.classList.remove('hidden');
+                rejectionText.textContent = currentPaymentProof.rejection_reason;
+            }
+            form.classList.remove('hidden');
+            display.classList.remove('hidden');
+        }
+    }
+
+    // Show payment proof form
+    function showPaymentProofForm() {
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        const orLinkInput = document.getElementById('or-link');
+        
+        if (orLinkInput && currentPaymentProof) {
+            orLinkInput.value = currentPaymentProof.or_link || '';
+        }
+        form.classList.remove('hidden');
+        display.classList.add('hidden');
+    }
+
+    // Upload payment proof
+    async function uploadPaymentProof() {
+        const orLink = document.getElementById('or-link').value.trim();
+        
+        if (!orLink) {
+            showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
+            return;
+        }
+        
+        // Validate Google Drive link
+        if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
+            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+            return;
+        }
+        
+        const btn = document.getElementById('upload-or-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+        btn.disabled = true;
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch('/applicant/payment-proof/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    or_link: orLink
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
+                await loadPaymentProof();
+                const form = document.getElementById('payment-proof-form');
+                const display = document.getElementById('payment-proof-display');
+                if (form) form.classList.add('hidden');
+                if (display) display.classList.remove('hidden');
+            } else {
+                showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
+            }
+        } catch (error) {
+            console.error('Error uploading payment proof:', error);
+            showErrorModal('Error', 'Failed to upload payment proof');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    function showErrorModal(title, message) {
+        const modal = document.getElementById('error-modal');
+        const messageEl = document.getElementById('error-modal-message');
+        const titleEl = modal?.querySelector('h3');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = message;
+        if (modal) modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function showSuccessModal(title, message) {
+        const modal = document.getElementById('success-modal');
+        const messageEl = document.getElementById('success-modal-message');
+        const titleEl = modal?.querySelector('h3');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = message;
+        if (modal) modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            closeSuccessModal();
+        }, 3000);
+    }
+</script>
 @endsection

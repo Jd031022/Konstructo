@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\ApplicationDocument;
+use App\Models\PaymentProof;
 use App\Notifications\ApplicationStatusNotification;
 use App\Notifications\AdminNoteNotification;
 use App\Notifications\NewApplicationNotification;
@@ -11,6 +12,10 @@ use App\Notifications\HardCopyReceivedNotification;
 use App\Notifications\StaffStatusChangeNotification;
 use App\Notifications\FSECUploadedNotification;
 use App\Notifications\BFPCommentsAddedNotification;
+use App\Notifications\PaymentProofUploadedNotification;
+use App\Notifications\PaymentProofVerifiedNotification;
+use App\Notifications\PaymentProofRejectedNotification;
+use App\Notifications\CertificateUploadedNotification;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +28,336 @@ class NotificationService
     public function __construct(GmailService $gmailService)
     {
         $this->gmailService = $gmailService;
+    }
+
+    /**
+     * Get payment proof staff email content
+     */
+    private function getPaymentProofStaffEmailContent(ApplicationDocument $application, PaymentProof $paymentProof, User $staff, $appUrl)
+    {
+        $applicant = $application->user;
+        $applicantName = $applicant ? $applicant->first_name . ' ' . $applicant->last_name : 'N/A';
+        $applicantEmail = $applicant ? $applicant->email : 'N/A';
+        
+        $formattedNumber = $application->application_number;
+        if (strlen($formattedNumber) === 10) {
+            $formattedNumber = substr($formattedNumber, 0, 2) . '-' . 
+                              substr($formattedNumber, 2, 4) . '-' . 
+                              substr($formattedNumber, 6, 4);
+        }
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
+                .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                .header p { margin: 10px 0 0 0; opacity: 0.9; }
+                .content { padding: 40px 30px; background-color: #ffffff; }
+                .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
+                .badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+                .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+                .info-box p { margin: 10px 0; }
+                .info-box p:first-child { margin-top: 0; }
+                .info-box p:last-child { margin-bottom: 0; }
+                .or-link { 
+                    display: inline-block; 
+                    background-color: #e8f4f8; 
+                    padding: 10px 15px; 
+                    border-radius: 8px; 
+                    word-break: break-all;
+                    font-family: monospace;
+                    font-size: 13px;
+                    margin-top: 10px;
+                }
+                .or-link a { color: #155386; text-decoration: none; }
+                .or-link a:hover { text-decoration: underline; }
+                .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                .brand-name { font-weight: 600; color: #155386; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>New Payment Proof Uploaded</h1>
+                    <p>Action Required: Verify Official Receipt</p>
+                </div>
+                <div class='content'>
+                    <div class='greeting'>Dear {$staff->first_name},</div>
+                    
+                    <p>A new payment proof (Official Receipt) has been uploaded for the following application:</p>
+                    
+                    <div class='info-box'>
+                        <p><strong>📋 Application Number:</strong> {$formattedNumber}</p>
+                        <p><strong>👤 Applicant Name:</strong> {$applicantName}</p>
+                        <p><strong>📧 Applicant Email:</strong> {$applicantEmail}</p>
+                        <p><strong>🔗 Official Receipt Link:</strong></p>
+                        <div class='or-link'>
+                            <a href='{$paymentProof->or_link}' target='_blank'>{$paymentProof->or_link}</a>
+                        </div>
+                    </div>
+                    
+                    <div style='text-align: center;'>
+                        <a href='{$appUrl}' class='button'>Review Application</a>
+                    </div>
+                    
+                    <div class='divider'></div>
+                    
+                    <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                        Please review and verify the Official Receipt to proceed with the application process.
+                    </p>
+                    <p style='font-size: 12px; color: #6c757d; text-align: center;'>
+                        This is an automated notification from Konstructo.
+                    </p>
+                </div>
+                <div class='footer'>
+                    <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                    <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+    }
+
+    /**
+     * Send notification to staff when applicant uploads payment proof (OR)
+     */
+    public function notifyStaffPaymentProofUploaded(ApplicationDocument $application, PaymentProof $paymentProof)
+    {
+        Log::info('========== NOTIFY STAFF PAYMENT PROOF UPLOADED ==========');
+        Log::info('Parameters:', [
+            'application_id' => $application->id,
+            'application_number' => $application->application_number,
+            'payment_proof_id' => $paymentProof->id
+        ]);
+        
+        // Get staff users with relevant roles (CPDO, Treasurer, Engineer, Architect)
+        $staffUsers = User::where('role', 'staff')
+            ->whereHas('profile', function($query) {
+                $query->whereIn('position', ['cpdo', 'treasurer', 'engineer', 'architect']);
+            })
+            ->get();
+        
+        $applicant = $application->user;
+        $staffNotifiedCount = 0;
+        
+        foreach ($staffUsers as $staff) {
+            try {
+                // Send database notification to staff
+                $staff->notify(new PaymentProofUploadedNotification($application, $paymentProof, $applicant));
+                $staffNotifiedCount++;
+                Log::info('✅ Payment proof notification sent to staff: ' . $staff->email);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send payment proof notification to staff ' . $staff->email . ': ' . $e->getMessage());
+            }
+        }
+        
+        Log::info("Payment proof notifications sent to {$staffNotifiedCount} staff members");
+        
+        // Also send email to staff as backup
+        try {
+            $subject = 'New Payment Proof Uploaded - Action Required';
+            $appUrl = env('APP_URL') . "/staff/application-details/{$application->id}";
+            
+            foreach ($staffUsers as $staff) {
+                $htmlContent = $this->getPaymentProofStaffEmailContent($application, $paymentProof, $staff, $appUrl);
+                $this->gmailService->sendEmail($staff->email, $subject, $htmlContent);
+                Log::info('✅ Payment proof email sent to staff: ' . $staff->email);
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send payment proof emails to staff: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY STAFF PAYMENT PROOF UPLOADED END ==========');
+    }
+
+    /**
+     * Notify applicant that payment proof has been verified
+     */
+    public function notifyPaymentProofVerified(ApplicationDocument $application, User $staff, PaymentProof $paymentProof)
+    {
+        Log::info('========== NOTIFY PAYMENT PROOF VERIFIED ==========');
+        
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found!');
+            return;
+        }
+        
+        // Send database notification to applicant
+        try {
+            $applicant->notify(new PaymentProofVerifiedNotification($application, $staff, $paymentProof));
+            Log::info('✅ Database notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send database notification: ' . $e->getMessage());
+        }
+        
+        // Send email notification via GmailService
+        try {
+            $this->gmailService->sendORVerificationEmail(
+                $applicant->email,
+                $application->application_number,
+                $applicant->first_name,
+                $application->id,
+                $staff->first_name . ' ' . $staff->last_name
+            );
+            Log::info('✅ Email notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send email notification: ' . $e->getMessage());
+        }
+        
+        // Log activity
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $application->reviewActivities()->create([
+                    'reviewer_id' => $staff->id,
+                    'action' => 'payment_proof_verified',
+                    'new_status' => $application->status,
+                    'remarks' => "Payment proof (OR) verified by {$staff->first_name} {$staff->last_name}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log activity: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY PAYMENT PROOF VERIFIED END ==========');
+    }
+
+    /**
+     * Notify applicant that payment proof has been rejected
+     */
+    public function notifyPaymentProofRejected(ApplicationDocument $application, User $staff, $reason, PaymentProof $paymentProof)
+    {
+        Log::info('========== NOTIFY PAYMENT PROOF REJECTED ==========');
+        
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found!');
+            return;
+        }
+        
+        // Send database notification to applicant
+        try {
+            $applicant->notify(new PaymentProofRejectedNotification($application, $staff, $reason, $paymentProof));
+            Log::info('✅ Database notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send database notification: ' . $e->getMessage());
+        }
+        
+        // Send email notification via GmailService
+        try {
+            $this->gmailService->sendORRejectionEmail(
+                $applicant->email,
+                $application->application_number,
+                $applicant->first_name,
+                $application->id,
+                $staff->first_name . ' ' . $staff->last_name,
+                $reason
+            );
+            Log::info('✅ Email notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send email notification: ' . $e->getMessage());
+        }
+        
+        // Log activity
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $application->reviewActivities()->create([
+                    'reviewer_id' => $staff->id,
+                    'action' => 'payment_proof_rejected',
+                    'new_status' => $application->status,
+                    'remarks' => "Payment proof (OR) rejected. Reason: {$reason}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log activity: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY PAYMENT PROOF REJECTED END ==========');
+    }
+
+    /**
+     * Notify applicant when certificate is uploaded by CPDO
+     */
+    public function notifyCertificateUploaded(ApplicationDocument $application, User $cpdoUser, PaymentProof $paymentProof, $certificateType, $certificateLink)
+    {
+        Log::info('========== NOTIFY CERTIFICATE UPLOADED ==========');
+        
+        $applicant = $application->user;
+        
+        if (!$applicant) {
+            Log::error('❌ No applicant found!');
+            return;
+        }
+        
+        $certificateName = $certificateType === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance';
+        
+        // Send database notification to applicant
+        try {
+            $applicant->notify(new CertificateUploadedNotification($application, $cpdoUser, $certificateType, $certificateName, $certificateLink));
+            Log::info('✅ Database notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send database notification: ' . $e->getMessage());
+        }
+        
+        // Send email notification via GmailService
+        try {
+            if ($certificateType === 'zoning_cert') {
+                $this->gmailService->sendZoningCertificateUploadedEmail(
+                    $applicant->email,
+                    $application->application_number,
+                    $applicant->first_name,
+                    $certificateLink,
+                    $application->id,
+                    $cpdoUser->first_name . ' ' . $cpdoUser->last_name
+                );
+            } else {
+                $this->gmailService->sendLocationalClearanceUploadedEmail(
+                    $applicant->email,
+                    $application->application_number,
+                    $applicant->first_name,
+                    $certificateLink,
+                    $application->id,
+                    $cpdoUser->first_name . ' ' . $cpdoUser->last_name
+                );
+            }
+            Log::info('✅ Email notification sent to applicant');
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send email notification: ' . $e->getMessage());
+        }
+        
+        // Log activity
+        try {
+            if (Schema::hasTable('application_review_activities')) {
+                $application->reviewActivities()->create([
+                    'reviewer_id' => $cpdoUser->id,
+                    'action' => 'certificate_uploaded',
+                    'new_status' => $application->status,
+                    'remarks' => "{$certificateName} uploaded by CPDO: {$cpdoUser->first_name} {$cpdoUser->last_name}",
+                    'ip_address' => Request::ip(),
+                    'user_agent' => Request::userAgent()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to log activity: ' . $e->getMessage());
+        }
+        
+        Log::info('========== NOTIFY CERTIFICATE UPLOADED END ==========');
     }
 
     /**
@@ -194,6 +529,66 @@ class NotificationService
     }
 
     /**
+     * Send email notification for approved application
+     */
+    public function sendApprovedEmail(ApplicationDocument $application, User $reviewer)
+    {
+        $applicant = $application->user;
+        
+        Log::info('Sending approved email via GmailService', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'application_id' => $application->id
+        ]);
+        
+        try {
+            $this->gmailService->sendStatusEmail(
+                $applicant->email,
+                'approved',
+                $application->application_number,
+                $applicant->first_name,
+                $application->id
+            );
+            
+            Log::info('✅ Approved email sent successfully via GmailService');
+            return true;
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send approved email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send email notification for for-release application
+     */
+    public function sendForReleaseEmail(ApplicationDocument $application, User $reviewer)
+    {
+        $applicant = $application->user;
+        
+        Log::info('Sending for-release email via GmailService', [
+            'applicant_id' => $applicant->id,
+            'applicant_email' => $applicant->email,
+            'application_id' => $application->id
+        ]);
+        
+        try {
+            $this->gmailService->sendStatusEmail(
+                $applicant->email,
+                'for-release',
+                $application->application_number,
+                $applicant->first_name,
+                $application->id
+            );
+            
+            Log::info('✅ For-release email sent successfully via GmailService');
+            return true;
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send for-release email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Send notification when BFP uploads FSEC document
      */
     public function notifyFSECUploaded(ApplicationDocument $application, User $bfpUser, $fsecLink, $filename)
@@ -311,326 +706,6 @@ class NotificationService
         }
         
         Log::info('========== NOTIFY BFP COMMENTS ADDED END ==========');
-    }
-
-    /**
-     * Get FSEC email content
-     */
-    private function getFSECEmailContent(ApplicationDocument $application, User $bfpUser, $fsecLink, $filename)
-    {
-        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
-        $applicant = $application->user;
-        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
-                    .badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
-                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>Fire Safety Evaluation Clearance (FSEC)</h1>
-                        <p>Document Uploaded for Your Application</p>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>The Bureau of Fire Protection (BFP) has uploaded the Fire Safety Evaluation Clearance (FSEC) for your building permit application.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='badge'>🔥 FSEC Document Uploaded</span>
-                        </div>
-                        
-                        <div class='info-box'>
-                            <p><strong>Uploaded by:</strong> {$bfpUser->first_name} {$bfpUser->last_name}</p>
-                            <p><strong>Document:</strong> {$filename}</p>
-                            <p><strong>Application Number:</strong> {$application->application_number}</p>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$fsecLink}' class='button' target='_blank'>View FSEC Document</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='text-align: center;'>
-                            <a href='{$appUrl}' style='color: #155386;'>View Application Details →</a>
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Get BFP comments email content
-     */
-    private function getBFPCommentsEmailContent(ApplicationDocument $application, User $bfpUser, $comments)
-    {
-        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
-        $applicant = $application->user;
-        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
-                    .badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
-                    .comments-box { background-color: #FFFBEB; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
-                    .comments-box p { margin: 0; color: #78350F; }
-                    .info-box { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>BFP Comments Added</h1>
-                        <p>New comments from the Bureau of Fire Protection</p>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>The Bureau of Fire Protection (BFP) has added comments to your building permit application.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='badge'>📝 New Comments Added</span>
-                        </div>
-                        
-                        <div class='comments-box'>
-                            <strong>Comments from {$bfpUser->first_name} {$bfpUser->last_name}:</strong>
-                            <p style='margin-top: 10px;'>" . nl2br(htmlspecialchars($comments)) . "</p>
-                        </div>
-                        
-                        <div class='info-box'>
-                            <p><strong>Application Number:</strong> {$application->application_number}</p>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>View Application Details</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Please review the comments and take appropriate action.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Get application submitted email content with application number
-     */
-    private function getApplicationSubmittedEmailContent(ApplicationDocument $application, User $applicant)
-    {
-        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
-        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
-        $applicationNumber = $application->application_number;
-        
-        // Format the application number for display with dashes for readability
-        $formattedNumber = $applicationNumber;
-        if (strlen($applicationNumber) === 10) {
-            $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
-                              substr($applicationNumber, 2, 4) . '-' . 
-                              substr($applicationNumber, 6, 4);
-        }
-        
-        // Parse the application number to show meaning
-        $year = substr($applicationNumber, 0, 2);
-        $zipcode = substr($applicationNumber, 2, 4);
-        $sequence = substr($applicationNumber, 6, 4);
-        
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .header p { margin: 10px 0 0 0; opacity: 0.9; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
-                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
-                    .app-number-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0; border: 1px solid #dee2e6; }
-                    .app-number-box .label { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-                    .app-number-box .number { font-size: 32px; font-weight: bold; font-family: monospace; color: #155386; letter-spacing: 2px; }
-                    .app-number-box .breakdown { font-size: 11px; color: #6c757d; margin-top: 10px; }
-                    .info-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
-                    .info-section h3 { margin: 0 0 10px 0; color: #155386; font-size: 16px; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
-                    .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
-                    .next-steps ul { margin: 0; padding-left: 20px; }
-                    .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>Application Submitted Successfully!</h1>
-                        <p>Your building permit application has been received</p>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>{$greeting}</div>
-                        
-                        <p>Thank you for submitting your building permit application. We have successfully received your application and it is now in queue for review.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='success-badge'>✓ Application Submitted</span>
-                        </div>
-                        
-                        <div class='app-number-box'>
-                            <div class='label'>Your Application Number</div>
-                            <div class='number'>{$formattedNumber}</div>
-                            <div class='breakdown'>
-                                Year: 20{$year} | Location (ZIP): {$zipcode} | Sequence: {$sequence}
-                            </div>
-                        </div>
-                        
-                        <div class='info-section'>
-                            <h3>📋 What Happens Next?</h3>
-                            <p>Your application will be reviewed by our staff. The process typically takes <strong>5-7 working days</strong>. You will receive email notifications for status updates.</p>
-                        </div>
-                        
-                        <div class='next-steps'>
-                            <h4>🔑 Keep This Number Safe</h4>
-                            <ul>
-                                <li>Use this number when checking your application status</li>
-                                <li>Reference this number when submitting hard copies to OBO</li>
-                                <li>Include this number in all correspondence regarding this application</li>
-                            </ul>
-                        </div>
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>Track Your Application</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Please allow 5-7 working days for initial review. You will be notified once your application status changes.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
-    }
-
-    /**
-     * Send email notification for approved application
-     */
-    public function sendApprovedEmail(ApplicationDocument $application, User $reviewer)
-    {
-        $applicant = $application->user;
-        
-        Log::info('Sending approved email via GmailService', [
-            'applicant_id' => $applicant->id,
-            'applicant_email' => $applicant->email,
-            'application_id' => $application->id
-        ]);
-        
-        try {
-            $this->gmailService->sendStatusEmail(
-                $applicant->email,
-                'approved',
-                $application->application_number,
-                $applicant->first_name,
-                $application->id
-            );
-            
-            Log::info('✅ Approved email sent successfully via GmailService');
-            return true;
-        } catch (\Exception $e) {
-            Log::error('❌ Failed to send approved email: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Send email notification for for-release application
-     */
-    public function sendForReleaseEmail(ApplicationDocument $application, User $reviewer)
-    {
-        $applicant = $application->user;
-        
-        Log::info('Sending for-release email via GmailService', [
-            'applicant_id' => $applicant->id,
-            'applicant_email' => $applicant->email,
-            'application_id' => $application->id
-        ]);
-        
-        try {
-            $this->gmailService->sendStatusEmail(
-                $applicant->email,
-                'for-release',
-                $application->application_number,
-                $applicant->first_name,
-                $application->id
-            );
-            
-            Log::info('✅ For-release email sent successfully via GmailService');
-            return true;
-        } catch (\Exception $e) {
-            Log::error('❌ Failed to send for-release email: ' . $e->getMessage());
-            return false;
-        }
     }
 
     /**
@@ -1046,5 +1121,265 @@ class NotificationService
         }
         
         Log::info('========== NOTIFY STAFF OF STATUS CHANGE END ==========');
+    }
+
+    /**
+     * Get application submitted email content with application number
+     */
+    private function getApplicationSubmittedEmailContent(ApplicationDocument $application, User $applicant)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        $applicationNumber = $application->application_number;
+        
+        // Format the application number for display with dashes for readability
+        $formattedNumber = $applicationNumber;
+        if (strlen($applicationNumber) === 10) {
+            $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                              substr($applicationNumber, 2, 4) . '-' . 
+                              substr($applicationNumber, 6, 4);
+        }
+        
+        // Parse the application number to show meaning
+        $year = substr($applicationNumber, 0, 2);
+        $zipcode = substr($applicationNumber, 2, 4);
+        $sequence = substr($applicationNumber, 6, 4);
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .header p { margin: 10px 0 0 0; opacity: 0.9; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+                    .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+                    .app-number-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0; border: 1px solid #dee2e6; }
+                    .app-number-box .label { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+                    .app-number-box .number { font-size: 32px; font-weight: bold; font-family: monospace; color: #155386; letter-spacing: 2px; }
+                    .app-number-box .breakdown { font-size: 11px; color: #6c757d; margin-top: 10px; }
+                    .info-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10B981; }
+                    .info-section h3 { margin: 0 0 10px 0; color: #155386; font-size: 16px; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+                    .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
+                    .next-steps ul { margin: 0; padding-left: 20px; }
+                    .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Application Submitted Successfully!</h1>
+                        <p>Your building permit application has been received</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>Thank you for submitting your building permit application. We have successfully received your application and it is now in queue for review.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='success-badge'>✓ Application Submitted</span>
+                        </div>
+                        
+                        <div class='app-number-box'>
+                            <div class='label'>Your Application Number</div>
+                            <div class='number'>{$formattedNumber}</div>
+                            <div class='breakdown'>
+                                Year: 20{$year} | Location (ZIP): {$zipcode} | Sequence: {$sequence}
+                            </div>
+                        </div>
+                        
+                        <div class='info-section'>
+                            <h3>📋 What Happens Next?</h3>
+                            <p>Your application will be reviewed by our staff. The process typically takes <strong>5-7 working days</strong>. You will receive email notifications for status updates.</p>
+                        </div>
+                        
+                        <div class='next-steps'>
+                            <h4>🔑 Keep This Number Safe</h4>
+                            <ul>
+                                <li>Use this number when checking your application status</li>
+                                <li>Reference this number when submitting hard copies to OBO</li>
+                                <li>Include this number in all correspondence regarding this application</li>
+                            </ul>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>Track Your Application</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Please allow 5-7 working days for initial review. You will be notified once your application status changes.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get FSEC email content
+     */
+    private function getFSECEmailContent(ApplicationDocument $application, User $bfpUser, $fsecLink, $filename)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $applicant = $application->user;
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #DC2626; font-weight: 500; margin-bottom: 20px; }
+                    .badge { background-color: #FEE2E2; color: #DC2626; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #DC2626; }
+                    .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>Fire Safety Evaluation Clearance (FSEC)</h1>
+                        <p>Document Uploaded for Your Application</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>The Bureau of Fire Protection (BFP) has uploaded the Fire Safety Evaluation Clearance (FSEC) for your building permit application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='badge'>🔥 FSEC Document Uploaded</span>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Uploaded by:</strong> {$bfpUser->first_name} {$bfpUser->last_name}</p>
+                            <p><strong>Document:</strong> {$filename}</p>
+                            <p><strong>Application Number:</strong> {$application->application_number}</p>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$fsecLink}' class='button' target='_blank'>View FSEC Document</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='text-align: center;'>
+                            <a href='{$appUrl}' style='color: #155386;'>View Application Details →</a>
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+    }
+
+    /**
+     * Get BFP comments email content
+     */
+    private function getBFPCommentsEmailContent(ApplicationDocument $application, User $bfpUser, $comments)
+    {
+        $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+        $applicant = $application->user;
+        $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+        
+        return "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+                    .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
+                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+                    .content { padding: 40px 30px; background-color: #ffffff; }
+                    .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
+                    .badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+                    .comments-box { background-color: #FFFBEB; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+                    .comments-box p { margin: 0; color: #78350F; }
+                    .info-box { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
+                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+                    .brand-name { font-weight: 600; color: #155386; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h1>BFP Comments Added</h1>
+                        <p>New comments from the Bureau of Fire Protection</p>
+                    </div>
+                    <div class='content'>
+                        <div class='greeting'>{$greeting}</div>
+                        
+                        <p>The Bureau of Fire Protection (BFP) has added comments to your building permit application.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span class='badge'>📝 New Comments Added</span>
+                        </div>
+                        
+                        <div class='comments-box'>
+                            <strong>Comments from {$bfpUser->first_name} {$bfpUser->last_name}:</strong>
+                            <p style='margin-top: 10px;'>" . nl2br(htmlspecialchars($comments)) . "</p>
+                        </div>
+                        
+                        <div class='info-box'>
+                            <p><strong>Application Number:</strong> {$application->application_number}</p>
+                        </div>
+                        
+                        <div style='text-align: center;'>
+                            <a href='{$appUrl}' class='button'>View Application Details</a>
+                        </div>
+                        
+                        <div class='divider'></div>
+                        
+                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                            Please review the comments and take appropriate action.
+                        </p>
+                    </div>
+                    <div class='footer'>
+                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
     }
 }
