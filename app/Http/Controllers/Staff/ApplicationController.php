@@ -244,6 +244,103 @@ public function index(Request $request)
     }
 
     /**
+ * Upload certificate directly to application (Zoning Cert or Locational Clearance)
+ * No payment proof required - CPDO can upload directly
+ */
+public function uploadCertificate(Request $request, $id)
+{
+    Log::info('========== UPLOAD CERTIFICATE DIRECT ==========');
+    Log::info('uploadCertificate called', [
+        'application_id' => $id,
+        'type' => $request->type,
+        'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+    ]);
+
+    $validator = Validator::make($request->all(), [
+        'type' => 'required|in:zoning_cert,locational_clearance',
+        'link' => 'required|url'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please provide a valid Google Drive link',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::find($id);
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+
+        $staff = auth()->user();
+        $staff->load('profile');
+        $position = $staff->profile ? $staff->profile->position : null;
+
+        // Only CPDO can upload certificates
+        if ($position !== 'cpdo') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only CPDO staff can upload certificates'
+            ], 403);
+        }
+
+        $certificateType = $request->type;
+        $certificateLink = $request->link;
+
+        // Find or create payment proof record if needed, but don't require it
+        $paymentProof = PaymentProof::firstOrCreate(
+            ['application_id' => $id],
+            [
+                'user_id' => $application->user_id,
+                'status' => 'pending'
+            ]
+        );
+
+        if ($certificateType === 'zoning_cert') {
+            $paymentProof->update([
+                'zoning_cert_link' => $certificateLink,
+                'zoning_cert_uploaded_at' => now(),
+                'zoning_cert_uploaded_by' => $staff->id
+            ]);
+            $message = 'Zoning Certificate uploaded successfully';
+        } else {
+            $paymentProof->update([
+                'locational_clearance_link' => $certificateLink,
+                'locational_clearance_uploaded_at' => now(),
+                'locational_clearance_uploaded_by' => $staff->id
+            ]);
+            $message = 'Locational Clearance uploaded successfully';
+        }
+
+        Log::info('Certificate uploaded successfully', [
+            'application_id' => $id,
+            'type' => $certificateType
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'link' => $certificateLink,
+            'data' => $paymentProof
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error uploading certificate: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to upload certificate: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
      * Upload FSEC file (BFP only)
      */
     public function uploadFSEC(Request $request, $id)
@@ -2710,197 +2807,225 @@ public function saveCPDOAssessment(Request $request, $id)
             ], 500);
         }
     }
+/**
+ * Verify or unverify an ownership document (for CPDO, Assessor, and Treasurer)
+ * 
+ * PERMISSIONS (UPDATED):
+ * - CPDO can verify: tct_link (TCT/Deed of Sale)
+ * - Assessor can verify: tax_declaration_link (Tax Declaration)
+ * - Treasurer can verify: current_tax_receipt_link (Current Tax Receipt)
+ * - SPA can be verified by: CPDO, Assessor, OR Treasurer (any of the three)
+ * 
+ * NOTE: This does NOT require CPDO approval - CPDO, Assessor, and Treasurer can verify independently based on their roles
+ */
+public function verifyOwnershipDocument(Request $request, $id)
+{
+    try {
+        Log::info('========== VERIFY OWNERSHIP DOCUMENT START ==========');
+        Log::info('verifyOwnershipDocument called', [
+            'application_id' => $id,
+            'document_key' => $request->document_key,
+            'verified' => $request->verified,
+            'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
+            'user_id' => auth()->id()
+        ]);
 
-    /**
-     * Verify or unverify an ownership document (for Assessor and Treasurer)
-     * 
-     * PERMISSIONS:
-     * - Assessor can verify: tct_link (TCT/Deed of Sale) and tax_declaration_link (Tax Declaration)
-     * - Treasurer can verify: current_tax_receipt_link (Current Tax Receipt) ONLY
-     * - SPA cannot be verified by staff (only admin)
-     * 
-     * NOTE: This does NOT require CPDO approval - Assessor and Treasurer can verify independently
-     */
-    public function verifyOwnershipDocument(Request $request, $id)
-    {
-        try {
-            Log::info('========== VERIFY OWNERSHIP DOCUMENT START ==========');
-            Log::info('verifyOwnershipDocument called', [
-                'application_id' => $id,
-                'document_key' => $request->document_key,
-                'verified' => $request->verified,
-                'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
-                'user_id' => auth()->id()
-            ]);
+        $request->validate([
+            'document_key' => 'required|string|in:tct_link,tax_declaration_link,current_tax_receipt_link,spa_link',
+            'verified' => 'required|boolean'
+        ]);
 
-            $request->validate([
-                'document_key' => 'required|string|in:tct_link,tax_declaration_link,current_tax_receipt_link,spa_link',
-                'verified' => 'required|boolean'
-            ]);
-
-            $application = ApplicationDocument::find($id);
-            
-            if (!$application) {
-                Log::error('Application not found', ['id' => $id]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            $staff = auth()->user();
-            $staff->load('profile');
-            $position = $staff->profile ? $staff->profile->position : null;
-            
-            Log::info('User position', ['position' => $position]);
-            
-            $documentKey = $request->document_key;
-            $isVerified = $request->verified;
-            
-            // Get or create ownership verification record
-            $ownershipVerification = OwnershipVerification::firstOrCreate(
-                ['application_id' => $id],
-                [
-                    'is_owner' => true,
-                    'assessor_status' => 'pending',
-                    'treasurer_status' => 'pending'
-                ]
-            );
-            
-            $now = now();
-            $responseMessage = '';
-            
-            // Handle verification based on document type and user position
-            switch ($documentKey) {
-                case 'tct_link':
-                    // Only Assessor can verify TCT
-                    if ($position !== 'assessor') {
-                        Log::error('Unauthorized: User is not Assessor', ['position' => $position]);
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Only the Assessor can verify TCT/Deed of Sale documents.'
-                        ], 403);
-                    }
-                    
-                    $ownershipVerification->assessor_status = $isVerified ? 'approved' : 'pending';
-                    $ownershipVerification->assessor_verified_at = $isVerified ? $now : null;
-                    $ownershipVerification->assessor_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed');
-                    $responseMessage = $isVerified ? 'TCT/Deed of Sale verified successfully' : 'TCT/Deed of Sale verification removed';
-                    Log::info('TCT verification updated', ['verified' => $isVerified, 'assessor_status' => $ownershipVerification->assessor_status]);
-                    break;
-                    
-                case 'tax_declaration_link':
-                    // Only Assessor can verify Tax Declaration
-                    if ($position !== 'assessor') {
-                        Log::error('Unauthorized: User is not Assessor', ['position' => $position]);
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Only the Assessor can verify Tax Declaration documents.'
-                        ], 403);
-                    }
-                    
-                    $ownershipVerification->assessor_status = $isVerified ? 'approved' : 'pending';
-                    $ownershipVerification->assessor_verified_at = $isVerified ? $now : null;
-                    $ownershipVerification->assessor_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed');
-                    $responseMessage = $isVerified ? 'Tax Declaration verified successfully' : 'Tax Declaration verification removed';
-                    Log::info('Tax Declaration verification updated', ['verified' => $isVerified, 'assessor_status' => $ownershipVerification->assessor_status]);
-                    break;
-                    
-                case 'current_tax_receipt_link':
-                    // Only Treasurer can verify Current Tax Receipt
-                    if ($position !== 'treasurer') {
-                        Log::error('Unauthorized: User is not Treasurer', ['position' => $position]);
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Only the Treasurer can verify Current Tax Receipt documents.'
-                        ], 403);
-                    }
-                    
-                    // Store tax receipt verification in treasurer remarks
-                    $currentRemarks = $ownershipVerification->treasurer_remarks ?? '';
-                    if ($isVerified) {
-                        $newRemark = "Tax Receipt verified on " . $now->format('Y-m-d H:i:s');
-                        $ownershipVerification->treasurer_remarks = $currentRemarks 
-                            ? $currentRemarks . "\n" . $newRemark 
-                            : $newRemark;
-                        Log::info('Tax Receipt verification added', ['remark' => $newRemark]);
-                    } else {
-                        // Remove the verification remark
-                        $ownershipVerification->treasurer_remarks = preg_replace(
-                            '/Tax Receipt verified on \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n?/', 
-                            '', 
-                            $currentRemarks
-                        );
-                        $ownershipVerification->treasurer_remarks = trim($ownershipVerification->treasurer_remarks);
-                        if (empty($ownershipVerification->treasurer_remarks)) {
-                            $ownershipVerification->treasurer_remarks = null;
-                        }
-                        Log::info('Tax Receipt verification removed');
-                    }
-                    $responseMessage = $isVerified ? 'Current Tax Receipt verified successfully' : 'Current Tax Receipt verification removed';
-                    break;
-                    
-                case 'spa_link':
-                    // SPA cannot be verified by staff (only admin)
-                    Log::error('Unauthorized: SPA verification attempted by staff');
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Special Power of Attorney (SPA) can only be verified by an administrator.'
-                    ], 403);
-                    
-                default:
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid document type'
-                    ], 400);
-            }
-            
-            $ownershipVerification->save();
-            
-            // Log the activity
-            $this->logReviewActivity(
-                $application->id,
-                $staff->id,
-                $isVerified ? 'ownership_document_verified' : 'ownership_document_unverified',
-                null,
-                null,
-                ($isVerified ? 'Verified' : 'Unverified') . ' ' . str_replace('_', ' ', $documentKey) . ' as ' . $position,
-                $request->ip(),
-                $request->userAgent()
-            );
-            
-            Log::info('Ownership document verification updated successfully', [
-                'application_id' => $id,
-                'document_key' => $documentKey,
-                'verified' => $isVerified,
-                'verified_by' => $staff->id,
-                'position' => $position
-            ]);
-            
-            Log::info('========== VERIFY OWNERSHIP DOCUMENT END (SUCCESS) ==========');
-            
-            return response()->json([
-                'success' => true,
-                'message' => $responseMessage,
-                'data' => [
-                    'document_key' => $documentKey,
-                    'verified' => $isVerified,
-                    'verified_by' => $staff->first_name . ' ' . $staff->last_name,
-                    'verified_at' => $now->toISOString()
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('========== VERIFY OWNERSHIP DOCUMENT END (ERROR) ==========');
-            Log::error('Error verifying ownership document: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-            
+        $application = ApplicationDocument::find($id);
+        
+        if (!$application) {
+            Log::error('Application not found', ['id' => $id]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Application not found'
+            ], 404);
         }
+
+        $staff = auth()->user();
+        $staff->load('profile');
+        $position = $staff->profile ? $staff->profile->position : null;
+        
+        Log::info('User position', ['position' => $position]);
+        
+        $documentKey = $request->document_key;
+        $isVerified = $request->verified;
+        
+        // Get or create ownership verification record
+        $ownershipVerification = OwnershipVerification::firstOrCreate(
+            ['application_id' => $id],
+            [
+                'is_owner' => true,
+                'assessor_status' => 'pending',
+                'treasurer_status' => 'pending'
+            ]
+        );
+        
+        $now = now();
+        $responseMessage = '';
+        
+        // Handle verification based on document type and user position
+        switch ($documentKey) {
+            case 'tct_link':
+                // UPDATED: Only CPDO can verify TCT
+                if ($position !== 'cpdo') {
+                    Log::error('Unauthorized: User is not CPDO', ['position' => $position]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only CPDO can verify TCT/Deed of Sale documents. Your position: ' . ($position ?? 'not set')
+                    ], 403);
+                }
+                
+                $ownershipVerification->assessor_status = $isVerified ? 'approved' : 'pending';
+                $ownershipVerification->assessor_verified_at = $isVerified ? $now : null;
+                $ownershipVerification->assessor_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed by CPDO');
+                $responseMessage = $isVerified ? 'TCT/Deed of Sale verified successfully by CPDO' : 'TCT/Deed of Sale verification removed by CPDO';
+                Log::info('TCT verification updated by CPDO', ['verified' => $isVerified, 'assessor_status' => $ownershipVerification->assessor_status]);
+                break;
+                
+            case 'tax_declaration_link':
+                // Only Assessor can verify Tax Declaration (unchanged)
+                if ($position !== 'assessor') {
+                    Log::error('Unauthorized: User is not Assessor', ['position' => $position]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only the Assessor can verify Tax Declaration documents. Your position: ' . ($position ?? 'not set')
+                    ], 403);
+                }
+                
+                $ownershipVerification->assessor_status = $isVerified ? 'approved' : 'pending';
+                $ownershipVerification->assessor_verified_at = $isVerified ? $now : null;
+                $ownershipVerification->assessor_remarks = $isVerified ? null : ($request->remarks ?? 'Verification removed');
+                $responseMessage = $isVerified ? 'Tax Declaration verified successfully' : 'Tax Declaration verification removed';
+                Log::info('Tax Declaration verification updated', ['verified' => $isVerified, 'assessor_status' => $ownershipVerification->assessor_status]);
+                break;
+                
+            case 'current_tax_receipt_link':
+                // Only Treasurer can verify Current Tax Receipt (unchanged)
+                if ($position !== 'treasurer') {
+                    Log::error('Unauthorized: User is not Treasurer', ['position' => $position]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only the Treasurer can verify Current Tax Receipt documents. Your position: ' . ($position ?? 'not set')
+                    ], 403);
+                }
+                
+                // Store tax receipt verification in treasurer remarks
+                $currentRemarks = $ownershipVerification->treasurer_remarks ?? '';
+                if ($isVerified) {
+                    $newRemark = "Tax Receipt verified by Treasurer on " . $now->format('Y-m-d H:i:s');
+                    $ownershipVerification->treasurer_remarks = $currentRemarks 
+                        ? $currentRemarks . "\n" . $newRemark 
+                        : $newRemark;
+                    Log::info('Tax Receipt verification added', ['remark' => $newRemark]);
+                } else {
+                    // Remove the verification remark
+                    $ownershipVerification->treasurer_remarks = preg_replace(
+                        '/Tax Receipt verified by Treasurer on \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n?/', 
+                        '', 
+                        $currentRemarks
+                    );
+                    $ownershipVerification->treasurer_remarks = trim($ownershipVerification->treasurer_remarks);
+                    if (empty($ownershipVerification->treasurer_remarks)) {
+                        $ownershipVerification->treasurer_remarks = null;
+                    }
+                    Log::info('Tax Receipt verification removed');
+                }
+                $responseMessage = $isVerified ? 'Current Tax Receipt verified successfully' : 'Current Tax Receipt verification removed';
+                break;
+                
+            case 'spa_link':
+                // UPDATED: SPA can be verified by CPDO, Assessor, OR Treasurer
+                $allowedSPARoles = ['cpdo', 'assessor', 'treasurer'];
+                if (!in_array($position, $allowedSPARoles)) {
+                    Log::error('Unauthorized: User cannot verify SPA', ['position' => $position]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only CPDO, Assessor, or Treasurer can verify Special Power of Attorney (SPA) documents. Your position: ' . ($position ?? 'not set')
+                    ], 403);
+                }
+                
+                // Store SPA verification in assessor_remarks with position info
+                $currentSPARemarks = $ownershipVerification->assessor_remarks ?? '';
+                if ($isVerified) {
+                    // Check if already verified by this position
+                    $positionPattern = '/SPA verified by ' . $position . ' on \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/';
+                    if (!preg_match($positionPattern, $currentSPARemarks)) {
+                        $newRemark = "SPA verified by " . ucfirst($position) . " on " . $now->format('Y-m-d H:i:s');
+                        $ownershipVerification->assessor_remarks = $currentSPARemarks 
+                            ? $currentSPARemarks . "\n" . $newRemark 
+                            : $newRemark;
+                    }
+                    Log::info('SPA verification added', ['verified_by' => $position, 'remark' => $newRemark ?? 'Already verified']);
+                } else {
+                    // Remove the verification remark for this position
+                    $pattern = '/SPA verified by ' . ucfirst($position) . ' on \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n?/';
+                    $ownershipVerification->assessor_remarks = preg_replace($pattern, '', $currentSPARemarks);
+                    $ownershipVerification->assessor_remarks = trim($ownershipVerification->assessor_remarks);
+                    if (empty($ownershipVerification->assessor_remarks)) {
+                        $ownershipVerification->assessor_remarks = null;
+                    }
+                    Log::info('SPA verification removed', ['removed_by' => $position]);
+                }
+                $responseMessage = $isVerified ? 'Special Power of Attorney (SPA) verified successfully by ' . ucfirst($position) : 'Special Power of Attorney (SPA) verification removed';
+                break;
+                
+            default:
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid document type'
+                ], 400);
+        }
+        
+        $ownershipVerification->save();
+        
+        // Log the activity
+        $this->logReviewActivity(
+            $application->id,
+            $staff->id,
+            $isVerified ? 'ownership_document_verified' : 'ownership_document_unverified',
+            null,
+            null,
+            ($isVerified ? 'Verified' : 'Unverified') . ' ' . str_replace('_', ' ', $documentKey) . ' as ' . $position,
+            $request->ip(),
+            $request->userAgent()
+        );
+        
+        Log::info('Ownership document verification updated successfully', [
+            'application_id' => $id,
+            'document_key' => $documentKey,
+            'verified' => $isVerified,
+            'verified_by' => $staff->id,
+            'position' => $position
+        ]);
+        
+        Log::info('========== VERIFY OWNERSHIP DOCUMENT END (SUCCESS) ==========');
+        
+        return response()->json([
+            'success' => true,
+            'message' => $responseMessage,
+            'data' => [
+                'document_key' => $documentKey,
+                'verified' => $isVerified,
+                'verified_by' => $staff->first_name . ' ' . $staff->last_name,
+                'verified_at' => $now->toISOString()
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('========== VERIFY OWNERSHIP DOCUMENT END (ERROR) ==========');
+        Log::error('Error verifying ownership document: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Log review activity for an application

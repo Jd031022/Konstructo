@@ -21,7 +21,7 @@
         </span>
         @endif
         
-        <!-- EXPORT DROPDOWN - ADD THIS -->
+        <!-- EXPORT DROPDOWN -->
         <div class="relative inline-block">
             <button onclick="toggleExportDropdown()" 
                 class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
@@ -93,7 +93,6 @@
 
             <!-- BAR GRAPH -->
             <div class="relative h-80">
-                <!-- Y-Axis Labels -->
                 <div id="y-axis-labels" class="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-right pr-2 text-xs text-gray-400">
                     <span>0</span>
                     <span>0</span>
@@ -102,7 +101,6 @@
                     <span>0</span>
                 </div>
                 
-                <!-- Grid lines -->
                 <div class="absolute left-12 right-0 top-0 bottom-8">
                     <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 0%"></div>
                     <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 25%"></div>
@@ -111,7 +109,6 @@
                     <div class="absolute w-full border-t border-gray-100" style="bottom: 0%"></div>
                 </div>
                 
-                <!-- Bars container -->
                 <div id="weekly-bars" class="absolute left-12 right-0 top-0 bottom-8 flex items-end justify-around gap-2 overflow-x-auto pb-2">
                     <div class="absolute inset-0 flex items-center justify-center">
                         <div class="text-center">
@@ -125,7 +122,6 @@
                 </div>
             </div>
 
-            <!-- Summary Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100" id="summary-stats">
                 <div class="text-center">
                     <p class="text-xs text-gray-500">Total</p>
@@ -153,7 +149,6 @@
                 <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
             </div>
 
-            <!-- Donut Chart Container -->
             <div class="relative w-48 h-48 mx-auto mb-6">
                 <canvas id="donut-chart" width="192" height="192"></canvas>
                 <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
@@ -162,10 +157,8 @@
                 </div>
             </div>
 
-            <!-- Legend with progress bars -->
             <div class="w-full space-y-4 mt-2" id="status-legend"></div>
 
-            <!-- Stats Summary -->
             <div class="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-gray-100">
                 <div class="text-center bg-orange-50 rounded-lg p-3">
                     <p class="text-xs text-orange-600 font-medium">Total</p>
@@ -201,22 +194,35 @@
             </div>
         </div>
 
-        <!-- UPCOMING DEADLINES -->
+        <!-- RECENTLY VERIFIED OWNERSHIP DOCUMENTS SECTION -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Upcoming Deadlines</h3>
-                    <p class="text-xs text-gray-500 mt-1">Applications needing attention</p>
+                    <h3 class="text-lg font-semibold text-gray-700">Recently Verified Documents</h3>
+                    <p class="text-xs text-gray-500 mt-1">
+                        @php
+                            $position = Auth::user()->profile ? Auth::user()->profile->position : null;
+                        @endphp
+                        @if($position === 'cpdo')
+                            Documents you have verified: <span class="font-medium text-green-600">TCT/Deed of Sale</span>
+                        @elseif($position === 'assessor')
+                            Documents you have verified: <span class="font-medium text-purple-600">Tax Declaration, TCT/Deed of Sale</span>
+                        @elseif($position === 'treasurer')
+                            Documents you have verified: <span class="font-medium text-orange-600">Current Tax Receipt, SPA</span>
+                        @else
+                            No position assigned
+                        @endif
+                    </p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium" id="deadline-count">0 due soon</span>
-                    <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">
-                        View all
-                    </a>
-                </div>
+                <a href="/staff/ownership-verifications/verified" class="text-sm text-[#155386] hover:text-[#40798C] font-medium inline-flex items-center gap-1">
+                    View all verified
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
             </div>
 
-            <div id="deadline-list" class="space-y-4">
+            <div id="verified-ownership-list" class="space-y-4">
                 <div class="flex items-center justify-center p-4">
                     <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -231,9 +237,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let donutChart = null;
+    let currentUserPosition = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, loading dashboard data...');
+        
+        // Get user position
+        fetchUserPosition();
         
         // Load dashboard data
         loadDashboardData();
@@ -244,12 +254,25 @@
         });
     });
 
+    async function fetchUserPosition() {
+        try {
+            const response = await fetch('/staff/position/check');
+            if (response.ok) {
+                const data = await response.json();
+                currentUserPosition = data.position;
+                console.log('User position:', currentUserPosition);
+            }
+        } catch (error) {
+            console.error('Error fetching user position:', error);
+        }
+    }
+
     async function loadDashboardData() {
         try {
             await loadStats();
             await loadTrendData();
             await loadRecentActivities();
-            await loadDeadlines();
+            await loadVerifiedOwnershipDocuments();
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         }
@@ -746,95 +769,210 @@
             `;
         }
     }
+    // Load verified ownership documents based on user role
+async function loadVerifiedOwnershipDocuments() {
+    try {
+        const response = await fetch('/staff/ownership-verifications/verified-data');
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        const listContainer = document.getElementById('verified-ownership-list');
+        
+        if (!data.verifications || data.verifications.length === 0) {
+            listContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p class="text-sm">No verified documents yet</p>
+                    <p class="text-xs text-gray-400 mt-1">Documents you verify will appear here</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Get only the 5 most recent verifications for dashboard
+        const recentVerifications = data.verifications.slice(0, 5);
+        let verificationsHtml = '';
+        
+        recentVerifications.forEach(item => {
+            const timeAgo = getTimeAgo(item.verified_at);
+            const applicantName = `${item.first_name} ${item.last_name}`;
+            const documentType = item.document_type;
+            const documentLink = item.document_link;
+            const applicationNumber = item.application_number || 'N/A';
+            const verifiedByName = item.verified_by_name || 'You';
+            
+            // Determine document icon and color based on type
+            let iconColor = 'bg-green-100 text-green-600';
+            let icon = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            `;
+            
+            if (documentType === 'TCT / Deed of Sale') {
+                iconColor = 'bg-green-100 text-green-600';
+                icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
+            } else if (documentType === 'Tax Declaration') {
+                iconColor = 'bg-purple-100 text-purple-600';
+                icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
+            } else if (documentType === 'Current Tax Receipt') {
+                iconColor = 'bg-orange-100 text-orange-600';
+                icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (documentType === 'Special Power of Attorney (SPA)') {
+                iconColor = 'bg-red-100 text-red-600';
+                icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h6m-6 3h6m-6 3h6M3 9h6m-6 3h6m-6 3h6m-6 0V5a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>`;
+            }
+            
+            verificationsHtml += `
+                <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+                            ${icon}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(applicantName)}</p>
+                                <span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">${escapeHtml(applicationNumber)}</span>
+                            </div>
+                            <p class="text-xs text-gray-500">Document: <span class="font-medium">${escapeHtml(documentType)}</span></p>
+                            <p class="text-xs text-green-600 mt-1">Verified by ${escapeHtml(verifiedByName)} • ${timeAgo}</p>
+                            ${documentLink ? `
+                            <div class="mt-1">
+                                <a href="${escapeHtml(documentLink)}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    View Document
+                                </a>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="text-right flex-shrink-0 ml-2">
+                        <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Verified</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        listContainer.innerHTML = verificationsHtml;
+        
+    } catch (error) {
+        console.error('Error loading verified ownership documents:', error);
+        document.getElementById('verified-ownership-list').innerHTML = `
+            <div class="text-center py-8 text-red-500">
+                <p class="text-sm">Failed to load verified documents</p>
+                <button onclick="loadVerifiedOwnershipDocuments()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
+            </div>
+        `;
+    }
+}
 
-    async function loadDeadlines() {
+    // Load verified ownership documents based on user role
+    async function loadVerifiedOwnershipDocuments() {
         try {
-            const response = await fetch('/staff/applications/upcoming-deadlines');
+            const response = await fetch('/staff/ownership-verifications/verified-data');
             
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             
-            const deadlines = await response.json();
-            const listContainer = document.getElementById('deadline-list');
-            const deadlineCount = document.getElementById('deadline-count');
+            const data = await response.json();
+            const listContainer = document.getElementById('verified-ownership-list');
             
-            if (!deadlines || deadlines.length === 0) {
+            if (!data.verifications || data.verifications.length === 0) {
                 listContainer.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <p class="text-sm">No upcoming deadlines</p>
+                        <p class="text-sm">No verified documents yet</p>
+                        <p class="text-xs text-gray-400 mt-1">Documents you verify will appear here</p>
                     </div>
                 `;
-                deadlineCount.textContent = '0 due soon';
                 return;
             }
             
-            deadlineCount.textContent = `${deadlines.length} due soon`;
+            const recentVerifications = data.verifications.slice(0, 5);
+            let verificationsHtml = '';
             
-            const recentDeadlines = deadlines.slice(0, 5);
-            let deadlinesHtml = '';
-            
-            recentDeadlines.forEach(deadline => {
-                let daysLeft = deadline.days_left;
-                daysLeft = Math.max(0, Math.floor(parseFloat(daysLeft) || 0));
+            recentVerifications.forEach(item => {
+                const timeAgo = getTimeAgo(item.verified_at);
+                const applicantName = `${item.first_name} ${item.last_name}`;
+                const documentType = item.document_type;
+                const documentLink = item.document_link;
+                const applicationNumber = item.application_number || 'N/A';
+                const verifiedByName = item.verified_by_name || 'You';
                 
-                let colorClass = 'text-red-600';
-                let bgColor = 'bg-red-100';
+                // Determine document icon and color based on type
+                let iconColor = 'bg-green-100 text-green-600';
+                let icon = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                `;
                 
-                if (daysLeft > 7) {
-                    colorClass = 'text-yellow-600';
-                    bgColor = 'bg-yellow-100';
-                } else if (daysLeft > 3) {
-                    colorClass = 'text-orange-600';
-                    bgColor = 'bg-orange-100';
-                } else if (daysLeft > 1) {
-                    colorClass = 'text-red-600';
-                    bgColor = 'bg-red-100';
-                } else if (daysLeft <= 1) {
-                    colorClass = 'text-red-700 font-bold';
-                    bgColor = 'bg-red-200';
+                if (documentType === 'TCT / Deed of Sale') {
+                    iconColor = 'bg-green-100 text-green-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
+                } else if (documentType === 'Tax Declaration') {
+                    iconColor = 'bg-purple-100 text-purple-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
+                } else if (documentType === 'Current Tax Receipt') {
+                    iconColor = 'bg-orange-100 text-orange-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (documentType === 'Special Power of Attorney (SPA)') {
+                    iconColor = 'bg-red-100 text-red-600';
+                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h6m-6 3h6m-6 3h6M3 9h6m-6 3h6m-6 3h6m-6 0V5a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>`;
                 }
                 
-                const appName = deadline.application_name || 'Unknown Application';
-                const applicantName = deadline.applicant_name || 'Unknown';
-                const dueDate = deadline.due_date || 'N/A';
-                const daysText = daysLeft === 0 ? 'Due today!' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
-                
-                deadlinesHtml += `
-                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                verificationsHtml += `
+                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-full ${bgColor} flex items-center justify-center ${colorClass} flex-shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+                                ${icon}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm font-medium text-gray-800 truncate">${escapeHtml(appName)}</p>
-                                <p class="text-xs text-gray-500 truncate">${escapeHtml(applicantName)}</p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(applicantName)}</p>
+                                    <span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">${escapeHtml(applicationNumber)}</span>
+                                </div>
+                                <p class="text-xs text-gray-500">Document: <span class="font-medium">${escapeHtml(documentType)}</span></p>
+                                <p class="text-xs text-green-600 mt-1">Verified by ${escapeHtml(verifiedByName)} • ${timeAgo}</p>
+                                ${documentLink ? `
+                                <div class="mt-1">
+                                    <a href="${escapeHtml(documentLink)}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        View Document
+                                    </a>
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                         <div class="text-right flex-shrink-0 ml-2">
-                            <p class="text-xs font-bold ${colorClass}">${daysText}</p>
-                            <p class="text-xs text-gray-400">${dueDate}</p>
+                            <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Verified</span>
                         </div>
                     </div>
                 `;
             });
             
-            listContainer.innerHTML = deadlinesHtml;
+            listContainer.innerHTML = verificationsHtml;
             
         } catch (error) {
-            console.error('Error loading deadlines:', error);
-            document.getElementById('deadline-list').innerHTML = `
+            console.error('Error loading verified ownership documents:', error);
+            document.getElementById('verified-ownership-list').innerHTML = `
                 <div class="text-center py-8 text-red-500">
-                    <p class="text-sm">Failed to load deadlines</p>
-                    <button onclick="loadDeadlines()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
+                    <p class="text-sm">Failed to load verified documents</p>
+                    <button onclick="loadVerifiedOwnershipDocuments()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
                 </div>
             `;
-            document.getElementById('deadline-count').textContent = '0 due soon';
         }
     }
 
@@ -859,31 +997,31 @@
     }
 
     // Export dropdown toggle
-function toggleExportDropdown() {
-    const dropdown = document.getElementById('export-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('export-dropdown');
-    const button = event.target.closest('.relative');
-    if (!button && dropdown && !dropdown.classList.contains('hidden')) {
-        dropdown.classList.add('hidden');
-    }
-});
-
-// Close dropdown on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
+    function toggleExportDropdown() {
         const dropdown = document.getElementById('export-dropdown');
-        if (dropdown && !dropdown.classList.contains('hidden')) {
-            dropdown.classList.add('hidden');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
         }
     }
-});
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('export-dropdown');
+        const button = event.target.closest('.relative');
+        if (!button && dropdown && !dropdown.classList.contains('hidden')) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Close dropdown on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const dropdown = document.getElementById('export-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        }
+    });
 </script>
 
 <style>

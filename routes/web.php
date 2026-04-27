@@ -67,7 +67,16 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/recent-activities', [App\Http\Controllers\Staff\DashboardController::class, 'getRecentActivities'])->name('applications.recent-activities');
     Route::get('/applications/upcoming-deadlines', [App\Http\Controllers\Staff\DashboardController::class, 'getUpcomingDeadlines'])->name('applications.upcoming-deadlines');
     Route::post('/applications/restore-multiple', [App\Http\Controllers\Staff\ApplicationController::class, 'restoreMultiple'])->name('applications.restore-multiple');
-    
+
+    // ========== OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
+   Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);
+  // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
+Route::get('/ownership-verifications/verified-data', [App\Http\Controllers\Staff\DashboardController::class, 'getVerifiedOwnershipDocuments']);
+// ========== VERIFIED OWNERSHIP DOCUMENTS PAGE ==========
+Route::get('/ownership-verifications/verified', function () {
+    return view('staff.verified-ownership');
+});
+
     // ========== POSITION MANAGEMENT ROUTES ==========
     Route::prefix('position')->name('position.')->group(function () {
         Route::post('/update', [App\Http\Controllers\Staff\PositionController::class, 'update'])->name('update');
@@ -92,6 +101,9 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::post('/payment-proof/{id}/verify', [App\Http\Controllers\Staff\PaymentProofController::class, 'verify'])->name('payment-proof.verify');
     Route::post('/payment-proof/{id}/reject', [App\Http\Controllers\Staff\PaymentProofController::class, 'reject'])->name('payment-proof.reject');
     Route::get('/applications/{applicationId}/payment-proof', [App\Http\Controllers\Staff\PaymentProofController::class, 'getPaymentProof'])->name('applications.payment-proof');
+    
+    // ========== CREATE PAYMENT PROOF WITHOUT OR ==========
+    Route::post('/applications/{id}/create-payment-proof', [App\Http\Controllers\Staff\PaymentProofController::class, 'createPaymentProof']);
     
     // ========== CPDO CERTIFICATE UPLOAD ROUTES ==========
     Route::post('/payment-proof/{id}/upload-certificate', [App\Http\Controllers\Staff\PaymentProofController::class, 'uploadCertificate'])->name('payment-proof.upload-certificate');
@@ -124,7 +136,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/surveys/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getSurveys'])->name('surveys.data');
     Route::get('/surveys/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportSurveys'])->name('surveys.export');
 
-        // ========== CPDO RATINGS ROUTES (STAFF) ==========
+    // ========== CPDO RATINGS ROUTES (STAFF) ==========
     Route::get('/cpdo-ratings/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDORatings'])->name('cpdo-ratings.data');
     Route::get('/cpdo-ratings/stats', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDORatingsStats'])->name('cpdo-ratings.stats');
     Route::get('/cpdo-ratings/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportCPDORatings'])->name('cpdo-ratings.export');
@@ -262,8 +274,8 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::post('/application/step3/complete', [ApplicationController::class, 'completeStep2'])->name('application.step3.complete');
     Route::post('/application/step4/complete', [ApplicationController::class, 'completeStep3'])->name('application.step4.complete');
 
-Route::post('/cpdo-rating/submit', [ApplicationController::class, 'submitCPDORating'])->name('cpdo-rating.submit');
-Route::get('/cpdo-rating/check/{id}', [ApplicationController::class, 'checkCPDORating'])->name('cpdo-rating.check');
+    Route::post('/cpdo-rating/submit', [ApplicationController::class, 'submitCPDORating'])->name('cpdo-rating.submit');
+    Route::get('/cpdo-rating/check/{id}', [ApplicationController::class, 'checkCPDORating'])->name('cpdo-rating.check');
     
     // ========== ACCOUNT STATUS ROUTE ==========
     Route::get('/account-status', function () {

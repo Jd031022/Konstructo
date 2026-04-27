@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaymentProof;
+use App\Models\ApplicationDocument;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,63 @@ class PaymentProofController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
+    }
+
+    /**
+     * Create a payment proof record for an application (no OR required)
+     * This allows CPDO to upload certificates even without an existing payment proof
+     */
+    public function createPaymentProof(Request $request, $id)
+    {
+        Log::info('PaymentProofController@createPaymentProof called', ['application_id' => $id]);
+
+        try {
+            $application = ApplicationDocument::find($id);
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $staff = Auth::user();
+            $staff->load('profile');
+            $position = $staff->profile ? $staff->profile->position : null;
+
+            // Only CPDO can create payment proof records for certificate uploads
+            if ($position !== 'cpdo') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only CPDO staff can create payment proof records'
+                ], 403);
+            }
+            
+            $paymentProof = PaymentProof::firstOrCreate(
+                ['application_id' => $id],
+                [
+                    'user_id' => $application->user_id,
+                    'status' => 'pending'
+                ]
+            );
+            
+            Log::info('Payment proof record created/retrieved', [
+                'application_id' => $id,
+                'payment_proof_id' => $paymentProof->id
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $paymentProof
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error creating payment proof: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create payment proof record: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function verify(Request $request, $id)
@@ -170,17 +228,11 @@ class PaymentProofController extends Controller
                 ], 403);
             }
 
-            // Check if OR is verified first
-            if ($paymentProof->status !== 'verified') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please verify the Official Receipt first before uploading certificates'
-                ], 422);
-            }
+            // REMOVED: The check for OR verification - CPDO can upload certificates without OR verification
+            // CPDO can upload certificates anytime, regardless of payment proof status
 
             $certificateType = $request->type;
             $certificateLink = $request->link;
-            $certificateName = $certificateType === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance';
 
             if ($certificateType === 'zoning_cert') {
                 $paymentProof->update([

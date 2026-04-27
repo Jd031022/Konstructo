@@ -422,23 +422,29 @@
                     </div>
                 </div>
 
-                <!-- Staff Guidelines Card -->
-                <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 animate-fade-in">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
-                            <p class="text-sm text-gray-600"><strong>Step 1 (Ownership Documents):</strong> Assessor can verify TCT/Deed of Sale and Tax Declaration. Treasurer can verify Current Tax Receipt. Special Power of Attorney (SPA) cannot be verified by staff.<br>
-                            <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Only Engineers and Architects can verify documents. Other roles can only view documents. CPDO must approve first before Step 2 verification begins.<br>
-                            <strong>Hard Copy Check:</strong> Only Engineers and Architects can mark hard copy as received.<br>
-                            <strong>CPDO Decision:</strong> Only CPDO staff can approve or reject applications. Once submitted, the decision is final and cannot be changed.</p>
-                        </div>
-                    </div>
-                </div>
+               <!-- Staff Guidelines Card -->
+<div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 animate-fade-in">
+    <div class="flex items-start gap-4">
+        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <h4 class="font-semibold text-gray-800 mb-1">Staff Guidelines</h4>
+            <p class="text-sm text-gray-600">
+                <strong>Step 1 (Ownership Documents):</strong> 
+                <span class="text-green-600">CPDO</span> can verify TCT/Deed of Sale. 
+                <span class="text-purple-600">Assessor</span> can verify Tax Declaration. 
+                <span class="text-orange-600">Treasurer</span> can verify Current Tax Receipt. 
+                <span class="text-blue-600">Special Power of Attorney (SPA)</span> can be verified by CPDO, Assessor, OR Treasurer.<br>
+                <strong>Step 2 (Project Documents):</strong> Click "View" to review each document. Only Engineers and Architects can verify documents. Other roles can only view documents. CPDO must approve first before Step 2 verification begins.<br>
+                <strong>Hard Copy Check:</strong> Only Engineers and Architects can mark hard copy as received.<br>
+                <strong>CPDO Decision:</strong> Only CPDO staff can approve or reject applications. Once submitted, the decision is final and cannot be changed.
+            </p>
+        </div>
+    </div>
+</div>
 
                 <!-- Communication Info Card -->
                 <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-fade-in">
@@ -553,140 +559,91 @@
         <span id="cpdo-assessment-status" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
     </div>
     
-    <!-- OR Payment Verification Section -->
-    <div id="or-verification-section" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-        <div class="flex items-center gap-2 mb-3">
-            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <!-- Certificates Upload Section (only CPDO can upload) -->
+    <div id="certificates-section" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <h3 class="text-md font-semibold text-gray-800">Official Receipt (OR) Verification</h3>
+            <h3 class="text-md font-semibold text-gray-800">Required Certificates</h3>
+            <span class="text-xs text-gray-500">(Only CPDO can upload)</span>
         </div>
         
-        <div id="or-display-section">
-            <div id="or-loading" class="text-center py-4">
-                <svg class="animate-spin h-6 w-6 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="text-sm text-gray-500 mt-2">Loading OR information...</p>
+        <!-- Zoning Certificate Section -->
+        <div class="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
+                </div>
+                <span id="zoning-cert-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
             </div>
             
-            <div id="or-content" class="hidden">
-                <div class="flex items-center justify-between mb-3">
+            <div id="zoning-cert-display" class="hidden">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="text-sm font-medium text-gray-700">OR Link:</span>
-                        <a id="or-link-display" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <a id="zoning-cert-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
                     </div>
-                    <span id="or-status-badge" class="text-xs px-2 py-1 rounded-full"></span>
+                    <button onclick="removeCertificate('zoning_cert')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
                 </div>
-                
-                <div id="or-verification-actions" class="mt-3 flex gap-2">
-                    <button onclick="verifyOR()" id="verify-or-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium hidden">
-                        Verify OR
-                    </button>
-                    <button onclick="openRejectORModal()" id="reject-or-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium hidden">
-                        Reject OR
-                    </button>
-                </div>
-                
-                <div id="or-rejection-reason" class="mt-3 p-3 bg-red-50 rounded-lg hidden">
-                    <p class="text-xs text-red-600"><strong>Rejection Reason:</strong> <span id="or-rejection-text"></span></p>
-                </div>
-                
-                <div id="or-verification-info" class="mt-3 text-xs text-gray-500 hidden">
-                    <p>Verified by: <span id="or-verified-by"></span> on <span id="or-verified-at"></span></p>
+                <div id="zoning-cert-meta" class="mt-2 text-xs text-gray-400"></div>
+            </div>
+            
+            <div id="zoning-cert-form" class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Zoning Certificate <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="url" id="zoning-cert-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
+                        <button onclick="uploadCertificate('zoning_cert')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium">Upload</button>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Certificates Upload Section (only visible after OR is verified) -->
-    <div id="certificates-section" class="hidden">
-        <div class="border-t border-indigo-200 pt-4 mb-4">
-            <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <h3 class="text-md font-semibold text-gray-800">Required Certificates</h3>
-                <span class="text-xs text-gray-500">(Only CPDO can upload)</span>
+        
+        <!-- Locational Clearance Section -->
+        <div class="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
+                </div>
+                <span id="locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
             </div>
             
-            <!-- Zoning Certificate Section -->
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex items-center justify-between mb-3">
+            <div id="locational-display" class="hidden">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <a id="locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
                     </div>
-                    <span id="zoning-cert-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
+                    <button onclick="removeCertificate('locational_clearance')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
                 </div>
-                
-                <div id="zoning-cert-display" class="hidden">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <a id="zoning-cert-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
-                        </div>
-                        <button onclick="removeCertificate('zoning_cert')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
-                    </div>
-                    <div id="zoning-cert-meta" class="mt-2 text-xs text-gray-400"></div>
-                </div>
-                
-                <div id="zoning-cert-form" class="space-y-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Zoning Certificate <span class="text-red-500">*</span></label>
-                        <div class="flex gap-2">
-                            <input type="url" id="zoning-cert-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
-                            <button onclick="uploadCertificate('zoning_cert')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium">Upload</button>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
-                    </div>
-                </div>
+                <div id="locational-meta" class="mt-2 text-xs text-gray-400"></div>
             </div>
             
-            <!-- Locational Clearance Section -->
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
+            <div id="locational-form" class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Locational Clearance <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="url" id="locational-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
+                        <button onclick="uploadCertificate('locational_clearance')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">Upload</button>
                     </div>
-                    <span id="locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Uploaded</span>
-                </div>
-                
-                <div id="locational-display" class="hidden">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <a id="locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
-                        </div>
-                        <button onclick="removeCertificate('locational_clearance')" class="text-xs text-red-500 hover:text-red-700">Remove</button>
-                    </div>
-                    <div id="locational-meta" class="mt-2 text-xs text-gray-400"></div>
-                </div>
-                
-                <div id="locational-form" class="space-y-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to Locational Clearance <span class="text-red-500">*</span></label>
-                        <div class="flex gap-2">
-                            <input type="url" id="locational-link-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
-                            <button onclick="uploadCertificate('locational_clearance')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">Upload</button>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
-                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Only CPDO can upload this certificate</p>
                 </div>
             </div>
         </div>
@@ -822,80 +779,122 @@
         <button onclick="saveCPDOAssessment()" id="save-cpdo-assessment-btn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">Save CPDO Assessment</button>
     </div>
 </div>
+ <!-- OR Display Section (VIEW ONLY - NO VERIFICATION) -->
+    <div id="or-display-section" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="text-md font-semibold text-gray-800">Official Receipt (OR)</h3>
+            <span class="text-xs text-gray-500 ml-auto">Applicant Uploaded</span>
+        </div>
+        
+        <div id="or-loading" class="text-center py-3">
+            <svg class="animate-spin h-6 w-6 mx-auto text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-xs text-gray-500 mt-1">Loading OR information...</p>
+        </div>
+        
+        <div id="or-content" class="hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700">OR Link:</span>
+                </div>
+                <a id="or-link-display" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
+            </div>
+            <div id="or-upload-info" class="mt-2 text-xs text-gray-500">
+                Uploaded by applicant
+            </div>
+        </div>
+        
+        <div id="or-empty-message" class="hidden text-center py-3">
+            <svg class="w-10 h-10 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-xs text-gray-500">No Official Receipt uploaded yet</p>
+            <p class="text-xs text-gray-400 mt-1">The applicant will upload the OR after CPDO assessment is completed</p>
+        </div>
+    </div>
+<!-- Status Update Card (UPDATED with OR display) -->
+<div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
+    
+   
+    
+    <div class="space-y-4">
+        <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <p class="text-xs text-gray-500 mb-1">Current Status</p>
+            <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
+        </div>
 
-                    <!-- Status Update Card -->
-                    <div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
-                        
-                        <div class="space-y-4">
-                            <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                <p class="text-xs text-gray-500 mb-1">Current Status</p>
-                                <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
-                            </div>
+        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <label class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
+                <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+            </label>
+            <p id="hardcopy-permission-warning" class="text-xs text-red-500 mt-1 hidden">Only Engineers and Architects can mark hard copy as received.</p>
+        </div>
 
-                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                <label class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
-                                    <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-                                </label>
-                                <p id="hardcopy-permission-warning" class="text-xs text-red-500 mt-1 hidden">Only Engineers and Architects can mark hard copy as received.</p>
-                            </div>
+        <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-600">Documents Verified:</span>
+                <span id="summary-verified" class="text-sm font-semibold text-green-600">0</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Pending Verification:</span>
+                <span id="summary-pending" class="text-sm font-semibold text-yellow-600">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div id="verification-progress-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+        </div>
 
-                            <div class="p-3 bg-green-50 rounded-lg border border-green-200">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm text-gray-600">Documents Verified:</span>
-                                    <span id="summary-verified" class="text-sm font-semibold text-green-600">0</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Pending Verification:</span>
-                                    <span id="summary-pending" class="text-sm font-semibold text-yellow-600">0</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div id="verification-progress-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
-                                </div>
-                            </div>
+        <div class="space-y-2">
+            @php
+                $statusOptions = [
+                    'under-review' => ['Under Review', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                    'document-verification' => ['Document Verification', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                    'for-assessment' => ['For Assessment', 'indigo', ['engineer']],
+                    'approved' => ['Approved', 'green', ['engineer']],
+                    'rejected' => ['Rejected', 'red', ['engineer']],
+                    'for-release' => ['For Release', 'blue', ['engineer']],
+                    'verified' => ['Completed', 'emerald', ['engineer']]
+                ];
+            @endphp
+            
+            @foreach($statusOptions as $value => [$label, $color, $allowedPositions])
+            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 status-option status-option-{{ $value }}" data-allowed-positions='@json($allowedPositions)'>
+                <input type="radio" name="status" value="{{ $value }}" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                <span class="ml-3 text-sm font-medium text-{{ $color }}-600">{{ $label }}</span>
+                <span class="ml-auto text-xs text-gray-400 status-restricted-badge hidden">(Restricted)</span>
+            </label>
+            @endforeach
+        </div>
 
-                            <div class="space-y-2">
-                                @php
-                                    $statusOptions = [
-                                        'under-review' => ['Under Review', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
-                                        'document-verification' => ['Document Verification', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
-                                        'for-assessment' => ['For Assessment', 'indigo', ['engineer']],
-                                        'approved' => ['Approved', 'green', ['engineer']],
-                                        'rejected' => ['Rejected', 'red', ['engineer']],
-                                        'for-release' => ['For Release', 'blue', ['engineer']],
-                                        'verified' => ['Completed', 'emerald', ['engineer']]
-                                    ];
-                                @endphp
-                                
-                                @foreach($statusOptions as $value => [$label, $color, $allowedPositions])
-                                <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 status-option status-option-{{ $value }}" data-allowed-positions='@json($allowedPositions)'>
-                                    <input type="radio" name="status" value="{{ $value }}" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                                    <span class="ml-3 text-sm font-medium text-{{ $color }}-600">{{ $label }}</span>
-                                    <span class="ml-auto text-xs text-gray-400 status-restricted-badge hidden">(Restricted)</span>
-                                </label>
-                                @endforeach
-                            </div>
+        <div id="status-restriction-notice" class="hidden p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-700">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.</span>
+            </div>
+        </div>
 
-                            <div id="status-restriction-notice" class="hidden p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-700">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                    <span>Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.</span>
-                                </div>
-                            </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
+            <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
+            <p class="text-xs text-gray-400 mt-1">Remarks will be saved to activity log.</p>
+        </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
-                                <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
-                                <p class="text-xs text-gray-400 mt-1">Remarks will be saved to activity log.</p>
-                            </div>
-
-                            <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
-                        </div>
-                    </div>
-
+        <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
+    </div>
+</div>
                     <!-- BFP FSEC Section -->
                     <div id="bfp-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in hidden">
                         <div class="flex items-center gap-2 mb-4">
@@ -1444,10 +1443,10 @@
     };
     
     const ownershipVerificationPermissions = {
-        'tct_link': ['assessor'],
+        'tct_link': ['cpdo'],
         'tax_declaration_link': ['assessor'],
         'current_tax_receipt_link': ['treasurer'],
-        'spa_link': []
+        'spa_link': ['cpdo,assessor,treasurer']
     };
     
     // Ownership verification status storage
@@ -2428,83 +2427,87 @@
     }
     
     function displayOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        if (!currentOwnershipData) {
-            displayEmptyOwnershipDocuments();
-            return;
-        }
-        let html = '';
-        let hasDocuments = false;
-        const ownershipLinks = {
-            'tct_link': currentOwnershipData.tct_link,
-            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
-            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
-            'spa_link': currentOwnershipData.spa_link
-        };
-        
-        for (const [key, value] of Object.entries(ownershipLinks)) {
-            if (value && value.trim() !== '') {
-                hasDocuments = true;
-                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
-                const isVerified = ownershipVerificationStatus[key] || false;
-                const canVerify = canVerifyOwnershipDocument(key);
-                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
-                
-                let verifyInfo = '';
-                if (key === 'tct_link') {
-                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
-                } else if (key === 'tax_declaration_link') {
-                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
-                } else if (key === 'current_tax_receipt_link') {
-                    verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Treasurer only)</span>';
-                }
-                
-                html += `
-                    <div class="flex items-center justify-between p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-1">
-                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
-                                    ${spaBadge}
-                                    ${verifyInfo}
-                                    ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
-                                </div>
-                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
-                            </div>
+    const container = document.getElementById('ownership-documents-list');
+    if (!currentOwnershipData) {
+        displayEmptyOwnershipDocuments();
+        return;
+    }
+    let html = '';
+    let hasDocuments = false;
+    const ownershipLinks = {
+        'tct_link': currentOwnershipData.tct_link,
+        'tax_declaration_link': currentOwnershipData.tax_declaration_link,
+        'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
+        'spa_link': currentOwnershipData.spa_link
+    };
+    
+    for (const [key, value] of Object.entries(ownershipLinks)) {
+        if (value && value.trim() !== '') {
+            hasDocuments = true;
+            const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+            const isVerified = ownershipVerificationStatus[key] || false;
+            const canVerify = canVerifyOwnershipDocument(key);
+            
+            // Update permission hints based on new rules
+            let verifyInfo = '';
+            if (key === 'tct_link') {
+                verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO only)</span>';
+            } else if (key === 'tax_declaration_link') {
+                verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
+            } else if (key === 'current_tax_receipt_link') {
+                verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Treasurer only)</span>';
+            } else if (key === 'spa_link') {
+                verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO/Assessor/Treasurer)</span>';
+            }
+            
+            const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+            
+            html += `
+                <div class="flex items-center justify-between p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
                         </div>
-                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                            ${canVerify ? `
-                                <label class="flex items-center gap-1 cursor-pointer">
-                                    <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
-                                    <span class="text-xs text-gray-600">Verify</span>
-                                </label>
-                            ` : isVerified ? `
-                                <div class="flex items-center gap-1">
-                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span class="text-xs text-green-600">Verified</span>
-                                </div>
-                            ` : ''}
-                            <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                                <span class="hidden sm:inline">View</span>
-                            </a>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center flex-wrap gap-1">
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                ${spaBadge}
+                                ${verifyInfo}
+                                ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
+                            </div>
+                            <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
                         </div>
                     </div>
-                `;
-            }
+                    <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                        ${canVerify ? `
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
+                                <span class="text-xs text-gray-600">Verify</span>
+                            </label>
+                        ` : isVerified ? `
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-xs text-green-600">Verified</span>
+                            </div>
+                        ` : ''}
+                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span class="hidden sm:inline">View</span>
+                        </a>
+                    </div>
+                </div>
+            `;
         }
-        if (!hasDocuments) displayEmptyOwnershipDocuments();
-        else container.innerHTML = html;
     }
+    if (!hasDocuments) displayEmptyOwnershipDocuments();
+    else container.innerHTML = html;
+}
     
     function displayEmptyOwnershipDocuments() {
         const container = document.getElementById('ownership-documents-list');
@@ -3211,241 +3214,106 @@
         });
     }
 
-    // Payment Proof / OR Variables
+  // Payment Proof Functions (VIEW ONLY - No verification)
 let currentPaymentProof = null;
 
-// Load OR/Payment Proof data
+// Load payment proof data
 async function loadPaymentProof() {
     if (!applicationId) return;
-    
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
         });
-        
         const loadingDiv = document.getElementById('or-loading');
         const contentDiv = document.getElementById('or-content');
+        const emptyDiv = document.getElementById('or-empty-message');
         
         if (response.ok) {
             const data = await response.json();
-            if (data.success && data.data) {
+            if (data.success && data.data && data.data.or_link) {
                 currentPaymentProof = data.data;
                 loadingDiv.classList.add('hidden');
                 contentDiv.classList.remove('hidden');
-                displayPaymentProof();
+                emptyDiv.classList.add('hidden');
+                
+                // Display OR link
+                const orLink = document.getElementById('or-link-display');
+                if (currentPaymentProof.or_link) {
+                    orLink.href = currentPaymentProof.or_link;
+                    orLink.textContent = currentPaymentProof.or_link.length > 50 ? 
+                        currentPaymentProof.or_link.substring(0, 50) + '...' : 
+                        currentPaymentProof.or_link;
+                }
+                
+                // Load certificates after OR data is loaded
+                await loadCertificates();
                 return;
             }
         }
         
         // No payment proof found
-        loadingDiv.innerHTML = `
-            <div class="text-center py-4 text-gray-500">
-                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p class="text-sm">No Official Receipt uploaded yet</p>
-                <p class="text-xs text-gray-400 mt-1">The applicant will upload the OR after assessment is completed</p>
-            </div>
-        `;
+        loadingDiv.classList.add('hidden');
+        contentDiv.classList.add('hidden');
+        emptyDiv.classList.remove('hidden');
+        
     } catch (error) {
         console.error('Error loading payment proof:', error);
         const loadingDiv = document.getElementById('or-loading');
-        loadingDiv.innerHTML = `
-            <div class="text-center py-4 text-red-500">
-                <p class="text-sm">Error loading OR information</p>
-            </div>
-        `;
+        const emptyDiv = document.getElementById('or-empty-message');
+        loadingDiv.classList.add('hidden');
+        emptyDiv.classList.remove('hidden');
+        emptyDiv.innerHTML = `<div class="text-center py-3 text-red-500"><p class="text-xs">Error loading OR information</p></div>`;
     }
 }
 
-// Display Payment Proof with verification options
-function displayPaymentProof() {
-    if (!currentPaymentProof) return;
-    
-    const orLink = document.getElementById('or-link-display');
-    const statusBadge = document.getElementById('or-status-badge');
-    const verifyBtn = document.getElementById('verify-or-btn');
-    const rejectBtn = document.getElementById('reject-or-btn');
-    const rejectionDiv = document.getElementById('or-rejection-reason');
-    const rejectionText = document.getElementById('or-rejection-text');
-    const verificationInfo = document.getElementById('or-verification-info');
-    const certificatesSection = document.getElementById('certificates-section');
-    
-    // Set OR link
-    if (currentPaymentProof.or_link) {
-        orLink.href = currentPaymentProof.or_link;
-        orLink.textContent = currentPaymentProof.or_link.length > 50 ? 
-            currentPaymentProof.or_link.substring(0, 50) + '...' : 
-            currentPaymentProof.or_link;
-    }
-    
-    // Check if user is CPDO
-    const isCPDO = currentUserPosition === 'cpdo';
-    
-    // Update based on status
-    if (currentPaymentProof.status === 'pending') {
-        statusBadge.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
-        statusBadge.textContent = 'Pending Verification';
-        rejectionDiv.classList.add('hidden');
-        verificationInfo.classList.add('hidden');
-        certificatesSection.classList.add('hidden');
-        
-        if (isCPDO) {
-            verifyBtn.classList.remove('hidden');
-            rejectBtn.classList.remove('hidden');
-        } else {
-            verifyBtn.classList.add('hidden');
-            rejectBtn.classList.add('hidden');
-        }
-        
-    } else if (currentPaymentProof.status === 'verified') {
-        statusBadge.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-        statusBadge.textContent = 'Verified ✓';
-        verifyBtn.classList.add('hidden');
-        rejectBtn.classList.add('hidden');
-        rejectionDiv.classList.add('hidden');
-        verificationInfo.classList.remove('hidden');
-        certificatesSection.classList.remove('hidden');
-        
-        // Show verification info
-        if (currentPaymentProof.verified_by && currentPaymentProof.verifier) {
-            document.getElementById('or-verified-by').textContent = currentPaymentProof.verifier.full_name || 'Staff';
-            document.getElementById('or-verified-at').textContent = new Date(currentPaymentProof.verified_at).toLocaleString();
-        } else if (currentPaymentProof.verified_by) {
-            document.getElementById('or-verified-by').textContent = 'Staff ID: ' + currentPaymentProof.verified_by;
-            document.getElementById('or-verified-at').textContent = new Date(currentPaymentProof.verified_at).toLocaleString();
-        }
-        
-        // Load certificates after OR is verified
-        loadCertificates();
-        
-    } else if (currentPaymentProof.status === 'rejected') {
-        statusBadge.className = 'text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
-        statusBadge.textContent = 'Rejected';
-        rejectionDiv.classList.remove('hidden');
-        rejectionText.textContent = currentPaymentProof.rejection_reason || 'No reason provided';
-        verificationInfo.classList.add('hidden');
-        certificatesSection.classList.add('hidden');
-        
-        if (isCPDO) {
-            verifyBtn.classList.remove('hidden');
-            rejectBtn.classList.remove('hidden');
-        } else {
-            verifyBtn.classList.add('hidden');
-            rejectBtn.classList.add('hidden');
-        }
-    }
-}
-
-// Verify OR
-async function verifyOR() {
-    if (!currentPaymentProof) {
-        showErrorModal('Error', 'Payment proof not found');
-        return;
-    }
-    
-    const btn = document.getElementById('verify-or-btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = 'Verifying...';
-    btn.disabled = true;
-    
-    showSubmittingModal('Verifying Official Receipt...');
-    
+// Reload payment proof data (after certificate upload)
+async function reloadPaymentProof() {
+    if (!applicationId) return;
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/verify`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
+        const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+                currentPaymentProof = data.data;
+                // Reload certificates display
+                await loadCertificates();
             }
-        });
-        
-        const data = await response.json();
-        closeSubmittingModal();
-        
-        if (data.success) {
-            showSuccessModal('OR Verified', 'Official Receipt has been verified successfully. You can now upload the required certificates.');
-            await loadPaymentProof(); // Reload to show updated status
-        } else {
-            showErrorModal('Verification Failed', data.message || 'Failed to verify OR');
         }
     } catch (error) {
-        closeSubmittingModal();
-        console.error('Error verifying OR:', error);
-        showErrorModal('Error', 'Failed to verify OR. Please try again.');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        console.error('Error reloading payment proof:', error);
     }
 }
-
-// Open Reject OR Modal
-function openRejectORModal() {
-    if (!currentPaymentProof) return;
-    
-    const reason = prompt('Please provide a reason for rejecting the Official Receipt:');
-    if (!reason || reason.trim() === '') {
-        showErrorModal('Reason Required', 'Please provide a reason for rejection.');
-        return;
-    }
-    
-    rejectOR(reason.trim());
-}
-
-// Reject OR
-async function rejectOR(reason) {
-    const btn = document.getElementById('reject-or-btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = 'Rejecting...';
-    btn.disabled = true;
-    
-    showSubmittingModal('Rejecting Official Receipt...');
-    
-    try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/reject`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ reason: reason })
-        });
-        
-        const data = await response.json();
-        closeSubmittingModal();
-        
-        if (data.success) {
-            showSuccessModal('OR Rejected', 'Official Receipt has been rejected. The applicant will be notified.');
-            await loadPaymentProof(); // Reload to show updated status
-        } else {
-            showErrorModal('Rejection Failed', data.message || 'Failed to reject OR');
-        }
-    } catch (error) {
-        closeSubmittingModal();
-        console.error('Error rejecting OR:', error);
-        showErrorModal('Error', 'Failed to reject OR. Please try again.');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-}
-
-// Load Certificates (Zoning Cert and Locational Clearance)
-function loadCertificates() {
-    if (!currentPaymentProof) return;
-    
+// Load Certificates (Zoning Cert and Locational Clearance) - Direct from application
+async function loadCertificates() {
     const isCPDO = currentUserPosition === 'cpdo';
+    
+    console.log('Loading certificates - isCPDO:', isCPDO);
+    
+    // First, try to load payment proof data if exists
+    if (!currentPaymentProof) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentPaymentProof = data.data;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading payment proof for certificates:', error);
+        }
+    }
     
     // Zoning Certificate
-    if (currentPaymentProof.zoning_cert_link) {
+    if (currentPaymentProof && currentPaymentProof.zoning_cert_link) {
         document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
         document.getElementById('zoning-cert-status').textContent = 'Uploaded';
         document.getElementById('zoning-cert-display').classList.remove('hidden');
@@ -3465,6 +3333,8 @@ function loadCertificates() {
         document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
         document.getElementById('zoning-cert-status').textContent = 'Not Uploaded';
         document.getElementById('zoning-cert-display').classList.add('hidden');
+        
+        // Show upload form for CPDO regardless of payment proof
         if (isCPDO) {
             document.getElementById('zoning-cert-form').classList.remove('hidden');
         } else {
@@ -3473,7 +3343,7 @@ function loadCertificates() {
     }
     
     // Locational Clearance
-    if (currentPaymentProof.locational_clearance_link) {
+    if (currentPaymentProof && currentPaymentProof.locational_clearance_link) {
         document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
         document.getElementById('locational-status').textContent = 'Uploaded';
         document.getElementById('locational-display').classList.remove('hidden');
@@ -3493,6 +3363,8 @@ function loadCertificates() {
         document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
         document.getElementById('locational-status').textContent = 'Not Uploaded';
         document.getElementById('locational-display').classList.add('hidden');
+        
+        // Show upload form for CPDO regardless of payment proof
         if (isCPDO) {
             document.getElementById('locational-form').classList.remove('hidden');
         } else {
@@ -3501,13 +3373,8 @@ function loadCertificates() {
     }
 }
 
-// Upload Certificate (Zoning Cert or Locational Clearance)
+// Upload Certificate (Zoning Cert or Locational Clearance) - Uses payment_proofs table but creates if not exists
 async function uploadCertificate(type) {
-    if (!currentPaymentProof) {
-        showErrorModal('Error', 'Payment proof not found');
-        return;
-    }
-    
     let link, button, inputId;
     if (type === 'zoning_cert') {
         inputId = 'zoning-cert-link-input';
@@ -3538,7 +3405,32 @@ async function uploadCertificate(type) {
     
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/upload-certificate`, {
+        
+        // First, get or create payment proof record
+        let paymentProofId = currentPaymentProof ? currentPaymentProof.id : null;
+        
+        if (!paymentProofId) {
+            // Create a payment proof record first (without requiring OR)
+            const createResponse = await fetch(`/staff/applications/${applicationId}/create-payment-proof`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            });
+            
+            const createData = await createResponse.json();
+            if (createData.success && createData.data) {
+                paymentProofId = createData.data.id;
+                currentPaymentProof = createData.data;
+            } else {
+                throw new Error(createData.message || 'Failed to create payment proof record');
+            }
+        }
+        
+        // Now upload the certificate using the existing route
+        const response = await fetch(`/staff/payment-proof/${paymentProofId}/upload-certificate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3557,14 +3449,57 @@ async function uploadCertificate(type) {
         if (data.success) {
             showSuccessModal('Upload Successful', data.message);
             document.getElementById(inputId).value = '';
-            await loadPaymentProof(); // Reload to show updated certificates
+            
+            // Update currentPaymentProof with the new data
+            if (data.data) {
+                currentPaymentProof = data.data;
+            }
+            
+            // Update UI to show the uploaded certificate
+            if (type === 'zoning_cert') {
+                document.getElementById('zoning-cert-form').classList.add('hidden');
+                document.getElementById('zoning-cert-display').classList.remove('hidden');
+                document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+                document.getElementById('zoning-cert-status').textContent = 'Uploaded';
+                
+                if (currentPaymentProof.zoning_cert_link) {
+                    document.getElementById('zoning-cert-link').href = currentPaymentProof.zoning_cert_link;
+                }
+                
+                // Update meta info
+                let metaText = `Uploaded: ${new Date().toLocaleString()}`;
+                if (currentPaymentProof.zoning_cert_uploader && currentPaymentProof.zoning_cert_uploader.full_name) {
+                    metaText += ` by ${currentPaymentProof.zoning_cert_uploader.full_name}`;
+                } else {
+                    metaText += ` by CPDO Staff`;
+                }
+                document.getElementById('zoning-cert-meta').textContent = metaText;
+            } else {
+                document.getElementById('locational-form').classList.add('hidden');
+                document.getElementById('locational-display').classList.remove('hidden');
+                document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+                document.getElementById('locational-status').textContent = 'Uploaded';
+                
+                if (currentPaymentProof.locational_clearance_link) {
+                    document.getElementById('locational-link').href = currentPaymentProof.locational_clearance_link;
+                }
+                
+                // Update meta info
+                let metaText = `Uploaded: ${new Date().toLocaleString()}`;
+                if (currentPaymentProof.locational_clearance_uploader && currentPaymentProof.locational_clearance_uploader.full_name) {
+                    metaText += ` by ${currentPaymentProof.locational_clearance_uploader.full_name}`;
+                } else {
+                    metaText += ` by CPDO Staff`;
+                }
+                document.getElementById('locational-meta').textContent = metaText;
+            }
         } else {
             showErrorModal('Upload Failed', data.message || 'Failed to upload certificate');
         }
     } catch (error) {
         closeSubmittingModal();
         console.error('Error uploading certificate:', error);
-        showErrorModal('Error', 'Failed to upload certificate. Please try again.');
+        showErrorModal('Error', 'Failed to upload certificate: ' + (error.message || 'Please try again.'));
     } finally {
         button.innerHTML = originalText;
         button.disabled = false;
@@ -3574,7 +3509,7 @@ async function uploadCertificate(type) {
 // Remove Certificate
 async function removeCertificate(type) {
     if (!currentPaymentProof) {
-        showErrorModal('Error', 'Payment proof not found');
+        showErrorModal('Error', 'No certificate found to remove');
         return;
     }
     
@@ -3588,6 +3523,7 @@ async function removeCertificate(type) {
     
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
         const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/remove-certificate`, {
             method: 'DELETE',
             headers: {
@@ -3603,7 +3539,27 @@ async function removeCertificate(type) {
         
         if (data.success) {
             showSuccessModal('Removed', `${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'} has been removed.`);
-            await loadPaymentProof(); // Reload to show updated status
+            
+            // Update currentPaymentProof
+            if (type === 'zoning_cert') {
+                currentPaymentProof.zoning_cert_link = null;
+                currentPaymentProof.zoning_cert_uploaded_at = null;
+                currentPaymentProof.zoning_cert_uploader = null;
+                document.getElementById('zoning-cert-display').classList.add('hidden');
+                document.getElementById('zoning-cert-form').classList.remove('hidden');
+                document.getElementById('zoning-cert-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+                document.getElementById('zoning-cert-status').textContent = 'Not Uploaded';
+                document.getElementById('zoning-cert-link-input').value = '';
+            } else {
+                currentPaymentProof.locational_clearance_link = null;
+                currentPaymentProof.locational_clearance_uploaded_at = null;
+                currentPaymentProof.locational_clearance_uploader = null;
+                document.getElementById('locational-display').classList.add('hidden');
+                document.getElementById('locational-form').classList.remove('hidden');
+                document.getElementById('locational-status').className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+                document.getElementById('locational-status').textContent = 'Not Uploaded';
+                document.getElementById('locational-link-input').value = '';
+            }
         } else {
             showErrorModal('Remove Failed', data.message || 'Failed to remove certificate');
         }

@@ -602,7 +602,7 @@
                         </div>
                     </div>
 
-                    <!-- Payment Proof (OR Upload) - Shows only after CPDO assessment is approved -->
+                                     <!-- Payment Proof (OR Upload) - Moved above Update Status -->
                     <div id="payment-proof-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in hidden">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -614,7 +614,7 @@
                             <span id="payment-status-badge" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
                         </div>
                         
-                        <p class="text-sm text-gray-600 mb-4">Please upload your Official Receipt (OR) as proof of payment for the CPDO assessment fees.</p>
+                        <p class="text-sm text-gray-600 mb-4">Please upload your Official Receipt (OR) as proof of payment for the assessment fees.</p>
                         
                         <!-- Payment Proof Display (when already uploaded) -->
                         <div id="payment-proof-display" class="hidden">
@@ -696,10 +696,8 @@
                                 </div>
                                 <div id="locational-cert-meta" class="mt-2 text-xs text-gray-400"></div>
                             </div>
-                            
-                            <p class="text-xs text-gray-500 italic mt-2">These certificates are issued by CPDO after OR verification.</p>
-                        </div>
                     </div>
+
 
                     <!-- Current Status Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
@@ -1328,83 +1326,81 @@ function checkCPDORatingNeeded() {
     }
 
     // Load CPDO data (status and assessment)
-    async function loadCPDOData() {
-        if (!applicationId) return;
+async function loadCPDOData() {
+    if (!applicationId) return;
+    
+    try {
+        const csrfToken = getCsrfToken();
         
-        try {
-            const csrfToken = getCsrfToken();
-            
-            // Load CPDO status
-            const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (statusResponse.ok) {
-                const statusData = await statusResponse.json();
-                if (statusData.success && statusData.data) {
-                    cpdoStatus = statusData.data.status || 'pending';
-                    cpdoRemarks = statusData.data.remarks || null;
-                    cpdoApprovedBy = statusData.data.approved_by || null;
-                    cpdoApprovedAt = statusData.data.approved_at || null;
-                    displayCPDOStatus();
-                }
+        // Load CPDO status
+        const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
             }
-            
-            // Load CPDO assessment (always try to load, regardless of status)
-            const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (assessmentResponse.ok) {
-                const assessmentData = await assessmentResponse.json();
-                if (assessmentData.success && assessmentData.data) {
-                    currentCPDOAssessment = assessmentData.data;
-                    displayCPDOAssessment(); // This will show the fee breakdown
-                    
-                    // Check if we should show the payment proof card
-                    // Show if CPDO is approved
-                    const shouldShowPaymentProof = (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo');
-                    const paymentProofCard = document.getElementById('payment-proof-card');
-                    
-                    if (shouldShowPaymentProof && paymentProofCard) {
-                        console.log('Showing payment proof card - CPDO approved');
-                        paymentProofCard.classList.remove('hidden');
-                        loadPaymentProof();
-                    } else if (paymentProofCard) {
-                        console.log('Hiding payment proof card. CPDO status:', cpdoStatus);
-                        paymentProofCard.classList.add('hidden');
-                    }
-                }
-            } else if (cpdoStatus === 'approved') {
-                // If CPDO status endpoint says approved but assessment endpoint failed,
-                // still show payment proof card
+        });
+        
+        if (statusResponse.ok) {
+            const statusData = await statusResponse.json();
+            if (statusData.success && statusData.data) {
+                cpdoStatus = statusData.data.status || 'pending';
+                cpdoRemarks = statusData.data.remarks || null;
+                cpdoApprovedBy = statusData.data.approved_by || null;
+                cpdoApprovedAt = statusData.data.approved_at || null;
+                displayCPDOStatus();
+            }
+        }
+        
+        // Load CPDO assessment (always try to load, regardless of status)
+        const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (assessmentResponse.ok) {
+            const assessmentData = await assessmentResponse.json();
+            if (assessmentData.success && assessmentData.data) {
+                currentCPDOAssessment = assessmentData.data;
+                displayCPDOAssessment(); // This will show the fee breakdown inside CPDO card
+                
+                // Show payment proof card if CPDO is approved (moved outside CPDO card now)
+                const shouldShowPaymentProof = (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo');
                 const paymentProofCard = document.getElementById('payment-proof-card');
-                if (paymentProofCard) {
-                    console.log('CPDO approved but assessment fetch failed, still showing payment proof card');
+                
+                if (shouldShowPaymentProof && paymentProofCard) {
+                    console.log('Showing payment proof card - CPDO approved');
                     paymentProofCard.classList.remove('hidden');
                     loadPaymentProof();
+                } else if (paymentProofCard) {
+                    console.log('Hiding payment proof card. CPDO status:', cpdoStatus);
+                    paymentProofCard.classList.add('hidden');
                 }
             }
-        } catch (error) {
-            console.error('Error loading CPDO data:', error);
-            // If CPDO is approved but there was an error, still try to show payment proof
-            if (cpdoStatus === 'approved') {
-                const paymentProofCard = document.getElementById('payment-proof-card');
-                if (paymentProofCard) {
-                    paymentProofCard.classList.remove('hidden');
-                    loadPaymentProof();
-                }
+        } else if (cpdoStatus === 'approved') {
+            // If CPDO status is approved but assessment fetch failed, still show payment proof
+            const paymentProofCard = document.getElementById('payment-proof-card');
+            if (paymentProofCard) {
+                console.log('CPDO approved but assessment fetch failed, still showing payment proof card');
+                paymentProofCard.classList.remove('hidden');
+                loadPaymentProof();
+            }
+        }
+    } catch (error) {
+        console.error('Error loading CPDO data:', error);
+        // If CPDO is approved but there was an error, still try to show payment proof
+        if (cpdoStatus === 'approved') {
+            const paymentProofCard = document.getElementById('payment-proof-card');
+            if (paymentProofCard) {
+                paymentProofCard.classList.remove('hidden');
+                loadPaymentProof();
             }
         }
     }
+}
 
     // Display CPDO Status
     function displayCPDOStatus() {
@@ -1449,107 +1445,107 @@ function checkCPDORatingNeeded() {
         }
     }
 
-    // Display CPDO Assessment (Fee Breakdown)
-    function displayCPDOAssessment() {
-        if (!currentCPDOAssessment) return;
-        
-        const assessmentDetails = document.getElementById('cpdo-assessment-details');
-        if (!assessmentDetails) return;
-        
-        let hasFees = false;
-        let html = '<div class="space-y-2">';
-        
-        // Assessment date
-        if (currentCPDOAssessment.assessment_date) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
-            html += `<div class="border-t border-orange-200 my-2"></div>`;
-        }
-        
-        // Zonal/Location Permit Fee section
-        let hasZonalFees = false;
-        if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasZonalFees = true;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasZonalFees = true;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasZonalFees = true;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasZonalFees = true;
-            hasFees = true;
-        }
-        
-        if (hasZonalFees) {
-            html += `<div class="border-t border-orange-100 my-2"></div>`;
-        }
-        
-        // Site/Zoning Certificate
-        if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        
-        // Additional fees
-        if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
-            html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
-            currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
-                if (fee.amount && parseFloat(fee.amount) > 0) {
-                    const description = fee.description || 'Additional Fee';
-                    html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-                    hasFees = true;
-                }
-            });
-        }
-        
-        // Total
-        if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
-            html += `
-                <div class="border-t border-orange-200 mt-2 pt-2">
-                    <div class="flex justify-between font-bold">
-                        <span class="text-orange-800">Total CPDO Fees:</span>
-                        <span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                </div>
-            `;
-            hasFees = true;
-        }
-        
-        // Notes
-        if (currentCPDOAssessment.cpdo_assessment_notes) {
-            html += `
-                <div class="mt-3 pt-2 border-t border-orange-200">
-                    <p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p>
-                </div>
-            `;
-        }
-        
-        // Assessed by info
-        if (currentCPDOAssessment.cpdo_assessed_by) {
-            html += `
-                <div class="mt-2 text-xs text-gray-400">
-                    Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}
-                </div>
-            `;
-        }
-        
-        html += `</div>`;
-        
-        if (!hasFees) {
-            html = '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
-        }
-        
-        assessmentDetails.innerHTML = html;
+   // Display CPDO Assessment (Fee Breakdown)
+function displayCPDOAssessment() {
+    if (!currentCPDOAssessment) return;
+    
+    const assessmentDetails = document.getElementById('cpdo-assessment-details');
+    if (!assessmentDetails) return;
+    
+    let hasFees = false;
+    let html = '<div class="space-y-2">';
+    
+    // Assessment date
+    if (currentCPDOAssessment.assessment_date) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
+        html += `<div class="border-t border-orange-200 my-2"></div>`;
+        hasFees = true;
     }
-
+    
+    // Zonal/Location Permit Fee section
+    let hasZonalFees = false;
+    if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+        hasZonalFees = true;
+        hasFees = true;
+    }
+    if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+        hasZonalFees = true;
+        hasFees = true;
+    }
+    if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+        hasZonalFees = true;
+        hasFees = true;
+    }
+    if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+        hasZonalFees = true;
+        hasFees = true;
+    }
+    
+    if (hasZonalFees) {
+        html += `<div class="border-t border-orange-100 my-2"></div>`;
+    }
+    
+    // Site/Zoning Certificate
+    if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
+        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+        hasFees = true;
+    }
+    
+    // Additional fees
+    if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
+        html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
+        currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
+            if (fee.amount && parseFloat(fee.amount) > 0) {
+                const description = fee.description || 'Additional Fee';
+                html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+                hasFees = true;
+            }
+        });
+    }
+    
+    // Total
+    if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+        html += `
+            <div class="border-t border-orange-200 mt-2 pt-2">
+                <div class="flex justify-between font-bold">
+                    <span class="text-orange-800">Total CPDO Fees:</span>
+                    <span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                </div>
+            </div>
+        `;
+        hasFees = true;
+    }
+    
+    // Notes
+    if (currentCPDOAssessment.cpdo_assessment_notes) {
+        html += `
+            <div class="mt-3 pt-2 border-t border-orange-200">
+                <p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p>
+            </div>
+        `;
+    }
+    
+    // Assessed by info
+    if (currentCPDOAssessment.cpdo_assessed_by) {
+        html += `
+            <div class="mt-2 text-xs text-gray-400">
+                Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    
+    if (!hasFees) {
+        html = '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
+    }
+    
+    assessmentDetails.innerHTML = html;
+}
     // Load ownership data
     async function loadOwnershipData() {
         if (!applicationId) return;
@@ -2881,44 +2877,49 @@ function checkCPDORatingNeeded() {
     // Payment Proof variables
     let currentPaymentProof = null;
 
-    // Load payment proof data
-    async function loadPaymentProof() {
-        if (!applicationId) return;
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentPaymentProof = data.data;
-                    displayPaymentProof();
-                    displayCPDOCertificates(); // Display certificates if any
-                    return;
-                }
+   // Load payment proof data (VIEW ONLY)
+async function loadPaymentProof() {
+    if (!applicationId) return;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
             }
-            // No payment proof yet - show form
-            const form = document.getElementById('payment-proof-form');
-            const display = document.getElementById('payment-proof-display');
-            if (form) form.classList.remove('hidden');
-            if (display) display.classList.add('hidden');
-        } catch (error) {
-            console.error('Error loading payment proof:', error);
-            // Show form on error
-            const form = document.getElementById('payment-proof-form');
-            const display = document.getElementById('payment-proof-display');
-            if (form) form.classList.remove('hidden');
-            if (display) display.classList.add('hidden');
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data && data.data.or_link) {
+                currentPaymentProof = data.data;
+                displayPaymentProof();
+                displayCPDOCertificates(); // Display certificates if any
+                return;
+            }
         }
+        // No payment proof yet - show form
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        const statusBadge = document.getElementById('payment-status-badge');
+        
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
+        if (statusBadge) {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            statusBadge.textContent = 'Not Uploaded';
+        }
+    } catch (error) {
+        console.error('Error loading payment proof:', error);
+        // Show form on error
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
     }
-
+}
     // Display CPDO Certificates (Zoning and Locational)
     function displayCPDOCertificates() {
         if (!currentPaymentProof) return;
@@ -2975,51 +2976,34 @@ function checkCPDORatingNeeded() {
         }
     }
 
-    // Display payment proof
-    function displayPaymentProof() {
-        if (!currentPaymentProof) return;
-        
-        const statusBadge = document.getElementById('payment-status-badge');
-        const statusText = document.getElementById('payment-status-text');
-        const proofLink = document.getElementById('payment-proof-link');
-        const rejectionDiv = document.getElementById('payment-rejection-reason');
-        const rejectionText = document.getElementById('rejection-reason-text');
-        const form = document.getElementById('payment-proof-form');
-        const display = document.getElementById('payment-proof-display');
-        
-        // Set link
-        proofLink.href = currentPaymentProof.or_link;
-        
-        // Set status
-        if (currentPaymentProof.status === 'pending') {
-            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
-            statusBadge.textContent = 'Pending Verification';
-            statusText.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
-            statusText.textContent = 'Pending Verification';
-            rejectionDiv.classList.add('hidden');
-            form.classList.remove('hidden');
-            display.classList.remove('hidden');
-        } else if (currentPaymentProof.status === 'verified') {
-            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-            statusBadge.textContent = 'Verified ✓';
-            statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-            statusText.textContent = 'Verified';
-            rejectionDiv.classList.add('hidden');
-            form.classList.add('hidden');
-            display.classList.remove('hidden');
-        } else if (currentPaymentProof.status === 'rejected') {
-            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
-            statusBadge.textContent = 'Rejected';
-            statusText.className = 'text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full';
-            statusText.textContent = 'Rejected - Please re-upload';
-            if (currentPaymentProof.rejection_reason) {
-                rejectionDiv.classList.remove('hidden');
-                rejectionText.textContent = currentPaymentProof.rejection_reason;
-            }
-            form.classList.remove('hidden');
-            display.classList.remove('hidden');
-        }
-    }
+   // Display payment proof (VIEW ONLY - no verification status)
+function displayPaymentProof() {
+    if (!currentPaymentProof) return;
+    
+    const statusBadge = document.getElementById('payment-status-badge');
+    const statusText = document.getElementById('payment-status-text');
+    const proofLink = document.getElementById('payment-proof-link');
+    const rejectionDiv = document.getElementById('payment-rejection-reason');
+    const form = document.getElementById('payment-proof-form');
+    const display = document.getElementById('payment-proof-display');
+    
+    // Set link
+    proofLink.href = currentPaymentProof.or_link;
+    
+    // NO VERIFICATION STATUS - just show as uploaded
+    // Always show as "Uploaded" regardless of any status field
+    statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+    statusBadge.textContent = 'Uploaded ✓';
+    statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+    statusText.textContent = 'Uploaded';
+    
+    // Hide rejection reason (not needed)
+    rejectionDiv.classList.add('hidden');
+    
+    // Always show display and hide form (since verification is removed)
+    form.classList.add('hidden');
+    display.classList.remove('hidden');
+}
 
     // Show payment proof form
     function showPaymentProofForm() {

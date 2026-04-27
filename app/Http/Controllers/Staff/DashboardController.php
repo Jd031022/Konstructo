@@ -8,6 +8,7 @@ use App\Models\ApplicationReviewActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -1202,4 +1203,286 @@ private function generateDashboardPDFHTML($stats, $trendData, $recentActivities,
     
     return $html;
 }
+
+/**
+ * Get verified ownership documents based on user role (for dashboard and verified page)
+ */
+public function getVerifiedOwnershipDocuments()
+{
+    try {
+        $user = Auth::user();
+        $user->load('profile');
+        $position = $user->profile ? $user->profile->position : null;
+        $userId = $user->id;
+        
+        Log::info('Loading verified ownership documents', ['position' => $position, 'user_id' => $userId]);
+        
+        $documents = [];
+        
+        // Get all ownership verifications with related data using direct DB queries
+        $verifications = DB::table('ownership_verifications as ov')
+            ->join('application_documents as ad', 'ov.application_id', '=', 'ad.id')
+            ->join('users as u', 'ad.user_id', '=', 'u.id')
+            ->select(
+                'ov.*',
+                'ad.application_number',
+                'ad.id as application_id',
+                'u.id as user_id',
+                'u.first_name',
+                'u.last_name',
+                'u.email',
+                'u.address',
+                'ov.created_at'
+            )
+            ->orderBy('ov.updated_at', 'desc')
+            ->get();
+        
+        foreach ($verifications as $verification) {
+            // Based on user role, show different documents that they have verified
+            if ($position === 'assessor') {
+                // Assessor verified TCT
+                if (!empty($verification->tct_link) && !is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'TCT / Deed of Sale',
+                        'document_link' => $verification->tct_link,
+                        'verified_at' => $verification->assessor_verified_at,
+                        'verified_by_name' => $user->first_name . ' ' . $user->last_name
+                    ];
+                }
+                // Assessor verified Tax Declaration
+                if (!empty($verification->tax_declaration_link) && !is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'Tax Declaration',
+                        'document_link' => $verification->tax_declaration_link,
+                        'verified_at' => $verification->assessor_verified_at,
+                        'verified_by_name' => $user->first_name . ' ' . $user->last_name
+                    ];
+                }
+            } elseif ($position === 'treasurer') {
+                // Treasurer verified Current Tax Receipt
+                if (!empty($verification->current_tax_receipt_link) && !is_null($verification->treasurer_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'Current Tax Receipt',
+                        'document_link' => $verification->current_tax_receipt_link,
+                        'verified_at' => $verification->treasurer_verified_at,
+                        'verified_by_name' => $user->first_name . ' ' . $user->last_name
+                    ];
+                }
+                // Treasurer verified SPA
+                if (!empty($verification->spa_link) && !empty($verification->assessor_remarks) && strpos($verification->assessor_remarks, 'SPA verified by treasurer') !== false) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'Special Power of Attorney (SPA)',
+                        'document_link' => $verification->spa_link,
+                        'verified_at' => $verification->created_at,
+                        'verified_by_name' => $user->first_name . ' ' . $user->last_name
+                    ];
+                }
+            } elseif ($position === 'cpdo') {
+                // CPDO verified TCT
+                if (!empty($verification->tct_link) && !is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'TCT / Deed of Sale',
+                        'document_link' => $verification->tct_link,
+                        'verified_at' => $verification->assessor_verified_at,
+                        'verified_by_name' => $user->first_name . ' ' . $user->last_name
+                    ];
+                }
+            }
+        }
+        
+        // Sort by verified_at descending
+        usort($documents, function($a, $b) {
+            return strtotime($b['verified_at']) - strtotime($a['verified_at']);
+        });
+        
+        Log::info('Verified ownership documents loaded', ['count' => count($documents), 'position' => $position]);
+        
+        return response()->json([
+            'success' => true,
+            'verifications' => $documents,
+            'user_position' => $position
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error loading verified ownership documents: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'verifications' => [],
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+/**
+ * Get ownership verifications for dashboard based on user role
+ */
+public function getOwnershipVerificationsForDashboard()
+{
+    try {
+        $user = Auth::user();
+        $user->load('profile');
+        $position = $user->profile ? $user->profile->position : null;
+        
+        Log::info('Loading ownership verifications for dashboard', ['position' => $position, 'user_id' => $user->id]);
+        
+        $documents = [];
+        
+        // Get all ownership verifications with related data using direct DB queries
+        $verifications = DB::table('ownership_verifications as ov')
+            ->join('application_documents as ad', 'ov.application_id', '=', 'ad.id')
+            ->join('users as u', 'ad.user_id', '=', 'u.id')
+            ->select(
+                'ov.*',
+                'ad.application_number',
+                'ad.id as application_id',
+                'u.id as user_id',
+                'u.first_name',
+                'u.last_name',
+                'u.email',
+                'u.address',
+                'ov.created_at'
+            )
+            ->orderBy('ov.created_at', 'desc')
+            ->get();
+        
+        Log::info('Found verifications count', ['count' => count($verifications)]);
+        
+        foreach ($verifications as $verification) {
+            // Based on user role, show different documents that are pending verification
+            if ($position === 'assessor') {
+                // Assessor sees: TCT and Tax Declaration (not yet verified)
+                if (!empty($verification->tct_link) && is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'TCT / Deed of Sale',
+                        'document_link' => $verification->tct_link,
+                        'created_at' => $verification->created_at
+                    ];
+                }
+                if (!empty($verification->tax_declaration_link) && is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'Tax Declaration',
+                        'document_link' => $verification->tax_declaration_link,
+                        'created_at' => $verification->created_at
+                    ];
+                }
+            } elseif ($position === 'treasurer') {
+                // Treasurer sees: Current Tax Receipt (not yet verified)
+                if (!empty($verification->current_tax_receipt_link) && is_null($verification->treasurer_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'Current Tax Receipt',
+                        'document_link' => $verification->current_tax_receipt_link,
+                        'created_at' => $verification->created_at
+                    ];
+                }
+                // Treasurer also sees SPA if not yet verified
+                if (!empty($verification->spa_link)) {
+                    $isVerified = !empty($verification->assessor_remarks) && strpos($verification->assessor_remarks, 'SPA verified') !== false;
+                    if (!$isVerified) {
+                        $documents[] = [
+                            'application_id' => $verification->application_id,
+                            'application_number' => $verification->application_number ?? 'N/A',
+                            'user_id' => $verification->user_id,
+                            'first_name' => $verification->first_name,
+                            'last_name' => $verification->last_name,
+                            'email' => $verification->email,
+                            'address' => $verification->address,
+                            'document_type' => 'Special Power of Attorney (SPA)',
+                            'document_link' => $verification->spa_link,
+                            'created_at' => $verification->created_at
+                        ];
+                    }
+                }
+            } elseif ($position === 'cpdo') {
+                // CPDO sees: TCT only (not yet verified)
+                if (!empty($verification->tct_link) && is_null($verification->assessor_verified_at)) {
+                    $documents[] = [
+                        'application_id' => $verification->application_id,
+                        'application_number' => $verification->application_number ?? 'N/A',
+                        'user_id' => $verification->user_id,
+                        'first_name' => $verification->first_name,
+                        'last_name' => $verification->last_name,
+                        'email' => $verification->email,
+                        'address' => $verification->address,
+                        'document_type' => 'TCT / Deed of Sale',
+                        'document_link' => $verification->tct_link,
+                        'created_at' => $verification->created_at
+                    ];
+                }
+            }
+        }
+        
+        Log::info('Ownership verifications loaded', ['count' => count($documents), 'position' => $position]);
+        
+        return response()->json([
+            'success' => true,
+            'verifications' => $documents,
+            'user_position' => $position
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error loading ownership verifications: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        return response()->json([
+            'success' => false,
+            'verifications' => [],
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }
