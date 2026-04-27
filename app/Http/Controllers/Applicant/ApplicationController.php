@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use App\Models\OwnershipVerification;
+use App\Models\CPDORating; 
 
 class ApplicationController extends Controller
 {
@@ -1508,5 +1509,120 @@ public function printCPDOAssessment($id)
             ], 500);
         }
     }
+
+    /**
+ * Submit CPDO Experience Rating
+ */
+public function submitCPDORating(Request $request)
+{
+    try {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+        
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'processing_time' => 'nullable|string',
+            'responsiveness' => 'nullable|string',
+            'clarity' => 'nullable|string',
+            'fairness' => 'nullable|string',
+            'overall_satisfaction' => 'nullable|string',
+            'comments' => 'nullable|string'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $application = ApplicationDocument::findOrFail($request->application_id);
+        
+        if ($application->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        
+        // Check if rating already exists
+        $existingRating = CPDORating::where('application_id', $request->application_id)
+            ->where('user_id', $user->id)
+            ->first();
+            
+        if ($existingRating) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already rated this application'
+            ], 409);
+        }
+        
+        $rating = CPDORating::create([
+            'application_id' => $request->application_id,
+            'user_id' => $user->id,
+            'rating' => $request->rating,
+            'processing_time' => $request->processing_time,
+            'responsiveness' => $request->responsiveness,
+            'clarity' => $request->clarity,
+            'fairness' => $request->fairness,
+            'overall_satisfaction' => $request->overall_satisfaction,
+            'comments' => $request->comments
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Thank you for your feedback!',
+            'data' => $rating
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error submitting CPDO rating: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to submit rating: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Check if user has already rated the CPDO for this application
+ */
+public function checkCPDORating($id)
+{
+    try {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'has_rated' => false
+            ]);
+        }
+        
+        $hasRated = CPDORating::where('application_id', $id)
+            ->where('user_id', $user->id)
+            ->exists();
+            
+        return response()->json([
+            'success' => true,
+            'has_rated' => $hasRated
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error checking CPDO rating: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'has_rated' => false
+        ]);
+    }
+}
     
 }

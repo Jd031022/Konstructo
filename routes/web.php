@@ -122,7 +122,12 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     // ========== SURVEY ROUTES ==========
     Route::get('/surveys', function () { return view('staff.surveys'); })->name('surveys');
     Route::get('/surveys/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getSurveys'])->name('surveys.data');
-Route::get('/surveys/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportSurveys'])->name('surveys.export');
+    Route::get('/surveys/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportSurveys'])->name('surveys.export');
+
+        // ========== CPDO RATINGS ROUTES (STAFF) ==========
+    Route::get('/cpdo-ratings/data', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDORatings'])->name('cpdo-ratings.data');
+    Route::get('/cpdo-ratings/stats', [App\Http\Controllers\Staff\ApplicationController::class, 'getCPDORatingsStats'])->name('cpdo-ratings.stats');
+    Route::get('/cpdo-ratings/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportCPDORatings'])->name('cpdo-ratings.export');
     
     // ========== ARCHIVE ROUTES ==========
     Route::get('/archived-applications', function () { return view('staff.archived-applications'); })->name('archived-applications');
@@ -256,6 +261,9 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::post('/application/save-project-info', [ApplicationController::class, 'saveProjectInfo'])->name('application.save-project-info');
     Route::post('/application/step3/complete', [ApplicationController::class, 'completeStep2'])->name('application.step3.complete');
     Route::post('/application/step4/complete', [ApplicationController::class, 'completeStep3'])->name('application.step4.complete');
+
+Route::post('/cpdo-rating/submit', [ApplicationController::class, 'submitCPDORating'])->name('cpdo-rating.submit');
+Route::get('/cpdo-rating/check/{id}', [ApplicationController::class, 'checkCPDORating'])->name('cpdo-rating.check');
     
     // ========== ACCOUNT STATUS ROUTE ==========
     Route::get('/account-status', function () {

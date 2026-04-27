@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\CPDORating; 
 
 class ApplicationController extends Controller
 {
@@ -3743,5 +3744,213 @@ private function getSqdFieldName($index)
         
         return $html;
     }
+    /**
+ * Get CPDO ratings data for staff view
+ */
+public function getCPDORatings(Request $request)
+{
+    try {
+        $query = CPDORating::with(['user', 'application']);
+        
+        $perPage = $request->get('per_page', 15);
+        $ratings = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        
+        $formattedRatings = $ratings->getCollection()->map(function($rating) {
+            return [
+                'id' => $rating->id,
+                'application_number' => $rating->application ? $rating->application->application_number : 'N/A',
+                'applicant_name' => $rating->user ? $rating->user->first_name . ' ' . $rating->user->last_name : 'Unknown',
+                'email' => $rating->user ? $rating->user->email : null,
+                'rating' => $rating->rating,
+                'processing_time' => $rating->processing_time,
+                'responsiveness' => $rating->responsiveness,
+                'clarity' => $rating->clarity,
+                'fairness' => $rating->fairness,
+                'overall_satisfaction' => $rating->overall_satisfaction,
+                'comments' => $rating->comments,
+                'created_at' => $rating->created_at
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'ratings' => $formattedRatings,
+            'pagination' => [
+                'current_page' => $ratings->currentPage(),
+                'last_page' => $ratings->lastPage(),
+                'per_page' => $ratings->perPage(),
+                'total' => $ratings->total(),
+                'from' => $ratings->firstItem(),
+                'to' => $ratings->lastItem()
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error fetching CPDO ratings: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch CPDO ratings'
+        ], 500);
+    }
+}
+
+/**
+ * Get CPDO ratings statistics for charts
+ */
+public function getCPDORatingsStats(Request $request)
+{
+    try {
+        $ratings = CPDORating::all();
+        $total = $ratings->count();
+        
+        // Rating distribution
+        $ratingDistribution = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+        $avgRating = 0;
+        $sumRatings = 0;
+        
+        // Metrics averages
+        $metricsScores = [
+            'processing_time' => ['sum' => 0, 'count' => 0],
+            'responsiveness' => ['sum' => 0, 'count' => 0],
+            'clarity' => ['sum' => 0, 'count' => 0],
+            'fairness' => ['sum' => 0, 'count' => 0],
+            'overall' => ['sum' => 0, 'count' => 0]
+        ];
+        
+        $ratingMap = [
+            'Excellent' => 5, 'Very Satisfied' => 5,
+            'Good' => 4, 'Satisfied' => 4,
+            'Average' => 3, 'Neutral' => 3,
+            'Poor' => 2, 'Dissatisfied' => 2,
+            'Very Poor' => 1, 'Very Dissatisfied' => 1
+        ];
+        
+        foreach ($ratings as $rating) {
+            $ratingDistribution[$rating->rating]++;
+            $sumRatings += $rating->rating;
+            
+            // Map text ratings to numeric scores
+            if ($rating->processing_time && isset($ratingMap[$rating->processing_time])) {
+                $metricsScores['processing_time']['sum'] += $ratingMap[$rating->processing_time];
+                $metricsScores['processing_time']['count']++;
+            }
+            if ($rating->responsiveness && isset($ratingMap[$rating->responsiveness])) {
+                $metricsScores['responsiveness']['sum'] += $ratingMap[$rating->responsiveness];
+                $metricsScores['responsiveness']['count']++;
+            }
+            if ($rating->clarity && isset($ratingMap[$rating->clarity])) {
+                $metricsScores['clarity']['sum'] += $ratingMap[$rating->clarity];
+                $metricsScores['clarity']['count']++;
+            }
+            if ($rating->fairness && isset($ratingMap[$rating->fairness])) {
+                $metricsScores['fairness']['sum'] += $ratingMap[$rating->fairness];
+                $metricsScores['fairness']['count']++;
+            }
+            if ($rating->overall_satisfaction && isset($ratingMap[$rating->overall_satisfaction])) {
+                $metricsScores['overall']['sum'] += $ratingMap[$rating->overall_satisfaction];
+                $metricsScores['overall']['count']++;
+            }
+        }
+        
+        $avgRating = $total > 0 ? $sumRatings / $total : 0;
+        $fiveStarPercent = $total > 0 ? round(($ratingDistribution[5] / $total) * 100, 1) : 0;
+        
+        // Calculate average metrics scores
+        $metricsAverages = [
+            'processing_time' => $metricsScores['processing_time']['count'] > 0 ? round($metricsScores['processing_time']['sum'] / $metricsScores['processing_time']['count'], 1) : 0,
+            'responsiveness' => $metricsScores['responsiveness']['count'] > 0 ? round($metricsScores['responsiveness']['sum'] / $metricsScores['responsiveness']['count'], 1) : 0,
+            'clarity' => $metricsScores['clarity']['count'] > 0 ? round($metricsScores['clarity']['sum'] / $metricsScores['clarity']['count'], 1) : 0,
+            'fairness' => $metricsScores['fairness']['count'] > 0 ? round($metricsScores['fairness']['sum'] / $metricsScores['fairness']['count'], 1) : 0,
+            'overall' => $metricsScores['overall']['count'] > 0 ? round($metricsScores['overall']['sum'] / $metricsScores['overall']['count'], 1) : 0
+        ];
+        
+        // Calculate response rate (percentage of applications that have CPDO ratings)
+        $totalApplications = ApplicationDocument::where('cpdo_status', 'approved')->count();
+        $responseRate = $totalApplications > 0 ? round(($total / $totalApplications) * 100, 1) : 0;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total' => $total,
+                'avg_rating' => round($avgRating, 1),
+                'five_star_percent' => $fiveStarPercent,
+                'response_rate' => $responseRate,
+                'rating_distribution' => $ratingDistribution,
+                'metrics_scores' => $metricsAverages
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error fetching CPDO ratings stats: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch CPDO ratings statistics'
+        ], 500);
+    }
+}
+
+/**
+ * Export CPDO ratings to CSV
+ */
+public function exportCPDORatings(Request $request)
+{
+    try {
+        $ratings = CPDORating::with(['user', 'application'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $filename = 'cpdo_experience_ratings_' . date('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($ratings) {
+            $handle = fopen('php://output', 'w');
+            
+            // Write headers
+            fputcsv($handle, [
+                'Application Number',
+                'Applicant Name',
+                'Email',
+                'Rating (1-5)',
+                'Processing Time',
+                'Staff Responsiveness',
+                'Clarity of Instructions',
+                'Fairness of Assessment',
+                'Overall Satisfaction',
+                'Comments',
+                'Submitted At'
+            ]);
+            
+            foreach ($ratings as $rating) {
+                fputcsv($handle, [
+                    $rating->application ? $rating->application->application_number : 'N/A',
+                    $rating->user ? $rating->user->first_name . ' ' . $rating->user->last_name : 'Unknown',
+                    $rating->user ? $rating->user->email : '',
+                    $rating->rating,
+                    $rating->processing_time,
+                    $rating->responsiveness,
+                    $rating->clarity,
+                    $rating->fairness,
+                    $rating->overall_satisfaction,
+                    $rating->comments,
+                    $rating->created_at ? $rating->created_at->format('Y-m-d H:i:s') : ''
+                ]);
+            }
+            
+            fclose($handle);
+        };
+        
+        return response()->streamDownload($callback, $filename, $headers);
+        
+    } catch (\Exception $e) {
+        Log::error('Error exporting CPDO ratings: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error exporting CPDO ratings: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
    

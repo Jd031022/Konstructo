@@ -869,6 +869,142 @@
     </div>
 </div>
 
+<!-- CPDO Experience Rating Modal -->
+<div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-2xl">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold">Rate Your CPDO Experience</h3>
+                        <p class="text-sm opacity-90 mt-1">How would you rate the CPDO's service?</p>
+                    </div>
+                    <button onclick="closeCPDORatingModal()" class="text-white hover:text-gray-200 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
+                    <form id="cpdo-rating-form" onsubmit="submitCPDORating(event)">
+                        <input type="hidden" id="cpdo-application-id" value="">
+                        
+                        <!-- Star Rating -->
+                        <div class="mb-8 text-center">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Overall CPDO Experience <span class="text-red-500">*</span></label>
+                            <div class="flex justify-center gap-2">
+                                <button type="button" onclick="setCPDORating(1)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
+                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" onclick="setCPDORating(2)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
+                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" onclick="setCPDORating(3)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
+                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" onclick="setCPDORating(4)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
+                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" onclick="setCPDORating(5)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
+                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="hidden" id="cpdo-rating-value" required>
+                            <p id="rating-error" class="text-xs text-red-500 mt-2 hidden">Please select a rating</p>
+                        </div>
+
+                        <!-- Rating Questions -->
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Processing Time <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4 flex-wrap">
+                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Staff Responsiveness <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4 flex-wrap">
+                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Clarity of Instructions <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4 flex-wrap">
+                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fairness of Assessment <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4 flex-wrap">
+                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Overall Satisfaction with CPDO Service <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4 flex-wrap">
+                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Satisfied</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Satisfied</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Neutral</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Dissatisfied</span></label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Dissatisfied</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Comments / Suggestions (Optional)</label>
+                                <textarea id="cpdo-comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent" placeholder="Share your experience with CPDO..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="mt-8 flex justify-end gap-3">
+                            <button type="button" onclick="closeCPDORatingModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                                Skip for Now
+                            </button>
+                            <button type="submit" id="submit-cpdo-rating-btn" class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#1F363D] transition text-sm font-medium">
+                                Submit Rating
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -951,6 +1087,139 @@
     let cpdoRemarks = null;
     let cpdoApprovedBy = null;
     let cpdoApprovedAt = null;
+    let currentCPDORating = 0;
+    let hasShownCPDORatingModal = false;
+
+    // Set star rating
+function setCPDORating(rating) {
+    currentCPDORating = rating;
+    document.getElementById('cpdo-rating-value').value = rating;
+    
+    // Update star colors
+    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star');
+    stars.forEach((star, index) => {
+        const svg = star.querySelector('svg');
+        if (index < rating) {
+            svg.classList.add('text-yellow-400');
+            svg.classList.remove('text-gray-300');
+        } else {
+            svg.classList.add('text-gray-300');
+            svg.classList.remove('text-yellow-400');
+        }
+    });
+    
+    // Hide error if shown
+    document.getElementById('rating-error')?.classList.add('hidden');
+}
+
+// Submit CPDO Rating
+async function submitCPDORating(event) {
+    event.preventDefault();
+    
+    const rating = document.getElementById('cpdo-rating-value').value;
+    if (!rating || rating === '0') {
+        document.getElementById('rating-error')?.classList.remove('hidden');
+        return;
+    }
+    
+    const formData = {
+        application_id: document.getElementById('cpdo-application-id').value,
+        rating: parseInt(rating),
+        processing_time: document.querySelector('input[name="processing_time"]:checked')?.value,
+        responsiveness: document.querySelector('input[name="responsiveness"]:checked')?.value,
+        clarity: document.querySelector('input[name="clarity"]:checked')?.value,
+        fairness: document.querySelector('input[name="fairness"]:checked')?.value,
+        overall_satisfaction: document.querySelector('input[name="overall_satisfaction"]:checked')?.value,
+        comments: document.getElementById('cpdo-comments').value
+    };
+    
+    const submitBtn = document.getElementById('submit-cpdo-rating-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    submitBtn.disabled = true;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch('/applicant/cpdo-rating/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuccessModal('Thank you for your feedback!');
+            closeCPDORatingModal();
+        } else {
+            showErrorModal(data.message || 'Failed to submit rating');
+        }
+    } catch (error) {
+        console.error('Error submitting CPDO rating:', error);
+        showErrorModal('An error occurred. Please try again.');
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Show CPDO Rating Modal
+function showCPDORatingModal(applicationId) {
+    // Check if already shown for this application
+    if (hasShownCPDORatingModal) return;
+    
+    document.getElementById('cpdo-application-id').value = applicationId;
+    document.getElementById('cpdo-rating-value').value = '';
+    currentCPDORating = 0;
+    
+    // Reset form
+    document.querySelectorAll('#cpdo-rating-modal input[type="radio"]').forEach(radio => radio.checked = false);
+    document.getElementById('cpdo-comments').value = '';
+    
+    // Reset stars
+    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star svg');
+    stars.forEach(star => {
+        star.classList.add('text-gray-300');
+        star.classList.remove('text-yellow-400');
+    });
+    
+    document.getElementById('cpdo-rating-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    hasShownCPDORatingModal = true;
+}
+
+// Close CPDO Rating Modal
+function closeCPDORatingModal() {
+    document.getElementById('cpdo-rating-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Check if CPDO rating is needed (after OR upload success)
+function checkCPDORatingNeeded() {
+    // Only show if user hasn't rated this application before
+    if (hasShownCPDORatingModal) return;
+    
+    // Check if we already have a CPDO rating for this application
+    fetch(`/applicant/cpdo-rating/check/${applicationId}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': getCsrfToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.has_rated) {
+            setTimeout(() => {
+                showCPDORatingModal(applicationId);
+            }, 1500);
+        }
+    })
+    .catch(error => console.error('Error checking CPDO rating:', error));
+}
 
     // Toggle reviewers section
     function toggleReviewersSection() {
@@ -2766,61 +3035,63 @@
     }
 
     // Upload payment proof
-    async function uploadPaymentProof() {
-        const orLink = document.getElementById('or-link').value.trim();
-        
-        if (!orLink) {
-            showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
-            return;
-        }
-        
-        // Validate Google Drive link
-        if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
-            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
-            return;
-        }
-        
-        const btn = document.getElementById('upload-or-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-        btn.disabled = true;
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch('/applicant/payment-proof/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    application_id: applicationId,
-                    or_link: orLink
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
-                await loadPaymentProof();
-                const form = document.getElementById('payment-proof-form');
-                const display = document.getElementById('payment-proof-display');
-                if (form) form.classList.add('hidden');
-                if (display) display.classList.remove('hidden');
-            } else {
-                showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
-            }
-        } catch (error) {
-            console.error('Error uploading payment proof:', error);
-            showErrorModal('Error', 'Failed to upload payment proof');
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
+async function uploadPaymentProof() {
+    const orLink = document.getElementById('or-link').value.trim();
+    
+    if (!orLink) {
+        showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
+        return;
     }
-
+    
+    // Validate Google Drive link
+    if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
+        showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+        return;
+    }
+    
+    const btn = document.getElementById('upload-or-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    btn.disabled = true;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch('/applicant/payment-proof/upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                application_id: applicationId,
+                or_link: orLink
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
+            await loadPaymentProof();
+            const form = document.getElementById('payment-proof-form');
+            const display = document.getElementById('payment-proof-display');
+            if (form) form.classList.add('hidden');
+            if (display) display.classList.remove('hidden');
+            
+            // *** TRIGGER CPDO RATING MODAL AFTER SUCCESSFUL UPLOAD ***
+            checkCPDORatingNeeded();
+        } else {
+            showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
+        }
+    } catch (error) {
+        console.error('Error uploading payment proof:', error);
+        showErrorModal('Error', 'Failed to upload payment proof');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
     function showErrorModal(title, message) {
         const modal = document.getElementById('error-modal');
         const messageEl = document.getElementById('error-modal-message');
