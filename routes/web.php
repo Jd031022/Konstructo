@@ -159,7 +159,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/buildingpermit-preview', function () { return view('applicant.buildingpermit-preview'); })->name('building-permit.preview');
     Route::get('/application-details/{id}', function ($id) { return view('applicant.application-details', ['applicationId' => $id]); })->name('application.details');
     Route::get('/applications/{id}/activity-history', function ($id) { return view('applicant.activity-history', ['applicationId' => $id]); })->name('activity-history');
-    
+    Route::get('/applications/{id}/ownership-remarks', [App\Http\Controllers\Applicant\ApplicationController::class, 'getOwnershipRemarks'])->name('applications.ownership-remarks');
     // ========== STEP ROUTES ==========
     Route::get('/application/step1', function (Request $request) {
         $user = Auth::user();

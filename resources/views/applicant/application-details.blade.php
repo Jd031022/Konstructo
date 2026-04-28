@@ -132,6 +132,51 @@
             </div>
         </div>
 
+        <!-- Ownership Document Remarks Notice -->
+        <div id="ownership-remarks-notice" class="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg hidden animate-slide-down">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h4 class="font-semibold text-gray-800">📝 Action Required: Document Clarification Needed</h4>
+                        <span id="remarks-count-badge" class="text-xs px-2 py-1 bg-amber-200 text-amber-800 rounded-full font-medium">0 remarks</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-1">Our staff has requested clarifications on your ownership documents. Please review the remarks below.</p>
+                    
+                    <!-- Remarks List Container -->
+                    <div id="ownership-remarks-list" class="mt-3 space-y-3 max-h-80 overflow-y-auto">
+                        <!-- Remarks will be dynamically inserted here -->
+                    </div>
+                    
+                    <!-- Instruction Box -->
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-blue-800">How to Respond:</p>
+                                <p class="text-xs text-blue-700 mt-1">
+                                    Please use the <strong>Chat Feature</strong> to communicate directly with the staff member who reviewed your document. 
+                                    Check your email to see who reviewed it, or look at the remarks above for the staff name.
+                                </p>
+                                <button onclick="openChatWithStaff()" class="mt-2 inline-flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    Open Chat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Application Header -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -580,7 +625,7 @@
                             </div>
                         </div>
                         
-                        <!-- CPDO Assessment Details (shown when assessment exists regardless of status?) -->
+                        <!-- CPDO Assessment Details (shown when assessment exists) -->
                         <div id="cpdo-assessment-section" class="mt-4 pt-4 border-t border-orange-200">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
@@ -699,52 +744,6 @@
                             <button onclick="uploadPaymentProof()" id="upload-or-btn" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
                                 Upload Official Receipt
                             </button>
-                        </div>
-                        
-                        <!-- Certificates Uploaded by CPDO Section -->
-                        <div id="cpdo-certificates-section" class="mt-6 pt-4 border-t border-green-200 hidden">
-                            <div class="flex items-center gap-2 mb-3">
-                                <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-sm font-semibold text-gray-800">CPDO Issued Certificates</h3>
-                                <span class="text-xs text-gray-500">(Uploaded by CPDO)</span>
-                            </div>
-                            
-                            <!-- Zoning Certificate Display -->
-                            <div id="zoning-cert-container" class="mb-3 p-3 bg-gray-50 rounded-lg hidden">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">Zoning Certificate</p>
-                                        <a id="zoning-cert-link" href="#" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline break-all">View Certificate</a>
-                                    </div>
-                                </div>
-                                <div id="zoning-cert-meta" class="mt-2 text-xs text-gray-400"></div>
-                            </div>
-                            
-                            <!-- Locational Clearance Display -->
-                            <div id="locational-cert-container" class="mb-3 p-3 bg-gray-50 rounded-lg hidden">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">Locational Clearance</p>
-                                        <a id="locational-cert-link" href="#" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline break-all">View Clearance</a>
-                                    </div>
-                                </div>
-                                <div id="locational-cert-meta" class="mt-2 text-xs text-gray-400"></div>
-                            </div>
                         </div>
                     </div>
 
@@ -921,7 +920,6 @@
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-2xl">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Modal Header -->
                 <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
                     <div>
                         <h3 class="text-xl font-bold">Rate Your CPDO Experience</h3>
@@ -934,7 +932,6 @@
                     </button>
                 </div>
 
-                <!-- Modal Body -->
                 <div class="p-6 max-h-[70vh] overflow-y-auto">
                     <form id="cpdo-rating-form" onsubmit="submitCPDORating(event)">
                         <input type="hidden" id="cpdo-application-id" value="">
@@ -1052,7 +1049,53 @@
     </div>
 </div>
 
+<!-- Document Remarks Modal (for viewing remarks on specific document) -->
+<div id="document-remarks-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Document Remarks</h3>
+                </div>
+                <button onclick="closeDocumentRemarksModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div class="bg-blue-50 rounded-lg p-3">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-blue-800">Document: <span id="modal-doc-name" class="font-bold"></span></p>
+                            <p class="text-xs text-blue-700 mt-1">Staff remarks and clarifications for this document are shown below.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="modal-remarks-list" class="space-y-3">
+                    <!-- Remarks will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeDocumentRemarksModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+    /* Existing styles... */
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
@@ -1086,6 +1129,14 @@
     
     @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); transform: scale(1); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
     .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; border: 2px solid rgba(21,83,134,0.3); }
+    
+    @keyframes pulse-amber {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    .remark-badge-pulse {
+        animation: pulse-amber 2s ease-in-out infinite;
+    }
     
     .pointer-events-none { pointer-events: none; }
     .break-all { word-break: break-all; }
@@ -1136,137 +1187,547 @@
     let cpdoApprovedAt = null;
     let currentCPDORating = 0;
     let hasShownCPDORatingModal = false;
+    
+    // Ownership remarks storage
+    let ownershipRemarks = {};
+    let currentModalDocumentKey = null;
+    let currentModalDocumentName = null;
 
-    // Set star rating
-function setCPDORating(rating) {
-    currentCPDORating = rating;
-    document.getElementById('cpdo-rating-value').value = rating;
-    
-    // Update star colors
-    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star');
-    stars.forEach((star, index) => {
-        const svg = star.querySelector('svg');
-        if (index < rating) {
-            svg.classList.add('text-yellow-400');
-            svg.classList.remove('text-gray-300');
-        } else {
-            svg.classList.add('text-gray-300');
-            svg.classList.remove('text-yellow-400');
-        }
-    });
-    
-    // Hide error if shown
-    document.getElementById('rating-error')?.classList.add('hidden');
-}
-
-// Submit CPDO Rating
-async function submitCPDORating(event) {
-    event.preventDefault();
-    
-    const rating = document.getElementById('cpdo-rating-value').value;
-    if (!rating || rating === '0') {
-        document.getElementById('rating-error')?.classList.remove('hidden');
-        return;
-    }
-    
-    const formData = {
-        application_id: document.getElementById('cpdo-application-id').value,
-        rating: parseInt(rating),
-        processing_time: document.querySelector('input[name="processing_time"]:checked')?.value,
-        responsiveness: document.querySelector('input[name="responsiveness"]:checked')?.value,
-        clarity: document.querySelector('input[name="clarity"]:checked')?.value,
-        fairness: document.querySelector('input[name="fairness"]:checked')?.value,
-        overall_satisfaction: document.querySelector('input[name="overall_satisfaction"]:checked')?.value,
-        comments: document.getElementById('cpdo-comments').value
+    // Ownership document names mapping (Step 1)
+    const ownershipDocumentNames = {
+        'tct_link': 'TCT / Deed of Sale',
+        'tax_declaration_link': 'Tax Declaration',
+        'current_tax_receipt_link': 'Current Tax Receipt',
+        'spa_link': 'Special Power of Attorney (SPA)'
     };
-    
-    const submitBtn = document.getElementById('submit-cpdo-rating-btn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-    submitBtn.disabled = true;
+
+    // Load ownership remarks from API
+async function loadOwnershipRemarks() {
+    if (!applicationId) return;
     
     try {
         const csrfToken = getCsrfToken();
-        const response = await fetch('/applicant/cpdo-rating/submit', {
-            method: 'POST',
+        const response = await fetch(`/applicant/applications/${applicationId}/ownership-remarks`, {
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify(formData)
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         });
         
-        const data = await response.json();
-        
-        if (data.success) {
-            showSuccessModal('Thank you for your feedback!');
-            closeCPDORatingModal();
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.remarks) {
+                ownershipRemarks = data.remarks;
+                // Also save to localStorage for caching
+                localStorage.setItem(`applicant_ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+            } else {
+                // Try to load from localStorage as fallback
+                const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
+                if (saved) {
+                    try {
+                        ownershipRemarks = JSON.parse(saved);
+                    } catch(e) {
+                        ownershipRemarks = {};
+                    }
+                } else {
+                    ownershipRemarks = {};
+                }
+            }
         } else {
-            showErrorModal(data.message || 'Failed to submit rating');
+            // Fallback to localStorage
+            const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
+            if (saved) {
+                try {
+                    ownershipRemarks = JSON.parse(saved);
+                } catch(e) {
+                    ownershipRemarks = {};
+                }
+            } else {
+                ownershipRemarks = {};
+            }
         }
     } catch (error) {
-        console.error('Error submitting CPDO rating:', error);
-        showErrorModal('An error occurred. Please try again.');
-    } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        console.error('Error loading ownership remarks:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
+        if (saved) {
+            try {
+                ownershipRemarks = JSON.parse(saved);
+            } catch(e) {
+                ownershipRemarks = {};
+            }
+        } else {
+            ownershipRemarks = {};
+        }
+    }
+    
+    // Display remarks notice if there are any pending remarks
+    displayOwnershipRemarksNotice();
+}
+
+    // Save ownership remarks to localStorage
+    function saveOwnershipRemarks() {
+        localStorage.setItem(`applicant_ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+    }
+
+    // Display ownership remarks notice on the page
+function displayOwnershipRemarksNotice() {
+    const noticeContainer = document.getElementById('ownership-remarks-notice');
+    const remarksListContainer = document.getElementById('ownership-remarks-list');
+    const remarksCountBadge = document.getElementById('remarks-count-badge');
+    
+    if (!noticeContainer || !remarksListContainer) return;
+    
+    // Collect all pending remarks
+    let allRemarks = [];
+    let pendingCount = 0;
+    
+    for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+        if (remarks && remarks.length > 0) {
+            remarks.forEach(remark => {
+                if (remark.status === 'pending_response') {
+                    pendingCount++;
+                    allRemarks.push({
+                        ...remark,
+                        document_key: docKey,
+                        document_name: remark.document_name || ownershipDocumentNames[docKey] || docKey.replace(/_/g, ' ').replace(/_link$/, '')
+                    });
+                }
+            });
+        }
+    }
+    
+    // Sort by date (newest first)
+    allRemarks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    if (pendingCount > 0) {
+        noticeContainer.classList.remove('hidden');
+        remarksCountBadge.textContent = `${pendingCount} remark${pendingCount > 1 ? 's' : ''}`;
+        
+        // Build remarks HTML
+        let remarksHtml = '';
+        allRemarks.forEach(remark => {
+            const date = new Date(remark.created_at);
+            const formattedDate = date.toLocaleString();
+            
+            remarksHtml += `
+                <div class="remark-item p-3 bg-white rounded-lg border border-amber-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                                ${escapeHtml(remark.document_name)}
+                            </span>
+                            <span class="text-xs text-gray-500">from ${escapeHtml(remark.created_by)}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">${formattedDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="viewDocumentRemarks('${remark.document_key}', '${escapeHtml(remark.document_name)}')" 
+                                class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View Details
+                        </button>
+                        <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
+                                class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Message Staff
+                        </button>
+                    </div>
+                    ${remark.response ? `
+                        <div class="mt-3 pt-2 border-t border-gray-100">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-3 h-3 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                </svg>
+                                <div>
+                                    <p class="text-xs font-medium text-green-600">Your Response:</p>
+                                    <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
+                                    <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        
+        remarksListContainer.innerHTML = remarksHtml;
+        
+        // Also add a remark badge to the ownership documents list
+        addRemarkBadgesToDocuments();
+    } else {
+        noticeContainer.classList.add('hidden');
     }
 }
 
-// Show CPDO Rating Modal
-function showCPDORatingModal(applicationId) {
-    // Check if already shown for this application
-    if (hasShownCPDORatingModal) return;
+    // Add remark badges to ownership documents in the list
+    function addRemarkBadgesToDocuments() {
+        const documentItems = document.querySelectorAll('#ownership-documents-list .flex');
+        
+        documentItems.forEach(item => {
+            const docNameText = item.querySelector('.text-sm.font-medium')?.textContent;
+            if (docNameText) {
+                let hasRemarks = false;
+                for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+                    const docName = ownershipDocumentNames[docKey];
+                    if (docName === docNameText || docKey.includes(docNameText.toLowerCase().replace(/\s+/g, '_'))) {
+                        const pendingRemarks = remarks.filter(r => r.status === 'pending_response');
+                        if (pendingRemarks.length > 0) {
+                            hasRemarks = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (hasRemarks) {
+                    if (!item.querySelector('.remark-badge')) {
+                        const remarkBadge = document.createElement('span');
+                        remarkBadge.className = 'remark-badge ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full flex items-center gap-1 remark-badge-pulse';
+                        remarkBadge.innerHTML = `
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Has Remarks
+                        `;
+                        const titleDiv = item.querySelector('.text-sm.font-medium');
+                        if (titleDiv && titleDiv.parentElement) {
+                            titleDiv.parentElement.insertBefore(remarkBadge, titleDiv.nextSibling);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+   // View document remarks modal
+function viewDocumentRemarks(documentKey, documentName) {
+    currentModalDocumentKey = documentKey;
+    currentModalDocumentName = documentName;
     
-    document.getElementById('cpdo-application-id').value = applicationId;
-    document.getElementById('cpdo-rating-value').value = '';
-    currentCPDORating = 0;
+    document.getElementById('modal-doc-name').textContent = documentName;
     
-    // Reset form
-    document.querySelectorAll('#cpdo-rating-modal input[type="radio"]').forEach(radio => radio.checked = false);
-    document.getElementById('cpdo-comments').value = '';
+    const modalRemarksList = document.getElementById('modal-remarks-list');
+    const remarks = ownershipRemarks[documentKey] || [];
     
-    // Reset stars
-    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star svg');
-    stars.forEach(star => {
-        star.classList.add('text-gray-300');
-        star.classList.remove('text-yellow-400');
-    });
+    if (remarks.length === 0) {
+        modalRemarksList.innerHTML = '<div class="text-center py-4 text-gray-500">No remarks found for this document.</div>';
+    } else {
+        let html = '';
+        remarks.forEach(remark => {
+            const date = new Date(remark.created_at);
+            const formattedDate = date.toLocaleString();
+            const statusBadge = remark.status === 'pending_response' 
+                ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>'
+                : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
+            
+            html += `
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by)}</span>
+                            ${statusBadge}
+                        </div>
+                        <span class="text-xs text-gray-400">${formattedDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                    ${remark.response ? `
+                        <div class="mt-3 pt-2 border-t border-gray-200">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                </svg>
+                                <div>
+                                    <p class="text-xs font-medium text-green-600">Your Response:</p>
+                                    <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
+                                    <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="mt-3 flex justify-end">
+                        <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
+                                class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Message ${escapeHtml(remark.created_by)}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        modalRemarksList.innerHTML = html;
+    }
     
-    document.getElementById('cpdo-rating-modal').classList.remove('hidden');
+    document.getElementById('document-remarks-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    hasShownCPDORatingModal = true;
 }
 
-// Close CPDO Rating Modal
-function closeCPDORatingModal() {
-    document.getElementById('cpdo-rating-modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
+    // Close document remarks modal
+    function closeDocumentRemarksModal() {
+        document.getElementById('document-remarks-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        currentModalDocumentKey = null;
+        currentModalDocumentName = null;
+    }
 
-// Check if CPDO rating is needed (after OR upload success)
-function checkCPDORatingNeeded() {
-    // Only show if user hasn't rated this application before
-    if (hasShownCPDORatingModal) return;
-    
-    // Check if we already have a CPDO rating for this application
-    fetch(`/applicant/cpdo-rating/check/${applicationId}`, {
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': getCsrfToken()
+    // Open chat with staff member
+    function openChatWithStaff(staffName = null) {
+        let targetStaffName = staffName;
+        
+        if (!targetStaffName) {
+            for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+                const pendingRemark = remarks.find(r => r.status === 'pending_response');
+                if (pendingRemark && pendingRemark.created_by_name) {
+                    targetStaffName = pendingRemark.created_by_name;
+                    break;
+                }
+            }
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.has_rated) {
-            setTimeout(() => {
-                showCPDORatingModal(applicationId);
-            }, 1500);
+        
+        if (targetStaffName) {
+            window.location.href = `/chat?staff=${encodeURIComponent(targetStaffName)}`;
+        } else {
+            window.location.href = '/chat';
         }
-    })
-    .catch(error => console.error('Error checking CPDO rating:', error));
-}
+    }
+
+    // Mark remark as responded
+    function markRemarkAsResponded(documentKey, remarkIndex, responseText) {
+        if (ownershipRemarks[documentKey] && ownershipRemarks[documentKey][remarkIndex]) {
+            ownershipRemarks[documentKey][remarkIndex].response = responseText;
+            ownershipRemarks[documentKey][remarkIndex].status = 'resolved';
+            ownershipRemarks[documentKey][remarkIndex].responded_at = new Date().toISOString();
+            saveOwnershipRemarks();
+            displayOwnershipRemarksNotice();
+            displayOwnershipDocuments(); // Refresh document list
+        }
+    }
+
+    // Display ownership documents (Step 1)
+    function displayOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        
+        if (!currentOwnershipData) {
+            displayEmptyOwnershipDocuments();
+            return;
+        }
+        
+        let html = '';
+        let hasDocuments = false;
+        
+        const ownershipLinks = {
+            'tct_link': currentOwnershipData.tct_link,
+            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
+            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
+            'spa_link': currentOwnershipData.spa_link
+        };
+        
+        for (const [key, value] of Object.entries(ownershipLinks)) {
+            if (value && value.trim() !== '') {
+                hasDocuments = true;
+                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+                
+                const spaBadge = key === 'spa_link' ? 
+                    '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                    ${spaBadge}
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
+                            </div>
+                        </div>
+                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span class="hidden sm:inline">View</span>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        if (!hasDocuments) {
+            displayEmptyOwnershipDocuments();
+        } else {
+            container.innerHTML = html;
+            // Add remark badges after rendering
+            addRemarkBadgesToDocuments();
+        }
+    }
+
+    function displayEmptyOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        container.innerHTML = `
+            <div class="text-center py-6 text-gray-500 animate-fade-in">
+                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <p class="text-sm">No ownership documents uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">Please complete Step 1: Ownership Verification</p>
+            </div>
+        `;
+    }
+
+    // Ownership status info
+    function displayOwnershipInfo() {
+        if (!currentOwnershipData) return;
+        
+        const ownershipCard = document.getElementById('ownership-status-card');
+        const ownershipStatusText = document.getElementById('ownership-status-text');
+        
+        if (ownershipCard && ownershipStatusText) {
+            ownershipCard.classList.remove('hidden');
+            
+            if (currentOwnershipData.is_owner == 1) {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - You are registered as the property owner.';
+            } else {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - You have provided a Special Power of Attorney (SPA).';
+            }
+        }
+    }
+
+    // Set star rating
+    function setCPDORating(rating) {
+        currentCPDORating = rating;
+        document.getElementById('cpdo-rating-value').value = rating;
+        
+        const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star');
+        stars.forEach((star, index) => {
+            const svg = star.querySelector('svg');
+            if (index < rating) {
+                svg.classList.add('text-yellow-400');
+                svg.classList.remove('text-gray-300');
+            } else {
+                svg.classList.add('text-gray-300');
+                svg.classList.remove('text-yellow-400');
+            }
+        });
+        
+        document.getElementById('rating-error')?.classList.add('hidden');
+    }
+
+    // Submit CPDO Rating
+    async function submitCPDORating(event) {
+        event.preventDefault();
+        
+        const rating = document.getElementById('cpdo-rating-value').value;
+        if (!rating || rating === '0') {
+            document.getElementById('rating-error')?.classList.remove('hidden');
+            return;
+        }
+        
+        const formData = {
+            application_id: document.getElementById('cpdo-application-id').value,
+            rating: parseInt(rating),
+            processing_time: document.querySelector('input[name="processing_time"]:checked')?.value,
+            responsiveness: document.querySelector('input[name="responsiveness"]:checked')?.value,
+            clarity: document.querySelector('input[name="clarity"]:checked')?.value,
+            fairness: document.querySelector('input[name="fairness"]:checked')?.value,
+            overall_satisfaction: document.querySelector('input[name="overall_satisfaction"]:checked')?.value,
+            comments: document.getElementById('cpdo-comments').value
+        };
+        
+        const submitBtn = document.getElementById('submit-cpdo-rating-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+        submitBtn.disabled = true;
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch('/applicant/cpdo-rating/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Thank you for your feedback!');
+                closeCPDORatingModal();
+            } else {
+                showErrorModal(data.message || 'Failed to submit rating');
+            }
+        } catch (error) {
+            console.error('Error submitting CPDO rating:', error);
+            showErrorModal('An error occurred. Please try again.');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Show CPDO Rating Modal
+    function showCPDORatingModal(applicationId) {
+        if (hasShownCPDORatingModal) return;
+        
+        document.getElementById('cpdo-application-id').value = applicationId;
+        document.getElementById('cpdo-rating-value').value = '';
+        currentCPDORating = 0;
+        
+        document.querySelectorAll('#cpdo-rating-modal input[type="radio"]').forEach(radio => radio.checked = false);
+        document.getElementById('cpdo-comments').value = '';
+        
+        const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star svg');
+        stars.forEach(star => {
+            star.classList.add('text-gray-300');
+            star.classList.remove('text-yellow-400');
+        });
+        
+        document.getElementById('cpdo-rating-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        hasShownCPDORatingModal = true;
+    }
+
+    // Close CPDO Rating Modal
+    function closeCPDORatingModal() {
+        document.getElementById('cpdo-rating-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Check if CPDO rating is needed
+    function checkCPDORatingNeeded() {
+        if (hasShownCPDORatingModal) return;
+        
+        fetch(`/applicant/cpdo-rating/check/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.has_rated) {
+                setTimeout(() => {
+                    showCPDORatingModal(applicationId);
+                }, 1500);
+            }
+        })
+        .catch(error => console.error('Error checking CPDO rating:', error));
+    }
 
     // Toggle reviewers section
     function toggleReviewersSection() {
@@ -1281,34 +1742,6 @@ function checkCPDORatingNeeded() {
             chevron.style.transform = 'rotate(0deg)';
         }
     }
-
-    // Ownership document names mapping (Step 1)
-    const ownershipDocumentNames = {
-        'tct_link': 'TCT / Deed of Sale',
-        'tax_declaration_link': 'Tax Declaration',
-        'current_tax_receipt_link': 'Current Tax Receipt',
-        'spa_link': 'Special Power of Attorney (SPA)'
-    };
-
-    // Document names mapping (Step 2)
-    const projectDocumentNames = {
-        'app_letter_link': 'Application Letter',
-        'bp_forms_link': 'Building Permit Forms',
-        'arch_plans_link': 'Architectural Plans',
-        'structural_plans_link': 'Civil/Structural Plans',
-        'electrical_plans_link': 'Electrical Plans',
-        'plumbing_plans_link': 'Sanitary/Plumbing Plans',
-        'mechanical_plans_link': 'Mechanical Plans',
-        'fencing_plans_link': 'Fencing Plans',
-        'bom_link': 'Bill of Materials',
-        'structural_analysis_link': 'Structural Design Analysis',
-        'barangay_clearance_link': 'Barangay Clearance',
-        'valid_id_link': 'Valid ID',
-        'cshp_link': 'CSHP from DOLE (Optional)',
-        'ptr_license_link': 'PTR License No.',
-        'zoning_compliance_link': 'Zoning Compliance',
-        'geodetic_plan_link': 'Geodetic Plan'
-    };
 
     // Load application details on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -1374,82 +1807,72 @@ function checkCPDORatingNeeded() {
         }
     }
 
-    // Load CPDO data (status and assessment)
-async function loadCPDOData() {
-    if (!applicationId) return;
-    
-    try {
-        const csrfToken = getCsrfToken();
+    // Load CPDO data
+    async function loadCPDOData() {
+        if (!applicationId) return;
         
-        // Load CPDO status
-        const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        
-        if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            if (statusData.success && statusData.data) {
-                cpdoStatus = statusData.data.status || 'pending';
-                cpdoRemarks = statusData.data.remarks || null;
-                cpdoApprovedBy = statusData.data.approved_by || null;
-                cpdoApprovedAt = statusData.data.approved_at || null;
-                displayCPDOStatus();
-            }
-        }
-        
-        // Load CPDO assessment (always try to load, regardless of status)
-        const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        
-        if (assessmentResponse.ok) {
-            const assessmentData = await assessmentResponse.json();
-            if (assessmentData.success && assessmentData.data) {
-                currentCPDOAssessment = assessmentData.data;
-                displayCPDOAssessment(); // This will show the fee breakdown inside CPDO card
-                
-                // Show payment proof card if CPDO is approved (moved outside CPDO card now)
-                const shouldShowPaymentProof = (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo');
-                const paymentProofCard = document.getElementById('payment-proof-card');
-                
-                if (shouldShowPaymentProof && paymentProofCard) {
-                    console.log('Showing payment proof card - CPDO approved');
-                    paymentProofCard.classList.remove('hidden');
-                    loadPaymentProof();
-                } else if (paymentProofCard) {
-                    console.log('Hiding payment proof card. CPDO status:', cpdoStatus);
-                    paymentProofCard.classList.add('hidden');
+        try {
+            const csrfToken = getCsrfToken();
+            
+            const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
+                if (statusData.success && statusData.data) {
+                    cpdoStatus = statusData.data.status || 'pending';
+                    cpdoRemarks = statusData.data.remarks || null;
+                    cpdoApprovedBy = statusData.data.approved_by || null;
+                    cpdoApprovedAt = statusData.data.approved_at || null;
+                    displayCPDOStatus();
                 }
             }
-        } else if (cpdoStatus === 'approved') {
-            // If CPDO status is approved but assessment fetch failed, still show payment proof
-            const paymentProofCard = document.getElementById('payment-proof-card');
-            if (paymentProofCard) {
-                console.log('CPDO approved but assessment fetch failed, still showing payment proof card');
-                paymentProofCard.classList.remove('hidden');
-                loadPaymentProof();
+            
+            const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (assessmentResponse.ok) {
+                const assessmentData = await assessmentResponse.json();
+                if (assessmentData.success && assessmentData.data) {
+                    currentCPDOAssessment = assessmentData.data;
+                    displayCPDOAssessment();
+                    
+                    if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
+                        const paymentProofCard = document.getElementById('payment-proof-card');
+                        if (paymentProofCard) {
+                            paymentProofCard.classList.remove('hidden');
+                            loadPaymentProof();
+                        }
+                    }
+                }
+            } else if (cpdoStatus === 'approved') {
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) {
+                    paymentProofCard.classList.remove('hidden');
+                    loadPaymentProof();
+                }
             }
-        }
-    } catch (error) {
-        console.error('Error loading CPDO data:', error);
-        // If CPDO is approved but there was an error, still try to show payment proof
-        if (cpdoStatus === 'approved') {
-            const paymentProofCard = document.getElementById('payment-proof-card');
-            if (paymentProofCard) {
-                paymentProofCard.classList.remove('hidden');
-                loadPaymentProof();
+        } catch (error) {
+            console.error('Error loading CPDO data:', error);
+            if (cpdoStatus === 'approved') {
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) {
+                    paymentProofCard.classList.remove('hidden');
+                    loadPaymentProof();
+                }
             }
         }
     }
-}
 
     // Display CPDO Status
     function displayCPDOStatus() {
@@ -1494,107 +1917,92 @@ async function loadCPDOData() {
         }
     }
 
-   // Display CPDO Assessment (Fee Breakdown)
-function displayCPDOAssessment() {
-    if (!currentCPDOAssessment) return;
-    
-    const assessmentDetails = document.getElementById('cpdo-assessment-details');
-    if (!assessmentDetails) return;
-    
-    let hasFees = false;
-    let html = '<div class="space-y-2">';
-    
-    // Assessment date
-    if (currentCPDOAssessment.assessment_date) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
-        html += `<div class="border-t border-orange-200 my-2"></div>`;
-        hasFees = true;
-    }
-    
-    // Zonal/Location Permit Fee section
-    let hasZonalFees = false;
-    if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-        hasZonalFees = true;
-        hasFees = true;
-    }
-    if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-        hasZonalFees = true;
-        hasFees = true;
-    }
-    if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-        hasZonalFees = true;
-        hasFees = true;
-    }
-    if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-        hasZonalFees = true;
-        hasFees = true;
-    }
-    
-    if (hasZonalFees) {
-        html += `<div class="border-t border-orange-100 my-2"></div>`;
-    }
-    
-    // Site/Zoning Certificate
-    if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
-        html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-        hasFees = true;
-    }
-    
-    // Additional fees
-    if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
-        html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
-        currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
-            if (fee.amount && parseFloat(fee.amount) > 0) {
-                const description = fee.description || 'Additional Fee';
-                html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-                hasFees = true;
-            }
-        });
-    }
-    
-    // Total
-    if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
-        html += `
-            <div class="border-t border-orange-200 mt-2 pt-2">
-                <div class="flex justify-between font-bold">
-                    <span class="text-orange-800">Total CPDO Fees:</span>
-                    <span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+    // Display CPDO Assessment
+    function displayCPDOAssessment() {
+        if (!currentCPDOAssessment) return;
+        
+        const assessmentDetails = document.getElementById('cpdo-assessment-details');
+        if (!assessmentDetails) return;
+        
+        let hasFees = false;
+        let html = '<div class="space-y-2">';
+        
+        if (currentCPDOAssessment.assessment_date) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
+            html += `<div class="border-t border-orange-200 my-2"></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
+            html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
+            currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
+                if (fee.amount && parseFloat(fee.amount) > 0) {
+                    const description = fee.description || 'Additional Fee';
+                    html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+                    hasFees = true;
+                }
+            });
+        }
+        
+        if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+            html += `
+                <div class="border-t border-orange-200 mt-2 pt-2">
+                    <div class="flex justify-between font-bold">
+                        <span class="text-orange-800">Total CPDO Fees:</span>
+                        <span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </div>
                 </div>
-            </div>
-        `;
-        hasFees = true;
+            `;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.cpdo_assessment_notes) {
+            html += `
+                <div class="mt-3 pt-2 border-t border-orange-200">
+                    <p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p>
+                </div>
+            `;
+        }
+        
+        if (currentCPDOAssessment.cpdo_assessed_by) {
+            html += `
+                <div class="mt-2 text-xs text-gray-400">
+                    Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        if (!hasFees) {
+            html = '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
+        }
+        
+        assessmentDetails.innerHTML = html;
     }
-    
-    // Notes
-    if (currentCPDOAssessment.cpdo_assessment_notes) {
-        html += `
-            <div class="mt-3 pt-2 border-t border-orange-200">
-                <p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p>
-            </div>
-        `;
-    }
-    
-    // Assessed by info
-    if (currentCPDOAssessment.cpdo_assessed_by) {
-        html += `
-            <div class="mt-2 text-xs text-gray-400">
-                Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}
-            </div>
-        `;
-    }
-    
-    html += `</div>`;
-    
-    if (!hasFees) {
-        html = '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
-    }
-    
-    assessmentDetails.innerHTML = html;
-}
+
     // Load ownership data
     async function loadOwnershipData() {
         if (!applicationId) return;
@@ -1620,105 +2028,13 @@ function displayCPDOAssessment() {
             } else {
                 displayEmptyOwnershipDocuments();
             }
+            
+            // Load ownership remarks after ownership data
+            loadOwnershipRemarks();
         } catch (error) {
             console.error('Error loading ownership data:', error);
             displayEmptyOwnershipDocuments();
         }
-    }
-
-    // Display ownership status info
-    function displayOwnershipInfo() {
-        if (!currentOwnershipData) return;
-        
-        const ownershipCard = document.getElementById('ownership-status-card');
-        const ownershipStatusText = document.getElementById('ownership-status-text');
-        
-        if (ownershipCard && ownershipStatusText) {
-            ownershipCard.classList.remove('hidden');
-            
-            if (currentOwnershipData.is_owner == 1) {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - You are registered as the property owner.';
-            } else {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - You have provided a Special Power of Attorney (SPA).';
-            }
-        }
-    }
-
-    // Display ownership documents (Step 1)
-    function displayOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        
-        if (!currentOwnershipData) {
-            displayEmptyOwnershipDocuments();
-            return;
-        }
-        
-        let html = '';
-        let hasDocuments = false;
-        
-        // Map ownership data to document links
-        const ownershipLinks = {
-            'tct_link': currentOwnershipData.tct_link,
-            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
-            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
-            'spa_link': currentOwnershipData.spa_link
-        };
-        
-        for (const [key, value] of Object.entries(ownershipLinks)) {
-            if (value && value.trim() !== '') {
-                hasDocuments = true;
-                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
-                
-                // Add badge for SPA if applicable
-                const spaBadge = key === 'spa_link' ? 
-                    '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
-                
-                html += `
-                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-1">
-                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
-                                    ${spaBadge}
-                                </div>
-                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
-                            </div>
-                        </div>
-                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            <span class="hidden sm:inline">View</span>
-                        </a>
-                    </div>
-                `;
-            }
-        }
-        
-        if (!hasDocuments) {
-            displayEmptyOwnershipDocuments();
-        } else {
-            container.innerHTML = html;
-        }
-    }
-
-    // Display empty ownership documents
-    function displayEmptyOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        container.innerHTML = `
-            <div class="text-center py-6 text-gray-500 animate-fade-in">
-                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <p class="text-sm">No ownership documents uploaded yet</p>
-                <p class="text-xs text-gray-400 mt-1">Please complete Step 1: Ownership Verification</p>
-            </div>
-        `;
     }
 
     // Load BFP data
@@ -1746,7 +2062,7 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Display BFP data (FSEC and comments)
+    // Display BFP data
     function displayBFPData() {
         if (!currentBfpData) return;
         
@@ -1879,7 +2195,7 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Display hard copy submission date
+    // Display hard copy submission info
     function displayHardCopySubmissionInfo(application) {
         const submissionNotice = document.getElementById('hardcopy-submission-notice');
         const submissionInfoSidebar = document.getElementById('hardcopy-submission-info');
@@ -1889,7 +2205,6 @@ function displayCPDOAssessment() {
         const sidebarInstructionsEl = document.getElementById('sidebar-submission-instructions');
         
         if (application.hardcopy_submission_date) {
-            // Format the date nicely
             let formattedDate = application.hardcopy_submission_date;
             try {
                 const dateObj = new Date(application.hardcopy_submission_date);
@@ -1903,9 +2218,7 @@ function displayCPDOAssessment() {
                         minute: '2-digit'
                     });
                 }
-            } catch(e) {
-                // Keep original format if parsing fails
-            }
+            } catch(e) {}
             
             if (submissionDateEl) submissionDateEl.textContent = formattedDate;
             if (sidebarDateEl) sidebarDateEl.textContent = formattedDate;
@@ -1918,7 +2231,6 @@ function displayCPDOAssessment() {
             if (submissionNotice) submissionNotice.classList.remove('hidden');
             if (submissionInfoSidebar) submissionInfoSidebar.classList.remove('hidden');
             
-            // Hide the regular hard copy notice since we have a specific date
             const regularNotice = document.getElementById('hardcopy-notice');
             if (regularNotice) regularNotice.classList.add('hidden');
         } else {
@@ -1938,7 +2250,6 @@ function displayCPDOAssessment() {
         }, 5000);
     }
 
-    // Show document verification alert
     function showDocumentVerificationAlert() {
         const alert = document.getElementById('document-verification-alert');
         if (alert) {
@@ -1949,7 +2260,6 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Animate status change
     function animateStatusChange() {
         const statusBadge = document.getElementById('status-badge');
         const currentStatusBadge = document.getElementById('current-status-badge');
@@ -1997,7 +2307,6 @@ function displayCPDOAssessment() {
             if (data.success && data.data) {
                 currentApplication = data.data;
                 previousStatus = currentApplication.status;
-                // Also get cpdo_status from the response if available
                 if (currentApplication.cpdo_status) {
                     cpdoStatus = currentApplication.cpdo_status;
                     cpdoRemarks = currentApplication.cpdo_remarks || null;
@@ -2006,8 +2315,8 @@ function displayCPDOAssessment() {
                 loadReviewActivities();
                 loadAssessmentData();
                 loadBFPData();
-                loadOwnershipData(); // Load ownership data (Step 1)
-                loadCPDOData(); // Load CPDO status and assessment
+                loadOwnershipData();
+                loadCPDOData();
                 
                 if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
                     displayDocumentsList(currentApplication.document_links);
@@ -2054,6 +2363,25 @@ function displayCPDOAssessment() {
     }
 
     // Display project documents list (Step 2)
+    const projectDocumentNames = {
+        'app_letter_link': 'Application Letter',
+        'bp_forms_link': 'Building Permit Forms',
+        'arch_plans_link': 'Architectural Plans',
+        'structural_plans_link': 'Civil/Structural Plans',
+        'electrical_plans_link': 'Electrical Plans',
+        'plumbing_plans_link': 'Sanitary/Plumbing Plans',
+        'mechanical_plans_link': 'Mechanical Plans',
+        'fencing_plans_link': 'Fencing Plans',
+        'bom_link': 'Bill of Materials',
+        'structural_analysis_link': 'Structural Design Analysis',
+        'barangay_clearance_link': 'Barangay Clearance',
+        'valid_id_link': 'Valid ID',
+        'cshp_link': 'CSHP from DOLE (Optional)',
+        'ptr_license_link': 'PTR License No.',
+        'zoning_compliance_link': 'Zoning Compliance',
+        'geodetic_plan_link': 'Geodetic Plan'
+    };
+
     function displayDocumentsList(documents) {
         const container = document.getElementById('documents-list');
         
@@ -2102,7 +2430,6 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Show empty documents state
     function showEmptyDocuments() {
         const container = document.getElementById('documents-list');
         container.innerHTML = `
@@ -2117,7 +2444,6 @@ function displayCPDOAssessment() {
         updateDocumentStatus('Not Uploaded');
     }
 
-    // Update document status
     function updateDocumentStatus(status) {
         const statusEl = document.getElementById('document-status');
         if (statusEl) {
@@ -2300,7 +2626,6 @@ function displayCPDOAssessment() {
             `;
         });
         
-        // Auto-expand if there are reviewers
         const content = document.getElementById('reviewers-collapsible-content');
         const chevron = document.getElementById('reviewers-chevron');
         if (reviewers.length > 0) {
@@ -2312,7 +2637,6 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Show empty reviewers
     function showEmptyReviewers() {
         const reviewersContainer = document.getElementById('reviewers-container');
         reviewersContainer.innerHTML = `
@@ -2332,14 +2656,12 @@ function displayCPDOAssessment() {
         const reviewerCountSpan = document.getElementById('reviewer-count');
         if (reviewerCountSpan) reviewerCountSpan.textContent = '0';
         
-        // Collapse section if empty
         const content = document.getElementById('reviewers-collapsible-content');
         const chevron = document.getElementById('reviewers-chevron');
         content.classList.add('hidden');
         if (chevron) chevron.style.transform = 'rotate(0deg)';
     }
 
-    // Show empty activities
     function showEmptyActivities() {
         const activityLog = document.getElementById('activity-log');
         activityLog.innerHTML = `
@@ -2510,10 +2832,7 @@ function displayCPDOAssessment() {
         updateStatusUI(currentApplication.status);
         updateTimeline(currentApplication.status);
         updateProgress(currentApplication.status);
-
-        // Display hard copy submission date if available
         displayHardCopySubmissionInfo(currentApplication);
-
         updateHardCopyStatus(currentApplication.hard_copy_received);
 
         if (currentApplication.status === 'document-verification') {
@@ -2523,7 +2842,6 @@ function displayCPDOAssessment() {
         }
     }
 
-    // Show/hide document verification status
     function showDocumentVerificationStatus(show) {
         const verificationStatus = document.getElementById('document-verification-status');
         const verificationAlert = document.getElementById('document-verification-alert');
@@ -2726,7 +3044,6 @@ function displayCPDOAssessment() {
             if (hardcopyMessage) hardcopyMessage.textContent = 'Hard copies received by OBO';
             if (hardcopySidebar) hardcopySidebar.className = 'mt-4 p-3 bg-green-50 rounded-lg transition-all duration-500';
         } else {
-            // Don't hide if we have a specific submission date
             const hasSubmissionDate = currentApplication?.hardcopy_submission_date;
             if (!hasSubmissionDate) {
                 if (hardcopyNotice) hardcopyNotice.classList.remove('hidden');
@@ -2879,13 +3196,12 @@ function displayCPDOAssessment() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
-                    // Show survey modal for the first pending survey
                     const firstSurvey = data.pending_surveys[0];
                     setTimeout(() => {
                         if (window.showSurveyModal) {
                             window.showSurveyModal(firstSurvey.id, firstSurvey.service_availed);
                         }
-                    }, 2000); // Delay to ensure modal is loaded
+                    }, 2000);
                 }
             }
         } catch (error) {
@@ -2926,50 +3242,49 @@ function displayCPDOAssessment() {
     // Payment Proof variables
     let currentPaymentProof = null;
 
-   // Load payment proof data (VIEW ONLY)
-async function loadPaymentProof() {
-    if (!applicationId) return;
-    
-    try {
-        const csrfToken = getCsrfToken();
-        const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+    // Load payment proof data
+    async function loadPaymentProof() {
+        if (!applicationId) return;
         
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.data && data.data.or_link) {
-                currentPaymentProof = data.data;
-                displayPaymentProof();
-                displayCPDOCertificates(); // Display certificates if any
-                return;
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data && data.data.or_link) {
+                    currentPaymentProof = data.data;
+                    displayPaymentProof();
+                    displayCPDOCertificates();
+                    return;
+                }
             }
+            const form = document.getElementById('payment-proof-form');
+            const display = document.getElementById('payment-proof-display');
+            const statusBadge = document.getElementById('payment-status-badge');
+            
+            if (form) form.classList.remove('hidden');
+            if (display) display.classList.add('hidden');
+            if (statusBadge) {
+                statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+                statusBadge.textContent = 'Not Uploaded';
+            }
+        } catch (error) {
+            console.error('Error loading payment proof:', error);
+            const form = document.getElementById('payment-proof-form');
+            const display = document.getElementById('payment-proof-display');
+            if (form) form.classList.remove('hidden');
+            if (display) display.classList.add('hidden');
         }
-        // No payment proof yet - show form
-        const form = document.getElementById('payment-proof-form');
-        const display = document.getElementById('payment-proof-display');
-        const statusBadge = document.getElementById('payment-status-badge');
-        
-        if (form) form.classList.remove('hidden');
-        if (display) display.classList.add('hidden');
-        if (statusBadge) {
-            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
-            statusBadge.textContent = 'Not Uploaded';
-        }
-    } catch (error) {
-        console.error('Error loading payment proof:', error);
-        // Show form on error
-        const form = document.getElementById('payment-proof-form');
-        const display = document.getElementById('payment-proof-display');
-        if (form) form.classList.remove('hidden');
-        if (display) display.classList.add('hidden');
     }
-}
-    // Display CPDO Certificates (Zoning and Locational)
+
+    // Display CPDO Certificates
     function displayCPDOCertificates() {
         if (!currentPaymentProof) return;
         
@@ -2979,7 +3294,6 @@ async function loadPaymentProof() {
         
         let hasAnyCertificate = false;
         
-        // Zoning Certificate
         if (currentPaymentProof.zoning_cert_link) {
             zoningContainer.classList.remove('hidden');
             document.getElementById('zoning-cert-link').href = currentPaymentProof.zoning_cert_link;
@@ -2998,7 +3312,6 @@ async function loadPaymentProof() {
             zoningContainer.classList.add('hidden');
         }
         
-        // Locational Clearance
         if (currentPaymentProof.locational_clearance_link) {
             locationalContainer.classList.remove('hidden');
             document.getElementById('locational-cert-link').href = currentPaymentProof.locational_clearance_link;
@@ -3017,7 +3330,6 @@ async function loadPaymentProof() {
             locationalContainer.classList.add('hidden');
         }
         
-        // Show/hide the entire certificates section
         if (hasAnyCertificate) {
             certificatesSection.classList.remove('hidden');
         } else {
@@ -3025,34 +3337,29 @@ async function loadPaymentProof() {
         }
     }
 
-   // Display payment proof (VIEW ONLY - no verification status)
-function displayPaymentProof() {
-    if (!currentPaymentProof) return;
-    
-    const statusBadge = document.getElementById('payment-status-badge');
-    const statusText = document.getElementById('payment-status-text');
-    const proofLink = document.getElementById('payment-proof-link');
-    const rejectionDiv = document.getElementById('payment-rejection-reason');
-    const form = document.getElementById('payment-proof-form');
-    const display = document.getElementById('payment-proof-display');
-    
-    // Set link
-    proofLink.href = currentPaymentProof.or_link;
-    
-    // NO VERIFICATION STATUS - just show as uploaded
-    // Always show as "Uploaded" regardless of any status field
-    statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-    statusBadge.textContent = 'Uploaded ✓';
-    statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-    statusText.textContent = 'Uploaded';
-    
-    // Hide rejection reason (not needed)
-    rejectionDiv.classList.add('hidden');
-    
-    // Always show display and hide form (since verification is removed)
-    form.classList.add('hidden');
-    display.classList.remove('hidden');
-}
+    // Display payment proof
+    function displayPaymentProof() {
+        if (!currentPaymentProof) return;
+        
+        const statusBadge = document.getElementById('payment-status-badge');
+        const statusText = document.getElementById('payment-status-text');
+        const proofLink = document.getElementById('payment-proof-link');
+        const rejectionDiv = document.getElementById('payment-rejection-reason');
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        
+        proofLink.href = currentPaymentProof.or_link;
+        
+        statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        statusBadge.textContent = 'Uploaded ✓';
+        statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        statusText.textContent = 'Uploaded';
+        
+        rejectionDiv.classList.add('hidden');
+        
+        if (form) form.classList.add('hidden');
+        if (display) display.classList.remove('hidden');
+    }
 
     // Show payment proof form
     function showPaymentProofForm() {
@@ -3063,90 +3370,65 @@ function displayPaymentProof() {
         if (orLinkInput && currentPaymentProof) {
             orLinkInput.value = currentPaymentProof.or_link || '';
         }
-        form.classList.remove('hidden');
-        display.classList.add('hidden');
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
     }
 
     // Upload payment proof
-async function uploadPaymentProof() {
-    const orLink = document.getElementById('or-link').value.trim();
-    
-    if (!orLink) {
-        showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
-        return;
-    }
-    
-    // Validate Google Drive link
-    if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
-        showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
-        return;
-    }
-    
-    const btn = document.getElementById('upload-or-btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-    btn.disabled = true;
-    
-    try {
-        const csrfToken = getCsrfToken();
-        const response = await fetch('/applicant/payment-proof/upload', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                application_id: applicationId,
-                or_link: orLink
-            })
-        });
+    async function uploadPaymentProof() {
+        const orLink = document.getElementById('or-link').value.trim();
         
-        const data = await response.json();
-        
-        if (data.success) {
-            showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
-            await loadPaymentProof();
-            const form = document.getElementById('payment-proof-form');
-            const display = document.getElementById('payment-proof-display');
-            if (form) form.classList.add('hidden');
-            if (display) display.classList.remove('hidden');
-            
-            // *** TRIGGER CPDO RATING MODAL AFTER SUCCESSFUL UPLOAD ***
-            checkCPDORatingNeeded();
-        } else {
-            showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
+        if (!orLink) {
+            showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
+            return;
         }
-    } catch (error) {
-        console.error('Error uploading payment proof:', error);
-        showErrorModal('Error', 'Failed to upload payment proof');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-}
-    function showErrorModal(title, message) {
-        const modal = document.getElementById('error-modal');
-        const messageEl = document.getElementById('error-modal-message');
-        const titleEl = modal?.querySelector('h3');
-        if (titleEl) titleEl.textContent = title;
-        if (messageEl) messageEl.textContent = message;
-        if (modal) modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function showSuccessModal(title, message) {
-        const modal = document.getElementById('success-modal');
-        const messageEl = document.getElementById('success-modal-message');
-        const titleEl = modal?.querySelector('h3');
-        if (titleEl) titleEl.textContent = title;
-        if (messageEl) messageEl.textContent = message;
-        if (modal) modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
         
-        setTimeout(() => {
-            closeSuccessModal();
-        }, 3000);
+        if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
+            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+            return;
+        }
+        
+        const btn = document.getElementById('upload-or-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+        btn.disabled = true;
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch('/applicant/payment-proof/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    or_link: orLink
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
+                await loadPaymentProof();
+                const formEl = document.getElementById('payment-proof-form');
+                const displayEl = document.getElementById('payment-proof-display');
+                if (formEl) formEl.classList.add('hidden');
+                if (displayEl) displayEl.classList.remove('hidden');
+                
+                checkCPDORatingNeeded();
+            } else {
+                showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
+            }
+        } catch (error) {
+            console.error('Error uploading payment proof:', error);
+            showErrorModal('Error', 'Failed to upload payment proof');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     }
 </script>
 @endsection

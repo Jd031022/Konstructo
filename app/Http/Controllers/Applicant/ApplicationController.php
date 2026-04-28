@@ -1280,6 +1280,118 @@ public function submitSurvey(Request $request)
         };
     }
     /**
+ * Get ownership document remarks for applicant
+ */
+public function getOwnershipRemarks($id)
+{
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        // Check if the authenticated user owns this application
+        if ($application->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        
+        // Get admin notes that contain ownership document remarks
+        $adminNotes = $application->admin_notes;
+        $remarks = [];
+        
+        if ($adminNotes) {
+            // Parse admin notes to extract remarks
+            $lines = explode("\n", $adminNotes);
+            $currentRemark = null;
+            
+            foreach ($lines as $line) {
+                // Pattern: [2024-01-01 10:00] John Doe (Ownership Document Remark - TCT / Deed of Sale): remark text
+                if (preg_match('/\[(.*?)\]\s+(.*?)\s+\(Ownership Document Remark\s*-\s*(.*?)\):\s*(.*)/', $line, $matches)) {
+                    if ($currentRemark) {
+                        $remarks[] = $currentRemark;
+                    }
+                    $currentRemark = [
+                        'created_at' => $matches[1],
+                        'created_by' => $matches[2],
+                        'document_name' => trim($matches[3]),
+                        'remark' => trim($matches[4]),
+                        'status' => 'pending_response',
+                        'response' => null,
+                        'responded_at' => null
+                    ];
+                } elseif ($currentRemark && preg_match('/Response:\s*(.*)/', $line, $responseMatch)) {
+                    $currentRemark['response'] = trim($responseMatch[1]);
+                    $currentRemark['status'] = 'resolved';
+                    $currentRemark['responded_at'] = now()->toISOString();
+                    $remarks[] = $currentRemark;
+                    $currentRemark = null;
+                }
+            }
+            
+            if ($currentRemark) {
+                $remarks[] = $currentRemark;
+            }
+        }
+        
+        // Group remarks by document key (approximate matching)
+        $groupedRemarks = [];
+        foreach ($remarks as $remark) {
+            // Try to find matching document key based on document name
+            $documentKey = $this->getDocumentKeyFromName($remark['document_name']);
+            if (!isset($groupedRemarks[$documentKey])) {
+                $groupedRemarks[$documentKey] = [];
+            }
+            $groupedRemarks[$documentKey][] = $remark;
+        }
+        
+        return response()->json([
+            'success' => true,
+            'remarks' => $groupedRemarks
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error fetching ownership remarks: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching remarks'
+        ], 500);
+    }
+}
+
+/**
+ * Get document key from document name
+ */
+private function getDocumentKeyFromName($documentName)
+{
+    $mapping = [
+        'TCT / Deed of Sale' => 'tct_link',
+        'Tax Declaration' => 'tax_declaration_link',
+        'Current Tax Receipt' => 'current_tax_receipt_link',
+        'Special Power of Attorney (SPA)' => 'spa_link'
+    ];
+    
+    foreach ($mapping as $name => $key) {
+        if (strpos($documentName, $name) !== false) {
+            return $key;
+        }
+    }
+    
+    // Try to extract from the string
+    if (strpos($documentName, 'TCT') !== false) return 'tct_link';
+    if (strpos($documentName, 'Tax Declaration') !== false) return 'tax_declaration_link';
+    if (strpos($documentName, 'Tax Receipt') !== false) return 'current_tax_receipt_link';
+    if (strpos($documentName, 'SPA') !== false || strpos($documentName, 'Power of Attorney') !== false) return 'spa_link';
+    
+    return 'unknown';
+}
+    /**
  * Save ownership verification documents (New Step 1)
  */
 public function saveOwnership(Request $request)
