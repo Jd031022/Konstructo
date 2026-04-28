@@ -4012,7 +4012,135 @@ public function getCPDORatingsStats(Request $request)
         ], 500);
     }
 }
-
+/**
+ * Send ownership document remark to applicant
+ */
+public function sendOwnershipRemark(Request $request, $id)
+{
+    \Log::info('========== SEND OWNERSHIP REMARK ==========');
+    
+    // Log everything to debug
+    \Log::info('Request method: ' . $request->method());
+    \Log::info('Content type: ' . $request->header('Content-Type'));
+    \Log::info('All input: ', $request->all());
+    \Log::info('Raw content: ' . $request->getContent());
+    
+    try {
+        // Get data using input() - this works for FormData
+        $documentKey = $request->input('document_key');
+        $documentName = $request->input('document_name');
+        $remark = $request->input('remark');
+        
+        \Log::info('Retrieved via input():', [
+            'document_key' => $documentKey,
+            'document_name' => $documentName,
+            'remark' => $remark
+        ]);
+        
+        // If still empty, try getting from request->all()
+        if (empty($documentKey)) {
+            $all = $request->all();
+            $documentKey = $all['document_key'] ?? null;
+            $documentName = $all['document_name'] ?? null;
+            $remark = $all['remark'] ?? null;
+            \Log::info('Retrieved via all():', [
+                'document_key' => $documentKey,
+                'document_name' => $documentName,
+                'remark' => $remark
+            ]);
+        }
+        
+        // Validate
+        if (empty($documentKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Document key is required',
+                'received' => $request->all()
+            ], 422);
+        }
+        
+        if (empty($documentName)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Document name is required',
+                'received' => $request->all()
+            ], 422);
+        }
+        
+        if (empty($remark) || strlen($remark) < 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remark must be at least 3 characters'
+            ], 422);
+        }
+        
+        // Find application
+        $application = ApplicationDocument::with('user')->find($id);
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        $staff = auth()->user();
+        if (!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+        
+        // Save to admin notes
+        $existingNotes = $application->admin_notes;
+        $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " (Ownership Document Remark - {$documentName}): " . $remark;
+        $application->admin_notes = $existingNotes ? $existingNotes . "\n\n" . $newNote : $newNote;
+        $application->last_updated_by = $staff->id;
+        $application->save();
+        
+        // Log activity
+        if (Schema::hasTable('application_review_activities')) {
+            \App\Models\ApplicationReviewActivity::create([
+                'application_id' => $application->id,
+                'reviewer_id' => $staff->id,
+                'action' => 'ownership_document_remark_added',
+                'old_status' => $application->status,
+                'new_status' => $application->status,
+                'remarks' => "Clarification requested for {$documentName}: " . substr($remark, 0, 200),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+        }
+        
+        // Send notification
+        if (isset($this->notificationService)) {
+            $this->notificationService->notifyOwnershipDocumentRemark(
+                $application,
+                $staff,
+                $documentKey,
+                $documentName,
+                $remark
+            );
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Clarification request sent successfully to applicant',
+            'data' => [
+                'document_key' => $documentKey,
+                'document_name' => $documentName,
+                'remark' => $remark
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 /**
  * Export CPDO ratings to CSV
  */

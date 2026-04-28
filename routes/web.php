@@ -16,6 +16,7 @@ use App\Http\Controllers\MessageController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Applicant\ApplicationController;
 use App\Models\ApplicationDocument;
+use Illuminate\Support\Facades\Log;
 
 Route::get('/', function () {
     return view('applicant.welcome');
@@ -55,7 +56,8 @@ Route::post('/forgot-password/send-code', [PasswordResetController::class, 'send
 Route::post('/forgot-password/verify-code', [PasswordResetController::class, 'verifyCode'])->name('password.verify-code');
 Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
 Route::post('/forgot-password/resend-code', [PasswordResetController::class, 'resendCode'])->name('password.resend-code');
-
+Route::post('/staff/applications/{id}/ownership-remark', [App\Http\Controllers\Staff\ApplicationController::class, 'sendOwnershipRemark'])
+    ->middleware('auth');
 // Staff UI and API Routes - ORDER MATTERS! Put specific routes FIRST
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
     
@@ -455,3 +457,17 @@ Route::get('/test-fpdf', function() {
         return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
     }
 });
+Route::post('/test-ownership-remark/{id}', function(Request $request, $id) {
+    Log::info('TEST ROUTE HIT', [
+        'id' => $id,
+        'data' => $request->all(),
+        'json' => $request->json()->all(),
+        'content' => $request->getContent()
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'received' => $request->all(),
+        'json_received' => $request->json()->all()
+    ]);
+})->middleware('auth');

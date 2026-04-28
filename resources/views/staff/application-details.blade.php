@@ -357,27 +357,26 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Ownership Documents Card (Step 1) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-800">Step 1: Ownership Documents</h2>
-                    </div>
-                    <div id="ownership-documents-list" class="space-y-3">
-                        <div class="text-center py-8 text-gray-500">
-                            <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-sm">Loading ownership documents...</p>
-                        </div>
-                    </div>
-                </div>
+<!-- Ownership Documents Card (Step 1) -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-800">Step 1: Ownership Documents</h2>
+    </div>
+    <div id="ownership-documents-list" class="space-y-3">
+        <div class="text-center py-8 text-gray-500">
+            <svg class="w-10 h-10 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-sm">Loading ownership documents...</p>
+        </div>
+    </div>
+</div>
 
                 <!-- Document Checklist Card (Step 2) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
@@ -1385,7 +1384,88 @@
         </div>
     </div>
 </div>
+<!-- Ownership Document Remark Modal -->
+<div id="ownership-remark-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Add Remark / Clarification</h3>
+                </div>
+                <button onclick="closeOwnershipRemarkModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-blue-50 rounded-lg p-3 mb-2">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm text-blue-800 font-medium">Document: <span id="remark-doc-name" class="font-bold"></span></p>
+                            <p class="text-xs text-blue-700 mt-1">Add a remark or clarification request for this document. The applicant will be notified and can respond with updated documents.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Clarification Request <span class="text-red-500">*</span></label>
+                    <textarea id="ownership-remark-text" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="E.g., The TCT document is blurry, please resubmit a clearer copy.&#10;The Tax Declaration date doesn't match the property records, please verify.&#10;SPA document missing notary seal, please provide a properly notarized copy."></textarea>
+                    <p class="text-xs text-gray-400 mt-1">This remark will be sent to the applicant and logged in the activity history.</p>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeOwnershipRemarkModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Cancel</button>
+                <button onclick="submitOwnershipRemark()" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium">Send Remark to Applicant</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- View Ownership Remarks Modal -->
+<div id="view-remarks-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Document Remarks History</h3>
+                </div>
+                <button onclick="closeViewRemarksModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div id="remarks-history-container" class="space-y-3">
+                    <div class="text-center py-4 text-gray-500">
+                        <p class="text-sm">No remarks yet for this document.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeViewRemarksModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Missing Documents Dropdown -->
 <div id="missing-documents-dropdown" class="hidden fixed left-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
     <div class="p-4">
@@ -1428,6 +1508,11 @@
     // CPDO decision tracking for confirmation modal
     let pendingCPDODecision = null;
     let pendingCPDORemarks = null;
+
+    // Ownership remarks storage
+let ownershipRemarks = {};
+window.currentRemarkDocumentKey = null;
+window.currentRemarkDocumentName = null;
     
     // CPDO Assessment variables
     let cpdoDynamicFees = [];
@@ -1998,106 +2083,440 @@
     }
 
     // Load all data in parallel
-    async function loadAllData() {
-        const loadingState = document.getElementById('loading-state');
-        const contentDiv = document.getElementById('application-content');
+async function loadAllData() {
+    const loadingState = document.getElementById('loading-state');
+    const contentDiv = document.getElementById('application-content');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            const [
-                positionRes,
-                applicationRes,
-                activitiesRes,
-                ownershipRes,
-                cpdoRes,
-                assessmentRes,
-                bfpRes
-            ] = await Promise.all([
-                fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false }))
-            ]);
-            
-            if (positionRes.ok) {
-                const data = await positionRes.json();
-                currentUserPosition = data.position || '';
-                console.log('Current user position:', currentUserPosition);
-            }
-            
-            if (applicationRes.ok) {
-                const data = await applicationRes.json();
-                if (data.success) {
-                    currentApplication = data.data;
-                    cpdoStatus = currentApplication.cpdo_status || 'pending';
-                    cpdoRemarks = currentApplication.cpdo_remarks || null;
-                    cpdoApprovedBy = currentApplication.cpdo_approved_by || null;
-                    cpdoApprovedAt = currentApplication.cpdo_approved_at || null;
-                    
-                    // Auto-fill CPDO assessment form with client info
-                    if (currentApplication.applicant_name) {
-                        document.getElementById('cpdo-client-name').textContent = currentApplication.applicant_name;
-                    }
-                    if (currentApplication.address) {
-                        document.getElementById('cpdo-client-address').textContent = currentApplication.address;
-                    }
+        const [
+            positionRes,
+            applicationRes,
+            activitiesRes,
+            ownershipRes,
+            cpdoRes,
+            assessmentRes,
+            bfpRes,
+            paymentProofRes
+        ] = await Promise.all([
+            fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
+            fetch(`/staff/applications/${applicationId}/payment-proof`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false }))
+        ]);
+        
+        // Get user position
+        if (positionRes.ok) {
+            const data = await positionRes.json();
+            currentUserPosition = data.position || '';
+            console.log('Current user position:', currentUserPosition);
+        }
+        
+        // Get application details
+        if (applicationRes.ok) {
+            const data = await applicationRes.json();
+            if (data.success) {
+                currentApplication = data.data;
+                cpdoStatus = currentApplication.cpdo_status || 'pending';
+                cpdoRemarks = currentApplication.cpdo_remarks || null;
+                cpdoApprovedBy = currentApplication.cpdo_approved_by || null;
+                cpdoApprovedAt = currentApplication.cpdo_approved_at || null;
+                
+                // Auto-fill CPDO assessment form with client info
+                if (currentApplication.applicant_name) {
+                    const clientNameEl = document.getElementById('cpdo-client-name');
+                    if (clientNameEl) clientNameEl.textContent = currentApplication.applicant_name;
+                }
+                if (currentApplication.address) {
+                    const clientAddressEl = document.getElementById('cpdo-client-address');
+                    if (clientAddressEl) clientAddressEl.textContent = currentApplication.address;
                 }
             }
-            
-            if (activitiesRes.ok) {
-                const data = await activitiesRes.json();
-                if (data.success) reviewActivities = data.activities || [];
+        }
+        
+        // Get review activities
+        if (activitiesRes.ok) {
+            const data = await activitiesRes.json();
+            if (data.success) reviewActivities = data.activities || [];
+        }
+        
+        // Get ownership data
+        if (ownershipRes.ok) {
+            const data = await ownershipRes.json();
+            if (data.success && data.data) {
+                currentOwnershipData = data.data;
             }
-            
-            if (ownershipRes.ok) {
-                const data = await ownershipRes.json();
-                if (data.success && data.data) {
-                    currentOwnershipData = data.data;
-                }
+        }
+        
+        // Get CPDO status
+        if (cpdoRes.ok) {
+            const data = await cpdoRes.json();
+            if (data.success && data.data) {
+                cpdoStatus = data.data.status || cpdoStatus;
+                cpdoRemarks = data.data.remarks || cpdoRemarks;
+                cpdoApprovedBy = data.data.approved_by || cpdoApprovedBy;
+                cpdoApprovedAt = data.data.approved_at || cpdoApprovedAt;
             }
-            
-            if (cpdoRes.ok) {
-                const data = await cpdoRes.json();
-                if (data.success && data.data) {
-                    cpdoStatus = data.data.status || cpdoStatus;
-                    cpdoRemarks = data.data.remarks || cpdoRemarks;
-                    cpdoApprovedBy = data.data.approved_by || cpdoApprovedBy;
-                    cpdoApprovedAt = data.data.approved_at || cpdoApprovedAt;
-                }
+        }
+        
+        // Get assessment data
+        if (assessmentRes.ok) {
+            const data = await assessmentRes.json();
+            if (data.success && data.data) {
+                currentAssessment = data.data;
             }
-            
-            if (assessmentRes.ok) {
-                const data = await assessmentRes.json();
-                if (data.success && data.data) {
-                    currentAssessment = data.data;
-                }
+        }
+        
+        // Get BFP data
+        if (bfpRes.ok) {
+            const data = await bfpRes.json();
+            if (data.success && data.data) {
+                bfpData = data.data;
             }
-            
-            if (bfpRes.ok) {
-                const data = await bfpRes.json();
-                if (data.success && data.data) {
-                    bfpData = data.data;
-                }
+        }
+        
+        // Get payment proof data (for OR and certificates)
+        if (paymentProofRes.ok) {
+            const data = await paymentProofRes.json();
+            if (data.success && data.data) {
+                currentPaymentProof = data.data;
+                console.log('Payment proof loaded:', currentPaymentProof);
             }
-            
-            renderAllData();
-            
-        } catch (error) {
-            console.error('Error loading data:', error);
-            showError();
-        } finally {
-            loadingState.classList.add('hidden');
-            contentDiv.classList.remove('hidden');
+        }
+        
+        // Load local storage data
+        loadDocumentVerificationStatus();
+        loadOwnershipVerificationStatus();
+        loadOwnershipRemarks();
+        
+        // Render all UI components
+        renderAllData();
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showError();
+    } finally {
+        loadingState.classList.add('hidden');
+        contentDiv.classList.remove('hidden');
+    }
+}
+
+// Complete renderAllData function
+function renderAllData() {
+    loadDocumentVerificationStatus();
+    loadOwnershipVerificationStatus();
+    loadOwnershipRemarks();
+    loadPaymentProof();
+    
+    if (currentApplication) {
+        displayApplicationDetails();
+        updateTimeline(currentApplication.status);
+        updateProgress(currentApplication.status);
+        updateHardCopyStatus(currentApplication.hard_copy_received);
+        if (currentApplication.document_links) {
+            displayDocumentChecklist(currentApplication.document_links);
+        } else {
+            showEmptyDocuments();
+        }
+        calculateEstimatedTime();
+        displayProjectInformation(currentApplication);
+    }
+    
+    if (reviewActivities.length > 0) {
+        displayReviewActivities(reviewActivities);
+    } else {
+        showEmptyActivities();
+    }
+    
+    if (currentOwnershipData) {
+        displayOwnershipInfo();
+        displayOwnershipDocuments();
+    } else {
+        displayEmptyOwnershipDocuments();
+    }
+    
+    if (currentAssessment) {
+        const assessmentNotice = document.getElementById('assessment-notice');
+        const assessmentTotal = document.getElementById('assessment-total');
+        if (assessmentNotice) assessmentNotice.classList.remove('hidden');
+        if (assessmentTotal) {
+            assessmentTotal.innerHTML = `Total Building Permit Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
         }
     }
+    
+    if (bfpData) {
+        if (bfpData.fsec_link) {
+            const existingFsecContainer = document.getElementById('existing-fsec-container');
+            const fsecLink = document.getElementById('fsec-link');
+            const fsecFilename = document.getElementById('fsec-filename');
+            const fsecUploadDate = document.getElementById('fsec-upload-date');
+            
+            if (existingFsecContainer) existingFsecContainer.classList.remove('hidden');
+            if (fsecLink) fsecLink.href = bfpData.fsec_link;
+            if (bfpData.fsec_filename && fsecFilename) {
+                fsecFilename.textContent = bfpData.fsec_filename;
+            }
+            if (bfpData.fsec_uploaded_at && fsecUploadDate) {
+                fsecUploadDate.textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString();
+            }
+        }
+        if (bfpData.bfp_comments) {
+            const bfpCommentsDisplay = document.getElementById('bfp-comments-display');
+            const bfpCommentsText = document.getElementById('bfp-comments-text');
+            const bfpCommentsDate = document.getElementById('bfp-comments-date');
+            const bfpCommentsInput = document.getElementById('bfp-comments');
+            
+            if (bfpCommentsDisplay) bfpCommentsDisplay.classList.remove('hidden');
+            if (bfpCommentsText) bfpCommentsText.textContent = bfpData.bfp_comments;
+            if (bfpData.bfp_comments_updated_at && bfpCommentsDate) {
+                bfpCommentsDate.textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString();
+            }
+            if (bfpCommentsInput) bfpCommentsInput.value = bfpData.bfp_comments;
+        }
+    }
+    
+    updateCPDOUI();
+    applyStatusRestrictions();
+    applyHardCopyPermission();
+    applyVerificationUIRestrictions();
+    
+    if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+        const bfpSection = document.getElementById('bfp-section');
+        if (bfpSection) bfpSection.classList.remove('hidden');
+    }
+}
+
+// Load ownership remarks from localStorage
+function loadOwnershipRemarks() {
+    const saved = localStorage.getItem(`ownership_remarks_${applicationId}`);
+    if (saved) {
+        try {
+            ownershipRemarks = JSON.parse(saved);
+            console.log('Loaded ownership remarks:', ownershipRemarks);
+        } catch(e) {
+            console.error('Error parsing ownership remarks:', e);
+            ownershipRemarks = {};
+        }
+    } else {
+        ownershipRemarks = {};
+    }
+}
+
+// Save ownership remarks to localStorage
+function saveOwnershipRemarks() {
+    localStorage.setItem(`ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+}
+
+// Load ownership verification status from localStorage
+function loadOwnershipVerificationStatus() {
+    const saved = localStorage.getItem(`ownership_verification_${applicationId}`);
+    if (saved) {
+        try {
+            ownershipVerificationStatus = JSON.parse(saved);
+        } catch(e) {
+            ownershipVerificationStatus = {
+                tct_link: false,
+                tax_declaration_link: false,
+                current_tax_receipt_link: false,
+                spa_link: false
+            };
+        }
+    }
+}
+
+// Save ownership verification status to localStorage
+function saveOwnershipVerificationStatus() {
+    localStorage.setItem(`ownership_verification_${applicationId}`, JSON.stringify(ownershipVerificationStatus));
+}
+
+// Load document verification status from localStorage
+function loadDocumentVerificationStatus() {
+    const saved = localStorage.getItem(`doc_verification_${applicationId}`);
+    if (saved) {
+        try { 
+            documentVerificationStatus = JSON.parse(saved); 
+        } catch(e) { 
+            documentVerificationStatus = {}; 
+        }
+    } else {
+        documentVerificationStatus = {};
+    }
+}
+
+// Save document verification status to localStorage
+function saveDocumentVerificationStatus() {
+    localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
+    updateVerificationStats();
+}
+
+// Load payment proof data
+async function loadPaymentProof() {
+    if (!applicationId) return;
+    
+    const loadingDiv = document.getElementById('or-loading');
+    const contentDiv = document.getElementById('or-content');
+    const emptyDiv = document.getElementById('or-empty-message');
+    
+    if (!loadingDiv || !contentDiv || !emptyDiv) return;
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data && data.data.or_link) {
+                currentPaymentProof = data.data;
+                loadingDiv.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+                emptyDiv.classList.add('hidden');
+                
+                // Display OR link
+                const orLinkDisplay = document.getElementById('or-link-display');
+                if (orLinkDisplay && currentPaymentProof.or_link) {
+                    orLinkDisplay.href = currentPaymentProof.or_link;
+                    orLinkDisplay.textContent = currentPaymentProof.or_link.length > 50 ? 
+                        currentPaymentProof.or_link.substring(0, 50) + '...' : 
+                        currentPaymentProof.or_link;
+                }
+                
+                // Load certificates after OR data is loaded
+                await loadCertificates();
+                return;
+            }
+        }
+        
+        // No payment proof found
+        loadingDiv.classList.add('hidden');
+        contentDiv.classList.add('hidden');
+        emptyDiv.classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error loading payment proof:', error);
+        if (loadingDiv && emptyDiv) {
+            loadingDiv.classList.add('hidden');
+            emptyDiv.classList.remove('hidden');
+            emptyDiv.innerHTML = `<div class="text-center py-3 text-red-500"><p class="text-xs">Error loading OR information</p></div>`;
+        }
+    }
+}
+
+// Load certificates (Zoning Cert and Locational Clearance)
+async function loadCertificates() {
+    const isCPDO = currentUserPosition === 'cpdo';
+    
+    console.log('Loading certificates - isCPDO:', isCPDO);
+    
+    // First, try to load payment proof data if exists
+    if (!currentPaymentProof) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const response = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentPaymentProof = data.data;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading payment proof for certificates:', error);
+        }
+    }
+    
+    // Zoning Certificate
+    const zoningCertStatus = document.getElementById('zoning-cert-status');
+    const zoningCertDisplay = document.getElementById('zoning-cert-display');
+    const zoningCertForm = document.getElementById('zoning-cert-form');
+    const zoningCertLink = document.getElementById('zoning-cert-link');
+    const zoningCertMeta = document.getElementById('zoning-cert-meta');
+    
+    if (currentPaymentProof && currentPaymentProof.zoning_cert_link) {
+        if (zoningCertStatus) {
+            zoningCertStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            zoningCertStatus.textContent = 'Uploaded';
+        }
+        if (zoningCertDisplay) zoningCertDisplay.classList.remove('hidden');
+        if (zoningCertForm) zoningCertForm.classList.add('hidden');
+        if (zoningCertLink) zoningCertLink.href = currentPaymentProof.zoning_cert_link;
+        
+        let metaText = '';
+        if (currentPaymentProof.zoning_cert_uploaded_at) {
+            metaText += `Uploaded: ${new Date(currentPaymentProof.zoning_cert_uploaded_at).toLocaleString()}`;
+        }
+        if (currentPaymentProof.zoning_cert_uploader && currentPaymentProof.zoning_cert_uploader.full_name) {
+            metaText += metaText ? ' by ' : 'By: ';
+            metaText += currentPaymentProof.zoning_cert_uploader.full_name;
+        }
+        if (zoningCertMeta) zoningCertMeta.textContent = metaText;
+    } else {
+        if (zoningCertStatus) {
+            zoningCertStatus.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            zoningCertStatus.textContent = 'Not Uploaded';
+        }
+        if (zoningCertDisplay) zoningCertDisplay.classList.add('hidden');
+        
+        // Show upload form for CPDO regardless of payment proof
+        if (isCPDO && zoningCertForm) {
+            zoningCertForm.classList.remove('hidden');
+        } else if (zoningCertForm) {
+            zoningCertForm.classList.add('hidden');
+        }
+    }
+    
+    // Locational Clearance
+    const locationalStatus = document.getElementById('locational-status');
+    const locationalDisplay = document.getElementById('locational-display');
+    const locationalForm = document.getElementById('locational-form');
+    const locationalLink = document.getElementById('locational-link');
+    const locationalMeta = document.getElementById('locational-meta');
+    
+    if (currentPaymentProof && currentPaymentProof.locational_clearance_link) {
+        if (locationalStatus) {
+            locationalStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            locationalStatus.textContent = 'Uploaded';
+        }
+        if (locationalDisplay) locationalDisplay.classList.remove('hidden');
+        if (locationalForm) locationalForm.classList.add('hidden');
+        if (locationalLink) locationalLink.href = currentPaymentProof.locational_clearance_link;
+        
+        let metaText = '';
+        if (currentPaymentProof.locational_clearance_uploaded_at) {
+            metaText += `Uploaded: ${new Date(currentPaymentProof.locational_clearance_uploaded_at).toLocaleString()}`;
+        }
+        if (currentPaymentProof.locational_clearance_uploader && currentPaymentProof.locational_clearance_uploader.full_name) {
+            metaText += metaText ? ' by ' : 'By: ';
+            metaText += currentPaymentProof.locational_clearance_uploader.full_name;
+        }
+        if (locationalMeta) locationalMeta.textContent = metaText;
+    } else {
+        if (locationalStatus) {
+            locationalStatus.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            locationalStatus.textContent = 'Not Uploaded';
+        }
+        if (locationalDisplay) locationalDisplay.classList.add('hidden');
+        
+        // Show upload form for CPDO regardless of payment proof
+        if (isCPDO && locationalForm) {
+            locationalForm.classList.remove('hidden');
+        } else if (locationalForm) {
+            locationalForm.classList.add('hidden');
+        }
+    }
+}
     
    function renderAllData() {
     loadDocumentVerificationStatus();
     loadOwnershipVerificationStatus();
+    loadOwnershipRemarks();
     loadPaymentProof(); // Add this line to load OR data
     
     if (currentApplication) {
@@ -2432,8 +2851,17 @@
         displayEmptyOwnershipDocuments();
         return;
     }
+    
     let html = '';
     let hasDocuments = false;
+    
+    const documentNamesMap = {
+        'tct_link': 'TCT / Deed of Sale',
+        'tax_declaration_link': 'Tax Declaration',
+        'current_tax_receipt_link': 'Current Tax Receipt',
+        'spa_link': 'Special Power of Attorney (SPA)'
+    };
+    
     const ownershipLinks = {
         'tct_link': currentOwnershipData.tct_link,
         'tax_declaration_link': currentOwnershipData.tax_declaration_link,
@@ -2444,11 +2872,11 @@
     for (const [key, value] of Object.entries(ownershipLinks)) {
         if (value && value.trim() !== '') {
             hasDocuments = true;
-            const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+            const docName = documentNamesMap[key];
             const isVerified = ownershipVerificationStatus[key] || false;
             const canVerify = canVerifyOwnershipDocument(key);
+            const hasRemark = ownershipRemarks[key] && ownershipRemarks[key].length > 0;
             
-            // Update permission hints based on new rules
             let verifyInfo = '';
             if (key === 'tct_link') {
                 verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO only)</span>';
@@ -2462,51 +2890,76 @@
             
             const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
             
+            let remarkPreview = '';
+            if (ownershipRemarks[key] && ownershipRemarks[key].length > 0) {
+                const latestRemark = ownershipRemarks[key][ownershipRemarks[key].length - 1];
+                remarkPreview = `<div class="mt-1 text-xs text-amber-600 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="italic">"${escapeHtml(latestRemark.remark.substring(0, 80))}${latestRemark.remark.length > 80 ? '...' : ''}"</span>
+                    <button onclick="viewFullRemarksHistory('${key}', '${escapeHtml(docName)}')" class="text-blue-500 hover:text-blue-700 underline ml-1">View all</button>
+                </div>`;
+            }
+            
             html += `
-                <div class="flex items-center justify-between p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center flex-wrap gap-1">
-                                <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
-                                ${spaBadge}
-                                ${verifyInfo}
-                                ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
-                            </div>
-                            <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                        ${canVerify ? `
-                            <label class="flex items-center gap-1 cursor-pointer">
-                                <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
-                                <span class="text-xs text-gray-600">Verify</span>
-                            </label>
-                        ` : isVerified ? `
-                            <div class="flex items-center gap-1">
-                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                <div class="flex flex-col p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
-                                <span class="text-xs text-green-600">Verified</span>
                             </div>
-                        ` : ''}
-                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            <span class="hidden sm:inline">View</span>
-                        </a>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                    ${spaBadge}
+                                    ${verifyInfo}
+                                    ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
+                                    ${hasRemark ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full">Has Remarks</span>' : ''}
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
+                                ${remarkPreview}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                            ${canVerify ? `
+                                <button onclick="openOwnershipRemarkModal('${key}', '${escapeHtml(docName)}')" class="text-amber-600 hover:text-amber-800 text-sm flex items-center gap-1 px-2 py-1 rounded hover:bg-amber-50 transition" title="Add remark/clarification">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-xs">Remark</span>
+                                </button>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
+                                    <span class="text-xs text-gray-600">Verify</span>
+                                </label>
+                            ` : isVerified ? `
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-xs text-green-600">Verified</span>
+                                </div>
+                            ` : ''}
+                            <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                <span class="hidden sm:inline">View</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             `;
         }
     }
-    if (!hasDocuments) displayEmptyOwnershipDocuments();
-    else container.innerHTML = html;
+    if (!hasDocuments) {
+        displayEmptyOwnershipDocuments();
+    } else {
+        container.innerHTML = html;
+    }
 }
     
     function displayEmptyOwnershipDocuments() {
@@ -3505,7 +3958,269 @@ async function uploadCertificate(type) {
         button.disabled = false;
     }
 }
+// Load ownership remarks from localStorage
+function loadOwnershipRemarks() {
+    const saved = localStorage.getItem(`ownership_remarks_${applicationId}`);
+    if (saved) {
+        try {
+            ownershipRemarks = JSON.parse(saved);
+        } catch(e) {
+            ownershipRemarks = {};
+        }
+    }
+}
 
+// Save ownership remarks to localStorage
+function saveOwnershipRemarks() {
+    localStorage.setItem(`ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+}
+
+function openOwnershipRemarkModal(documentKey, documentName) {
+    // Store the values as global variables
+    window.currentRemarkDocumentKey = documentKey;
+    window.currentRemarkDocumentName = documentName;
+    
+    console.log('Modal opened with:', {
+        key: window.currentRemarkDocumentKey,
+        name: window.currentRemarkDocumentName
+    });
+    
+    document.getElementById('remark-doc-name').textContent = documentName;
+    document.getElementById('ownership-remark-text').value = '';
+    document.getElementById('ownership-remark-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close remark modal
+function closeOwnershipRemarkModal() {
+    document.getElementById('ownership-remark-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    currentRemarkDocumentKey = null;
+    currentRemarkDocumentName = null;
+}
+
+async function submitOwnershipRemark() {
+    const remarkText = document.getElementById('ownership-remark-text').value.trim();
+    
+    // Use window.variableName to ensure you get the global variables
+    const docKey = window.currentRemarkDocumentKey;
+    const docName = window.currentRemarkDocumentName;
+    
+    console.log('Retrieved from window:', { key: docKey, name: docName });
+    
+    if (!remarkText) {
+        showErrorModal('Remark Required', 'Please enter a remark or clarification request.');
+        return;
+    }
+    
+    if (!docKey) {
+        showErrorModal('Error', 'No document selected. Please try again.');
+        return;
+    }
+    
+    if (!docName || docName === 'null') {
+        showErrorModal('Error', 'Document name not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    console.log('Submitting remark with:', {
+        document_key: docKey,
+        document_name: docName,
+        remark: remarkText
+    });
+    
+    closeOwnershipRemarkModal();
+    showSubmittingModal('Sending remark to applicant...');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        const formData = new FormData();
+        formData.append('document_key', docKey);
+        formData.append('document_name', docName);
+        formData.append('remark', remarkText);
+        
+        const response = await fetch(`/staff/applications/${applicationId}/ownership-remark`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        console.log('Response:', data);
+        
+        closeSubmittingModal();
+        
+        if (response.ok && data.success) {
+            const remarkObj = {
+                document_key: docKey,
+                document_name: docName,
+                remark: remarkText,
+                created_by: currentUserPosition || 'Staff',
+                created_by_name: getStaffDisplayName(),
+                created_at: new Date().toISOString(),
+                status: 'pending_response'
+            };
+            
+            if (!ownershipRemarks[docKey]) {
+                ownershipRemarks[docKey] = [];
+            }
+            ownershipRemarks[docKey].push(remarkObj);
+            saveOwnershipRemarks();
+            
+            showSuccessModal('Remark Sent', `Your clarification request for "${docName}" has been sent to the applicant.`);
+            
+            if (currentOwnershipData) {
+                displayOwnershipDocuments();
+            }
+        } else {
+            showErrorModal('Failed to Send Remark', data.message || 'Unknown error');
+        }
+    } catch (error) {
+        closeSubmittingModal();
+        console.error('Error:', error);
+        showErrorModal('Error', 'Failed to send remark: ' + (error.message || 'Please try again.'));
+    }
+}
+// Helper function to get staff display name
+function getStaffDisplayName() {
+    if (currentUserPosition === 'cpdo') return 'CPDO Staff';
+    if (currentUserPosition === 'assessor') return 'Assessor Staff';
+    if (currentUserPosition === 'treasurer') return 'Treasurer Staff';
+    if (currentUserPosition === 'engineer') return 'Engineer Staff';
+    if (currentUserPosition === 'architect') return 'Architect Staff';
+    return currentUserPosition ? currentUserPosition.charAt(0).toUpperCase() + currentUserPosition.slice(1) + ' Staff' : 'Staff';
+}
+// View full remarks history
+function viewFullRemarksHistory(documentKey, documentName) {
+    currentViewRemarksDocumentKey = documentKey;
+    currentViewRemarksDocumentName = documentName;
+    
+    const container = document.getElementById('remarks-history-container');
+    const remarks = ownershipRemarks[documentKey] || [];
+    
+    if (remarks.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-gray-500"><p class="text-sm">No remarks yet for this document.</p></div>';
+    } else {
+        let html = '';
+        remarks.forEach((remark, index) => {
+            const date = new Date(remark.created_at);
+            const formattedDate = date.toLocaleString();
+            const statusBadge = remark.status === 'pending_response' 
+                ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>'
+                : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
+            
+            html += `
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by_name || remark.created_by)}</span>
+                            ${statusBadge}
+                        </div>
+                        <span class="text-xs text-gray-400">${formattedDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                    ${remark.response ? `
+                        <div class="mt-2 pt-2 border-t border-gray-200">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                </svg>
+                                <div>
+                                    <p class="text-xs font-medium text-green-600">Applicant Response:</p>
+                                    <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
+                                    <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    document.getElementById('view-remarks-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close view remarks modal
+function closeViewRemarksModal() {
+    document.getElementById('view-remarks-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    currentViewRemarksDocumentKey = null;
+    currentViewRemarksDocumentName = null;
+}
+
+// Update toggleOwnershipVerification to also handle clearing remarks when verified
+async function toggleOwnershipVerification(documentKey, isChecked) {
+    if (!canVerifyOwnershipDocument(documentKey)) {
+        let permissionMessage = `You don't have permission to verify this document. `;
+        if (documentKey === 'tct_link') {
+            permissionMessage += `Only CPDO can verify TCT/Deed of Sale.`;
+        } else if (documentKey === 'tax_declaration_link') {
+            permissionMessage += `Only Assessor can verify Tax Declaration.`;
+        } else if (documentKey === 'current_tax_receipt_link') {
+            permissionMessage += `Only Treasurer can verify Current Tax Receipt.`;
+        } else {
+            permissionMessage += `CPDO, Assessor, or Treasurer can verify SPA.`;
+        }
+        showErrorModal('Permission Denied', permissionMessage);
+        const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+        if (checkbox) checkbox.checked = !isChecked;
+        return;
+    }
+    
+    const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+    if (checkbox) checkbox.disabled = true;
+    
+    showSubmittingModal('Updating verification status...');
+    
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ document_key: documentKey, verified: isChecked })
+        });
+        const data = await response.json();
+        closeSubmittingModal();
+        if (data.success) {
+            ownershipVerificationStatus[documentKey] = isChecked;
+            saveOwnershipVerificationStatus();
+            
+            // If verified, optionally mark remarks as resolved
+            if (isChecked && ownershipRemarks[documentKey] && ownershipRemarks[documentKey].length > 0) {
+                // Update all pending remarks to resolved
+                ownershipRemarks[documentKey].forEach(remark => {
+                    if (remark.status === 'pending_response') {
+                        remark.status = 'resolved';
+                        remark.resolved_at = new Date().toISOString();
+                    }
+                });
+                saveOwnershipRemarks();
+            }
+            
+            if (currentOwnershipData) displayOwnershipDocuments();
+            showSuccessModal('Verification Updated', data.message);
+        } else {
+            showErrorModal('Update Failed', data.message || 'Failed to update verification');
+            const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+            if (checkbox) checkbox.checked = !isChecked;
+        }
+    } catch(error) {
+        closeSubmittingModal();
+        console.error('Error:', error);
+        showErrorModal('Error', 'Error updating verification');
+        const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+        if (checkbox) checkbox.checked = !isChecked;
+    } finally {
+        if (checkbox) checkbox.disabled = false;
+    }
+}
 // Remove Certificate
 async function removeCertificate(type) {
     if (!currentPaymentProof) {

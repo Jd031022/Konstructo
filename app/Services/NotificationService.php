@@ -1305,6 +1305,7 @@ class NotificationService
             </html>
         ";
     }
+    
 
     /**
      * Get BFP comments email content
@@ -1382,4 +1383,225 @@ class NotificationService
             </html>
         ";
     }
+    /**
+ * Notify applicant about ownership document remark (database notification only)
+ * 
+ * @param ApplicationDocument $application
+ * @param User $staff
+ * @param string $documentKey
+ * @param string $documentName
+ * @param string $remark
+ * @return void
+ */
+public function notifyOwnershipDocumentRemarkDatabase(ApplicationDocument $application, User $staff, $documentKey, $documentName, $remark)
+{
+    // Ensure document name is not null
+    $safeDocumentName = $documentName;
+    if (empty($safeDocumentName) || $safeDocumentName === 'null') {
+        $documentNames = [
+            'tct_link' => 'TCT / Deed of Sale',
+            'tax_declaration_link' => 'Tax Declaration',
+            'current_tax_receipt_link' => 'Current Tax Receipt',
+            'spa_link' => 'Special Power of Attorney (SPA)'
+        ];
+        $safeDocumentName = $documentNames[$documentKey] ?? 'Ownership Document';
+    }
+    
+    try {
+        if (class_exists('App\Notifications\OwnershipDocumentRemarkNotification')) {
+            $application->user->notify(new \App\Notifications\OwnershipDocumentRemarkNotification(
+                $application,
+                $staff,
+                $documentKey,
+                $safeDocumentName,  // Important: Use safeDocumentName here
+                $remark
+            ));
+            Log::info('Database notification sent with document name: ' . $safeDocumentName);
+        }
+    } catch (\Exception $e) {
+        Log::error('Failed to send database notification: ' . $e->getMessage());
+    }
+}
+/**
+ * Notify applicant about ownership document remark with both database and email
+ * 
+ * @param ApplicationDocument $application
+ * @param User $staff
+ * @param string $documentKey
+ * @param string $documentName
+ * @param string $remark
+ * @return void
+ */
+public function notifyOwnershipDocumentRemark(ApplicationDocument $application, User $staff, $documentKey, $documentName, $remark)
+{
+    Log::info('========== NOTIFY OWNERSHIP DOCUMENT REMARK ==========');
+    Log::info('Received - document_key: ' . $documentKey . ', document_name: ' . $documentName);
+    
+    // Ensure we have a valid document name
+    $safeDocumentName = $documentName;
+    
+    // If document name is null or 'null', use the mapping
+    if (empty($safeDocumentName) || $safeDocumentName === 'null') {
+        $documentNames = [
+            'tct_link' => 'TCT / Deed of Sale',
+            'tax_declaration_link' => 'Tax Declaration',
+            'current_tax_receipt_link' => 'Current Tax Receipt',
+            'spa_link' => 'Special Power of Attorney (SPA)'
+        ];
+        $safeDocumentName = $documentNames[$documentKey] ?? 'Ownership Document';
+        Log::info('Using fallback document name: ' . $safeDocumentName);
+    }
+    
+    $applicant = $application->user;
+    
+    if (!$applicant) {
+        Log::error('No applicant found');
+        return;
+    }
+    
+    // Send database notification with the correct document name
+    try {
+        if (class_exists('App\Notifications\OwnershipDocumentRemarkNotification')) {
+            $applicant->notify(new \App\Notifications\OwnershipDocumentRemarkNotification(
+                $application,
+                $staff,
+                $documentKey,
+                $safeDocumentName,  // Use the safe name here
+                $remark
+            ));
+            Log::info('Database notification sent with document name: ' . $safeDocumentName);
+        }
+    } catch (\Exception $e) {
+        Log::error('Failed to send database notification: ' . $e->getMessage());
+    }
+    
+    // Send email with the correct document name
+    try {
+        $subject = "Clarification Needed: {$safeDocumentName} - Application #{$application->application_number}";
+        $htmlContent = $this->getOwnershipDocumentRemarkEmailContent($application, $staff, $documentKey, $safeDocumentName, $remark);
+        $this->gmailService->sendEmail($applicant->email, $subject, $htmlContent);
+        Log::info('Email sent with document name: ' . $safeDocumentName);
+    } catch (\Exception $e) {
+        Log::error('Failed to send email: ' . $e->getMessage());
+    }
+}
+/**
+ * Get ownership document remark email content
+ */
+private function getOwnershipDocumentRemarkEmailContent(ApplicationDocument $application, User $staff, $documentKey, $documentName, $remark)
+{
+    $appUrl = env('APP_URL') . "/applicant/application-details/{$application->id}";
+    $applicant = $application->user;
+    $greeting = "Dear " . ($applicant->first_name ?? 'Valued User') . ",";
+    $formattedNumber = $application->application_number;
+    
+    // Ensure document name is not null - provide fallback based on document key if needed
+    $safeDocumentName = $documentName;
+    if (empty($safeDocumentName) || $safeDocumentName === 'null') {
+        // Fallback document names based on key
+        $documentNames = [
+            'tct_link' => 'TCT / Deed of Sale',
+            'tax_declaration_link' => 'Tax Declaration',
+            'current_tax_receipt_link' => 'Current Tax Receipt',
+            'spa_link' => 'Special Power of Attorney (SPA)'
+        ];
+        $safeDocumentName = $documentNames[$documentKey] ?? 'Ownership Document';
+    }
+    
+    // Format the application number for display
+    if (strlen($formattedNumber) === 10) {
+        $formattedNumber = substr($formattedNumber, 0, 2) . '-' . 
+                          substr($formattedNumber, 2, 4) . '-' . 
+                          substr($formattedNumber, 6, 4);
+    }
+    
+    $staffName = $staff->first_name . ' ' . $staff->last_name;
+    $staffPosition = $staff->profile ? ucfirst($staff->profile->position) : 'Staff';
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+            .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .content { padding: 40px 30px; background-color: #ffffff; }
+            .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
+            .badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+            .remarks-box { background-color: #FFFBEB; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+            .remarks-box p { margin: 0; color: #78350F; line-height: 1.5; }
+            .document-box { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D97706; }
+            .info-box { background-color: #e6f7f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .next-steps { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+            .next-steps h4 { margin: 0 0 10px 0; color: #065f46; }
+            .next-steps ul { margin: 0; padding-left: 20px; }
+            .next-steps li { margin: 5px 0; color: #065f46; font-size: 14px; }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Action Required: Document Clarification</h1>
+                <p>Remarks added to your ownership document</p>
+            </div>
+            <div class='content'>
+                <div class='greeting'>{$greeting}</div>
+                
+                <p>Our staff has reviewed your submitted documents and requires clarification on your <strong>" . htmlspecialchars($safeDocumentName) . "</strong>.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='badge'>📝 Clarification Needed</span>
+                </div>
+                
+                <div class='document-box'>
+                    <p><strong>📄 Document Requiring Clarification:</strong> " . htmlspecialchars($safeDocumentName) . "</p>
+                    <p><strong>🏢 Application Number:</strong> {$formattedNumber}</p>
+                    <p><strong>👤 Reviewed By:</strong> {$staffName} ({$staffPosition})</p>
+                    <p><strong>📅 Date:</strong> " . date('F d, Y g:i A') . "</p>
+                </div>
+                
+                <div class='remarks-box'>
+                    <strong>💬 Remarks / Clarification Request:</strong>
+                    <p style='margin-top: 10px;'>" . nl2br(htmlspecialchars($remark)) . "</p>
+                </div>
+                
+                <div class='next-steps'>
+                    <h4>📌 What you need to do:</h4>
+                    <ul>
+                        <li>Review the remarks above carefully</li>
+                        <li>Prepare the corrected or additional document</li>
+                        <li>Contact the reviewer via our chat box</li>
+                        <li>Paste there your new link</li>
+                    </ul>
+                </div>
+                
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                    Please take action on this request to continue with your building permit application.
+                </p>
+                <p style='font-size: 12px; color: #9ca3af; text-align: center; margin-top: 20px;'>
+                    This is an automated notification from Konstructo.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
 }
