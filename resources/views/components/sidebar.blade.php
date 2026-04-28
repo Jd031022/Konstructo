@@ -51,7 +51,7 @@
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">All Applications</span>
             </a>
 
-            <!-- Archive -->
+            <!-- Archive (Admin only) -->
             <a href="/admin/archived-applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/archived-applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -71,8 +71,19 @@
 
         <!-- STAFF ROUTES -->
         @elseif(auth()->user()->role === 'staff')
-            <!-- Applications -->
-            <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') && !request()->is('staff/archived-applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        
+            @php
+                $user = Auth::user();
+                $user->load('profile');
+                $position = $user->profile ? $user->profile->position : null;
+                $isEngineerOrArchitect = in_array($position, ['engineer', 'architect']);
+                $isBFP = ($position === 'BFP' || $position === 'bfp');
+                // Roles that should NOT see Verified Ownership
+                $hideVerifiedOwnership = in_array($position, ['engineer', 'architect', 'BFP', 'bfp']);
+            @endphp
+        
+            <!-- Applications - All staff can see -->
+            <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') && !request()->is('staff/archived-applications*') && !request()->is('staff/ownership-verifications/verified*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -80,15 +91,28 @@
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
             </a>
 
-            <!-- Archive -->
+            <!-- Ownership Verifications (Verified) - HIDDEN for BFP, Engineer, Architect -->
+            @if(!$hideVerifiedOwnership)
+            <a href="/staff/ownership-verifications/verified" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/ownership-verifications/verified*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Verified Ownership</span>
+            </a>
+            @endif
+
+            <!-- Archive - ONLY for Engineer and Architect positions -->
+            @if($isEngineerOrArchitect)
             <a href="/staff/archived-applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/archived-applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
             </a>
+            @endif
 
-            <!-- Client Satisfaction Surveys -->
+            <!-- Client Satisfaction Surveys - All staff can see -->
             <a href="/staff/surveys" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/surveys*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -106,9 +130,13 @@
                 </svg>
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
             </a>
+            
+            <!-- NO Archive for Applicant -->
+            <!-- Archive link removed as requested -->
+
         @endif
 
-        <!-- DIVIDER - Visible to all roles -->
+        <!-- DIVIDER -->
         <div class="w-full border-t border-gray-200 my-2"></div>
 
         <!-- CHAT - Universal link for ALL ROLES -->
@@ -150,13 +178,11 @@
 <!-- Mobile Overlay -->
 <div id="mobile-overlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
 
-
 <!-- Logout Confirmation Modal -->
 <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-sm">
         <div class="bg-white rounded-2xl shadow-xl p-6">
             <div class="text-center">
-                <!-- Warning Icon -->
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -197,25 +223,21 @@
         const mobileOverlay = document.getElementById('mobile-overlay');
         let isMobileOpen = false;
 
-        // Check if we're on mobile
         function isMobile() {
-            return window.innerWidth < 768; // md breakpoint
+            return window.innerWidth < 768;
         }
 
-        // Mobile menu toggle
         function toggleMobileSidebar(e) {
-            if (e) e.stopPropagation(); // Prevent event bubbling
+            if (e) e.stopPropagation();
             if (!isMobile()) return;
 
             if (isMobileOpen) {
-                // Close mobile sidebar
                 sidebar.classList.remove('translate-x-0', 'flex', 'mobile-open');
                 sidebar.classList.add('hidden', '-translate-x-full');
                 mobileOverlay.classList.add('hidden');
                 document.body.style.overflow = 'auto';
                 isMobileOpen = false;
             } else {
-                // Open mobile sidebar
                 sidebar.classList.remove('hidden', '-translate-x-full');
                 sidebar.classList.add('flex', 'translate-x-0', 'mobile-open');
                 mobileOverlay.classList.remove('hidden');
@@ -242,7 +264,6 @@
             });
         }
 
-        // Click outside to close mobile sidebar
         document.addEventListener('click', function(e) {
             if (isMobile() && isMobileOpen && sidebar && mobileMenuBtn) {
                 if (!sidebar.contains(e.target) && e.target !== mobileMenuBtn) {
@@ -251,23 +272,19 @@
             }
         });
 
-        // Handle window resize
         window.addEventListener('resize', function() {
             const nowMobile = isMobile();
 
             if (nowMobile) {
-                // Switching to mobile
                 if (!isMobileOpen && sidebar) {
                     sidebar.classList.add('hidden', '-translate-x-full');
                     sidebar.classList.remove('flex', 'translate-x-0');
                 }
             } else {
-                // Switching to desktop
                 if (sidebar) {
                     sidebar.classList.add('flex', 'w-20');
                     sidebar.classList.remove('hidden', '-translate-x-full', 'translate-x-0');
                 }
-                // Close mobile overlay if open
                 if (isMobileOpen && mobileOverlay) {
                     mobileOverlay.classList.add('hidden');
                     document.body.style.overflow = 'auto';
@@ -276,18 +293,14 @@
             }
         });
 
-        // Initialize on load
         if (isMobile() && sidebar) {
-            // Ensure mobile state is correct
             sidebar.classList.add('hidden', '-translate-x-full');
             sidebar.classList.remove('flex', 'translate-x-0');
         } else if (sidebar) {
-            // Ensure desktop state is correct
             sidebar.classList.add('flex', 'w-20');
             sidebar.classList.remove('hidden');
         }
 
-        // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeLogoutModal();
@@ -297,7 +310,6 @@
             }
         });
 
-        // Close modal when clicking outside
         const modal = document.getElementById('logout-modal');
         if (modal) {
             modal.addEventListener('click', function(e) {
@@ -308,12 +320,10 @@
         }
     });
 
-    // Logout modal functions
     function showLogoutModal() {
         const modal = document.getElementById('logout-modal');
         if (modal) {
             modal.classList.remove('hidden');
-            // Prevent scrolling on body when modal is open
             document.body.style.overflow = 'hidden';
         }
     }
@@ -322,7 +332,6 @@
         const modal = document.getElementById('logout-modal');
         if (modal) {
             modal.classList.add('hidden');
-            // Re-enable scrolling
             document.body.style.overflow = 'auto';
         }
     }
@@ -332,7 +341,6 @@
         const modalContent = modal ? modal.querySelector('.bg-white') : null;
         
         if (modalContent) {
-            // Show loading state on button
             modalContent.innerHTML = `
                 <div class="text-center p-6">
                     <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
@@ -347,7 +355,6 @@
             `;
         }
         
-        // Submit the logout form after a brief delay (for UX)
         setTimeout(() => {
             const form = document.getElementById('logout-form');
             if (form) {
@@ -358,7 +365,6 @@
 </script>
 
 <style>
-    /* Smooth transitions for width change */
     #sidebar {
         transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
     }
@@ -367,10 +373,9 @@
         transition: opacity 0.3s ease-in-out;
     }
 
-    /* Mobile sidebar positioning */
     @media (max-width: 767px) {
         #sidebar {
-            z-index: 60; /* Higher than overlay */
+            z-index: 60;
         }
         
         #sidebar.mobile-open {
@@ -378,7 +383,6 @@
         }
     }
 
-    /* Ensure icons don't shrink */
     .min-w-6 {
         min-width: 1.5rem;
     }
@@ -387,26 +391,22 @@
         min-width: 2rem;
     }
     
-    /* Hide scrollbar for Chrome, Safari and Opera */
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
     
-    /* Hide scrollbar for IE, Edge and Firefox */
     .scrollbar-hide {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
     
-    /* Optional: Add a subtle shadow on the rounded edges for depth */
     #sidebar {
         box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Modal animations */
     #logout-modal {
         transition: opacity 0.2s ease-in-out;
-        z-index: 70; /* Higher than mobile sidebar z-index of 60 */
+        z-index: 70;
     }
     
     #logout-modal .bg-white {
@@ -424,7 +424,6 @@
         }
     }
 
-    /* Pulse animation for chat notification */
     @keyframes pulse {
         0%, 100% {
             opacity: 1;

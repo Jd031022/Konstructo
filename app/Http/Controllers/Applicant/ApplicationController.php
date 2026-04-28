@@ -1482,9 +1482,10 @@ public function printCPDOAssessment($id)
             }
 
             // Find applications that are completed (verified) but don't have a survey yet
-            $pendingSurveys = ApplicationDocument::where('user_id', $user->id)
-                ->where('status', 'verified')
-                ->whereDoesntHave('clientSatisfactionSurveys')
+            // Find applications that are for release but don't have a survey yet
+$pendingSurveys = ApplicationDocument::where('user_id', $user->id)
+    ->where('status', 'for-release')
+    ->whereDoesntHave('clientSatisfactionSurveys')
                 ->with(['user'])
                 ->get()
                 ->map(function ($application) {
