@@ -104,7 +104,7 @@ class UserController extends Controller
             'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_-]+$/',
             'password' => 'required|string|min:8|max:16|confirmed',
             'role' => 'required|in:admin,staff,applicant',
-            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor'
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor'
         ]);
 
         if ($validator->fails()) {
@@ -219,7 +219,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'username' => 'required|string|regex:/^[a-zA-Z0-9_-]+$/|unique:users,username,' . $id,
             'role' => 'required|in:admin,staff,applicant',
-            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor'
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor'
         ]);
 
         if ($validator->fails()) {
@@ -1436,7 +1436,8 @@ class UserController extends Controller
             'cpdo' => 'CPDO',
             'administrative_aide' => 'Admin Aide',
             'treasurer' => 'Treasurer',
-            'assessor' => 'Assessor'
+            'assessor' => 'Assessor',
+            'mayor' => 'Mayor'
         ];
         
         return $positionMap[$position] ?? ucfirst($position);
