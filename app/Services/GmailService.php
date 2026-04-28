@@ -1141,15 +1141,12 @@ class GmailService
                     <div class='signature-line'>
                         <div class='signature-box'>
                             <div class='line'></div>
-                            <div class='name'>ASSESSED BY:</div>
-                            <div class='title'>(Signature over Printed Name)</div>
-                            <div class='wet-signature-note'>* Wet signature required *</div>
+                            <div class='name'>ASSESSED BY</div>
                         </div>
                         <div class='signature-box'>
                             <div class='line'></div>
                             <div class='name'>OSCAR D. AQUINO, EnP</div>
                             <div class='title'>ACDH I / Acting CPDC</div>
-                            <div class='wet-signature-note'>* Wet signature required *</div>
                         </div>
                     </div>
                     <div style='margin-top: 20px; text-align: center; font-size: 11px; color: #666;'>
@@ -1160,15 +1157,12 @@ class GmailService
             
             <div class='button-container no-print'>
                 <a href='{$printUrl}' target='_blank' class='button print-button'>🖨️ Print Assessment Receipt</a>
-                <a href='{$appUrl}' class='button'>View Application Details</a>
             </div>
             
             <div class='no-print' style='background: #e6f7e6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;'>
-                <h4 style='margin: 0 0 10px 0; color: #065f46;'>📋 Next Steps:</h4>
+                <h4 style='margin: 0 0 10px 0; color: #065f46;'>📋 Next Step:</h4>
                 <ul style='margin: 0; padding-left: 20px;'>
-                    <li>Click the "Print Assessment Receipt" button above to open a printable version</li>
-                    <li>Print the receipt and bring it to the CPDO office for the wet signature</li>
-                    <li>Proceed to payment at the designated cashier</li>
+                    <p>To avoid multiple separate payments, kindly hold off on settling any fees until the Building Permit Fee has been generated. Once available, you may proceed with a one-time payment covering all required fees, as facilitated by Filipizen.</p>
                 </ul>
             </div>
             
@@ -1572,8 +1566,7 @@ HTML;
                             <h4>📋 Next Steps:</h4>
                             <ul>
                                 <li>Prepare the total assessed fee of <strong>{$formatAmount($totalAmount)}</strong></li>
-                                <li>Submit the payment and original hard copies of your documents to the One Building Office (OBO)</li>
-                                <li>Bring a printed copy of this email for reference</li>
+                                <li>Pay Online via Filipizen, you can access it on your applications page</li>
                                 <li>Once payment and documents are received, your permit will be released</li>
                             </ul>
                         </div>

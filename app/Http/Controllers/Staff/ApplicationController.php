@@ -2605,207 +2605,221 @@ if ($statusChanged && $newStatus === 'for-release') {
         }
     }
 
-    /**
-     * Save assessment fees for an application
-     */
-    public function saveAssessment(Request $request, $id)
-    {
-        Log::info('========== SAVE ASSESSMENT START ==========');
-        Log::info('saveAssessment called', [
-            'application_id' => $id,
-            'data' => $request->all(),
-            'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
-        ]);
+   /**
+ * Save assessment fees for an application
+ */
+public function saveAssessment(Request $request, $id)
+{
+    Log::info('========== SAVE ASSESSMENT START ==========');
+    Log::info('saveAssessment called', [
+        'application_id' => $id,
+        'data' => $request->all(),
+        'user' => auth()->user() ? auth()->user()->email : 'not authenticated'
+    ]);
 
-        $validator = Validator::make($request->all(), [
-            'line_grade' => 'nullable|numeric|min:0',
-            'building_fee' => 'nullable|numeric|min:0',
-            'sanitary_fee' => 'nullable|numeric|min:0',
-            'mechanical_fee' => 'nullable|numeric|min:0',
-            'electrical_fee' => 'nullable|numeric|min:0',
-            'penalties_fines' => 'nullable|numeric|min:0',
-            'total_amount' => 'nullable|numeric|min:0',
-            'assessment_notes' => 'nullable|string',
-            'additional_fees' => 'nullable|array'
-        ]);
+    $validator = Validator::make($request->all(), [
+        'line_grade' => 'nullable|numeric|min:0',
+        'building_fee' => 'nullable|numeric|min:0',
+        'sanitary_fee' => 'nullable|numeric|min:0',
+        'mechanical_fee' => 'nullable|numeric|min:0',
+        'electrical_fee' => 'nullable|numeric|min:0',
+        'penalties_fines' => 'nullable|numeric|min:0',
+        'total_amount' => 'nullable|numeric|min:0',
+        'assessment_notes' => 'nullable|string',
+        'additional_fees' => 'nullable|array'
+    ]);
 
-        if ($validator->fails()) {
-            Log::error('Validation failed', ['errors' => $validator->errors()]);
+    if ($validator->fails()) {
+        Log::error('Validation failed', ['errors' => $validator->errors()]);
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
+            Log::error('Application not found', ['id' => $id]);
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'Application not found'
+            ], 404);
         }
 
-        try {
-            $application = ApplicationDocument::with('user')->find($id);
+        $staff = auth()->user();
+        
+        // Find or create assessment record
+        $assessment = AssessmentFee::where('application_id', $id)->first();
+        
+        if (!$assessment) {
+            $assessment = new AssessmentFee();
+            $assessment->application_id = $id;
+        }
+        
+        // Prepare assessment data for notification
+        $assessmentData = [
+            'line_grade' => $request->line_grade,
+            'building_fee' => $request->building_fee,
+            'sanitary_fee' => $request->sanitary_fee,
+            'mechanical_fee' => $request->mechanical_fee,
+            'electrical_fee' => $request->electrical_fee,
+            'penalties_fines' => $request->penalties_fines,
+            'total_amount' => $request->total_amount,
+            'assessment_notes' => $request->assessment_notes,
+            'additional_fees' => $request->additional_fees
+        ];
+        
+        // Update assessment data
+        $assessment->line_grade = $request->line_grade;
+        $assessment->building_fee = $request->building_fee;
+        $assessment->sanitary_fee = $request->sanitary_fee;
+        $assessment->mechanical_fee = $request->mechanical_fee;
+        $assessment->electrical_fee = $request->electrical_fee;
+        $assessment->penalties_fines = $request->penalties_fines;
+        $assessment->total_amount = $request->total_amount;
+        $assessment->assessment_notes = $request->assessment_notes;
+        $assessment->additional_fees = $request->additional_fees ? json_encode($request->additional_fees) : null;
+        $assessment->assessed_by = $staff->id;
+        $assessment->assessed_at = now();
+        $assessment->save();
+        
+        Log::info('Assessment saved successfully', [
+            'application_id' => $id,
+            'assessment_id' => $assessment->id,
+            'total_amount' => $assessment->total_amount,
+            'assessed_by' => $staff->id
+        ]);
+        
+        // Update application status to 'for-assessment' if not already
+        $oldStatus = $application->status;
+        
+        if ($application->status !== 'for-assessment') {
+            $application->status = 'for-assessment';
+            $application->last_updated_by = $staff->id;
+            $application->save();
             
-            if (!$application) {
-                Log::error('Application not found', ['id' => $id]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            $staff = auth()->user();
-            
-            // Find or create assessment record
-            $assessment = AssessmentFee::where('application_id', $id)->first();
-            
-            if (!$assessment) {
-                $assessment = new AssessmentFee();
-                $assessment->application_id = $id;
-            }
-            
-            // Prepare assessment data for notification
-            $assessmentData = [
-                'line_grade' => $request->line_grade,
-                'building_fee' => $request->building_fee,
-                'sanitary_fee' => $request->sanitary_fee,
-                'mechanical_fee' => $request->mechanical_fee,
-                'electrical_fee' => $request->electrical_fee,
-                'penalties_fines' => $request->penalties_fines,
-                'total_amount' => $request->total_amount,
-                'assessment_notes' => $request->assessment_notes,
-                'additional_fees' => $request->additional_fees
-            ];
-            
-            // Update assessment data
-            $assessment->line_grade = $request->line_grade;
-            $assessment->building_fee = $request->building_fee;
-            $assessment->sanitary_fee = $request->sanitary_fee;
-            $assessment->mechanical_fee = $request->mechanical_fee;
-            $assessment->electrical_fee = $request->electrical_fee;
-            $assessment->penalties_fines = $request->penalties_fines;
-            $assessment->total_amount = $request->total_amount;
-            $assessment->assessment_notes = $request->assessment_notes;
-            $assessment->additional_fees = $request->additional_fees ? json_encode($request->additional_fees) : null;
-            $assessment->assessed_by = $staff->id;
-            $assessment->assessed_at = now();
-            $assessment->save();
-            
-            Log::info('Assessment saved successfully', [
-                'application_id' => $id,
-                'assessment_id' => $assessment->id,
-                'total_amount' => $assessment->total_amount
+            Log::info('Application status changed to for-assessment', [
+                'old_status' => $oldStatus,
+                'new_status' => 'for-assessment'
             ]);
             
-            // Update application status to 'for-assessment' if not already
-            $oldStatus = $application->status;
-            
-            if ($application->status !== 'for-assessment') {
-                $application->status = 'for-assessment';
-                $application->last_updated_by = $staff->id;
-                $application->save();
-                
-                Log::info('Application status changed to for-assessment', [
-                    'old_status' => $oldStatus,
-                    'new_status' => 'for-assessment'
-                ]);
-                
-                // Log the status change activity
-                $this->logReviewActivity(
-                    $application->id,
-                    $staff->id,
-                    'status_updated',
-                    $oldStatus,
-                    'for-assessment',
-                    "Application marked for assessment. Total fee: ₱" . number_format($assessment->total_amount, 2),
-                    $request->ip(),
-                    $request->userAgent()
-                );
-            }
-            
-            // Log assessment saved activity
+            // Log the status change activity
             $this->logReviewActivity(
                 $application->id,
                 $staff->id,
-                'assessment_saved',
-                null,
-                $application->status,
-                "Assessment saved with total fee: ₱" . number_format($assessment->total_amount, 2),
+                'status_updated',
+                $oldStatus,
+                'for-assessment',
+                "Application marked for assessment. Total fee: ₱" . number_format($assessment->total_amount, 2),
                 $request->ip(),
                 $request->userAgent()
             );
-            
-            // Send assessment completion notification to applicant
-            try {
-                $this->notificationService->notifyAssessmentCompleted(
-                    $application,
-                    $oldStatus,
-                    'for-assessment',
-                    $staff,
-                    $assessmentData
-                );
-                Log::info('✓✓✓ ASSESSMENT NOTIFICATION SENT TO APPLICANT ✓✓✓');
-            } catch (\Exception $e) {
-                Log::error('Failed to send assessment notification: ' . $e->getMessage());
-            }
-            
-            Log::info('========== SAVE ASSESSMENT END (SUCCESS) ==========');
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Assessment saved successfully and applicant notified',
-                'data' => [
-                    'assessment' => $assessment,
-                    'status' => $application->status,
-                    'notification_sent' => true
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('========== SAVE ASSESSMENT END (ERROR) ==========');
-            Log::error('Error in saveAssessment: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error saving assessment: ' . $e->getMessage()
-            ], 500);
         }
-    }
-
-    /**
-     * Get assessment data for an application
-     */
-    public function getAssessment($id)
-    {
+        
+        // Log assessment saved activity
+        $this->logReviewActivity(
+            $application->id,
+            $staff->id,
+            'assessment_saved',
+            null,
+            $application->status,
+            "Assessment saved with total fee: ₱" . number_format($assessment->total_amount, 2),
+            $request->ip(),
+            $request->userAgent()
+        );
+        
+        // Send assessment completion notification to applicant
         try {
-            $assessment = AssessmentFee::where('application_id', $id)->first();
-            
-            if (!$assessment) {
-                return response()->json([
-                    'success' => true,
-                    'data' => null,
-                    'message' => 'No assessment found for this application'
-                ]);
-            }
-            
-            // Parse additional_fees if it's stored as JSON string
-            $additionalFees = $assessment->additional_fees;
-            if (is_string($additionalFees)) {
-                $additionalFees = json_decode($additionalFees, true);
-            }
-            
-            $assessmentData = $assessment->toArray();
-            $assessmentData['additional_fees'] = $additionalFees;
-            
+            $this->notificationService->notifyAssessmentCompleted(
+                $application,
+                $oldStatus,
+                'for-assessment',
+                $staff,
+                $assessmentData
+            );
+            Log::info('✓✓✓ ASSESSMENT NOTIFICATION SENT TO APPLICANT ✓✓✓');
+        } catch (\Exception $e) {
+            Log::error('Failed to send assessment notification: ' . $e->getMessage());
+        }
+        
+        Log::info('========== SAVE ASSESSMENT END (SUCCESS) ==========');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Assessment saved successfully and applicant notified',
+            'data' => [
+                'assessment' => $assessment,
+                'assessed_by_name' => $staff->first_name . ' ' . $staff->last_name,
+                'assessed_at' => now()->toISOString(),
+                'status' => $application->status,
+                'notification_sent' => true
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('========== SAVE ASSESSMENT END (ERROR) ==========');
+        Log::error('Error in saveAssessment: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving assessment: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+   /**
+ * Get assessment data for an application
+ */
+public function getAssessment($id)
+{
+    try {
+        $assessment = AssessmentFee::where('application_id', $id)->first();
+        
+        if (!$assessment) {
             return response()->json([
                 'success' => true,
-                'data' => $assessmentData
+                'data' => null,
+                'message' => 'No assessment found for this application'
             ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error getting assessment: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error retrieving assessment'
-            ], 500);
         }
+        
+        // Parse additional_fees if it's stored as JSON string
+        $additionalFees = $assessment->additional_fees;
+        if (is_string($additionalFees)) {
+            $additionalFees = json_decode($additionalFees, true);
+        }
+        
+        // Get assessor name
+        $assessedByName = null;
+        if ($assessment->assessed_by) {
+            $assessor = User::find($assessment->assessed_by);
+            if ($assessor) {
+                $assessedByName = $assessor->first_name . ' ' . $assessor->last_name;
+            }
+        }
+        
+        $assessmentData = $assessment->toArray();
+        $assessmentData['additional_fees'] = $additionalFees;
+        $assessmentData['assessed_by_name'] = $assessedByName;
+        $assessmentData['assessed_at_formatted'] = $assessment->assessed_at ? $assessment->assessed_at->format('Y-m-d H:i:s') : null;
+        
+        return response()->json([
+            'success' => true,
+            'data' => $assessmentData
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error getting assessment: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error retrieving assessment'
+        ], 500);
     }
+}
 /**
  * Verify or unverify an ownership document (for CPDO, Assessor, and Treasurer)
  * 
@@ -4134,7 +4148,7 @@ public function sendOwnershipRemark(Request $request, $id)
         ]);
         
     } catch (\Exception $e) {
-        \Log::error('Error: ' . $e->getMessage());
+        Log::error('Error: ' . $e->getMessage());
         return response()->json([
             'success' => false,
             'message' => 'Error: ' . $e->getMessage()

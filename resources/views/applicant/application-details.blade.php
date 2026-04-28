@@ -672,8 +672,8 @@
                         </p>
                     </div>
 
-                    <!-- Payment Portal Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in">
+                    <!-- PAYMENT PORTAL CARD WITH TOTAL COMPUTATION -->
+                    <div id="payment-portal-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -685,14 +685,86 @@
                                 <p class="text-xs text-gray-500 mt-0.5">Pay your assessment fees online</p>
                             </div>
                         </div>
-                        <a href="https://filipizen.com/partners/albay_ligao" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
+                        
+                        <!-- Total Amount Computation Section -->
+                        <div id="total-payment-computation" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                                </svg>
+                                <h3 class="text-sm font-semibold text-gray-800">Total Amount Due</h3>
+                            </div>
+                            
+                            <!-- Building Permit Fee -->
+                            <div id="building-permit-fee-row" class="flex justify-between items-center py-2">
+                                <span class="text-sm text-gray-600">Building Permit Fee:</span>
+                                <span id="building-permit-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
+                            </div>
+                            
+                            <!-- CPDO Assessment Fee -->
+                            <div id="cpdo-assessment-fee-row" class="flex justify-between items-center py-2">
+                                <span class="text-sm text-gray-600">CPDO Assessment Fee:</span>
+                                <span id="cpdo-assessment-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
+                            </div>
+                            
+                            <!-- Divider -->
+                            <div class="border-t border-gray-200 my-2"></div>
+                            
+                            <!-- Total -->
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-base font-bold text-green-700">TOTAL AMOUNT TO PAY:</span>
+                                <span id="total-amount-to-pay" class="text-xl font-bold text-green-600">₱0.00</span>
+                            </div>
+                            
+                            <!-- Payment Required Message -->
+                            <div id="payment-required-message" class="mt-3 p-2 bg-yellow-50 rounded-lg border border-yellow-200 hidden">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-yellow-800">⚠️ Payment Required Before Proceeding</p>
+                                        <p class="text-xs text-yellow-700 mt-1">Please pay the total amount above to continue with your application. After payment, upload your Official Receipt (OR) below.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Both Assessments Ready Message -->
+                            <div id="both-assessments-ready" class="mt-3 p-2 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-green-800">✓ Assessments Ready for Payment</p>
+                                        <p class="text-xs text-green-700 mt-1">Both Building Permit and CPDO assessments have been completed. Please proceed with payment.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Missing Assessment Message -->
+                            <div id="missing-assessment-message" class="mt-3 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-700">⏳ Waiting for Assessments</p>
+                                        <p class="text-xs text-gray-600 mt-1">Your assessments are being prepared. Please check back later for the total amount due.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Button -->
+                        <a id="payment-portal-link" href="https://filipizen.com/partners/albay_ligao" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
-                            Pay Online via Filipizen
+                            Proceed to Payment Portal
                         </a>
                         <p class="text-xs text-gray-500 mt-3">
-                            Pay your building permit fees securely through the online payment portal.
+                            Pay your building permit and CPDO fees securely through the online payment portal.
                         </p>
                     </div>
 
@@ -731,7 +803,7 @@
                         </div>
                         
                         <!-- Payment Proof Form -->
-                        <div id="payment-proof-form" class="space-y-4">
+                        <div id="payment-proof-form" class="space-y-4 hidden">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to OR <span class="text-red-500">*</span></label>
                                 <input type="url" 
@@ -1202,27 +1274,37 @@
     };
 
     // Load ownership remarks from API
-async function loadOwnershipRemarks() {
-    if (!applicationId) return;
-    
-    try {
-        const csrfToken = getCsrfToken();
-        const response = await fetch(`/applicant/applications/${applicationId}/ownership-remarks`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+    async function loadOwnershipRemarks() {
+        if (!applicationId) return;
         
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.remarks) {
-                ownershipRemarks = data.remarks;
-                // Also save to localStorage for caching
-                localStorage.setItem(`applicant_ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/applicant/applications/${applicationId}/ownership-remarks`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.remarks) {
+                    ownershipRemarks = data.remarks;
+                    localStorage.setItem(`applicant_ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+                } else {
+                    const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
+                    if (saved) {
+                        try {
+                            ownershipRemarks = JSON.parse(saved);
+                        } catch(e) {
+                            ownershipRemarks = {};
+                        }
+                    } else {
+                        ownershipRemarks = {};
+                    }
+                }
             } else {
-                // Try to load from localStorage as fallback
                 const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
                 if (saved) {
                     try {
@@ -1234,8 +1316,8 @@ async function loadOwnershipRemarks() {
                     ownershipRemarks = {};
                 }
             }
-        } else {
-            // Fallback to localStorage
+        } catch (error) {
+            console.error('Error loading ownership remarks:', error);
             const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
             if (saved) {
                 try {
@@ -1247,24 +1329,9 @@ async function loadOwnershipRemarks() {
                 ownershipRemarks = {};
             }
         }
-    } catch (error) {
-        console.error('Error loading ownership remarks:', error);
-        // Fallback to localStorage
-        const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
-        if (saved) {
-            try {
-                ownershipRemarks = JSON.parse(saved);
-            } catch(e) {
-                ownershipRemarks = {};
-            }
-        } else {
-            ownershipRemarks = {};
-        }
+        
+        displayOwnershipRemarksNotice();
     }
-    
-    // Display remarks notice if there are any pending remarks
-    displayOwnershipRemarksNotice();
-}
 
     // Save ownership remarks to localStorage
     function saveOwnershipRemarks() {
@@ -1272,100 +1339,95 @@ async function loadOwnershipRemarks() {
     }
 
     // Display ownership remarks notice on the page
-function displayOwnershipRemarksNotice() {
-    const noticeContainer = document.getElementById('ownership-remarks-notice');
-    const remarksListContainer = document.getElementById('ownership-remarks-list');
-    const remarksCountBadge = document.getElementById('remarks-count-badge');
-    
-    if (!noticeContainer || !remarksListContainer) return;
-    
-    // Collect all pending remarks
-    let allRemarks = [];
-    let pendingCount = 0;
-    
-    for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
-        if (remarks && remarks.length > 0) {
-            remarks.forEach(remark => {
-                if (remark.status === 'pending_response') {
-                    pendingCount++;
-                    allRemarks.push({
-                        ...remark,
-                        document_key: docKey,
-                        document_name: remark.document_name || ownershipDocumentNames[docKey] || docKey.replace(/_/g, ' ').replace(/_link$/, '')
-                    });
-                }
-            });
-        }
-    }
-    
-    // Sort by date (newest first)
-    allRemarks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    
-    if (pendingCount > 0) {
-        noticeContainer.classList.remove('hidden');
-        remarksCountBadge.textContent = `${pendingCount} remark${pendingCount > 1 ? 's' : ''}`;
+    function displayOwnershipRemarksNotice() {
+        const noticeContainer = document.getElementById('ownership-remarks-notice');
+        const remarksListContainer = document.getElementById('ownership-remarks-list');
+        const remarksCountBadge = document.getElementById('remarks-count-badge');
         
-        // Build remarks HTML
-        let remarksHtml = '';
-        allRemarks.forEach(remark => {
-            const date = new Date(remark.created_at);
-            const formattedDate = date.toLocaleString();
+        if (!noticeContainer || !remarksListContainer) return;
+        
+        let allRemarks = [];
+        let pendingCount = 0;
+        
+        for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+            if (remarks && remarks.length > 0) {
+                remarks.forEach(remark => {
+                    if (remark.status === 'pending_response') {
+                        pendingCount++;
+                        allRemarks.push({
+                            ...remark,
+                            document_key: docKey,
+                            document_name: remark.document_name || ownershipDocumentNames[docKey] || docKey.replace(/_/g, ' ').replace(/_link$/, '')
+                        });
+                    }
+                });
+            }
+        }
+        
+        allRemarks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        if (pendingCount > 0) {
+            noticeContainer.classList.remove('hidden');
+            remarksCountBadge.textContent = `${pendingCount} remark${pendingCount > 1 ? 's' : ''}`;
             
-            remarksHtml += `
-                <div class="remark-item p-3 bg-white rounded-lg border border-amber-200 shadow-sm">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                                ${escapeHtml(remark.document_name)}
-                            </span>
-                            <span class="text-xs text-gray-500">from ${escapeHtml(remark.created_by)}</span>
+            let remarksHtml = '';
+            allRemarks.forEach(remark => {
+                const date = new Date(remark.created_at);
+                const formattedDate = date.toLocaleString();
+                
+                remarksHtml += `
+                    <div class="remark-item p-3 bg-white rounded-lg border border-amber-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                                    ${escapeHtml(remark.document_name)}
+                                </span>
+                                <span class="text-xs text-gray-500">from ${escapeHtml(remark.created_by)}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">${formattedDate}</span>
                         </div>
-                        <span class="text-xs text-gray-400">${formattedDate}</span>
-                    </div>
-                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
-                    <div class="flex gap-2 mt-3">
-                        <button onclick="viewDocumentRemarks('${remark.document_key}', '${escapeHtml(remark.document_name)}')" 
-                                class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            View Details
-                        </button>
-                        <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
-                                class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            Message Staff
-                        </button>
-                    </div>
-                    ${remark.response ? `
-                        <div class="mt-3 pt-2 border-t border-gray-100">
-                            <div class="flex items-start gap-2">
-                                <svg class="w-3 h-3 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="viewDocumentRemarks('${remark.document_key}', '${escapeHtml(remark.document_name)}')" 
+                                    class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                <div>
-                                    <p class="text-xs font-medium text-green-600">Your Response:</p>
-                                    <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
-                                    <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                View Details
+                            </button>
+                            <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
+                                    class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Message Staff
+                            </button>
+                        </div>
+                        ${remark.response ? `
+                            <div class="mt-3 pt-2 border-t border-gray-100">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-3 h-3 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-green-600">Your Response:</p>
+                                        <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
+                                        <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        });
-        
-        remarksListContainer.innerHTML = remarksHtml;
-        
-        // Also add a remark badge to the ownership documents list
-        addRemarkBadgesToDocuments();
-    } else {
-        noticeContainer.classList.add('hidden');
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            remarksListContainer.innerHTML = remarksHtml;
+            addRemarkBadgesToDocuments();
+        } else {
+            noticeContainer.classList.add('hidden');
+        }
     }
-}
 
     // Add remark badges to ownership documents in the list
     function addRemarkBadgesToDocuments() {
@@ -1406,69 +1468,69 @@ function displayOwnershipRemarksNotice() {
         });
     }
 
-   // View document remarks modal
-function viewDocumentRemarks(documentKey, documentName) {
-    currentModalDocumentKey = documentKey;
-    currentModalDocumentName = documentName;
-    
-    document.getElementById('modal-doc-name').textContent = documentName;
-    
-    const modalRemarksList = document.getElementById('modal-remarks-list');
-    const remarks = ownershipRemarks[documentKey] || [];
-    
-    if (remarks.length === 0) {
-        modalRemarksList.innerHTML = '<div class="text-center py-4 text-gray-500">No remarks found for this document.</div>';
-    } else {
-        let html = '';
-        remarks.forEach(remark => {
-            const date = new Date(remark.created_at);
-            const formattedDate = date.toLocaleString();
-            const statusBadge = remark.status === 'pending_response' 
-                ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>'
-                : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
-            
-            html += `
-                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by)}</span>
-                            ${statusBadge}
+    // View document remarks modal
+    function viewDocumentRemarks(documentKey, documentName) {
+        currentModalDocumentKey = documentKey;
+        currentModalDocumentName = documentName;
+        
+        document.getElementById('modal-doc-name').textContent = documentName;
+        
+        const modalRemarksList = document.getElementById('modal-remarks-list');
+        const remarks = ownershipRemarks[documentKey] || [];
+        
+        if (remarks.length === 0) {
+            modalRemarksList.innerHTML = '<div class="text-center py-4 text-gray-500">No remarks found for this document.</div>';
+        } else {
+            let html = '';
+            remarks.forEach(remark => {
+                const date = new Date(remark.created_at);
+                const formattedDate = date.toLocaleString();
+                const statusBadge = remark.status === 'pending_response' 
+                    ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>'
+                    : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
+                
+                html += `
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by)}</span>
+                                ${statusBadge}
+                            </div>
+                            <span class="text-xs text-gray-400">${formattedDate}</span>
                         </div>
-                        <span class="text-xs text-gray-400">${formattedDate}</span>
-                    </div>
-                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
-                    ${remark.response ? `
-                        <div class="mt-3 pt-2 border-t border-gray-200">
-                            <div class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                </svg>
-                                <div>
-                                    <p class="text-xs font-medium text-green-600">Your Response:</p>
-                                    <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
-                                    <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                        <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                        ${remark.response ? `
+                            <div class="mt-3 pt-2 border-t border-gray-200">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-green-600">Your Response:</p>
+                                        <p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p>
+                                        <p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p>
+                                    </div>
                                 </div>
                             </div>
+                        ` : ''}
+                        <div class="mt-3 flex justify-end">
+                            <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
+                                    class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Message ${escapeHtml(remark.created_by)}
+                            </button>
                         </div>
-                    ` : ''}
-                    <div class="mt-3 flex justify-end">
-                        <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" 
-                                class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            Message ${escapeHtml(remark.created_by)}
-                        </button>
                     </div>
-                </div>
-            `;
-        });
-        modalRemarksList.innerHTML = html;
+                `;
+            });
+            modalRemarksList.innerHTML = html;
+        }
+        
+        document.getElementById('document-remarks-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
-    
-    document.getElementById('document-remarks-modal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
 
     // Close document remarks modal
     function closeDocumentRemarksModal() {
@@ -1496,18 +1558,6 @@ function viewDocumentRemarks(documentKey, documentName) {
             window.location.href = `/chat?staff=${encodeURIComponent(targetStaffName)}`;
         } else {
             window.location.href = '/chat';
-        }
-    }
-
-    // Mark remark as responded
-    function markRemarkAsResponded(documentKey, remarkIndex, responseText) {
-        if (ownershipRemarks[documentKey] && ownershipRemarks[documentKey][remarkIndex]) {
-            ownershipRemarks[documentKey][remarkIndex].response = responseText;
-            ownershipRemarks[documentKey][remarkIndex].status = 'resolved';
-            ownershipRemarks[documentKey][remarkIndex].responded_at = new Date().toISOString();
-            saveOwnershipRemarks();
-            displayOwnershipRemarksNotice();
-            displayOwnershipDocuments(); // Refresh document list
         }
     }
 
@@ -1569,7 +1619,6 @@ function viewDocumentRemarks(documentKey, documentName) {
             displayEmptyOwnershipDocuments();
         } else {
             container.innerHTML = html;
-            // Add remark badges after rendering
             addRemarkBadgesToDocuments();
         }
     }
@@ -1807,6 +1856,67 @@ function viewDocumentRemarks(documentKey, documentName) {
         }
     }
 
+    // Update total payment computation display
+    function updateTotalPaymentComputation() {
+        const computationDiv = document.getElementById('total-payment-computation');
+        const buildingPermitFeeRow = document.getElementById('building-permit-fee-row');
+        const cpdoAssessmentFeeRow = document.getElementById('cpdo-assessment-fee-row');
+        const buildingPermitFeeAmount = document.getElementById('building-permit-fee-amount');
+        const cpdoAssessmentFeeAmount = document.getElementById('cpdo-assessment-fee-amount');
+        const totalAmountSpan = document.getElementById('total-amount-to-pay');
+        const paymentRequiredMsg = document.getElementById('payment-required-message');
+        const bothAssessmentsReady = document.getElementById('both-assessments-ready');
+        const missingAssessmentMsg = document.getElementById('missing-assessment-message');
+        
+        let buildingPermitTotal = 0;
+        let cpdoTotal = 0;
+        let hasBuildingPermit = false;
+        let hasCPDO = false;
+        
+        // Get Building Permit Assessment total
+        if (currentAssessment && currentAssessment.total_amount && parseFloat(currentAssessment.total_amount) > 0) {
+            buildingPermitTotal = parseFloat(currentAssessment.total_amount);
+            hasBuildingPermit = true;
+            buildingPermitFeeAmount.textContent = `₱${buildingPermitTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            buildingPermitFeeRow.classList.remove('hidden');
+        } else {
+            buildingPermitFeeRow.classList.add('hidden');
+        }
+        
+        // Get CPDO Assessment total
+        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+            cpdoTotal = parseFloat(currentCPDOAssessment.total_cpdo_amount);
+            hasCPDO = true;
+            cpdoAssessmentFeeAmount.textContent = `₱${cpdoTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            cpdoAssessmentFeeRow.classList.remove('hidden');
+        } else {
+            cpdoAssessmentFeeRow.classList.add('hidden');
+        }
+        
+        const grandTotal = buildingPermitTotal + cpdoTotal;
+        totalAmountSpan.textContent = `₱${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        
+        // Show/hide appropriate messages
+        if (hasBuildingPermit && hasCPDO) {
+            // Both assessments ready
+            computationDiv.classList.remove('hidden');
+            paymentRequiredMsg.classList.remove('hidden');
+            bothAssessmentsReady.classList.remove('hidden');
+            missingAssessmentMsg.classList.add('hidden');
+        } else if (hasBuildingPermit || hasCPDO) {
+            // Only one assessment ready - show partial
+            computationDiv.classList.remove('hidden');
+            paymentRequiredMsg.classList.add('hidden');
+            bothAssessmentsReady.classList.add('hidden');
+            missingAssessmentMsg.classList.remove('hidden');
+            missingAssessmentMsg.querySelector('.text-xs.font-medium').textContent = '⏳ Waiting for Complete Assessments';
+            missingAssessmentMsg.querySelector('.text-xs.text-gray-600').textContent = 'Only partial assessments are available. Please wait for both assessments to be completed.';
+        } else {
+            // No assessments ready
+            computationDiv.classList.add('hidden');
+        }
+    }
+
     // Load CPDO data
     async function loadCPDOData() {
         if (!applicationId) return;
@@ -1846,6 +1956,7 @@ function viewDocumentRemarks(documentKey, documentName) {
                 if (assessmentData.success && assessmentData.data) {
                     currentCPDOAssessment = assessmentData.data;
                     displayCPDOAssessment();
+                    updateTotalPaymentComputation();
                     
                     if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
                         const paymentProofCard = document.getElementById('payment-proof-card');
@@ -2001,6 +2112,7 @@ function viewDocumentRemarks(documentKey, documentName) {
         }
         
         assessmentDetails.innerHTML = html;
+        updateTotalPaymentComputation();
     }
 
     // Load ownership data
@@ -2029,7 +2141,6 @@ function viewDocumentRemarks(documentKey, documentName) {
                 displayEmptyOwnershipDocuments();
             }
             
-            // Load ownership remarks after ownership data
             loadOwnershipRemarks();
         } catch (error) {
             console.error('Error loading ownership data:', error);
@@ -2130,6 +2241,7 @@ function viewDocumentRemarks(documentKey, documentName) {
                 if (data.success && data.data) {
                     currentAssessment = data.data;
                     displayAssessmentInfo();
+                    updateTotalPaymentComputation();
                 }
             }
         } catch (error) {
@@ -3261,7 +3373,6 @@ function viewDocumentRemarks(documentKey, documentName) {
                 if (data.success && data.data && data.data.or_link) {
                     currentPaymentProof = data.data;
                     displayPaymentProof();
-                    displayCPDOCertificates();
                     return;
                 }
             }
@@ -3281,59 +3392,6 @@ function viewDocumentRemarks(documentKey, documentName) {
             const display = document.getElementById('payment-proof-display');
             if (form) form.classList.remove('hidden');
             if (display) display.classList.add('hidden');
-        }
-    }
-
-    // Display CPDO Certificates
-    function displayCPDOCertificates() {
-        if (!currentPaymentProof) return;
-        
-        const certificatesSection = document.getElementById('cpdo-certificates-section');
-        const zoningContainer = document.getElementById('zoning-cert-container');
-        const locationalContainer = document.getElementById('locational-cert-container');
-        
-        let hasAnyCertificate = false;
-        
-        if (currentPaymentProof.zoning_cert_link) {
-            zoningContainer.classList.remove('hidden');
-            document.getElementById('zoning-cert-link').href = currentPaymentProof.zoning_cert_link;
-            
-            let metaText = '';
-            if (currentPaymentProof.zoning_cert_uploaded_at) {
-                metaText += `Uploaded: ${new Date(currentPaymentProof.zoning_cert_uploaded_at).toLocaleString()}`;
-            }
-            if (currentPaymentProof.zoning_cert_uploader && currentPaymentProof.zoning_cert_uploader.full_name) {
-                metaText += metaText ? ' by ' : 'By: ';
-                metaText += currentPaymentProof.zoning_cert_uploader.full_name;
-            }
-            document.getElementById('zoning-cert-meta').textContent = metaText;
-            hasAnyCertificate = true;
-        } else {
-            zoningContainer.classList.add('hidden');
-        }
-        
-        if (currentPaymentProof.locational_clearance_link) {
-            locationalContainer.classList.remove('hidden');
-            document.getElementById('locational-cert-link').href = currentPaymentProof.locational_clearance_link;
-            
-            let metaText = '';
-            if (currentPaymentProof.locational_clearance_uploaded_at) {
-                metaText += `Uploaded: ${new Date(currentPaymentProof.locational_clearance_uploaded_at).toLocaleString()}`;
-            }
-            if (currentPaymentProof.locational_clearance_uploader && currentPaymentProof.locational_clearance_uploader.full_name) {
-                metaText += metaText ? ' by ' : 'By: ';
-                metaText += currentPaymentProof.locational_clearance_uploader.full_name;
-            }
-            document.getElementById('locational-cert-meta').textContent = metaText;
-            hasAnyCertificate = true;
-        } else {
-            locationalContainer.classList.add('hidden');
-        }
-        
-        if (hasAnyCertificate) {
-            certificatesSection.classList.remove('hidden');
-        } else {
-            certificatesSection.classList.add('hidden');
         }
     }
 
@@ -3411,7 +3469,7 @@ function viewDocumentRemarks(documentKey, documentName) {
             const data = await response.json();
             
             if (data.success) {
-                showSuccessModal('Success', 'Payment proof uploaded successfully! Our staff will verify it shortly.');
+                showSuccessModal('Payment proof uploaded successfully! Our staff will verify it shortly.');
                 await loadPaymentProof();
                 const formEl = document.getElementById('payment-proof-form');
                 const displayEl = document.getElementById('payment-proof-display');
