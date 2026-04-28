@@ -14,7 +14,7 @@ class PositionController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'position' => 'required|in:engineer,architect,BFP,bfp,cpdo,administrative_aide,treasurer,assessor'
+            'position' => 'required|in:engineer,architect,BFP,bfp,cpdo,administrative_aide,treasurer,assessor,mayor'
         ]);
 
         if ($validator->fails()) {

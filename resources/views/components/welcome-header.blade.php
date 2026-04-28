@@ -128,6 +128,9 @@ function updateHeaderPosition(position) {
             case 'administrative_aide':
                 positionDisplay = 'Administrative Aide';
                 break;
+            case 'mayor':
+                positionDisplay = 'Mayor';
+                break;
             default:
                 positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
         }

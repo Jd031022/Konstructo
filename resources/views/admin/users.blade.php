@@ -333,6 +333,7 @@ document.addEventListener('click', function(event) {
             <option value="administrative_aide">Administrative Aide</option>
             <option value="treasurer">Treasurer</option>
             <option value="assessor">Assessor</option>
+            <option value="mayor">Mayor</option>
         </select>
         <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
     </div>
@@ -642,7 +643,8 @@ function getPositionDisplay(position) {
         'cpdo': 'CPDO',
         'administrative_aide': 'Admin Aide',
         'treasurer': 'Treasurer',
-        'assessor': 'Assessor'
+        'assessor': 'Assessor',
+        'mayor': 'Mayor'
     };
     return positionMap[position] || position;
 }
