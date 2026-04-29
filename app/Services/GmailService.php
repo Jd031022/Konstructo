@@ -800,7 +800,7 @@ class GmailService
                             <li>Once all departments have verified, assessment will be completed</li>
                             <li>You will be notified when your permit is ready for release</li>
                         </ul>
-                          <p><strong>💰 Assessment Fee Notice:</strong> Please wait for the assessment fees that the CPDO will send. Once the assessment fee is sent, you can pay in person at the CPDO office.</p>
+                          <p><strong>💰 Assessment Fee Notice:</strong> Please wait for both the CPDO assessment fee (to be sent by CPDO) and the Building Permit Fee (to be sent by the Engineering Office) before making any payment. Once both are ready, you can pay in one go — isahan na lang po ang pagbabayad, either in person at the OBO or through Filipizen, depending on the applicable channel.</p>
                     </div>
                     
                     <div style='text-align: center;'>
