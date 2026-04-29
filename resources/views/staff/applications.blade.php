@@ -69,12 +69,15 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
-            <button onclick="openNewApplicationModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                New Application
-            </button>
+           <button id="new-application-btn" 
+            onclick="openNewApplicationModal()" 
+            class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm"
+            style="display: {{ auth()->user()->role === 'admin' || in_array(auth()->user()->profile->position ?? '', ['engineer', 'architect']) ? 'inline-flex' : 'none' }};">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Application
+        </button>
         </div>
     </div>
 
@@ -845,125 +848,148 @@ document.addEventListener('keydown', function(e) {
         updatePagination();
     }
 
-    // Create application table row with aging colors
-    function createApplicationRow(app) {
-        const initials = app.applicant_name ? 
-            app.applicant_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 
-            'NA';
-        
-        const statusColors = {
-            'pending': 'bg-yellow-100 text-yellow-600',
-            'under-review': 'bg-purple-100 text-purple-600',
-            'approved': 'bg-green-100 text-green-600',
-            'rejected': 'bg-red-100 text-red-600',
-            'for-release': 'bg-blue-100 text-blue-600',
-            'verified': 'bg-emerald-100 text-emerald-600'
-        };
-        
-        const statusText = {
-            'pending': 'Pending Review',
-            'under-review': 'Under Review',
-            'approved': 'Approved',
-            'rejected': 'Rejected',
-            'for-release': 'For Release',
-            'verified': 'Completed'
-        };
-        
-        const submittedDate = new Date(app.created_at);
-        const formattedSubmittedDate = submittedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-        });
-        
-        const updatedDate = app.updated_at ? new Date(app.updated_at) : null;
-        const formattedUpdatedDate = updatedDate ? updatedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }) : 'N/A';
-        
-        const gradientColors = [
-            'from-[#155386] to-[#40798C]',
-            'from-[#40798C] to-[#70A9A1]',
-            'from-[#70A9A1] to-[#9EC5CB]',
-            'from-[#9EC5CB] to-[#B8D8E3]'
-        ];
-        
-        const randomGradient = gradientColors[app.id % gradientColors.length];
-        const rowClass = getRowClass(app.aging_days);
-        
-        return `
-            <tr class="hover:bg-gray-50 transition ${rowClass}">
-                <td class="py-4 px-6">
-                    <span class="font-mono text-sm font-medium text-[#155386]">${app.application_number}</span>
-                </td>
-                <td class="py-4 px-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-gradient-to-r ${randomGradient} rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            ${initials}
-                        </div>
-                        <div>
-                            <span class="font-medium text-gray-800">${app.applicant_name || 'N/A'}</span>
-                            <p class="text-xs text-gray-500">${app.email || ''}</p>
-                        </div>
-                    </div>
-                </td>
-                <td class="py-4 px-6">
-                    <div class="flex flex-col">
-                        <span class="text-sm text-gray-700">${formattedSubmittedDate}</span>
-                        <span class="text-xs text-gray-400">${app.aging_days} day${app.aging_days !== 1 ? 's' : ''} ago</span>
-                    </div>
-                </td>
-                <td class="py-4 px-6">
-                    ${getAgingBadge(app.aging_days)}
-                </td>
-                <td class="py-4 px-6">
-                    <span class="px-3 py-1 ${statusColors[app.status] || 'bg-gray-100 text-gray-600'} rounded-full text-xs font-medium whitespace-nowrap">
-                        ${statusText[app.status] || app.status}
-                    </span>
-                </td>
-                <td class="py-4 px-6 text-sm text-gray-500">
-                    ${formattedUpdatedDate}
-                </td>
-                <td class="py-4 px-6">
-                    <div class="flex items-center gap-2">
-                        <!-- View Details -->
-                        <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </a>
-                        
-                        <!-- Update Status -->
-                        <button onclick="openStatusModal(${app.id}, '${app.application_number}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Archive -->
-                        <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Delete -->
-                        <button onclick="openDeleteModal(${app.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+    // Create application table row with aging colors and permission-based actions
+function createApplicationRow(app) {
+    const initials = app.applicant_name ? 
+        app.applicant_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 
+        'NA';
+    
+    const statusColors = {
+        'pending': 'bg-yellow-100 text-yellow-600',
+        'under-review': 'bg-purple-100 text-purple-600',
+        'approved': 'bg-green-100 text-green-600',
+        'rejected': 'bg-red-100 text-red-600',
+        'for-release': 'bg-blue-100 text-blue-600',
+        'verified': 'bg-emerald-100 text-emerald-600'
+    };
+    
+    const statusText = {
+        'pending': 'Pending Review',
+        'under-review': 'Under Review',
+        'approved': 'Approved',
+        'rejected': 'Rejected',
+        'for-release': 'For Release',
+        'verified': 'Completed'
+    };
+    
+    const submittedDate = new Date(app.created_at);
+    const formattedSubmittedDate = submittedDate.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+    
+    const updatedDate = app.updated_at ? new Date(app.updated_at) : null;
+    const formattedUpdatedDate = updatedDate ? updatedDate.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    }) : 'N/A';
+    
+    const gradientColors = [
+        'from-[#155386] to-[#40798C]',
+        'from-[#40798C] to-[#70A9A1]',
+        'from-[#70A9A1] to-[#9EC5CB]',
+        'from-[#9EC5CB] to-[#B8D8E3]'
+    ];
+    
+    const randomGradient = gradientColors[app.id % gradientColors.length];
+    const rowClass = getRowClass(app.aging_days);
+    
+    // USE THE PERMISSION FLAG FROM THE APPLICATION DATA
+    const canSeeFullActions = app.can_see_full_actions === true;
+    
+    let actionButtons = '';
+    
+    if (canSeeFullActions) {
+        // Full access: Engineer, Architect, Admin - show all buttons
+        actionButtons = `
+            <div class="flex items-center gap-2">
+                <!-- View Details -->
+                <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </a>
+                
+                <!-- Update Status -->
+                <button onclick="openStatusModal(${app.id}, '${app.application_number}', '${app.status}')" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Update Status">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+                
+                <!-- Archive -->
+                <button onclick="openArchiveModal(${app.id})" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Archive">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </button>
+                
+                <!-- Delete -->
+                <button onclick="openDeleteModal(${app.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        `;
+    } else {
+        // View-only access: CPDO, Administrative Aide, Treasurer, Assessor, Mayor, BFP - show ONLY View Details
+        actionButtons = `
+            <div class="flex items-center gap-2">
+                <a href="/staff/application-details/${app.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Details">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </a>
+            </div>
         `;
     }
-
+    
+    return `
+        <tr class="hover:bg-gray-50 transition ${rowClass}">
+            <td class="py-4 px-6">
+                <span class="font-mono text-sm font-medium text-[#155386]">${app.application_number}</span>
+            </td>
+            <td class="py-4 px-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-r ${randomGradient} rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        ${initials}
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-800">${app.applicant_name || 'N/A'}</span>
+                        <p class="text-xs text-gray-500">${app.email || ''}</p>
+                    </div>
+                </div>
+             </div>
+            <td class="py-4 px-6">
+                <div class="flex flex-col">
+                    <span class="text-sm text-gray-700">${formattedSubmittedDate}</span>
+                    <span class="text-xs text-gray-400">${app.aging_days} day${app.aging_days !== 1 ? 's' : ''} ago</span>
+                </div>
+             </div>
+            <td class="py-4 px-6">
+                ${getAgingBadge(app.aging_days)}
+             </div>
+            <td class="py-4 px-6">
+                <span class="px-3 py-1 ${statusColors[app.status] || 'bg-gray-100 text-gray-600'} rounded-full text-xs font-medium whitespace-nowrap">
+                    ${statusText[app.status] || app.status}
+                </span>
+             </div>
+            <td class="py-4 px-6 text-sm text-gray-500">
+                ${formattedUpdatedDate}
+             </div>
+            <td class="py-4 px-6">
+                ${actionButtons}
+             </div>
+        </table>
+    `;
+}
     // Update pagination
     function updatePagination() {
         const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);

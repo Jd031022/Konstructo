@@ -37,8 +37,29 @@ class ApplicationController extends Controller
             'gmail_service' => get_class($gmailService)
         ]);
     }
-
+/**
+ * Check if user can see full actions (Engineer, Architect, or Admin)
+ */
+private function canSeeFullActions()
+{
+    $user = auth()->user();
+    
+    // Admin can see full actions
+    if ($user->role === 'admin') {
+        return true;
+    }
+    
+    // Check position from profile
+    $user->load('profile');
+    $position = $user->profile ? $user->profile->position : null;
+    
+    // Only engineer and architect can see full actions
+    return in_array($position, ['engineer', 'architect']);
+}
    /**
+ * Display a listing of all submitted applications (excluding drafts and archived)
+ */
+/**
  * Display a listing of all submitted applications (excluding drafts and archived)
  */
 public function index(Request $request)
@@ -87,6 +108,9 @@ public function index(Request $request)
         
         $applications = $query->orderBy('created_at', 'desc')->get();
 
+        // Check user permissions for actions
+        $canSeeFullActions = $this->canSeeFullActions();
+
         $formattedApplications = [];
         foreach ($applications as $app) {
             $applicantName = 'Unknown';
@@ -105,7 +129,7 @@ public function index(Request $request)
             $lastUpdatedByName = null;
             if ($app->lastUpdatedBy) {
                 $firstName = $app->lastUpdatedBy->first_name ?? '';
-                $lastName = $app->lastUpdatedBy->last_name ?? '';
+                $lastName = $app->lastUpdatedBy->last_name ?? '';  // FIXED: changed 'app' to '$app'
                 $lastUpdatedByName = trim($firstName . ' ' . $lastName);
                 if (empty($lastUpdatedByName)) {
                     $lastUpdatedByName = null;
@@ -132,13 +156,15 @@ public function index(Request $request)
                 'is_archived' => $app->is_archived ?? false,
                 'archived_at' => $app->archived_at,
                 'archive_reason' => $app->archive_reason,
-                'project_title' => $app->project_title ?? null
+                'project_title' => $app->project_title ?? null,
+                'can_see_full_actions' => $canSeeFullActions
             ];
         }
         
         return response()->json([
             'success' => true,
             'applications' => $formattedApplications,
+            'user_can_see_full_actions' => $canSeeFullActions,
             'total' => count($formattedApplications)
         ]);
         
