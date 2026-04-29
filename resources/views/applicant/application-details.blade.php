@@ -819,6 +819,84 @@
                         </div>
                     </div>
 
+                    <!-- CPDO CERTIFICATES SECTION (Added for applicant to view) -->
+<div id="certificates-section" class="bg-white rounded-2xl shadow-sm border border-purple-200 p-6 animate-fade-in hidden">
+    <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-800">CPDO Certificates</h2>
+        <span class="text-xs text-gray-500">Issued by CPDO</span>
+    </div>
+    
+    <div class="space-y-4">
+        <!-- Zoning Certificate -->
+        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
+                </div>
+                <span id="applicant-zoning-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
+            </div>
+            
+            <div id="applicant-zoning-display" class="hidden">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <a id="applicant-zoning-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
+                </div>
+                <p id="applicant-zoning-meta" class="text-xs text-gray-400 mt-2"></p>
+            </div>
+            
+            <div id="applicant-zoning-empty" class="text-center py-2">
+                <p class="text-xs text-gray-400">No zoning certificate uploaded yet by CPDO</p>
+            </div>
+        </div>
+        
+        <!-- Locational Clearance -->
+        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
+                </div>
+                <span id="applicant-locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
+            </div>
+            
+            <div id="applicant-locational-display" class="hidden">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <a id="applicant-locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
+                </div>
+                <p id="applicant-locational-meta" class="text-xs text-gray-400 mt-2"></p>
+            </div>
+            
+            <div id="applicant-locational-empty" class="text-center py-2">
+                <p class="text-xs text-gray-400">No locational clearance uploaded yet by CPDO</p>
+            </div>
+        </div>
+    </div>
+    
+    <p class="text-xs text-gray-400 mt-4 text-center">
+        These certificates are issued by the City Planning and Development Office (CPDO) after verification.
+    </p>
+</div>
+
                     <!-- Current Status Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
@@ -987,130 +1065,300 @@
     </div>
 </div>
 
-<!-- CPDO Experience Rating Modal -->
-<div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(4px);">
-    <div class="relative min-h-full flex items-center justify-center">
-        <div class="mx-auto w-full max-w-2xl">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-bold">Rate Your CPDO Experience</h3>
-                        <p class="text-sm opacity-90 mt-1">How would you rate the CPDO's service?</p>
-                    </div>
-                    <button onclick="closeCPDORatingModal()" class="text-white hover:text-gray-200 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+<!-- Global Success Message Modal -->
+<div id="global-success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-[100] px-4" style="backdrop-filter: blur(4px);">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="relative">
+                <!-- Animated success icon -->
+                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
+                    <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce-in">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
+                    </div>
+                </div>
+                <div class="pt-16 pb-6 px-6 text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2" id="global-success-title">Success!</h3>
+                    <p class="text-gray-600" id="global-success-message">Operation completed successfully.</p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-center">
+                    <button onclick="closeGlobalSuccessModal()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition transform hover:scale-105 font-medium">
+                        OK
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="p-6 max-h-[70vh] overflow-y-auto">
+<!-- Global Error Message Modal -->
+<div id="global-error-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-[100] px-4" style="backdrop-filter: blur(4px);">
+    <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="relative">
+                <!-- Animated error icon -->
+                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
+                    <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg animate-shake">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="pt-16 pb-6 px-6 text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2" id="global-error-title">Error!</h3>
+                    <p class="text-gray-600" id="global-error-message">An error occurred. Please try again.</p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-center">
+                    <button onclick="closeGlobalErrorModal()" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition transform hover:scale-105 font-medium">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CPDO Experience Rating Modal - Redesigned -->
+<div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(8px);">
+    <div class="relative min-h-full flex items-center justify-center">
+        <div class="mx-auto w-full max-w-3xl animate-modal-slide-up">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                <!-- Header with gradient -->
+                <div class="px-8 py-6 bg-gradient-to-r from-[#155386] to-[#40798C] text-white">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold">Rate Your CPDO Experience</h3>
+                                <p class="text-sm opacity-90 mt-1">Your feedback helps us improve our services</p>
+                            </div>
+                        </div>
+                        <button onclick="closeCPDORatingModal()" class="text-white/80 hover:text-white transition-all hover:rotate-90 duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     <form id="cpdo-rating-form" onsubmit="submitCPDORating(event)">
                         <input type="hidden" id="cpdo-application-id" value="">
                         
-                        <!-- Star Rating -->
-                        <div class="mb-8 text-center">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Overall CPDO Experience <span class="text-red-500">*</span></label>
-                            <div class="flex justify-center gap-2">
-                                <button type="button" onclick="setCPDORating(1)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
-                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                        <!-- Star Rating Section - Centered -->
+                        <div class="mb-10 text-center">
+                            <label class="block text-lg font-semibold text-gray-800 mb-4">
+                                Overall CPDO Experience 
+                                <span class="text-red-500 text-base">*</span>
+                            </label>
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="setCPDORating(1)" class="rating-star group transition-all duration-300 hover:scale-110 focus:outline-none">
+                                    <svg class="w-12 h-12 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
                                 </button>
-                                <button type="button" onclick="setCPDORating(2)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
-                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <button type="button" onclick="setCPDORating(2)" class="rating-star group transition-all duration-300 hover:scale-110 focus:outline-none">
+                                    <svg class="w-12 h-12 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
                                 </button>
-                                <button type="button" onclick="setCPDORating(3)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
-                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <button type="button" onclick="setCPDORating(3)" class="rating-star group transition-all duration-300 hover:scale-110 focus:outline-none">
+                                    <svg class="w-12 h-12 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
                                 </button>
-                                <button type="button" onclick="setCPDORating(4)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
-                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <button type="button" onclick="setCPDORating(4)" class="rating-star group transition-all duration-300 hover:scale-110 focus:outline-none">
+                                    <svg class="w-12 h-12 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
                                 </button>
-                                <button type="button" onclick="setCPDORating(5)" class="rating-star p-2 transition-all duration-200 hover:scale-110">
-                                    <svg class="w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <button type="button" onclick="setCPDORating(5)" class="rating-star group transition-all duration-300 hover:scale-110 focus:outline-none">
+                                    <svg class="w-12 h-12 text-gray-300 group-hover:text-yellow-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
                                 </button>
+                            </div>
+                            <div class="flex justify-center gap-3 mt-2 text-xs text-gray-500">
+                                <span>Poor</span>
+                                <span>Fair</span>
+                                <span>Good</span>
+                                <span>Very Good</span>
+                                <span>Excellent</span>
                             </div>
                             <input type="hidden" id="cpdo-rating-value" required>
-                            <p id="rating-error" class="text-xs text-red-500 mt-2 hidden">Please select a rating</p>
+                            <p id="rating-error" class="text-xs text-red-500 mt-3 hidden bg-red-50 inline-block px-3 py-1 rounded-full">⚠️ Please select a rating</p>
                         </div>
 
-                        <!-- Rating Questions -->
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Processing Time <span class="text-red-500">*</span></label>
-                                <div class="flex gap-4 flex-wrap">
-                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="processing_time" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                        <!-- Rating Questions Grid - Centered layout -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Processing Time -->
+                            <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
+                                <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
+                                    ⏱️ Processing Time <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="processing_time" value="5" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Excellent</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="processing_time" value="4" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Good</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="processing_time" value="3" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Average</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="processing_time" value="2" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Poor</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer col-span-2">
+                                        <input type="radio" name="processing_time" value="1" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Very Poor</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Staff Responsiveness <span class="text-red-500">*</span></label>
-                                <div class="flex gap-4 flex-wrap">
-                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="responsiveness" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                            <!-- Staff Responsiveness -->
+                            <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
+                                <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
+                                    👥 Staff Responsiveness <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="responsiveness" value="5" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Excellent</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="responsiveness" value="4" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Good</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="responsiveness" value="3" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Average</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="responsiveness" value="2" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Poor</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer col-span-2">
+                                        <input type="radio" name="responsiveness" value="1" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Very Poor</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Clarity of Instructions <span class="text-red-500">*</span></label>
-                                <div class="flex gap-4 flex-wrap">
-                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="clarity" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                            <!-- Clarity of Instructions -->
+                            <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
+                                <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
+                                    📋 Clarity of Instructions <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="clarity" value="5" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Excellent</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="clarity" value="4" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Good</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="clarity" value="3" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Average</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="clarity" value="2" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Poor</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer col-span-2">
+                                        <input type="radio" name="clarity" value="1" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Very Poor</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Fairness of Assessment <span class="text-red-500">*</span></label>
-                                <div class="flex gap-4 flex-wrap">
-                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Excellent</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Good</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Average</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Poor</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="fairness" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Poor</span></label>
+                            <!-- Fairness of Assessment -->
+                            <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
+                                <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
+                                    ⚖️ Fairness of Assessment <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="fairness" value="5" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Excellent</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="fairness" value="4" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Good</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="fairness" value="3" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Average</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
+                                        <input type="radio" name="fairness" value="2" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Poor</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer col-span-2">
+                                        <input type="radio" name="fairness" value="1" class="w-4 h-4 text-[#155386]"> 
+                                        <span class="text-sm">Very Poor</span>
+                                    </label>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Overall Satisfaction with CPDO Service <span class="text-red-500">*</span></label>
-                                <div class="flex gap-4 flex-wrap">
-                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="5" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Satisfied</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="4" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Satisfied</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="3" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Neutral</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="2" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Dissatisfied</span></label>
-                                    <label class="flex items-center gap-2"><input type="radio" name="overall_satisfaction" value="1" class="w-4 h-4 text-[#155386]"> <span class="text-sm">Very Dissatisfied</span></label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Comments / Suggestions (Optional)</label>
-                                <textarea id="cpdo-comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent" placeholder="Share your experience with CPDO..."></textarea>
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
-                        <div class="mt-8 flex justify-end gap-3">
-                            <button type="button" onclick="closeCPDORatingModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                        <!-- Overall Satisfaction (Full width) -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 mb-6">
+                            <label class="block text-md font-bold text-gray-800 mb-3 text-center">
+                                🎯 Overall Satisfaction with CPDO Service <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex justify-center gap-4 flex-wrap">
+                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
+                                    <input type="radio" name="overall_satisfaction" value="5" class="w-4 h-4 text-green-600"> 
+                                    <span class="text-sm font-medium text-green-700">🌟 Very Satisfied</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
+                                    <input type="radio" name="overall_satisfaction" value="4" class="w-4 h-4 text-blue-600"> 
+                                    <span class="text-sm font-medium text-blue-700">😊 Satisfied</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
+                                    <input type="radio" name="overall_satisfaction" value="3" class="w-4 h-4 text-gray-600"> 
+                                    <span class="text-sm font-medium text-gray-700">😐 Neutral</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
+                                    <input type="radio" name="overall_satisfaction" value="2" class="w-4 h-4 text-orange-600"> 
+                                    <span class="text-sm font-medium text-orange-700">😞 Dissatisfied</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
+                                    <input type="radio" name="overall_satisfaction" value="1" class="w-4 h-4 text-red-600"> 
+                                    <span class="text-sm font-medium text-red-700">😤 Very Dissatisfied</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                💬 Comments / Suggestions (Optional)
+                            </label>
+                            <textarea id="cpdo-comments" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#155386] focus:border-transparent transition resize-none" placeholder="Share your experience with CPDO... Your feedback helps us improve!"></textarea>
+                        </div>
+
+                        <!-- Submit Button Section -->
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="closeCPDORatingModal()" class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition transform hover:scale-105 font-medium">
                                 Skip for Now
                             </button>
-                            <button type="submit" id="submit-cpdo-rating-btn" class="px-6 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#1F363D] transition text-sm font-medium">
+                            <button type="submit" id="submit-cpdo-rating-btn" class="px-8 py-2.5 bg-gradient-to-r from-[#155386] to-[#40798C] text-white rounded-xl hover:shadow-lg transition transform hover:scale-105 font-medium flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                                 Submit Rating
                             </button>
                         </div>
@@ -1167,7 +1415,85 @@
 </div>
 
 <style>
-    /* Existing styles... */
+ /* Modal Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s ease-out;
+    }
+    
+    .animate-bounce-in {
+        animation: bounceIn 0.6s ease-out;
+    }
+    
+    .animate-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    .animate-modal-slide-up {
+        animation: fadeInUp 0.3s ease-out;
+    }
+    
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    
+    /* Radio button custom styling */
+    input[type="radio"] {
+        accent-color: #155386;
+    }
+    
+    /* Hover effects */
+    .rating-star:hover svg {
+        transform: scale(1.1);
+    }
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
@@ -2391,60 +2717,62 @@
         }, 1000);
     }
 
-    // Load application details from API
-    async function loadApplicationDetails() {
-        if (!applicationId) {
-            showError();
-            return;
+   async function loadApplicationDetails() {
+    if (!applicationId) {
+        showError();
+        return;
+    }
+    
+    try {
+        console.log('Fetching application details for ID:', applicationId);
+        
+        const response = await fetch(`/applicant/applications/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status}`);
         }
         
-        try {
-            console.log('Fetching application details for ID:', applicationId);
-            
-            const response = await fetch(`/applicant/applications/${applicationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status}`);
+        const data = await response.json();
+        console.log('Application data:', data);
+        
+        if (data.success && data.data) {
+            currentApplication = data.data;
+            previousStatus = currentApplication.status;
+            if (currentApplication.cpdo_status) {
+                cpdoStatus = currentApplication.cpdo_status;
+                cpdoRemarks = currentApplication.cpdo_remarks || null;
             }
+            displayApplicationDetails();
+            loadReviewActivities();
+            loadAssessmentData();
+            loadBFPData();
+            loadOwnershipData();
+            loadCPDOData();
             
-            const data = await response.json();
-            console.log('Application data:', data);
+            // Load certificates for applicant view - FIX: Add this line
+            await loadCertificatesForApplicant();
             
-            if (data.success && data.data) {
-                currentApplication = data.data;
-                previousStatus = currentApplication.status;
-                if (currentApplication.cpdo_status) {
-                    cpdoStatus = currentApplication.cpdo_status;
-                    cpdoRemarks = currentApplication.cpdo_remarks || null;
-                }
-                displayApplicationDetails();
-                loadReviewActivities();
-                loadAssessmentData();
-                loadBFPData();
-                loadOwnershipData();
-                loadCPDOData();
-                
-                if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
-                    displayDocumentsList(currentApplication.document_links);
-                } else {
-                    showEmptyDocuments();
-                }
+            if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
+                displayDocumentsList(currentApplication.document_links);
             } else {
-                showErrorModal(data.message || 'Application not found');
-                showError();
+                showEmptyDocuments();
             }
-        } catch (error) {
-            console.error('Error loading application:', error);
-            showErrorModal('Failed to load application details: ' + error.message);
+        } else {
+            showErrorModal(data.message || 'Application not found');
             showError();
         }
+    } catch (error) {
+        console.error('Error loading application:', error);
+        showErrorModal('Failed to load application details: ' + error.message);
+        showError();
     }
+}
 
     // Display project information
     function displayProjectInfo(app) {
@@ -3354,47 +3682,54 @@
     // Payment Proof variables
     let currentPaymentProof = null;
 
-    // Load payment proof data
-    async function loadPaymentProof() {
-        if (!applicationId) return;
+   async function loadPaymentProof() {
+    if (!applicationId) return;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
         
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data && data.data.or_link) {
-                    currentPaymentProof = data.data;
-                    displayPaymentProof();
-                    return;
-                }
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data && data.data.or_link) {
+                currentPaymentProof = data.data;
+                displayPaymentProof();
+                // Load certificates after payment proof is loaded - FIX: Add this line
+                await loadCertificatesForApplicant();
+                return;
             }
-            const form = document.getElementById('payment-proof-form');
-            const display = document.getElementById('payment-proof-display');
-            const statusBadge = document.getElementById('payment-status-badge');
-            
-            if (form) form.classList.remove('hidden');
-            if (display) display.classList.add('hidden');
-            if (statusBadge) {
-                statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
-                statusBadge.textContent = 'Not Uploaded';
-            }
-        } catch (error) {
-            console.error('Error loading payment proof:', error);
-            const form = document.getElementById('payment-proof-form');
-            const display = document.getElementById('payment-proof-display');
-            if (form) form.classList.remove('hidden');
-            if (display) display.classList.add('hidden');
         }
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        const statusBadge = document.getElementById('payment-status-badge');
+        
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
+        if (statusBadge) {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            statusBadge.textContent = 'Not Uploaded';
+        }
+        
+        // Still try to load certificates even if no payment proof - FIX: Add this line
+        await loadCertificatesForApplicant();
+        
+    } catch (error) {
+        console.error('Error loading payment proof:', error);
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
+        
+        // Still try to load certificates even on error - FIX: Add this line
+        await loadCertificatesForApplicant();
     }
-
+}
     // Display payment proof
     function displayPaymentProof() {
         if (!currentPaymentProof) return;
@@ -3488,5 +3823,249 @@
             btn.disabled = false;
         }
     }
+
+    // Load certificates for applicant view
+async function loadCertificatesForApplicant() {
+    if (!applicationId) return;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch(`/applicant/applications/${applicationId}/certificates`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const certificatesSection = document.getElementById('certificates-section');
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                let hasAnyCertificate = false;
+                
+                // Check Zoning Certificate
+                if (data.data.zoning_cert_link) {
+                    hasAnyCertificate = true;
+                    document.getElementById('applicant-zoning-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+                    document.getElementById('applicant-zoning-status').textContent = 'Available ✓';
+                    document.getElementById('applicant-zoning-display').classList.remove('hidden');
+                    document.getElementById('applicant-zoning-empty').classList.add('hidden');
+                    document.getElementById('applicant-zoning-link').href = data.data.zoning_cert_link;
+                    
+                    let metaText = '';
+                    if (data.data.zoning_cert_uploaded_at) {
+                        metaText += `Uploaded: ${new Date(data.data.zoning_cert_uploaded_at).toLocaleDateString()}`;
+                    }
+                    document.getElementById('applicant-zoning-meta').textContent = metaText;
+                } else {
+                    document.getElementById('applicant-zoning-display').classList.add('hidden');
+                    document.getElementById('applicant-zoning-empty').classList.remove('hidden');
+                }
+                
+                // Check Locational Clearance
+                if (data.data.locational_clearance_link) {
+                    hasAnyCertificate = true;
+                    document.getElementById('applicant-locational-status').className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+                    document.getElementById('applicant-locational-status').textContent = 'Available ✓';
+                    document.getElementById('applicant-locational-display').classList.remove('hidden');
+                    document.getElementById('applicant-locational-empty').classList.add('hidden');
+                    document.getElementById('applicant-locational-link').href = data.data.locational_clearance_link;
+                    
+                    let metaText = '';
+                    if (data.data.locational_clearance_uploaded_at) {
+                        metaText += `Uploaded: ${new Date(data.data.locational_clearance_uploaded_at).toLocaleDateString()}`;
+                    }
+                    document.getElementById('applicant-locational-meta').textContent = metaText;
+                } else {
+                    document.getElementById('applicant-locational-display').classList.add('hidden');
+                    document.getElementById('applicant-locational-empty').classList.remove('hidden');
+                }
+                
+                // Show section if any certificate exists
+                if (hasAnyCertificate && certificatesSection) {
+                    certificatesSection.classList.remove('hidden');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error loading certificates:', error);
+    }
+
+    // Global Success Modal Functions
+function showGlobalSuccess(message, title = 'Success!') {
+    const modal = document.getElementById('global-success-modal');
+    const titleEl = document.getElementById('global-success-title');
+    const messageEl = document.getElementById('global-success-message');
+    
+    if (titleEl) titleEl.textContent = title;
+    if (messageEl) messageEl.textContent = message;
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Auto close after 3 seconds
+    setTimeout(() => {
+        closeGlobalSuccessModal();
+    }, 3000);
+}
+
+function closeGlobalSuccessModal() {
+    const modal = document.getElementById('global-success-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Global Error Modal Functions
+function showGlobalError(message, title = 'Error!') {
+    const modal = document.getElementById('global-error-modal');
+    const titleEl = document.getElementById('global-error-title');
+    const messageEl = document.getElementById('global-error-message');
+    
+    if (titleEl) titleEl.textContent = title;
+    if (messageEl) messageEl.textContent = message;
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeGlobalErrorModal() {
+    const modal = document.getElementById('global-error-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// CPDO Rating Functions
+function setCPDORating(rating) {
+    currentCPDORating = rating;
+    document.getElementById('cpdo-rating-value').value = rating;
+    
+    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star');
+    stars.forEach((star, index) => {
+        const svg = star.querySelector('svg');
+        if (index < rating) {
+            svg.classList.add('text-yellow-400');
+            svg.classList.remove('text-gray-300');
+        } else {
+            svg.classList.add('text-gray-300');
+            svg.classList.remove('text-yellow-400');
+        }
+    });
+    
+    const ratingError = document.getElementById('rating-error');
+    if (ratingError) ratingError.classList.add('hidden');
+}
+
+async function submitCPDORating(event) {
+    event.preventDefault();
+    
+    const rating = document.getElementById('cpdo-rating-value').value;
+    if (!rating || rating === '0') {
+        const ratingError = document.getElementById('rating-error');
+        if (ratingError) ratingError.classList.remove('hidden');
+        return;
+    }
+    
+    // Check if all required fields are filled
+    const requiredFields = ['processing_time', 'responsiveness', 'clarity', 'fairness', 'overall_satisfaction'];
+    let missingFields = [];
+    
+    requiredFields.forEach(field => {
+        const selected = document.querySelector(`input[name="${field}"]:checked`);
+        if (!selected) missingFields.push(field.replace('_', ' '));
+    });
+    
+    if (missingFields.length > 0) {
+        showGlobalError(`Please complete all required fields: ${missingFields.join(', ')}`);
+        return;
+    }
+    
+    const formData = {
+        application_id: document.getElementById('cpdo-application-id').value,
+        rating: parseInt(rating),
+        processing_time: document.querySelector('input[name="processing_time"]:checked')?.value,
+        responsiveness: document.querySelector('input[name="responsiveness"]:checked')?.value,
+        clarity: document.querySelector('input[name="clarity"]:checked')?.value,
+        fairness: document.querySelector('input[name="fairness"]:checked')?.value,
+        overall_satisfaction: document.querySelector('input[name="overall_satisfaction"]:checked')?.value,
+        comments: document.getElementById('cpdo-comments').value
+    };
+    
+    const submitBtn = document.getElementById('submit-cpdo-rating-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    submitBtn.disabled = true;
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch('/applicant/cpdo-rating/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showGlobalSuccess('Thank you for your valuable feedback! Your rating has been submitted successfully.', 'Thank You!');
+            closeCPDORatingModal();
+        } else {
+            showGlobalError(data.message || 'Failed to submit rating. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error submitting CPDO rating:', error);
+        showGlobalError('An error occurred while submitting your rating. Please try again.');
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+function closeCPDORatingModal() {
+    const modal = document.getElementById('cpdo-rating-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function showCPDORatingModal(applicationId) {
+    if (hasShownCPDORatingModal) return;
+    
+    document.getElementById('cpdo-application-id').value = applicationId;
+    document.getElementById('cpdo-rating-value').value = '';
+    currentCPDORating = 0;
+    
+    // Reset all radio buttons
+    document.querySelectorAll('#cpdo-rating-modal input[type="radio"]').forEach(radio => radio.checked = false);
+    document.getElementById('cpdo-comments').value = '';
+    
+    // Reset stars
+    const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star svg');
+    stars.forEach(star => {
+        star.classList.add('text-gray-300');
+        star.classList.remove('text-yellow-400');
+    });
+    
+    const modal = document.getElementById('cpdo-rating-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        hasShownCPDORatingModal = true;
+    }
+}
+}
 </script>
 @endsection

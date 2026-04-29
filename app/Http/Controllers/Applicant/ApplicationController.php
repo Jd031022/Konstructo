@@ -1737,5 +1737,51 @@ public function checkCPDORating($id)
         ]);
     }
 }
-    
+/**
+ * Get certificates for applicant view
+ */
+public function getCertificates($id)
+{
+    try {
+        $user = Auth::user();
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        // Get payment proof record which contains the certificates
+        $paymentProof = \App\Models\PaymentProof::where('application_id', $id)->first();
+        
+        if (!$paymentProof) {
+            return response()->json([
+                'success' => true,
+                'data' => null
+            ]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'zoning_cert_link' => $paymentProof->zoning_cert_link ?? null,
+                'zoning_cert_uploaded_at' => $paymentProof->zoning_cert_uploaded_at ?? null,
+                'locational_clearance_link' => $paymentProof->locational_clearance_link ?? null,
+                'locational_clearance_uploaded_at' => $paymentProof->locational_clearance_uploaded_at ?? null,
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error getting certificates: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading certificates'
+        ], 500);
+    }
+}
 }

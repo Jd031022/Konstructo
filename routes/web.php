@@ -244,6 +244,7 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/applications/{id}/ownership', [ApplicationController::class, 'getOwnershipData'])->name('applications.ownership');
     Route::get('/applications/{id}/review-activities', [ApplicationController::class, 'getReviewActivities'])->name('applications.review-activities');
     Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
+    Route::get('/applications/{id}/certificates', [ApplicationController::class, 'getCertificates'])->name('applications.certificates');
     
     // ========== PAYMENT PROOF ROUTES (APPLICANT) ==========
     Route::post('/payment-proof/upload', [App\Http\Controllers\Applicant\PaymentProofController::class, 'upload'])->name('payment-proof.upload');
