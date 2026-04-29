@@ -7,28 +7,28 @@
 <!-- Main Container -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Limit Reached Warning -->
-    <div id="limit-warning" class="mb-8 hidden">
-        <div class="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6 rounded-2xl shadow-lg">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 bg-white/20 rounded-xl backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+   <!-- Limit Reached Warning -->
+<div id="limit-warning" class="mb-8 hidden">
+    <div class="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6 rounded-2xl shadow-lg">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-white/20 rounded-xl backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-lg">Daily Application Limit Reached</p>
+                <p class="text-white/90 text-sm mb-4">You have reached the maximum limit of 3 applications per day. Your limit will reset at midnight (12:00 AM).</p>
+                <a href="/applicant/applications" class="inline-flex items-center px-4 py-2 bg-white text-red-600 rounded-xl hover:bg-white/90 transition font-medium text-sm">
+                    Manage Applications
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
-                </div>
-                <div class="flex-1">
-                    <p class="font-bold text-lg">Application Limit Reached</p>
-                    <p class="text-white/90 text-sm mb-4">You have reached the maximum limit of 3 applications. Please complete or delete existing applications before creating a new one.</p>
-                    <a href="/applicant/applications" class="inline-flex items-center px-4 py-2 bg-white text-red-600 rounded-xl hover:bg-white/90 transition font-medium text-sm">
-                        Manage Applications
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
+                </a>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Section Header -->
     <div class="flex items-center justify-between mb-8">
@@ -173,14 +173,13 @@
 
 <!-- JavaScript -->
 <script>
-    const APPLICATION_LIMIT = 3;
+     const MAX_APPLICATIONS_PER_DAY = 3;
 
     document.addEventListener('DOMContentLoaded', async function() {
-        await checkApplicationLimit();
-        await loadApplicationStats();
+        await checkDailyApplicationLimit();
     });
 
-    async function checkApplicationLimit() {
+    async function checkDailyApplicationLimit() {
         try {
             const response = await fetch('/applicant/application/limit-info', {
                 headers: {
@@ -192,22 +191,48 @@
             const data = await response.json();
             
             if (data.success) {
-                const canApply = data.data.can_apply;
+                const canSubmitToday = data.data.can_submit_today;
+                const todaySubmitted = data.data.today_submitted;
+                const remaining = data.data.remaining;
+                const nextReset = data.data.next_reset;
                 
-                if (!canApply) {
-                    document.getElementById('limit-warning').classList.remove('hidden');
-                    document.getElementById('limit-badge').classList.remove('hidden');
-                    document.getElementById('apply-button-container').classList.add('hidden');
-                    document.getElementById('disabled-apply-message').classList.remove('hidden');
+                // Update badge text
+                const limitBadge = document.getElementById('limit-badge');
+                const limitWarning = document.getElementById('limit-warning');
+                const applyBtnContainer = document.getElementById('apply-button-container');
+                const disabledMessage = document.getElementById('disabled-apply-message');
+                const applyButton = document.getElementById('apply-button');
+                
+                if (!canSubmitToday) {
+                    // Show limit reached UI
+                    if (limitBadge) limitBadge.classList.remove('hidden');
+                    if (limitWarning) limitWarning.classList.remove('hidden');
+                    if (applyBtnContainer) applyBtnContainer.classList.add('hidden');
+                    if (disabledMessage) disabledMessage.classList.remove('hidden');
+                    
+                    // Update warning message
+                    const warningMessage = document.querySelector('#limit-warning .text-sm');
+                    if (warningMessage) {
+                        warningMessage.innerHTML = `You have reached the limit of ${MAX_APPLICATIONS_PER_DAY} application(s) per day. Today's usage: ${todaySubmitted}/${MAX_APPLICATIONS_PER_DAY}. Your limit will reset at midnight (12:00 AM).`;
+                    }
                 } else {
-                    document.getElementById('limit-warning').classList.add('hidden');
-                    document.getElementById('limit-badge').classList.add('hidden');
-                    document.getElementById('apply-button-container').classList.remove('hidden');
-                    document.getElementById('disabled-apply-message').classList.add('hidden');
+                    // Show normal UI
+                    if (limitBadge) limitBadge.classList.add('hidden');
+                    if (limitWarning) limitWarning.classList.add('hidden');
+                    if (applyBtnContainer) applyBtnContainer.classList.remove('hidden');
+                    if (disabledMessage) disabledMessage.classList.add('hidden');
+                    
+                    // Optional: Show remaining slots info
+                    if (remaining <= 2) {
+                        const buttonText = applyButton?.querySelector('button');
+                        if (buttonText) {
+                            buttonText.innerHTML = `Start Application (${remaining}/${MAX_APPLICATIONS_PER_DAY} left today)`;
+                        }
+                    }
                 }
             }
         } catch (error) {
-            console.error('Error checking application limit:', error);
+            console.error('Error checking daily application limit:', error);
         }
     }
 

@@ -23,6 +23,7 @@ class ApplicationDocument extends Model
         'google_drive_link',
         'document_links',
         'pdf_annotations',
+        'submission_date',
         
         // Admin/Staff fields
         'admin_notes',
@@ -720,5 +721,32 @@ class ApplicationDocument extends Model
         return 'Not assessed yet';
     }
     
-    
+     /**
+     * Get today's submitted applications count for a user
+     */
+    public static function getTodaySubmittedCount($userId)
+    {
+        return self::where('user_id', $userId)
+            ->whereDate('submission_date', today())
+            ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
+            ->count();
+    }
+
+    /**
+     * Check if user can submit today (max 3 per day)
+     */
+    public static function canSubmitToday($userId, $maxPerDay = 3)
+    {
+        return self::getTodaySubmittedCount($userId) < $maxPerDay;
+    }
+
+    /**
+     * Get remaining submissions allowed for today
+     */
+    public static function getRemainingToday($userId, $maxPerDay = 3)
+    {
+        $used = self::getTodaySubmittedCount($userId);
+        return max(0, $maxPerDay - $used);
+    }
+
 }

@@ -279,7 +279,7 @@
     let currentView = 'card';
     let itemsPerPage = 5;
     let deleteId = null;
-    const APPLICATION_LIMIT = 3;
+    const MAX_APPLICATIONS_PER_DAY = 3;
     const PROCESSING_DAYS = 20;
 
     // CSRF token helper
@@ -334,41 +334,55 @@
         initViewToggle();
     });
 
-    function setupNewApplicationButton() {
-        const newAppBtn = document.getElementById('new-application-btn');
-        const emptyStateBtn = document.getElementById('empty-state-new-app-btn');
+    async function setupNewApplicationButton() {
+    const newAppBtn = document.getElementById('new-application-btn');
+    const emptyStateBtn = document.getElementById('empty-state-new-app-btn');
+    
+    const handleClick = async (e) => {
+        e.preventDefault();
         
-        const handleClick = async (e) => {
-            e.preventDefault();
+        // First check if user can submit today
+        try {
+            const limitCheck = await fetch('/applicant/application/limit-info', {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() }
+            });
+            const limitData = await limitCheck.json();
             
-            try {
-                const response = await fetch('/applicant/application/create-draft', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': getCsrfToken(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.data && data.data.id) {
-                    window.location.href = '/applicant/application/step1?id=' + data.data.id;
-                } else if (data.limit_reached) {
-                    showErrorModal('You have reached the maximum limit of 3 applications.');
-                } else {
-                    showErrorModal(data.message || 'Failed to create new application');
-                }
-            } catch (error) {
-                console.error('Error creating draft:', error);
-                showErrorModal('An error occurred. Please try again.');
+            if (!limitData.success || !limitData.data.can_submit_today) {
+                const remaining = limitData.data?.remaining || 0;
+                showErrorModal(`You have reached the daily limit of ${MAX_APPLICATIONS_PER_DAY} applications. You can submit ${remaining} more today.`);
+                return;
             }
-        };
+        } catch (error) {
+            console.error('Error checking limit:', error);
+        }
         
-        if (newAppBtn) newAppBtn.addEventListener('click', handleClick);
-        if (emptyStateBtn) emptyStateBtn.addEventListener('click', handleClick);
-    }
+        try {
+            const response = await fetch('/applicant/application/create-draft', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.id) {
+                window.location.href = '/applicant/application/step1?id=' + data.data.id;
+            } else {
+                showErrorModal(data.message || 'Failed to create new application');
+            }
+        } catch (error) {
+            console.error('Error creating draft:', error);
+            showErrorModal('An error occurred. Please try again.');
+        }
+    };
+    
+    if (newAppBtn) newAppBtn.addEventListener('click', handleClick);
+    if (emptyStateBtn) emptyStateBtn.addEventListener('click', handleClick);
+}
 
     function initViewToggle() {
         const savedView = localStorage.getItem('applications_view_mode');
@@ -400,45 +414,74 @@
     }
 
     async function checkApplicationLimit() {
-        try {
-            const response = await fetch('/applicant/application/limit-info', {
-                headers: { 
-                    'Accept': 'application/json', 
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
+    try {
+        const response = await fetch('/applicant/application/limit-info', {
+            headers: { 
+                'Accept': 'application/json', 
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            const todaySubmitted = data.data.today_submitted || 0;
+            const remaining = data.data.remaining || MAX_APPLICATIONS_PER_DAY;
+            const canSubmitToday = data.data.can_submit_today;
+            
+            // Update progress bar for daily usage
+            updateProgressBar(todaySubmitted);
+            document.getElementById('application-count').textContent = todaySubmitted;
+            document.getElementById('remaining-slots').textContent = `${remaining} slot${remaining !== 1 ? 's' : ''} left today`;
+            
+            if (todaySubmitted > 0) {
+                document.getElementById('application-limit-container').classList.remove('hidden');
+            }
+            
+            // Update container title
+            const summaryTitle = document.querySelector('#application-limit-container h4');
+            if (summaryTitle) {
+                summaryTitle.textContent = 'Today\'s Application Summary';
+            }
+            
+            const containerText = document.querySelector('#application-limit-container .text-sm');
+            if (containerText) {
+                containerText.innerHTML = `You have submitted <span id="application-count">${todaySubmitted}</span> out of ${MAX_APPLICATIONS_PER_DAY} applications today`;
+            }
+            
+            const limitWarning = document.getElementById('limit-warning');
+            const newAppBtn = document.getElementById('new-application-btn');
+            
+            if (!canSubmitToday) {
+                limitWarning.classList.remove('hidden');
+                if (newAppBtn) { 
+                    newAppBtn.classList.add('opacity-50', 'pointer-events-none'); 
+                    newAppBtn.style.pointerEvents = 'none';
                 }
-            });
-            const data = await response.json();
-            if (data.success) {
-                const total = data.data.submitted || 0;
-                const remaining = Math.max(0, APPLICATION_LIMIT - total);
-                updateProgressBar(total);
-                document.getElementById('application-count').textContent = total;
-                document.getElementById('remaining-slots').textContent = `${remaining} slot${remaining !== 1 ? 's' : ''} left`;
-                if (total > 0) document.getElementById('application-limit-container').classList.remove('hidden');
                 
-                const limitWarning = document.getElementById('limit-warning');
-                const newAppBtn = document.getElementById('new-application-btn');
-                if (!data.data.can_apply) {
-                    limitWarning.classList.remove('hidden');
-                    if (newAppBtn) { 
-                        newAppBtn.classList.add('opacity-50', 'pointer-events-none'); 
-                        newAppBtn.style.pointerEvents = 'none';
-                    }
-                } else {
-                    limitWarning.classList.add('hidden');
-                    if (newAppBtn) { 
-                        newAppBtn.classList.remove('opacity-50', 'pointer-events-none'); 
-                        newAppBtn.style.pointerEvents = 'auto';
-                    }
+                // Update warning message with reset info
+                const warningText = document.querySelector('#limit-warning .text-sm');
+                if (warningText) {
+                    warningText.innerHTML = `You have reached the maximum limit of ${MAX_APPLICATIONS_PER_DAY} applications per day. Your limit will reset at midnight (12:00 AM). Please try again tomorrow.`;
+                }
+            } else {
+                limitWarning.classList.add('hidden');
+                if (newAppBtn) { 
+                    newAppBtn.classList.remove('opacity-50', 'pointer-events-none'); 
+                    newAppBtn.style.pointerEvents = 'auto';
                 }
             }
-        } catch (error) { console.error('Error checking application limit:', error); }
+        }
+    } catch (error) { 
+        console.error('Error checking application limit:', error); 
     }
+}
 
-    function updateProgressBar(total) {
-        const percentage = (total / APPLICATION_LIMIT) * 100;
-        const progressBar = document.getElementById('application-progress-bar');
+// Update progress bar to show daily usage
+function updateProgressBar(todaySubmitted) {
+    const percentage = (todaySubmitted / MAX_APPLICATIONS_PER_DAY) * 100;
+    const progressBar = document.getElementById('application-progress-bar');
+    if (progressBar) {
         progressBar.style.width = `${Math.min(percentage, 100)}%`;
         if (percentage >= 100) {
             progressBar.classList.remove('bg-[#155386]');
@@ -451,6 +494,7 @@
             progressBar.classList.add('bg-[#155386]');
         }
     }
+}
 
     async function loadApplications() {
         try {

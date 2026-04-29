@@ -20,6 +20,7 @@ use App\Models\CPDORating;
 class ApplicationController extends Controller
 {
     protected $notificationService;
+    protected $maxApplicationsPerDay = 3; 
 
     public function __construct(NotificationService $notificationService)
     {
@@ -475,23 +476,10 @@ class ApplicationController extends Controller
     /**
      * Create draft application
      */
-    public function createDraft(Request $request)
+   public function createDraft(Request $request)
     {
         try {
             $user = Auth::user();
-            
-            // Check application limit
-            $existingSubmitted = ApplicationDocument::where('user_id', $user->id)
-                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
-                ->count();
-                
-            if ($existingSubmitted >= 3) {
-                return response()->json([
-                    'success' => false,
-                    'limit_reached' => true,
-                    'message' => 'You have reached the maximum limit of 3 submitted applications.'
-                ], 403);
-            }
             
             // Create new draft
             $application = ApplicationDocument::create([
@@ -601,7 +589,72 @@ class ApplicationController extends Controller
             ], 500);
         }
     }
-
+ public function submitApplication(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $applicationId = $request->application_id;
+            
+            $application = ApplicationDocument::findOrFail($applicationId);
+            
+            // Check ownership
+            if ($application->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            // Check if already submitted
+            if ($application->status !== 'draft') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application already submitted'
+                ], 400);
+            }
+            
+            // CHECK DAILY LIMIT BEFORE SUBMISSION
+            if (!ApplicationDocument::canSubmitToday($user->id, $this->maxApplicationsPerDay)) {
+                $usedToday = ApplicationDocument::getTodaySubmittedCount($user->id);
+                $resetDate = today()->addDay()->toDateString();
+                
+                return response()->json([
+                    'success' => false,
+                    'limit_reached' => true,
+                    'message' => "You have reached the limit of {$this->maxApplicationsPerDay} application(s) per day. Today's usage: {$usedToday}/{$this->maxApplicationsPerDay}. Your limit will reset on {$resetDate}."
+                ], 403);
+            }
+            
+            // Proceed with submission
+            $applicationNumber = $this->generateApplicationNumberInternal(); // Create internal method
+            
+            $application->update([
+                'status' => 'pending',
+                'application_number' => $applicationNumber,
+                'submitted_at' => now(),
+                'submission_date' => today(),  // IMPORTANT: Set submission date for daily counting
+            ]);
+            
+            // Trigger notification
+            $this->notificationService->applicationSubmitted($application);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application submitted successfully',
+                'data' => [
+                    'application_number' => $applicationNumber,
+                    'submission_date' => today()->toDateString()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error submitting application: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Get application limit info
      */
@@ -610,24 +663,19 @@ class ApplicationController extends Controller
         try {
             $user = Auth::user();
             
-            $drafts = ApplicationDocument::where('user_id', $user->id)
-                ->where('status', 'draft')
-                ->count();
-            
-            $submitted = ApplicationDocument::where('user_id', $user->id)
-                ->whereIn('status', ['pending', 'under-review', 'document-verification', 'approved', 'for-release', 'verified'])
-                ->count();
-            
-            $limit = 3;
+            $todaySubmitted = ApplicationDocument::getTodaySubmittedCount($user->id);
+            $remaining = ApplicationDocument::getRemainingToday($user->id, $this->maxApplicationsPerDay);
             
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'drafts' => $drafts,
-                    'submitted' => $submitted,
-                    'limit' => $limit,
-                    'remaining' => max(0, $limit - $submitted),
-                    'can_apply' => $submitted < $limit
+                    'today_submitted' => $todaySubmitted,
+                    'remaining' => $remaining,
+                    'max_per_day' => $this->maxApplicationsPerDay,
+                    'can_submit_today' => ApplicationDocument::canSubmitToday($user->id, $this->maxApplicationsPerDay),
+                    'next_reset' => today()->addDay()->toDateString(),
+                    'reset_time' => '12:00 AM',
+                    'note' => 'You can submit up to ' . $this->maxApplicationsPerDay . ' applications per day.'
                 ]
             ]);
             
@@ -1784,4 +1832,31 @@ public function getCertificates($id)
         ], 500);
     }
 }
+
+ private function generateApplicationNumberInternal()
+    {
+        $year = date('Y');
+        $lastApplication = ApplicationDocument::whereYear('created_at', $year)
+            ->whereNotNull('application_number')
+            ->orderBy('id', 'desc')
+            ->first();
+        
+        $sequence = 1;
+        if ($lastApplication && $lastApplication->application_number) {
+            $lastSequence = (int) substr($lastApplication->application_number, -6);
+            $sequence = $lastSequence + 1;
+        }
+        
+        $sequenceFormatted = str_pad($sequence, 6, '0', STR_PAD_LEFT);
+        $applicationNumber = $year . $sequenceFormatted;
+        
+        while (ApplicationDocument::where('application_number', $applicationNumber)->exists()) {
+            $sequence++;
+            $sequenceFormatted = str_pad($sequence, 6, '0', STR_PAD_LEFT);
+            $applicationNumber = $year . $sequenceFormatted;
+        }
+        
+        return $applicationNumber;
+    }
+
 }
