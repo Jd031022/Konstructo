@@ -69,57 +69,71 @@
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
             </a>
 
-        <!-- STAFF ROUTES -->
-        @elseif(auth()->user()->role === 'staff')
-        
-            @php
-                $user = Auth::user();
-                $user->load('profile');
-                $position = $user->profile ? $user->profile->position : null;
-                $isEngineerOrArchitect = in_array($position, ['engineer', 'architect']);
-                $isBFP = ($position === 'BFP' || $position === 'bfp');
-                $isMayor = ($position === 'mayor');
-                // Roles that should NOT see Verified Ownership
-                $hideVerifiedOwnership = in_array($position, ['engineer', 'architect', 'BFP', 'bfp', 'mayor']);
-            @endphp
-        
-            <!-- Applications - All staff can see -->
-            <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') && !request()->is('staff/archived-applications*') && !request()->is('staff/ownership-verifications/verified*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
-            </a>
+<!-- STAFF ROUTES -->
+@elseif(auth()->user()->role === 'staff')
 
-            <!-- Ownership Verifications (Verified) - HIDDEN for Mayor, Engineer, Architect, BFP -->
-            @if(!$hideVerifiedOwnership)
-            <a href="/staff/ownership-verifications/verified" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/ownership-verifications/verified*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Verified Ownership</span>
-            </a>
-            @endif
+    @php
+        $user = Auth::user();
+        $user->load('profile');
+        $position = $user->profile ? $user->profile->position : null;
+        $isEngineerOrArchitect = in_array($position, ['engineer', 'architect']);
+        $isBFP = ($position === 'BFP' || $position === 'bfp');
+        $isMayor = ($position === 'mayor');
+        $isTreasurer = ($position === 'treasurer');  // ADD THIS LINE
+        // Roles that should NOT see Verified Ownership
+        $hideVerifiedOwnership = in_array($position, ['engineer', 'architect', 'BFP', 'bfp', 'mayor']);
+    @endphp
 
-            <!-- Archive - ONLY for Engineer and Architect positions (NOT for Mayor) -->
-            @if($isEngineerOrArchitect && !$isMayor)
-            <a href="/staff/archived-applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/archived-applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
-            </a>
-            @endif
+    <!-- Applications - All staff can see -->
+    <a href="/staff/applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/applications*') && !request()->is('staff/archived-applications*') && !request()->is('staff/ownership-verifications/verified*') && !request()->is('staff/payment-assessments*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
+    </a>
 
-            <!-- Client Satisfaction Surveys - All staff can see (including Mayor) -->
-            <a href="/staff/surveys" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/surveys*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Surveys</span>
-            </a>
+    <!-- Payment Assessments - TREASURER ONLY -->
+    @if($isTreasurer)
+    <a href="/staff/payment-assessments" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/payment-assessments*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 8v4m0 4h.01" />
+        </svg>
+        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Payment Assessments</span>
+    </a>
+    @endif
+
+    <!-- Ownership Verifications (Verified) - HIDDEN for Mayor, Engineer, Architect, BFP -->
+    @if(!$hideVerifiedOwnership)
+    <a href="/staff/ownership-verifications/verified" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/ownership-verifications/verified*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Verified Ownership</span>
+    </a>
+    @endif
+
+    <!-- Archive - ONLY for Engineer and Architect positions (NOT for Mayor) -->
+    @if($isEngineerOrArchitect && !$isMayor)
+    <a href="/staff/archived-applications" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/archived-applications*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
+    </a>
+    @endif
+
+    <!-- Client Satisfaction Surveys - All staff can see (including Mayor) -->
+    <a href="/staff/surveys" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/surveys*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Surveys</span>
+    </a>
 
         <!-- APPLICANT ROUTES -->
         @elseif(auth()->user()->role === 'applicant')

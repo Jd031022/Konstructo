@@ -1120,7 +1120,7 @@
 </div>
 
 <!-- CPDO Experience Rating Modal - Redesigned -->
-<div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(8px);">
+<div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-30 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(8px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-3xl animate-modal-slide-up">
             <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -1199,7 +1199,7 @@
                             <!-- Processing Time -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
-                                    ⏱️ Processing Time <span class="text-red-500">*</span>
+                                    Processing Time <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
@@ -1228,7 +1228,7 @@
                             <!-- Staff Responsiveness -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
-                                    👥 Staff Responsiveness <span class="text-red-500">*</span>
+                                    Staff Responsiveness <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
@@ -1257,7 +1257,7 @@
                             <!-- Clarity of Instructions -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
-                                    📋 Clarity of Instructions <span class="text-red-500">*</span>
+                                    Clarity of Instructions <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
@@ -1286,7 +1286,7 @@
                             <!-- Fairness of Assessment -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
-                                    ⚖️ Fairness of Assessment <span class="text-red-500">*</span>
+                                 Fairness of Assessment <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
@@ -1310,35 +1310,6 @@
                                         <span class="text-sm">Very Poor</span>
                                     </label>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Overall Satisfaction (Full width) -->
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 mb-6">
-                            <label class="block text-md font-bold text-gray-800 mb-3 text-center">
-                                🎯 Overall Satisfaction with CPDO Service <span class="text-red-500">*</span>
-                            </label>
-                            <div class="flex justify-center gap-4 flex-wrap">
-                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
-                                    <input type="radio" name="overall_satisfaction" value="5" class="w-4 h-4 text-green-600"> 
-                                    <span class="text-sm font-medium text-green-700">🌟 Very Satisfied</span>
-                                </label>
-                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
-                                    <input type="radio" name="overall_satisfaction" value="4" class="w-4 h-4 text-blue-600"> 
-                                    <span class="text-sm font-medium text-blue-700">😊 Satisfied</span>
-                                </label>
-                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
-                                    <input type="radio" name="overall_satisfaction" value="3" class="w-4 h-4 text-gray-600"> 
-                                    <span class="text-sm font-medium text-gray-700">😐 Neutral</span>
-                                </label>
-                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
-                                    <input type="radio" name="overall_satisfaction" value="2" class="w-4 h-4 text-orange-600"> 
-                                    <span class="text-sm font-medium text-orange-700">😞 Dissatisfied</span>
-                                </label>
-                                <label class="flex items-center gap-2 p-2 px-3 rounded-lg hover:bg-white transition cursor-pointer">
-                                    <input type="radio" name="overall_satisfaction" value="1" class="w-4 h-4 text-red-600"> 
-                                    <span class="text-sm font-medium text-red-700">😤 Very Dissatisfied</span>
-                                </label>
                             </div>
                         </div>
 

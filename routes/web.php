@@ -58,6 +58,8 @@ Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPas
 Route::post('/forgot-password/resend-code', [PasswordResetController::class, 'resendCode'])->name('password.resend-code');
 Route::post('/staff/applications/{id}/ownership-remark', [App\Http\Controllers\Staff\ApplicationController::class, 'sendOwnershipRemark'])
     ->middleware('auth');
+
+    
 // Staff UI and API Routes - ORDER MATTERS! Put specific routes FIRST
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
     
@@ -71,13 +73,21 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::post('/applications/restore-multiple', [App\Http\Controllers\Staff\ApplicationController::class, 'restoreMultiple'])->name('applications.restore-multiple');
 
     // ========== OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
-   Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);
-  // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
-Route::get('/ownership-verifications/verified-data', [App\Http\Controllers\Staff\DashboardController::class, 'getVerifiedOwnershipDocuments']);
-// ========== VERIFIED OWNERSHIP DOCUMENTS PAGE ==========
-Route::get('/ownership-verifications/verified', function () {
-    return view('staff.verified-ownership');
-});
+    Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);
+    
+    // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
+    Route::get('/ownership-verifications/verified-data', [App\Http\Controllers\Staff\DashboardController::class, 'getVerifiedOwnershipDocuments']);
+    
+    // ========== VERIFIED OWNERSHIP DOCUMENTS PAGE ==========
+    Route::get('/ownership-verifications/verified', function () {
+        return view('staff.verified-ownership');
+    });
+
+    // ========== PAYMENT ASSESSMENTS PAGE (TREASURER) ==========
+    // File location: resources/views/staff/payment-assessments.blade.php
+    Route::get('/payment-assessments', function () {
+        return view('staff.payment-assessments');  // Matches staff/payment-assessments.blade.php
+    })->name('payment.assessments');
 
     // ========== POSITION MANAGEMENT ROUTES ==========
     Route::prefix('position')->name('position.')->group(function () {
