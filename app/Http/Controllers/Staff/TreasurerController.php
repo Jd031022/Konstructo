@@ -7,6 +7,7 @@ use App\Models\ApplicationDocument;
 use App\Models\AssessmentFee;
 use App\Models\PaymentOrder;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\Validator;
 
 class TreasurerController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function getPaymentAssessments(Request $request)
     {
         try {
@@ -219,6 +227,8 @@ class TreasurerController extends Controller
     public function addPaymentOrder(Request $request, $id)
     {
         try {
+            Log::info('addPaymentOrder called', ['application_id' => $id]);
+
             $validator = Validator::make($request->all(), [
                 'order_number' => 'required|string|unique:payment_orders,order_number',
                 'payment_date' => 'required|date',
@@ -242,6 +252,15 @@ class TreasurerController extends Controller
             }
 
             $user = Auth::user();
+            $user->load('profile');
+            $position = $user->profile ? $user->profile->position : null;
+
+            if ($position !== 'treasurer') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only treasurer can add payment orders'
+                ], 403);
+            }
 
             $paymentOrder = PaymentOrder::create([
                 'application_id' => $id,
@@ -251,6 +270,16 @@ class TreasurerController extends Controller
                 'notes' => $request->notes,
                 'created_by' => $user->id
             ]);
+
+            // Send notification to applicant about the payment order
+            try {
+                if ($this->notificationService) {
+                    $this->notificationService->notifyPaymentOrderCreated($application, $paymentOrder, $user);
+                    Log::info('✅ Payment order notification sent to applicant');
+                }
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to send payment order notification: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
@@ -277,11 +306,13 @@ class TreasurerController extends Controller
     public function getMonthlyCollection(Request $request)
     {
         try {
+            $year = $request->get('year', date('Y'));
             $monthlyData = [];
+            
             for ($month = 1; $month <= 12; $month++) {
                 $totalAssessed = 0;
                 $paymentProofs = \App\Models\PaymentProof::whereMonth('created_at', $month)
-                    ->whereYear('created_at', now()->year)
+                    ->whereYear('created_at', $year)
                     ->whereNotNull('or_link')
                     ->get();
                     
@@ -399,80 +430,4 @@ class TreasurerController extends Controller
             ], 500);
         }
     }
-    public function addPaymentOrder(Request $request, $id)
-{
-    try {
-        Log::info('addPaymentOrder called', ['application_id' => $id]);
-
-        $validator = Validator::make($request->all(), [
-            'order_number' => 'required|string|unique:payment_orders,order_number',
-            'payment_date' => 'required|date',
-            'notes' => 'nullable|string|max:500'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $application = ApplicationDocument::find($id);
-        
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-
-        $user = Auth::user();
-        $user->load('profile');
-        $position = $user->profile ? $user->profile->position : null;
-
-        if ($position !== 'treasurer') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only treasurer can add payment orders'
-            ], 403);
-        }
-
-        $paymentOrder = PaymentOrder::create([
-            'application_id' => $id,
-            'order_number' => $request->order_number,
-            'payment_date' => $request->payment_date,
-            'amount_paid' => 0,
-            'notes' => $request->notes,
-            'created_by' => $user->id
-        ]);
-
-        // Send notification to applicant about the payment order
-        try {
-            $this->notificationService->notifyPaymentOrderCreated($application, $paymentOrder, $user);
-            Log::info('✅ Payment order notification sent to applicant');
-        } catch (\Exception $e) {
-            Log::error('❌ Failed to send payment order notification: ' . $e->getMessage());
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Order number added successfully',
-            'data' => [
-                'id' => $paymentOrder->id,
-                'order_number' => $paymentOrder->order_number,
-                'payment_date' => date('Y-m-d', strtotime($paymentOrder->payment_date)),
-                'notes' => $paymentOrder->notes,
-                'created_by' => $user->first_name . ' ' . $user->last_name,
-                'created_at' => $paymentOrder->created_at->format('Y-m-d H:i:s')
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Error adding payment order: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to add order number: ' . $e->getMessage()
-        ], 500);
-    }
-}
 }
