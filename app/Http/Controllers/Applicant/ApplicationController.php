@@ -26,92 +26,93 @@ class ApplicationController extends Controller
     {
         $this->notificationService = $notificationService;
     }
+/**
+ * Display a listing of the user's applications (for API)
+ */
+public function index()
+{
+    try {
+        $user = Auth::user();
 
-    /**
-     * Display a listing of the user's applications (for API)
-     */
-    public function index()
-    {
-        try {
-            $user = Auth::user();
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated',
-                    'applications' => []
-                ], 401);
-            }
-
-            if (!Schema::hasTable('application_documents')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Database table not found',
-                    'applications' => []
-                ], 500);
-            }
-
-            $applications = ApplicationDocument::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-            
-            $formattedApplications = [];
-            foreach ($applications as $app) {
-                try {
-                    // Get project title
-                    $projectTitle = $app->project_title ?? null;
-                    if (!$projectTitle && $app->data && is_array($app->data)) {
-                        $projectTitle = $app->data['project_title'] ?? null;
-                    }
-                    
-                    $formattedApplications[] = [
-                        'id' => $app->id,
-                        'application_number' => $app->application_number ?? 'Pending',
-                        'has_application_number' => !is_null($app->application_number),
-                        'google_drive_link' => $app->google_drive_link,
-                        'document_links' => $app->document_links,
-                        'status' => $app->status,
-                        'status_display' => $this->formatStatus($app->status),
-                        'rejection_reason' => $app->rejection_reason,
-                        'admin_notes' => $app->admin_notes,
-                        'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
-                        'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
-                        'submitted_at' => $app->submitted_at ? $app->submitted_at->format('Y-m-d H:i:s') : null,
-                        'hard_copy_received' => $app->hard_copy_received ?? false,
-                        'hard_copy_received_at' => $app->hard_copy_received_at ? $app->hard_copy_received_at->format('Y-m-d H:i:s') : null,
-                        'last_updated_by' => $app->last_updated_by,
-                        'project_title' => $projectTitle ?? 'Untitled Project',
-                        'progress' => $this->calculateProgress($app->status),
-                        'architect_name' => $app->architect_name ?? null,
-                        'engineer_name' => $app->engineer_name ?? null,
-                        'electrical_engineer_name' => $app->electrical_engineer_name ?? null,
-                        'sanitary_engineer_name' => $app->sanitary_engineer_name ?? null
-                    ];
-                } catch (\Exception $e) {
-                    Log::error('Error formatting application', [
-                        'application_id' => $app->id,
-                        'error' => $e->getMessage()
-                    ]);
-                    continue;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'applications' => $formattedApplications,
-                'total' => count($formattedApplications)
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in ApplicationController@index: ' . $e->getMessage());
-            
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading applications: ' . $e->getMessage(),
+                'message' => 'User not authenticated',
+                'applications' => []
+            ], 401);
+        }
+
+        if (!Schema::hasTable('application_documents')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Database table not found',
                 'applications' => []
             ], 500);
         }
+
+        $applications = ApplicationDocument::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $formattedApplications = [];
+        foreach ($applications as $app) {
+            try {
+                // Get project title
+                $projectTitle = $app->project_title ?? null;
+                if (!$projectTitle && $app->data && is_array($app->data)) {
+                    $projectTitle = $app->data['project_title'] ?? null;
+                }
+                
+                $formattedApplications[] = [
+                    'id' => $app->id,
+                    'application_number' => $app->application_number ?? 'Pending',
+                    'building_permit_number' => $app->building_permit_number ?? null, // ADD THIS
+                    'has_application_number' => !is_null($app->application_number),
+                    'has_building_permit_number' => !is_null($app->building_permit_number), // ADD THIS
+                    'google_drive_link' => $app->google_drive_link,
+                    'document_links' => $app->document_links,
+                    'status' => $app->status,
+                    'status_display' => $this->formatStatus($app->status),
+                    'rejection_reason' => $app->rejection_reason,
+                    'admin_notes' => $app->admin_notes,
+                    'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
+                    'submitted_at' => $app->submitted_at ? $app->submitted_at->format('Y-m-d H:i:s') : null,
+                    'hard_copy_received' => $app->hard_copy_received ?? false,
+                    'hard_copy_received_at' => $app->hard_copy_received_at ? $app->hard_copy_received_at->format('Y-m-d H:i:s') : null,
+                    'last_updated_by' => $app->last_updated_by,
+                    'project_title' => $projectTitle ?? 'Untitled Project',
+                    'progress' => $this->calculateProgress($app->status),
+                    'architect_name' => $app->architect_name ?? null,
+                    'engineer_name' => $app->engineer_name ?? null,
+                    'electrical_engineer_name' => $app->electrical_engineer_name ?? null,
+                    'sanitary_engineer_name' => $app->sanitary_engineer_name ?? null
+                ];
+            } catch (\Exception $e) {
+                Log::error('Error formatting application', [
+                    'application_id' => $app->id,
+                    'error' => $e->getMessage()
+                ]);
+                continue;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'applications' => $formattedApplications,
+            'total' => count($formattedApplications)
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error in ApplicationController@index: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading applications: ' . $e->getMessage(),
+            'applications' => []
+        ], 500);
     }
+}
 
     /**
      * Get application statistics
@@ -181,91 +182,105 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Get application details for a specific application
-     */
-    public function show($id)
-    {
-        try {
-            $user = Auth::user();
+ * Get application details for a specific application
+ */
+public function show($id)
+{
+    try {
+        $user = Auth::user();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
-            }
-            
-            $application = ApplicationDocument::where('user_id', $user->id)
-                ->where('id', $id)
-                ->first();
-
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            $lastUpdatedBy = null;
-            if ($application->last_updated_by) {
-                $lastUpdatedBy = User::find($application->last_updated_by);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $application->id,
-                    'application_number' => $application->application_number,
-                    'google_drive_link' => $application->google_drive_link,
-                    'document_links' => $application->document_links,
-                    'status' => $application->status,
-                    'status_display' => $this->formatStatus($application->status),
-                    'rejection_reason' => $application->rejection_reason,
-                    'admin_notes' => $application->admin_notes,
-                    'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
-                    'submitted_at' => $application->submitted_at ? $application->submitted_at->format('Y-m-d H:i:s') : null,
-                    'hard_copy_received' => $application->hard_copy_received ?? false,
-                    'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
-                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
-                    'hard_copy_status' => $this->getHardCopyStatus($application),
-                    'progress' => $this->calculateProgress($application->status),
-                    'last_updated_by' => $application->last_updated_by,
-                    'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
-                    // Project information from direct columns
-                    'project_title' => $application->project_title ?? null,
-                    'project_location' => $application->project_location ?? null,
-                    'project_type' => $application->project_type ?? null,
-                    'lot_area' => $application->lot_area ?? null,
-                    'floor_area' => $application->floor_area ?? null,
-                    'num_floors' => $application->num_floors ?? null,
-                    'estimated_cost' => $application->estimated_cost ?? null,
-                    'project_description' => $application->project_description ?? null,
-                    'owner_name' => $application->owner_name ?? null,
-                    'owner_address' => $application->owner_address ?? null,
-                    'contact_number' => $application->contact_number ?? null,
-                    'owner_email' => $application->owner_email ?? null,
-                    // Professional Information
-                    'architect_name' => $application->architect_name ?? null,
-                    'architect_license' => $application->architect_license ?? null,
-                    'engineer_name' => $application->engineer_name ?? null,
-                    'engineer_license' => $application->engineer_license ?? null,
-                    'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
-                    'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
-                    'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
-                    'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in ApplicationController@show: ' . $e->getMessage());
-            
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading application details: ' . $e->getMessage()
-            ], 500);
+                'message' => 'User not authenticated'
+            ], 401);
         }
+        
+        $application = ApplicationDocument::where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+
+        $lastUpdatedBy = null;
+        if ($application->last_updated_by) {
+            $lastUpdatedBy = User::find($application->last_updated_by);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $application->id,
+                'application_number' => $application->application_number,
+                'building_permit_number' => $application->building_permit_number, // ADD THIS
+                'permit_remarks' => $application->permit_remarks, // ADD THIS
+                'google_drive_link' => $application->google_drive_link,
+                'document_links' => $application->document_links,
+                'status' => $application->status,
+                'status_display' => $this->formatStatus($application->status),
+                'rejection_reason' => $application->rejection_reason,
+                'admin_notes' => $application->admin_notes,
+                'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
+                'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
+                'submitted_at' => $application->submitted_at ? $application->submitted_at->format('Y-m-d H:i:s') : null,
+                'hard_copy_received' => $application->hard_copy_received ?? false,
+                'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
+                'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
+                'hard_copy_status' => $this->getHardCopyStatus($application),
+                'progress' => $this->calculateProgress($application->status),
+                'last_updated_by' => $application->last_updated_by,
+                'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
+                // Project information from direct columns
+                'project_title' => $application->project_title ?? null,
+                'project_location' => $application->project_location ?? null,
+                'project_type' => $application->project_type ?? null,
+                'lot_area' => $application->lot_area ?? null,
+                'floor_area' => $application->floor_area ?? null,
+                'num_floors' => $application->num_floors ?? null,
+                'estimated_cost' => $application->estimated_cost ?? null,
+                'project_description' => $application->project_description ?? null,
+                'owner_name' => $application->owner_name ?? null,
+                'owner_address' => $application->owner_address ?? null,
+                'contact_number' => $application->contact_number ?? null,
+                'owner_email' => $application->owner_email ?? null,
+                // Professional Information
+                'architect_name' => $application->architect_name ?? null,
+                'architect_license' => $application->architect_license ?? null,
+                'engineer_name' => $application->engineer_name ?? null,
+                'engineer_license' => $application->engineer_license ?? null,
+                'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
+                'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
+                'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
+                'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
+                // CPDO Status
+                'cpdo_status' => $application->cpdo_status ?? 'pending',
+                'cpdo_remarks' => $application->cpdo_remarks ?? null,
+                'cpdo_approved_at' => $application->cpdo_approved_at ?? null,
+                'cpdo_approved_by' => $application->cpdo_approved_by ?? null,
+                // Step completions
+                'step1_completed' => $application->step1_completed ?? false,
+                'step2_completed' => $application->step2_completed ?? false,
+                'step3_completed' => $application->step3_completed ?? false,
+                'step1_completed_at' => $application->step1_completed_at ?? null,
+                'step2_completed_at' => $application->step2_completed_at ?? null,
+                'step3_completed_at' => $application->step3_completed_at ?? null
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error in ApplicationController@show: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading application details: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Check if application number exists

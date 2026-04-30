@@ -177,48 +177,54 @@
             </div>
         </div>
 
-        <!-- Application Header -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
-                        BP
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-3 mb-3">
-                            <h1 id="project-title" class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
-                            <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
-                        </div>
-                        
-                        <div class="flex flex-wrap items-center gap-4 text-sm">
-                            <div class="flex flex-col">
-                                <span class="text-xs text-gray-400">Application Number</span>
-                                <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
-                            </div>
-                            <span class="text-gray-300 hidden sm:inline">|</span>
-                            <div class="flex flex-col">
-                                <span class="text-xs text-gray-400">Submitted</span>
-                                <span id="submitted-date" class="font-medium text-gray-700"></span>
-                            </div>
-                            <span class="text-gray-300 hidden sm:inline">|</span>
-                            <div class="flex flex-col">
-                                <span class="text-xs text-gray-400">Last Updated</span>
-                                <span id="updated-date" class="font-medium text-gray-700"></span>
-                            </div>
-                        </div>
-                    </div>
+       <!-- Application Header -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
+                BP
+            </div>
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <h1 id="project-title" class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
+                    <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                 </div>
                 
-                <div class="flex gap-2">
-                    <button onclick="downloadApplicationSummary()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download Summary
-                    </button>
+                <div class="flex flex-wrap items-center gap-4 text-sm">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400">Application Number</span>
+                        <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
+                    </div>
+                    <span class="text-gray-300 hidden sm:inline">|</span>
+                    <!-- ADD BUILDING PERMIT NUMBER DISPLAY HERE -->
+                    <div id="building-permit-container" class="flex flex-col" style="display: none;">
+                        <span class="text-xs text-gray-400">Building Permit Number</span>
+                        <span id="building-permit-number-display" class="font-mono font-bold text-green-600 text-sm"></span>
+                    </div>
+                    <span class="text-gray-300 hidden sm:inline">|</span>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400">Submitted</span>
+                        <span id="submitted-date" class="font-medium text-gray-700"></span>
+                    </div>
+                    <span class="text-gray-300 hidden sm:inline">|</span>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400">Last Updated</span>
+                        <span id="updated-date" class="font-medium text-gray-700"></span>
+                    </div>
                 </div>
             </div>
         </div>
+        
+        <div class="flex gap-2">
+            <button onclick="downloadApplicationSummary()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Summary
+            </button>
+        </div>
+    </div>
+</div>
 
         <!-- Progress Timeline -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
@@ -916,7 +922,12 @@
                                 <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                             </div>
                         </div>
-
+   <!-- ADD BUILDING PERMIT NUMBER IN STATUS CARD -->
+        <div id="status-card-building-permit" class="flex items-center justify-between pt-2 border-t border-gray-100 hidden">
+            <span class="text-sm text-gray-600">Building Permit No.:</span>
+            <span id="status-card-permit-number" class="text-sm font-bold text-green-600 font-mono"></span>
+        </div>
+    </div>
                         <!-- Assessment Fee Card -->
                         <div id="assessment-fee-card" class="mt-4 p-3 bg-indigo-50 rounded-lg hidden transition-all duration-500">
                             <div class="flex items-center justify-between mb-2">
@@ -2024,45 +2035,48 @@ async function loadPaymentOrder() {
     }
 
     // ========== DISPLAY FUNCTIONS ==========
-    function displayApplicationDetails() {
-        if (!currentApplication) return;
-        
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('application-content').classList.remove('hidden');
+   function displayApplicationDetails() {
+    if (!currentApplication) return;
+    
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('application-content').classList.remove('hidden');
 
-        displayProjectInfo(currentApplication);
+    displayProjectInfo(currentApplication);
 
-        document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
-        
-        if (currentApplication.submitted_at || currentApplication.created_at) {
-            const submittedDate = new Date((currentApplication.submitted_at || currentApplication.created_at) + ' UTC');
-            document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
-                year: 'numeric', month: 'long', day: 'numeric' 
-            });
-            document.getElementById('step-submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
-                month: 'short', day: 'numeric' 
-            });
-        }
-        
-        if (currentApplication.updated_at) {
-            const updatedDate = new Date(currentApplication.updated_at + ' UTC');
-            document.getElementById('updated-date').textContent = updatedDate.toLocaleDateString('en-US', { 
-                year: 'numeric', month: 'long', day: 'numeric' 
-            });
-        }
-
-        updateStatusUI(currentApplication.status);
-        updateTimeline(currentApplication.status);
-        updateProgress(currentApplication.status);
-        displayHardCopySubmissionInfo(currentApplication);
-        updateHardCopyStatus(currentApplication.hard_copy_received);
-
-        if (currentApplication.status === 'document-verification') {
-            showDocumentVerificationStatus(true);
-        } else {
-            showDocumentVerificationStatus(false);
-        }
+    document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
+    
+    // Display Building Permit Number
+    displayBuildingPermitNumber();
+    
+    if (currentApplication.submitted_at || currentApplication.created_at) {
+        const submittedDate = new Date((currentApplication.submitted_at || currentApplication.created_at) + ' UTC');
+        document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', month: 'long', day: 'numeric' 
+        });
+        document.getElementById('step-submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
+            month: 'short', day: 'numeric' 
+        });
     }
+    
+    if (currentApplication.updated_at) {
+        const updatedDate = new Date(currentApplication.updated_at + ' UTC');
+        document.getElementById('updated-date').textContent = updatedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', month: 'long', day: 'numeric' 
+        });
+    }
+
+    updateStatusUI(currentApplication.status);
+    updateTimeline(currentApplication.status);
+    updateProgress(currentApplication.status);
+    displayHardCopySubmissionInfo(currentApplication);
+    updateHardCopyStatus(currentApplication.hard_copy_received);
+
+    if (currentApplication.status === 'document-verification') {
+        showDocumentVerificationStatus(true);
+    } else {
+        showDocumentVerificationStatus(false);
+    }
+}
 
     function displayProjectInfo(app) {
         document.getElementById('info-project-title').textContent = app.project_title || 'Not provided';
@@ -3051,7 +3065,33 @@ async function loadPaymentOrder() {
         if (activities.length > 3) html += `<div class="text-center text-xs text-gray-400 pt-2">+${activities.length - 3} more activities</div>`;
         activityLog.innerHTML = html;
     }
-
+// Display Building Permit Number
+function displayBuildingPermitNumber() {
+    if (currentApplication && currentApplication.building_permit_number) {
+        const permitContainer = document.getElementById('building-permit-container');
+        const permitNumberSpan = document.getElementById('building-permit-number-display');
+        const statusCardPermit = document.getElementById('status-card-building-permit');
+        const statusCardPermitNumber = document.getElementById('status-card-permit-number');
+        
+        if (permitContainer) {
+            permitContainer.style.display = 'flex';
+            permitNumberSpan.textContent = currentApplication.building_permit_number;
+        }
+        
+        if (statusCardPermit && statusCardPermitNumber) {
+            statusCardPermit.classList.remove('hidden');
+            statusCardPermitNumber.textContent = currentApplication.building_permit_number;
+        }
+        
+        console.log('Building Permit Number displayed:', currentApplication.building_permit_number);
+    } else {
+        const permitContainer = document.getElementById('building-permit-container');
+        const statusCardPermit = document.getElementById('status-card-building-permit');
+        
+        if (permitContainer) permitContainer.style.display = 'none';
+        if (statusCardPermit) statusCardPermit.classList.add('hidden');
+    }
+}
     function displayAllReviewers(activities) {
         const reviewersContainer = document.getElementById('reviewers-container');
         const reviewerCountSpan = document.getElementById('reviewer-count');
@@ -3271,29 +3311,49 @@ async function loadPaymentOrder() {
         if (content.classList.contains('hidden')) { content.classList.remove('hidden'); chevron.style.transform = 'rotate(180deg)'; }
         else { content.classList.add('hidden'); chevron.style.transform = 'rotate(0deg)'; }
     }
-
-    function downloadApplicationSummary() {
-        if (!currentApplication) { showErrorModal('No application data to download'); return; }
-        let summary = `BUILDING PERMIT APPLICATION SUMMARY\n================================\n\nApplication Number: ${currentApplication.application_number || 'N/A'}\nStatus: ${formatStatusDisplay(currentApplication.status)}\nSubmitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
-        if (currentApplication.hardcopy_submission_date) {
-            summary += `HARD COPY SUBMISSION SCHEDULE\n=============================\nSubmission Date: ${currentApplication.hardcopy_submission_date}\n${currentApplication.hardcopy_instructions ? `Instructions: ${currentApplication.hardcopy_instructions}\n` : ''}\n`;
-        }
-        summary += `PROJECT INFORMATION\n------------------\nTitle: ${currentApplication.project_title || 'N/A'}\nType: ${currentApplication.project_type || 'N/A'}\nLocation: ${currentApplication.project_location || 'N/A'}\nLot Area: ${currentApplication.lot_area ? currentApplication.lot_area + ' sqm' : 'N/A'}\nFloor Area: ${currentApplication.floor_area ? currentApplication.floor_area + ' sqm' : 'N/A'}\nFloors: ${currentApplication.num_floors || 'N/A'}\nEstimated Cost: ${currentApplication.estimated_cost ? '₱' + parseFloat(currentApplication.estimated_cost).toLocaleString() : 'N/A'}\n\nOWNER INFORMATION\n-----------------\nName: ${currentApplication.owner_name || 'N/A'}\nContact: ${currentApplication.contact_number || 'N/A'}\nEmail: ${currentApplication.owner_email || 'N/A'}\n\n`;
-        if (currentAssessment && currentAssessment.total_amount) summary += `BUILDING PERMIT FEE ASSESSMENT\n-----------------------------\nTotal Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
-        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount) summary += `CPDO FEE ASSESSMENT\n-------------------\nTotal CPDO Fees: ₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString()}\n${currentCPDOAssessment.assessment_date ? `Assessment Date: ${currentCPDOAssessment.assessment_date}\n` : ''}\n`;
-        if (cpdoStatus) summary += `CPDO STATUS\n-----------\nStatus: ${cpdoStatus.toUpperCase()}\n${cpdoRemarks ? `Remarks: ${cpdoRemarks}\n` : ''}\n`;
-        summary += `Generated on: ${new Date().toLocaleString()}\n`;
-        const blob = new Blob([summary], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `application_${currentApplication.application_number || 'summary'}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showSuccessModal('Application summary downloaded!');
+function showBuildingPermitNotification(permitNumber) {
+    const notification = document.getElementById('update-notification');
+    const messageSpan = document.getElementById('notification-message');
+    if (notification && messageSpan) {
+        messageSpan.innerHTML = `🎉 Building Permit #${permitNumber} has been issued! 🎉`;
+        notification.classList.add('bg-green-600');
+        notification.style.transform = 'translateY(0)';
+        setTimeout(() => { 
+            notification.style.transform = 'translateY(-100px)';
+            notification.classList.remove('bg-green-600');
+        }, 8000);
     }
+}
+    function downloadApplicationSummary() {
+    if (!currentApplication) { showErrorModal('No application data to download'); return; }
+    let summary = `BUILDING PERMIT APPLICATION SUMMARY\n================================\n\nApplication Number: ${currentApplication.application_number || 'N/A'}\n`;
+    
+    // Add Building Permit Number if available
+    if (currentApplication.building_permit_number) {
+        summary += `Building Permit Number: ${currentApplication.building_permit_number}\n`;
+    }
+    
+    summary += `Status: ${formatStatusDisplay(currentApplication.status)}\nSubmitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
+    
+    if (currentApplication.hardcopy_submission_date) {
+        summary += `HARD COPY SUBMISSION SCHEDULE\n=============================\nSubmission Date: ${currentApplication.hardcopy_submission_date}\n${currentApplication.hardcopy_instructions ? `Instructions: ${currentApplication.hardcopy_instructions}\n` : ''}\n`;
+    }
+    summary += `PROJECT INFORMATION\n------------------\nTitle: ${currentApplication.project_title || 'N/A'}\nType: ${currentApplication.project_type || 'N/A'}\nLocation: ${currentApplication.project_location || 'N/A'}\nLot Area: ${currentApplication.lot_area ? currentApplication.lot_area + ' sqm' : 'N/A'}\nFloor Area: ${currentApplication.floor_area ? currentApplication.floor_area + ' sqm' : 'N/A'}\nFloors: ${currentApplication.num_floors || 'N/A'}\nEstimated Cost: ${currentApplication.estimated_cost ? '₱' + parseFloat(currentApplication.estimated_cost).toLocaleString() : 'N/A'}\n\nOWNER INFORMATION\n-----------------\nName: ${currentApplication.owner_name || 'N/A'}\nContact: ${currentApplication.contact_number || 'N/A'}\nEmail: ${currentApplication.owner_email || 'N/A'}\n\n`;
+    if (currentAssessment && currentAssessment.total_amount) summary += `BUILDING PERMIT FEE ASSESSMENT\n-----------------------------\nTotal Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
+    if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount) summary += `CPDO FEE ASSESSMENT\n-------------------\nTotal CPDO Fees: ₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString()}\n${currentCPDOAssessment.assessment_date ? `Assessment Date: ${currentCPDOAssessment.assessment_date}\n` : ''}\n`;
+    if (cpdoStatus) summary += `CPDO STATUS\n-----------\nStatus: ${cpdoStatus.toUpperCase()}\n${cpdoRemarks ? `Remarks: ${cpdoRemarks}\n` : ''}\n`;
+    summary += `Generated on: ${new Date().toLocaleString()}\n`;
+    const blob = new Blob([summary], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `application_${currentApplication.application_number || 'summary'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showSuccessModal('Application summary downloaded!');
+}
 
     function viewFullHistory() {
         if (applicationId) window.location.href = `/applicant/applications/${applicationId}/activity-history`;
@@ -3329,28 +3389,41 @@ async function loadPaymentOrder() {
         }, 1000);
     }
 
-    async function checkForUpdates() {
-        if (!applicationId) return;
-        try {
-            const response = await fetch(`/applicant/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' } });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    const newApplication = data.data;
-                    if (previousStatus && previousStatus !== newApplication.status) {
-                        showUpdateNotification('Application status updated to ' + formatStatusDisplay(newApplication.status));
-                        animateStatusChange();
-                        if (newApplication.status === 'document-verification') showDocumentVerificationAlert();
-                        if (previousStatus === 'document-verification' && newApplication.status === 'approved') showUpdateNotification('Documents have been verified and approved!');
-                    }
-                    currentApplication = newApplication;
-                    displayApplicationDetails();
-                    if (previousStatus !== newApplication.status) loadReviewActivities();
-                    previousStatus = newApplication.status;
+   async function checkForUpdates() {
+    if (!applicationId) return;
+    try {
+        const response = await fetch(`/applicant/applications/${applicationId}`, { 
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' } 
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                const newApplication = data.data;
+                
+                // Check if building permit number was added
+                const oldPermitNumber = currentApplication ? currentApplication.building_permit_number : null;
+                const newPermitNumber = newApplication.building_permit_number;
+                
+                if (oldPermitNumber !== newPermitNumber && newPermitNumber) {
+                    showBuildingPermitNotification(newPermitNumber);
+                    showGlobalSuccess(`Building Permit #${newPermitNumber} has been issued for your application!`, 'Permit Issued!');
                 }
+                
+                if (previousStatus && previousStatus !== newApplication.status) {
+                    showUpdateNotification('Application status updated to ' + formatStatusDisplay(newApplication.status));
+                    animateStatusChange();
+                    if (newApplication.status === 'document-verification') showDocumentVerificationAlert();
+                    if (previousStatus === 'document-verification' && newApplication.status === 'approved') showUpdateNotification('Documents have been verified and approved!');
+                }
+                
+                currentApplication = newApplication;
+                displayApplicationDetails();
+                if (previousStatus !== newApplication.status) loadReviewActivities();
+                previousStatus = newApplication.status;
             }
-        } catch (error) { console.error('Error checking for updates:', error); }
-    }
+        }
+    } catch (error) { console.error('Error checking for updates:', error); }
+}
 
     function startRealTimeUpdates() { updateCheckInterval = setInterval(checkForUpdates, 30000); }
 

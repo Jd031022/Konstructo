@@ -1865,106 +1865,148 @@ HTML;
         };
     }
 
-    /**
-     * Get status email content
-     */
-    private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId, $additionalData = [])
-    {
-        $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
-        $statusDisplay = ucfirst(str_replace('-', ' ', $status));
+   /**
+ * Get status email content
+ */
+private function getStatusEmailContent($status, $applicationNumber, $applicantName, $applicationId, $additionalData = [])
+{
+    $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+    $statusDisplay = ucfirst(str_replace('-', ' ', $status));
+    
+    $statusColors = [
+        'approved' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
+        'rejected' => ['bg' => '#EF4444', 'light' => '#FEE2E2'],
+        'pending' => ['bg' => '#F59E0B', 'light' => '#FEF3C7'],
+        'under-review' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE'],
+        'for-release' => ['bg' => '#3B82F6', 'light' => '#DBEAFE'],
+        'verified' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
+        'document-verification' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE']
+    ];
+    
+    $color = $statusColors[$status] ?? ['bg' => '#6B7280', 'light' => '#F3F4F6'];
+    
+    $additionalContent = '';
+    
+    // For APPROVED status - Hard copy submission info
+    if ($status === 'approved' && !empty($additionalData)) {
+        $submissionDate = $additionalData['hardcopy_submission_date'] ?? null;
+        $instructions = $additionalData['hardcopy_instructions'] ?? null;
         
-        $statusColors = [
-            'approved' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
-            'rejected' => ['bg' => '#EF4444', 'light' => '#FEE2E2'],
-            'pending' => ['bg' => '#F59E0B', 'light' => '#FEF3C7'],
-            'under-review' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE'],
-            'for-release' => ['bg' => '#3B82F6', 'light' => '#DBEAFE'],
-            'verified' => ['bg' => '#10B981', 'light' => '#D1FAE5'],
-            'document-verification' => ['bg' => '#8B5CF6', 'light' => '#EDE9FE']
-        ];
-        
-        $color = $statusColors[$status] ?? ['bg' => '#6B7280', 'light' => '#F3F4F6'];
-        
-        $additionalContent = '';
-        if ($status === 'approved' && !empty($additionalData)) {
-            $submissionDate = $additionalData['hardcopy_submission_date'] ?? null;
-            $instructions = $additionalData['hardcopy_instructions'] ?? null;
+        if ($submissionDate || $instructions) {
+            $additionalContent .= '
+                <div class="hardcopy-info" style="background-color: #e0e7ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4338ca;">
+                    <h3 style="margin: 0 0 10px 0; color: #4338ca; font-size: 16px;">📄 Hard Copy Submission Required</h3>';
             
-            if ($submissionDate || $instructions) {
-                $additionalContent = '
-                    <div class="hardcopy-info" style="background-color: #e0e7ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #4338ca;">
-                        <h3 style="margin: 0 0 10px 0; color: #4338ca; font-size: 16px;">📄 Hard Copy Submission Required</h3>';
-                
-                if ($submissionDate) {
-                    $additionalContent .= '<p style="margin: 5px 0;"><strong>Submission Date:</strong> ' . htmlspecialchars($submissionDate) . '</p>';
-                }
-                
-                if ($instructions) {
-                    $additionalContent .= '<p style="margin: 5px 0;"><strong>Instructions:</strong> ' . nl2br(htmlspecialchars($instructions)) . '</p>';
-                }
-                
-                $additionalContent .= '
+            if ($submissionDate) {
+                $additionalContent .= '<p style="margin: 5px 0;"><strong>Submission Date:</strong> ' . htmlspecialchars($submissionDate) . '</p>';
+            }
+            
+            if ($instructions) {
+                $additionalContent .= '<p style="margin: 5px 0;"><strong>Instructions:</strong> ' . nl2br(htmlspecialchars($instructions)) . '</p>';
+            }
+            
+            $additionalContent .= '
                         <p style="margin-top: 10px; font-size: 13px; color: #4338ca;">Please bring the required hard copies on the specified date.</p>
                     </div>';
+        }
+    }
+    
+    // FOR FOR-RELEASE STATUS - Include Building Permit Number
+    if ($status === 'for-release') {
+        $buildingPermitNumber = $additionalData['building_permit_number'] ?? null;
+        
+        if ($buildingPermitNumber) {
+            // Format the permit number with dashes for better readability (e.g., BP-2024-001234)
+            $formattedPermitNumber = $buildingPermitNumber;
+            if (strlen($buildingPermitNumber) === 10) {
+                $formattedPermitNumber = substr($buildingPermitNumber, 0, 2) . '-' . 
+                                        substr($buildingPermitNumber, 2, 4) . '-' . 
+                                        substr($buildingPermitNumber, 6, 4);
             }
+            
+            $additionalContent .= '
+                <div class="permit-number-box" style="background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0; border: 1px solid #3b82f6;">
+                    <div style="font-size: 12px; color: #93c5fd; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">🏗️ OFFICIAL BUILDING PERMIT NUMBER</div>
+                    <div style="font-size: 28px; font-weight: bold; font-family: monospace; color: #ffffff; letter-spacing: 2px;">' . htmlspecialchars($formattedPermitNumber) . '</div>
+                    <div style="font-size: 11px; color: #93c5fd; margin-top: 10px;">This is your official building permit number. Please keep this for your records.</div>
+                </div>';
         }
         
-        return "
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
-                    .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-                    .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
-                    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-                    .content { padding: 40px 30px; background-color: #ffffff; }
-                    .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
-                    .status-badge { background-color: {$color['light']}; color: {$color['bg']}; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid {$color['bg']}20; }
-                    .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
-                    .button:hover { opacity: 0.9; transform: translateY(-2px); }
-                    .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
-                    .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
-                    .brand-name { font-weight: 600; color: #155386; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>Application Status Update</h1>
-                    </div>
-                    <div class='content'>
-                        <div class='greeting'>Dear {$applicantName},</div>
-                        
-                        <p>Your building permit application <strong>#{$applicationNumber}</strong> has received a status update.</p>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span class='status-badge'>Current Status: {$statusDisplay}</span>
-                        </div>
-                        
-                        {$additionalContent}
-                        
-                        <div style='text-align: center;'>
-                            <a href='{$appUrl}' class='button'>View Application</a>
-                        </div>
-                        
-                        <div class='divider'></div>
-                        
-                        <p style='font-size: 14px; color: #6c757d; text-align: center;'>
-                            Thank you for using Konstructo.
-                        </p>
-                    </div>
-                    <div class='footer'>
-                        <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
-                        <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ";
+        $additionalContent .= '
+            <div class="release-instructions" style="background-color: #e0e7ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #3b82f6;">
+                <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">📋 Permit Release Instructions</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #1e3a8a;">
+                    <li>Your building permit is now ready for release</li>
+                    <li>Please visit the Office of the Building Official (OBO) to claim your permit</li>
+                    <li>Bring a printed copy of this email or your application number for reference</li>
+                    <li>Bring valid government-issued ID for verification</li>
+                </ul>
+            </div>';
     }
+    
+    $formattedNumber = $applicationNumber;
+    if (strlen($applicationNumber) === 10) {
+        $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                          substr($applicationNumber, 2, 4) . '-' . 
+                          substr($applicationNumber, 6, 4);
+    }
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+            .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .content { padding: 40px 30px; background-color: #ffffff; }
+            .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+            .status-badge { background-color: {$color['light']}; color: {$color['bg']}; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid {$color['bg']}20; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Application Status Update</h1>
+            </div>
+            <div class='content'>
+                <div class='greeting'>Dear {$applicantName},</div>
+                
+                <p>Your building permit application <strong>#{$formattedNumber}</strong> has received a status update.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='status-badge'>Current Status: {$statusDisplay}</span>
+                </div>
+                
+                {$additionalContent}
+                
+                <div style='text-align: center;'>
+                    <a href='{$appUrl}' class='button'>View Application</a>
+                </div>
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                    Thank you for using Konstructo.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
 
     /**
      * Get missing documents email content

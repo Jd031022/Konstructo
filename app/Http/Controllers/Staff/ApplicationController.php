@@ -664,120 +664,121 @@ public function uploadCertificate(Request $request, $id)
             ], 500);
         }
     }
-
-    /**
-     * Get a single application details
-     */
-    public function show($id)
-    {
-        try {
-            Log::info('Fetching application details for ID: ' . $id);
-            
-            $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
-                ->where('is_archived', false)
-                ->whereIn('status', [
-                    'pending', 
-                    'under-review', 
-                    'document-verification',
-                    'for-assessment',
-                    'approved', 
-                    'rejected', 
-                    'for-release', 
-                    'verified'
-                ])
-                ->find($id);
-            
-            if (!$application) {
-                Log::error('Application not found for ID: ' . $id);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-            
-            $lastUpdatedBy = null;
-            if ($application->last_updated_by) {
-                $lastUpdatedBy = User::find($application->last_updated_by);
-            }
-            
-            // Format currency values
-            $estimatedCost = $application->estimated_cost ? '₱ ' . number_format($application->estimated_cost, 2) : null;
-            $lotArea = $application->lot_area ? number_format($application->lot_area, 2) . ' sqm' : null;
-            $floorArea = $application->floor_area ? number_format($application->floor_area, 2) . ' sqm' : null;
-            
-            // Get CPDO status from application
-            $cpdoStatus = $application->cpdo_status ?? 'pending';
-            $cpdoRemarks = $application->cpdo_remarks ?? null;
-            
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $application->id,
-                    'application_number' => $application->application_number,
-                    'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown',
-                    'email' => $application->user ? $application->user->email : null,
-                    'phone' => $application->user ? $application->user->phone_number : null,
-                    'address' => $application->user ? $application->user->address : null,
-                    'google_drive_link' => $application->google_drive_link,
-                    'document_links' => $application->document_links,
-                    'status' => $application->status,
-                    'rejection_reason' => $application->rejection_reason,
-                    'admin_notes' => $application->admin_notes,
-                    'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
-                    'hard_copy_received' => $application->hard_copy_received ?? false,
-                    'last_updated_by' => $application->last_updated_by,
-                    'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
-                    'last_updated_by_role' => $lastUpdatedBy ? $lastUpdatedBy->role : null,
-                    'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
-                    'last_updated_by_initials' => $lastUpdatedBy ? 
-                        strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST',
-                    'is_archived' => $application->is_archived,
-                    // Project Information Fields
-                    'project_title' => $application->project_title ?? null,
-                    'project_location' => $application->project_location ?? null,
-                    'project_type' => $application->project_type ?? null,
-                    'project_description' => $application->project_description ?? null,
-                    'lot_area' => $application->lot_area ?? null,
-                    'lot_area_formatted' => $lotArea,
-                    'floor_area' => $application->floor_area ?? null,
-                    'floor_area_formatted' => $floorArea,
-                    'num_floors' => $application->num_floors ?? null,
-                    'estimated_cost' => $application->estimated_cost ?? null,
-                    'estimated_cost_formatted' => $estimatedCost,
-                    // Owner Information
-                    'owner_name' => $application->owner_name ?? null,
-                    'owner_address' => $application->owner_address ?? null,
-                    'contact_number' => $application->contact_number ?? null,
-                    'owner_email' => $application->owner_email ?? null,
-                    // Professional Information
-                    'architect_name' => $application->architect_name ?? null,
-                    'architect_license' => $application->architect_license ?? null,
-                    'engineer_name' => $application->engineer_name ?? null,
-                    'engineer_license' => $application->engineer_license ?? null,
-                    'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
-                    'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
-                    'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
-                    'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
-                    // Hard Copy Submission Details
-                    'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
-                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
-                    // CPDO Status
-                    'cpdo_status' => $cpdoStatus,
-                    'cpdo_remarks' => $cpdoRemarks
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error loading application details: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+/**
+ * Get a single application details
+ */
+public function show($id)
+{
+    try {
+        Log::info('Fetching application details for ID: ' . $id);
+        
+        $application = ApplicationDocument::with(['user', 'lastUpdatedBy'])
+            ->where('is_archived', false)
+            ->whereIn('status', [
+                'pending', 
+                'under-review', 
+                'document-verification',
+                'for-assessment',
+                'approved', 
+                'rejected', 
+                'for-release', 
+                'verified'
+            ])
+            ->find($id);
+        
+        if (!$application) {
+            Log::error('Application not found for ID: ' . $id);
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading application details: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Application not found'
+            ], 404);
         }
+        
+        $lastUpdatedBy = null;
+        if ($application->last_updated_by) {
+            $lastUpdatedBy = User::find($application->last_updated_by);
+        }
+        
+        // Format currency values
+        $estimatedCost = $application->estimated_cost ? '₱ ' . number_format($application->estimated_cost, 2) : null;
+        $lotArea = $application->lot_area ? number_format($application->lot_area, 2) . ' sqm' : null;
+        $floorArea = $application->floor_area ? number_format($application->floor_area, 2) . ' sqm' : null;
+        
+        // Get CPDO status from application
+        $cpdoStatus = $application->cpdo_status ?? 'pending';
+        $cpdoRemarks = $application->cpdo_remarks ?? null;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $application->id,
+                'application_number' => $application->application_number,
+                'building_permit_number' => $application->building_permit_number, // ADD THIS
+                'permit_remarks' => $application->permit_remarks, // ADD THIS
+                'applicant_name' => $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'Unknown',
+                'email' => $application->user ? $application->user->email : null,
+                'phone' => $application->user ? $application->user->phone_number : null,
+                'address' => $application->user ? $application->user->address : null,
+                'google_drive_link' => $application->google_drive_link,
+                'document_links' => $application->document_links,
+                'status' => $application->status,
+                'rejection_reason' => $application->rejection_reason,
+                'admin_notes' => $application->admin_notes,
+                'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
+                'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
+                'hard_copy_received' => $application->hard_copy_received ?? false,
+                'last_updated_by' => $application->last_updated_by,
+                'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
+                'last_updated_by_role' => $lastUpdatedBy ? $lastUpdatedBy->role : null,
+                'last_updated_by_email' => $lastUpdatedBy ? $lastUpdatedBy->email : null,
+                'last_updated_by_initials' => $lastUpdatedBy ? 
+                    strtoupper(substr($lastUpdatedBy->first_name, 0, 1) . substr($lastUpdatedBy->last_name, 0, 1)) : 'ST',
+                'is_archived' => $application->is_archived,
+                // Project Information Fields
+                'project_title' => $application->project_title ?? null,
+                'project_location' => $application->project_location ?? null,
+                'project_type' => $application->project_type ?? null,
+                'project_description' => $application->project_description ?? null,
+                'lot_area' => $application->lot_area ?? null,
+                'lot_area_formatted' => $lotArea,
+                'floor_area' => $application->floor_area ?? null,
+                'floor_area_formatted' => $floorArea,
+                'num_floors' => $application->num_floors ?? null,
+                'estimated_cost' => $application->estimated_cost ?? null,
+                'estimated_cost_formatted' => $estimatedCost,
+                // Owner Information
+                'owner_name' => $application->owner_name ?? null,
+                'owner_address' => $application->owner_address ?? null,
+                'contact_number' => $application->contact_number ?? null,
+                'owner_email' => $application->owner_email ?? null,
+                // Professional Information
+                'architect_name' => $application->architect_name ?? null,
+                'architect_license' => $application->architect_license ?? null,
+                'engineer_name' => $application->engineer_name ?? null,
+                'engineer_license' => $application->engineer_license ?? null,
+                'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
+                'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
+                'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
+                'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
+                // Hard Copy Submission Details
+                'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
+                'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
+                // CPDO Status
+                'cpdo_status' => $cpdoStatus,
+                'cpdo_remarks' => $cpdoRemarks
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error loading application details: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading application details: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Get CPDO status for an application
@@ -1408,369 +1409,388 @@ public function saveCPDOAssessment(Request $request, $id)
     }
 
     /**
-     * Update application status
-     */
-    public function updateStatus(Request $request, $id)
-    {
-        Log::info('========== UPDATE STATUS START ==========');
-        Log::info('updateStatus called', [
-            'application_id' => $id,
-            'status' => $request->status,
-            'hardcopy_received' => $request->hardcopy_received,
-            'remarks' => $request->remarks,
-            'hardcopy_submission_date' => $request->hardcopy_submission_date,
-            'hardcopy_instructions' => $request->hardcopy_instructions,
-            'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
-            'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
-        ]);
+ * Update application status
+ */
+public function updateStatus(Request $request, $id)
+{
+    Log::info('========== UPDATE STATUS START ==========');
+    Log::info('updateStatus called', [
+        'application_id' => $id,
+        'status' => $request->status,
+        'hardcopy_received' => $request->hardcopy_received,
+        'remarks' => $request->remarks,
+        'hardcopy_submission_date' => $request->hardcopy_submission_date,
+        'hardcopy_instructions' => $request->hardcopy_instructions,
+        'building_permit_number' => $request->building_permit_number,
+        'permit_remarks' => $request->permit_remarks,
+        'user' => auth()->user() ? auth()->user()->email : 'not authenticated',
+        'user_role' => auth()->user() ? auth()->user()->role : 'unknown'
+    ]);
 
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:pending,under-review,document-verification,for-assessment,approved,rejected,for-release,verified',
-            'remarks' => 'nullable|string',
-            'hardcopy_received' => 'sometimes|boolean',
-            'hardcopy_submission_date' => 'nullable|string',
-            'hardcopy_instructions' => 'nullable|string'
-        ]);
+    $validator = Validator::make($request->all(), [
+        'status' => 'required|string|in:pending,under-review,document-verification,for-assessment,approved,rejected,for-release,verified',
+        'remarks' => 'nullable|string',
+        'hardcopy_received' => 'sometimes|boolean',
+        'hardcopy_submission_date' => 'nullable|string',
+        'hardcopy_instructions' => 'nullable|string',
+        'building_permit_number' => 'nullable|string|size:10|regex:/^\d{10}$/',
+        'permit_remarks' => 'nullable|string'
+    ]);
 
-        if ($validator->fails()) {
-            Log::error('Validation failed', ['errors' => $validator->errors()]);
+    if ($validator->fails()) {
+        Log::error('Validation failed', ['errors' => $validator->errors()]);
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
+            Log::error('Application not found', ['id' => $id]);
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'Application not found'
+            ], 404);
         }
 
-        try {
-            $application = ApplicationDocument::with('user')->find($id);
-            
-            if (!$application) {
-                Log::error('Application not found', ['id' => $id]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
+        // Check if CPDO has approved (unless the status is being set to rejected)
+        $cpdoStatus = $application->cpdo_status ?? 'pending';
+        if ($cpdoStatus !== 'approved' && $request->status !== 'rejected') {
+            Log::warning('CPDO approval required before status update', [
+                'application_id' => $id,
+                'cpdo_status' => $cpdoStatus,
+                'requested_status' => $request->status
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'CPDO approval is required before changing application status. Please wait for CPDO to review and approve the application.'
+            ], 403);
+        }
 
-            // Check if CPDO has approved (unless the status is being set to rejected)
-            $cpdoStatus = $application->cpdo_status ?? 'pending';
-            if ($cpdoStatus !== 'approved' && $request->status !== 'rejected') {
-                Log::warning('CPDO approval required before status update', [
-                    'application_id' => $id,
-                    'cpdo_status' => $cpdoStatus,
-                    'requested_status' => $request->status
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'CPDO approval is required before changing application status. Please wait for CPDO to review and approve the application.'
-                ], 403);
+        Log::info('Application found', [
+            'id' => $application->id,
+            'application_number' => $application->application_number,
+            'current_status' => $application->status,
+            'current_hardcopy_status' => $application->hard_copy_received,
+            'applicant_id' => $application->user_id,
+            'applicant_email' => $application->user ? $application->user->email : 'no user',
+            'applicant_name' => $application->user ? $application->user->first_name : 'unknown'
+        ]);
+        
+        $staff = auth()->user();
+        $oldStatus = $application->status;
+        $newStatus = $request->status;
+        $oldHardCopyStatus = $application->hard_copy_received;
+        $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
+        
+        $statusChanged = ($oldStatus !== $newStatus);
+        $hardCopyChanged = ($oldHardCopyStatus != $newHardCopyStatus);
+        
+        Log::info('Status change', [
+            'old' => $oldStatus,
+            'new' => $newStatus,
+            'changed' => $statusChanged ? 'YES' : 'NO'
+        ]);
+        
+        Log::info('Hard copy status change', [
+            'old' => $oldHardCopyStatus,
+            'new' => $newHardCopyStatus,
+            'changed' => $hardCopyChanged ? 'YES' : 'NO'
+        ]);
+        
+        $application->status = $newStatus;
+        
+        // SAVE BUILDING PERMIT NUMBER when status is for-release
+        if ($newStatus === 'for-release' && $request->has('building_permit_number') && $request->building_permit_number) {
+            $application->building_permit_number = $request->building_permit_number;
+            $application->permit_remarks = $request->permit_remarks;
+            Log::info('Building permit number saved', [
+                'application_id' => $id,
+                'building_permit_number' => $request->building_permit_number
+            ]);
+        }
+        
+        if ($request->has('remarks') && $request->remarks) {
+            $application->admin_notes = $request->remarks;
+        }
+        
+        $application->last_updated_by = $staff->id;
+        
+        if ($request->has('hardcopy_received')) {
+            $application->hard_copy_received = $newHardCopyStatus;
+            
+            if ($newHardCopyStatus && !$oldHardCopyStatus) {
+                $application->hard_copy_received_at = now();
+                Log::info('Setting hard_copy_received_at to now');
             }
+        }
+        
+        // Save hard copy submission date and instructions when status is approved
+        if ($newStatus === 'approved') {
+            if ($request->has('hardcopy_submission_date') && $request->hardcopy_submission_date) {
+                $application->hardcopy_submission_date = $request->hardcopy_submission_date;
+                Log::info('Setting hardcopy_submission_date', ['date' => $request->hardcopy_submission_date]);
+            }
+            if ($request->has('hardcopy_instructions')) {
+                $application->hardcopy_instructions = $request->hardcopy_instructions;
+                Log::info('Setting hardcopy_instructions', ['instructions' => $request->hardcopy_instructions]);
+            }
+        }
+        
+        if ($newStatus === 'verified') {
+            $application->verified_at = now();
+            $application->verified_by = $staff->id;
+            Log::info('Setting verified_at and verified_by');
+        }
+        
+        if ($newStatus === 'rejected' && $request->has('remarks')) {
+            $application->rejection_reason = $request->remarks;
+            Log::info('Setting rejection_reason');
+        }
+        
+        $application->save();
+        
+        Log::info('Application saved to database', [
+            'new_status' => $application->status,
+            'new_hardcopy_status' => $application->hard_copy_received,
+            'hardcopy_submission_date' => $application->hardcopy_submission_date,
+            'building_permit_number' => $application->building_permit_number
+        ]);
 
-            Log::info('Application found', [
-                'id' => $application->id,
-                'application_number' => $application->application_number,
-                'current_status' => $application->status,
-                'current_hardcopy_status' => $application->hard_copy_received,
-                'applicant_id' => $application->user_id,
-                'applicant_email' => $application->user ? $application->user->email : 'no user',
-                'applicant_name' => $application->user ? $application->user->first_name : 'unknown'
+        // ========== AUTO-ARCHIVE WHEN STATUS CHANGES TO VERIFIED ==========
+        $wasAutoArchived = false;
+        if ($statusChanged && $newStatus === 'verified') {
+            Log::info('Application status changed to VERIFIED - triggering auto-archive', [
+                'application_id' => $application->id,
+                'application_number' => $application->application_number
             ]);
             
-            $staff = auth()->user();
-            $oldStatus = $application->status;
-            $newStatus = $request->status;
-            $oldHardCopyStatus = $application->hard_copy_received;
-            $newHardCopyStatus = $request->has('hardcopy_received') ? $request->hardcopy_received : $oldHardCopyStatus;
-            
-            $statusChanged = ($oldStatus !== $newStatus);
-            $hardCopyChanged = ($oldHardCopyStatus != $newHardCopyStatus);
-            
-            Log::info('Status change', [
-                'old' => $oldStatus,
-                'new' => $newStatus,
-                'changed' => $statusChanged ? 'YES' : 'NO'
-            ]);
-            
-            Log::info('Hard copy status change', [
-                'old' => $oldHardCopyStatus,
-                'new' => $newHardCopyStatus,
-                'changed' => $hardCopyChanged ? 'YES' : 'NO'
-            ]);
-            
-            $application->status = $newStatus;
-            
-            if ($request->has('remarks') && $request->remarks) {
-                $application->admin_notes = $request->remarks;
-            }
-            
-            $application->last_updated_by = $staff->id;
-            
-            if ($request->has('hardcopy_received')) {
-                $application->hard_copy_received = $newHardCopyStatus;
+            try {
+                // Archive the application automatically
+                $application->is_archived = true;
+                $application->archived_at = now();
+                $application->archived_by = $staff->id;
+                $application->archive_reason = 'Auto-archived: Application completed (status set to VERIFIED)';
+                $application->save();
+                $wasAutoArchived = true;
                 
-                if ($newHardCopyStatus && !$oldHardCopyStatus) {
-                    $application->hard_copy_received_at = now();
-                    Log::info('Setting hard_copy_received_at to now');
-                }
-            }
-            
-            // Save hard copy submission date and instructions when status is approved
-            if ($newStatus === 'approved') {
-                if ($request->has('hardcopy_submission_date') && $request->hardcopy_submission_date) {
-                    $application->hardcopy_submission_date = $request->hardcopy_submission_date;
-                    Log::info('Setting hardcopy_submission_date', ['date' => $request->hardcopy_submission_date]);
-                }
-                if ($request->has('hardcopy_instructions')) {
-                    $application->hardcopy_instructions = $request->hardcopy_instructions;
-                    Log::info('Setting hardcopy_instructions', ['instructions' => $request->hardcopy_instructions]);
-                }
-            }
-            
-            if ($newStatus === 'verified') {
-                $application->verified_at = now();
-                $application->verified_by = $staff->id;
-                Log::info('Setting verified_at and verified_by');
-            }
-            
-            if ($newStatus === 'rejected' && $request->has('remarks')) {
-                $application->rejection_reason = $request->remarks;
-                Log::info('Setting rejection_reason');
-            }
-            
-            $application->save();
-            
-            Log::info('Application saved to database', [
-                'new_status' => $application->status,
-                'new_hardcopy_status' => $application->hard_copy_received,
-                'hardcopy_submission_date' => $application->hardcopy_submission_date
-            ]);
-
-            // ========== AUTO-ARCHIVE WHEN STATUS CHANGES TO VERIFIED ==========
-            $wasAutoArchived = false;
-            if ($statusChanged && $newStatus === 'verified') {
-                Log::info('Application status changed to VERIFIED - triggering auto-archive', [
+                Log::info('Application auto-archived successfully', [
                     'application_id' => $application->id,
-                    'application_number' => $application->application_number
+                    'archived_by' => $staff->id,
+                    'archived_at' => $application->archived_at
                 ]);
                 
-                try {
-                    // Archive the application automatically
-                    $application->is_archived = true;
-                    $application->archived_at = now();
-                    $application->archived_by = $staff->id;
-                    $application->archive_reason = 'Auto-archived: Application completed (status set to VERIFIED)';
-                    $application->save();
-                    $wasAutoArchived = true;
-                    
-                    Log::info('Application auto-archived successfully', [
-                        'application_id' => $application->id,
-                        'archived_by' => $staff->id,
-                        'archived_at' => $application->archived_at
-                    ]);
-                    
-                    // Log the auto-archive activity
-                    $this->logReviewActivity(
-                        $application->id,
-                        $staff->id,
-                        'application_archived',
-                        $oldStatus,
-                        $newStatus,
-                        'Application auto-archived upon completion (status set to VERIFIED)',
-                        $request->ip(),
-                        $request->userAgent()
-                    );
-                    
-                    // Create activity log entry
-                    if (class_exists('App\Models\ActivityLog')) {
-                        ActivityLog::create([
-                            'user_id' => $staff->id,
-                            'action' => 'application_auto_archived',
-                            'description' => 'Application auto-archived upon completion',
-                            'metadata' => json_encode([
-                                'application_id' => $application->id,
-                                'application_number' => $application->application_number,
-                                'old_status' => $oldStatus,
-                                'new_status' => $newStatus
-                            ]),
-                            'ip_address' => $request->ip(),
-                            'user_agent' => $request->userAgent(),
-                            'status' => 'success'
-                        ]);
-                    }
-                    
-                } catch (\Exception $e) {
-                    Log::error('Failed to auto-archive application on verified status', [
-                        'application_id' => $application->id,
-                        'error' => $e->getMessage()
-                    ]);
-                }
-            }
-
-            if ($statusChanged) {
-                Log::info('Creating review activity for status change');
+                // Log the auto-archive activity
+                $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'application_archived',
+                    $oldStatus,
+                    $newStatus,
+                    'Application auto-archived upon completion (status set to VERIFIED)',
+                    $request->ip(),
+                    $request->userAgent()
+                );
                 
-                $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
-                    ->where('action', 'status_updated')
-                    ->where('old_status', $oldStatus)
-                    ->where('new_status', $newStatus)
-                    ->where('created_at', '>=', now()->subSeconds(2))
-                    ->exists();
-                
-                if (!$existingDuplicate) {
-                    try {
-                        $activity = ApplicationReviewActivity::create([
+                // Create activity log entry
+                if (class_exists('App\Models\ActivityLog')) {
+                    ActivityLog::create([
+                        'user_id' => $staff->id,
+                        'action' => 'application_auto_archived',
+                        'description' => 'Application auto-archived upon completion',
+                        'metadata' => json_encode([
                             'application_id' => $application->id,
-                            'reviewer_id' => $staff->id,
-                            'action' => 'status_updated',
+                            'application_number' => $application->application_number,
                             'old_status' => $oldStatus,
                             'new_status' => $newStatus,
-                            'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
-                            'ip_address' => $request->ip(),
-                            'user_agent' => $request->userAgent()
-                        ]);
-                        Log::info('Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
-                    } catch (\Exception $e) {
-                        Log::error('Failed to log activity: ' . $e->getMessage());
+                            'building_permit_number' => $application->building_permit_number
+                        ]),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                        'status' => 'success'
+                    ]);
+                }
+                
+            } catch (\Exception $e) {
+                Log::error('Failed to auto-archive application on verified status', [
+                    'application_id' => $application->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        if ($statusChanged) {
+            Log::info('Creating review activity for status change');
+            
+            $existingDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                ->where('action', 'status_updated')
+                ->where('old_status', $oldStatus)
+                ->where('new_status', $newStatus)
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
+            
+            if (!$existingDuplicate) {
+                try {
+                    $activity = ApplicationReviewActivity::create([
+                        'application_id' => $application->id,
+                        'reviewer_id' => $staff->id,
+                        'action' => 'status_updated',
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                        'remarks' => $request->remarks ?? "Status changed from {$oldStatus} to {$newStatus}",
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ]);
+                    Log::info('Review activity created with ID: ' . ($activity ? $activity->id : 'null'));
+                } catch (\Exception $e) {
+                    Log::error('Failed to log activity: ' . $e->getMessage());
+                }
+            } else {
+                Log::info('Skipped duplicate activity creation');
+            }
+            
+            try {
+                $this->notificationService->notifyApplicantStatusChange(
+                    $application,
+                    $oldStatus,
+                    $newStatus,
+                    $staff
+                );
+                Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
+                
+                if ($application->user && $application->user->email) {
+                    Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
+                    
+                    // Include hard copy submission details and building permit number in the email
+                    $emailSent = $this->gmailService->sendStatusEmail(
+                        $application->user->email,
+                        $newStatus,
+                        $application->application_number,
+                        $application->user->first_name,
+                        $application->id,
+                        [
+                            'hardcopy_submission_date' => $application->hardcopy_submission_date,
+                            'hardcopy_instructions' => $application->hardcopy_instructions,
+                            'building_permit_number' => $application->building_permit_number
+                        ]
+                    );
+                    
+                    if ($emailSent) {
+                        Log::info("✓✓✓ {$newStatus} EMAIL SENT SUCCESSFULLY TO {$application->user->email}");
+                    } else {
+                        Log::error("✗✗✗ FAILED TO SEND {$newStatus} EMAIL TO {$application->user->email}");
                     }
                 } else {
-                    Log::info('Skipped duplicate activity creation');
+                    Log::error('Cannot send email: Applicant email not found');
                 }
                 
-                try {
-                    $this->notificationService->notifyApplicantStatusChange(
-                        $application,
-                        $oldStatus,
-                        $newStatus,
-                        $staff
-                    );
-                    Log::info('✓✓✓ STATUS CHANGE NOTIFICATION SENT ✓✓✓');
-                    
-                    if ($application->user && $application->user->email) {
-                        Log::info("📧 ATTEMPTING TO SEND {$newStatus} EMAIL VIA GMAIL SERVICE TO {$application->user->email}");
-                        
-                        // Include hard copy submission details in the email for approved status
-                        $emailSent = $this->gmailService->sendStatusEmail(
-                            $application->user->email,
-                            $newStatus,
-                            $application->application_number,
-                            $application->user->first_name,
-                            $application->id,
-                            [
-                                'hardcopy_submission_date' => $application->hardcopy_submission_date,
-                                'hardcopy_instructions' => $application->hardcopy_instructions
-                            ]
-                        );
-                        
-                        if ($emailSent) {
-                            Log::info("✓✓✓ {$newStatus} EMAIL SENT SUCCESSFULLY TO {$application->user->email}");
-                        } else {
-                            Log::error("✗✗✗ FAILED TO SEND {$newStatus} EMAIL TO {$application->user->email}");
-                        }
-                    } else {
-                        Log::error('Cannot send email: Applicant email not found');
-                    }
-                    
-                } catch (\Exception $e) {
-                    Log::error('✗✗✗ EXCEPTION when sending status email: ' . $e->getMessage());
-                }
+            } catch (\Exception $e) {
+                Log::error('✗✗✗ EXCEPTION when sending status email: ' . $e->getMessage());
             }
+        }
 
-            if ($hardCopyChanged && $newHardCopyStatus) {
-                Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
-                
-                $existingHardCopyDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
-                    ->where('action', 'hard_copy_received')
-                    ->where('created_at', '>=', now()->subSeconds(2))
-                    ->exists();
-                
-                if (!$existingHardCopyDuplicate) {
-                    $this->logReviewActivity(
-                        $application->id,
-                        $staff->id,
-                        'hard_copy_received',
-                        null,
-                        null,
-                        'Hard copies marked as received',
-                        $request->ip(),
-                        $request->userAgent()
-                    );
-                }
-                
-                try {
-                    $this->notificationService->notifyHardCopyReceived($application, $staff);
-                    Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
-                    
-                    if ($application->user && $application->user->email) {
-                        Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL VIA GMAIL SERVICE");
-                        
-                        $emailSent = $this->gmailService->sendStatusEmail(
-                            $application->user->email,
-                            $newStatus,
-                            $application->application_number,
-                            $application->user->first_name,
-                            $application->id
-                        );
-                        
-                        if ($emailSent) {
-                            Log::info('✓✓✓ HARD COPY RECEIVED EMAIL SENT SUCCESSFULLY');
-                        }
-                    }
-                    
-                } catch (\Exception $e) {
-                    Log::error('✗✗✗ EXCEPTION when sending hard copy notification: ' . $e->getMessage());
-                }
-            }
-
-            Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
+        if ($hardCopyChanged && $newHardCopyStatus) {
+            Log::info('ATTEMPTING TO SEND HARD COPY RECEIVED NOTIFICATION');
             
-            $showSurvey = false;
-if ($statusChanged && $newStatus === 'for-release') {
-    // Check if user has already completed the survey for this application
-    $existingSurvey = ClientSatisfactionSurvey::where('application_id', $application->id)
-        ->where('user_id', $application->user_id)
-        ->exists();
-    
-    if (!$existingSurvey) {
-        $showSurvey = true;
-        Log::info('Survey will be triggered for for-release application', [
-            'application_id' => $application->id,
-            'user_id' => $application->user_id
+            $existingHardCopyDuplicate = ApplicationReviewActivity::where('application_id', $application->id)
+                ->where('action', 'hard_copy_received')
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->exists();
+            
+            if (!$existingHardCopyDuplicate) {
+                $this->logReviewActivity(
+                    $application->id,
+                    $staff->id,
+                    'hard_copy_received',
+                    null,
+                    null,
+                    'Hard copies marked as received',
+                    $request->ip(),
+                    $request->userAgent()
+                );
+            }
+            
+            try {
+                $this->notificationService->notifyHardCopyReceived($application, $staff);
+                Log::info('✓✓✓ HARD COPY NOTIFICATION SENT ✓✓✓');
+                
+                if ($application->user && $application->user->email) {
+                    Log::info("📧 ATTEMPTING TO SEND HARD COPY RECEIVED EMAIL VIA GMAIL SERVICE");
+                    
+                    $emailSent = $this->gmailService->sendStatusEmail(
+                        $application->user->email,
+                        $newStatus,
+                        $application->application_number,
+                        $application->user->first_name,
+                        $application->id
+                    );
+                    
+                    if ($emailSent) {
+                        Log::info('✓✓✓ HARD COPY RECEIVED EMAIL SENT SUCCESSFULLY');
+                    }
+                }
+                
+            } catch (\Exception $e) {
+                Log::error('✗✗✗ EXCEPTION when sending hard copy notification: ' . $e->getMessage());
+            }
+        }
+
+        Log::info('========== UPDATE STATUS END (SUCCESS) ==========');
+        
+        $showSurvey = false;
+        if ($statusChanged && $newStatus === 'for-release') {
+            // Check if user has already completed the survey for this application
+            $existingSurvey = ClientSatisfactionSurvey::where('application_id', $application->id)
+                ->where('user_id', $application->user_id)
+                ->exists();
+            
+            if (!$existingSurvey) {
+                $showSurvey = true;
+                Log::info('Survey will be triggered for for-release application', [
+                    'application_id' => $application->id,
+                    'user_id' => $application->user_id
+                ]);
+            } else {
+                Log::info('Survey already completed for this application, skipping', [
+                    'application_id' => $application->id,
+                    'user_id' => $application->user_id
+                ]);
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Application status updated successfully',
+            'data' => [
+                'id' => $application->id,
+                'status' => $application->status,
+                'application_number' => $application->application_number,
+                'building_permit_number' => $application->building_permit_number,
+                'permit_remarks' => $application->permit_remarks,
+                'hard_copy_received' => $application->hard_copy_received,
+                'hard_copy_received_at' => $application->hard_copy_received_at,
+                'hardcopy_submission_date' => $application->hardcopy_submission_date,
+                'hardcopy_instructions' => $application->hardcopy_instructions,
+                'is_archived' => $application->is_archived,
+                'was_auto_archived' => $wasAutoArchived,
+                'show_survey' => $showSurvey
+            ]
         ]);
-    } else {
-        Log::info('Survey already completed for this application, skipping', [
-            'application_id' => $application->id,
-            'user_id' => $application->user_id
-        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('========== UPDATE STATUS END (ERROR) ==========');
+        Log::error('Error in updateStatus: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
     }
 }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Application status updated successfully',
-                'data' => [
-                    'id' => $application->id,
-                    'status' => $application->status,
-                    'application_number' => $application->application_number,
-                    'hard_copy_received' => $application->hard_copy_received,
-                    'hard_copy_received_at' => $application->hard_copy_received_at,
-                    'hardcopy_submission_date' => $application->hardcopy_submission_date,
-                    'hardcopy_instructions' => $application->hardcopy_instructions,
-                    'is_archived' => $application->is_archived,
-                    'was_auto_archived' => $wasAutoArchived,
-                    'show_survey' => $showSurvey
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('========== UPDATE STATUS END (ERROR) ==========');
-            Log::error('Error in updateStatus: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Add note to application without changing status
