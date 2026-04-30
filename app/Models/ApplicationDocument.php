@@ -673,7 +673,21 @@ class ApplicationDocument extends Model
             default => []
         };
     }
-    
+    /**
+ * Get the payment proof associated with this application
+ */
+public function paymentProof()
+{
+    return $this->hasOne(\App\Models\PaymentProof::class, 'application_id');
+}
+
+/**
+ * Get the payment orders associated with this application
+ */
+public function paymentOrders()
+{
+    return $this->hasMany(\App\Models\PaymentOrder::class, 'application_id');
+}
     /**
      * Set document links as JSON
      */

@@ -1832,7 +1832,57 @@ public function getCertificates($id)
         ], 500);
     }
 }
-
+/**
+ * Get payment orders for an application (for applicant view)
+ */
+public function getPaymentOrders($applicationId)
+{
+    try {
+        $user = auth()->user();
+        
+        // Verify the application belongs to the user
+        $application = ApplicationDocument::where('id', $applicationId)
+            ->where('user_id', $user->id)
+            ->first();
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        // Get payment orders from the payment_orders table
+        $paymentOrders = \App\Models\PaymentOrder::where('application_id', $applicationId)
+            ->with('creator')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $formattedOrders = $paymentOrders->map(function($order) {
+            return [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'payment_date' => $order->payment_date ? date('Y-m-d', strtotime($order->payment_date)) : null,
+                'created_at' => $order->created_at ? $order->created_at->format('Y-m-d H:i:s') : null,
+                'created_by' => $order->creator ? $order->creator->first_name . ' ' . $order->creator->last_name : 'System'
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'payment_orders' => $formattedOrders,
+            'has_order' => $paymentOrders->count() > 0,
+            'latest_order' => $formattedOrders->first()
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error fetching payment orders for applicant: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching payment orders'
+        ], 500);
+    }
+}
  private function generateApplicationNumberInternal()
     {
         $year = date('Y');

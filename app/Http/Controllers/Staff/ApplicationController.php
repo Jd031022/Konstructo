@@ -1095,6 +1095,80 @@ public function saveCPDOAssessment(Request $request, $id)
             Log::error($e->getTraceAsString());
         }
         
+        // ========== CHECK IF BOTH ASSESSMENTS ARE COMPLETED AND NOTIFY TREASURER ==========
+        // Refresh the application to get latest data
+        $application->refresh();
+        
+        // Get the building permit assessment
+        $buildingAssessment = AssessmentFee::where('application_id', $id)->first();
+        
+        $hasBuildingAssessment = $buildingAssessment && $buildingAssessment->total_amount > 0;
+        $hasCPDOAssessment = $application->cpdo_total_amount > 0;
+        
+        // Check if not already notified
+        $alreadyNotified = $application->assessments_ready_notified ?? false;
+        
+        if ($hasBuildingAssessment && $hasCPDOAssessment && !$alreadyNotified) {
+            Log::info('Both assessments are complete, notifying treasurer to create payment order');
+            
+            // Calculate building permit fee total
+            $buildingFee = 0;
+            if ($buildingAssessment) {
+                $buildingFee = ($buildingAssessment->building_fee ?? 0) + 
+                               ($buildingAssessment->line_grade ?? 0) + 
+                               ($buildingAssessment->sanitary_fee ?? 0) + 
+                               ($buildingAssessment->mechanical_fee ?? 0) + 
+                               ($buildingAssessment->electrical_fee ?? 0) + 
+                               ($buildingAssessment->penalties_fines ?? 0);
+                
+                // Add additional fees to building fee
+                if ($buildingAssessment->additional_fees) {
+                    $additionalFeesBuilding = is_string($buildingAssessment->additional_fees) 
+                        ? json_decode($buildingAssessment->additional_fees, true) 
+                        : $buildingAssessment->additional_fees;
+                    if (is_array($additionalFeesBuilding)) {
+                        foreach ($additionalFeesBuilding as $fee) {
+                            $buildingFee += $fee['amount'] ?? 0;
+                        }
+                    }
+                }
+            }
+            
+            // Calculate CPDO fee total
+            $cpdoFee = ($application->cpdo_zonal_location_fee ?? 0) + 
+                       ($application->cpdo_palc_fee ?? 0) + 
+                       ($application->cpdo_development_permit_fee ?? 0) + 
+                       ($application->cpdo_alteration_permit_fee ?? 0) + 
+                       ($application->cpdo_site_zoning_certificate_fee ?? 0);
+            
+            // Add CPDO additional fees
+            if ($application->cpdo_additional_fees) {
+                $cpdoAdditionalFees = is_string($application->cpdo_additional_fees) 
+                    ? json_decode($application->cpdo_additional_fees, true) 
+                    : $application->cpdo_additional_fees;
+                if (is_array($cpdoAdditionalFees)) {
+                    foreach ($cpdoAdditionalFees as $fee) {
+                        $cpdoFee += $fee['amount'] ?? 0;
+                    }
+                }
+            }
+            
+            $totalAmount = $buildingFee + $cpdoFee;
+            
+            // Notify treasurer
+            try {
+                $this->notificationService->notifyTreasurerAssessmentsReady($application, $buildingFee, $cpdoFee, $totalAmount);
+                Log::info('✓✓✓ TREASURER NOTIFIED THAT ASSESSMENTS ARE READY ✓✓✓');
+            } catch (\Exception $e) {
+                Log::error('Failed to notify treasurer: ' . $e->getMessage());
+            }
+            
+            // Mark as notified to prevent duplicate emails
+            $application->assessments_ready_notified = true;
+            $application->save();
+        }
+        // ========== END OF TREASURER NOTIFICATION ==========
+        
         return response()->json([
             'success' => true,
             'message' => 'CPDO assessment saved successfully and applicant notified',
@@ -1114,7 +1188,6 @@ public function saveCPDOAssessment(Request $request, $id)
         ], 500);
     }
 }
-
     /**
      * Get CPDO assessment data for an application
      */
@@ -2631,7 +2704,7 @@ if ($statusChanged && $newStatus === 'for-release') {
         }
     }
 
-   /**
+  /**
  * Save assessment fees for an application
  */
 public function saveAssessment(Request $request, $id)
@@ -2770,6 +2843,74 @@ public function saveAssessment(Request $request, $id)
             Log::error('Failed to send assessment notification: ' . $e->getMessage());
         }
         
+        // ========== CHECK IF BOTH ASSESSMENTS ARE COMPLETED AND NOTIFY TREASURER ==========
+        // Refresh the application to get latest data including CPDO assessment
+        $application->refresh();
+        
+        $hasBuildingAssessment = $assessment->total_amount > 0;
+        $hasCPDOAssessment = $application->cpdo_total_amount && $application->cpdo_total_amount > 0;
+        
+        // Check if not already notified
+        $alreadyNotified = $application->assessments_ready_notified ?? false;
+        
+        if ($hasBuildingAssessment && $hasCPDOAssessment && !$alreadyNotified) {
+            Log::info('Both assessments are complete, notifying treasurer to create payment order');
+            
+            // Calculate building permit fee total
+            $buildingFee = ($assessment->building_fee ?? 0) + 
+                           ($assessment->line_grade ?? 0) + 
+                           ($assessment->sanitary_fee ?? 0) + 
+                           ($assessment->mechanical_fee ?? 0) + 
+                           ($assessment->electrical_fee ?? 0) + 
+                           ($assessment->penalties_fines ?? 0);
+            
+            // Add additional fees to building fee
+            if ($assessment->additional_fees) {
+                $additionalFees = is_string($assessment->additional_fees) 
+                    ? json_decode($assessment->additional_fees, true) 
+                    : $assessment->additional_fees;
+                if (is_array($additionalFees)) {
+                    foreach ($additionalFees as $fee) {
+                        $buildingFee += $fee['amount'] ?? 0;
+                    }
+                }
+            }
+            
+            // Calculate CPDO fee total
+            $cpdoFee = ($application->cpdo_zonal_location_fee ?? 0) + 
+                       ($application->cpdo_palc_fee ?? 0) + 
+                       ($application->cpdo_development_permit_fee ?? 0) + 
+                       ($application->cpdo_alteration_permit_fee ?? 0) + 
+                       ($application->cpdo_site_zoning_certificate_fee ?? 0);
+            
+            // Add CPDO additional fees
+            if ($application->cpdo_additional_fees) {
+                $cpdoAdditionalFees = is_string($application->cpdo_additional_fees) 
+                    ? json_decode($application->cpdo_additional_fees, true) 
+                    : $application->cpdo_additional_fees;
+                if (is_array($cpdoAdditionalFees)) {
+                    foreach ($cpdoAdditionalFees as $fee) {
+                        $cpdoFee += $fee['amount'] ?? 0;
+                    }
+                }
+            }
+            
+            $totalAmount = $buildingFee + $cpdoFee;
+            
+            // Notify treasurer
+            try {
+                $this->notificationService->notifyTreasurerAssessmentsReady($application, $buildingFee, $cpdoFee, $totalAmount);
+                Log::info('✓✓✓ TREASURER NOTIFIED THAT ASSESSMENTS ARE READY ✓✓✓');
+            } catch (\Exception $e) {
+                Log::error('Failed to notify treasurer: ' . $e->getMessage());
+            }
+            
+            // Mark as notified to prevent duplicate emails
+            $application->assessments_ready_notified = true;
+            $application->save();
+        }
+        // ========== END OF TREASURER NOTIFICATION ==========
+        
         Log::info('========== SAVE ASSESSMENT END (SUCCESS) ==========');
         
         return response()->json([
@@ -2795,7 +2936,6 @@ public function saveAssessment(Request $request, $id)
         ], 500);
     }
 }
-
    /**
  * Get assessment data for an application
  */

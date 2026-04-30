@@ -82,13 +82,18 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/ownership-verifications/verified', function () {
         return view('staff.verified-ownership');
     });
+// Inside staff middleware group, add:
 
+// ========== TREASURER PAYMENT ASSESSMENTS ROUTES ==========
+Route::get('/payment-assessments/data', [App\Http\Controllers\Staff\TreasurerController::class, 'getPaymentAssessments'])->name('payment-assessments.data');
+Route::post('/payment-assessments/{id}/payment-order', [App\Http\Controllers\Staff\TreasurerController::class, 'addPaymentOrder'])->name('payment-assessments.add-payment-order');
+Route::delete('/payment-orders/{id}', [App\Http\Controllers\Staff\TreasurerController::class, 'deletePaymentOrder'])->name('payment-orders.delete');
+Route::get('/payment-assessments/monthly-collection', [App\Http\Controllers\Staff\TreasurerController::class, 'getMonthlyCollection'])->name('payment-assessments.monthly-collection');
+Route::get('/payment-assessments/export', [App\Http\Controllers\Staff\TreasurerController::class, 'exportPaymentAssessments'])->name('payment-assessments.export');
     // ========== PAYMENT ASSESSMENTS PAGE (TREASURER) ==========
-    // File location: resources/views/staff/payment-assessments.blade.php
-    Route::get('/payment-assessments', function () {
-        return view('staff.payment-assessments');  // Matches staff/payment-assessments.blade.php
-    })->name('payment.assessments');
-
+Route::get('/payment-assessments', function () {
+    return view('staff.payment-assessments');
+})->name('payment.assessments');
     // ========== POSITION MANAGEMENT ROUTES ==========
     Route::prefix('position')->name('position.')->group(function () {
         Route::post('/update', [App\Http\Controllers\Staff\PositionController::class, 'update'])->name('update');
@@ -170,6 +175,8 @@ Route::prefix('applicant')->name('applicant.')->middleware(['auth'])->group(func
     Route::get('/application-details/{id}', function ($id) { return view('applicant.application-details', ['applicationId' => $id]); })->name('application.details');
     Route::get('/applications/{id}/activity-history', function ($id) { return view('applicant.activity-history', ['applicationId' => $id]); })->name('activity-history');
     Route::get('/applications/{id}/ownership-remarks', [App\Http\Controllers\Applicant\ApplicationController::class, 'getOwnershipRemarks'])->name('applications.ownership-remarks');
+    // Add this inside the applicant middleware group
+Route::get('/payment-orders/{applicationId}', [App\Http\Controllers\Applicant\ApplicationController::class, 'getPaymentOrders'])->name('payment-orders.get');
     // ========== STEP ROUTES ==========
     Route::get('/application/step1', function (Request $request) {
         $user = Auth::user();

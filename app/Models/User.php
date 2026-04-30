@@ -136,7 +136,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class);
     }
-
+// Add to User model
+public function paymentProofs()
+{
+    return $this->hasMany(PaymentProof::class, 'user_id');
+}
     /**
      * Get the activity logs for the user.
      */

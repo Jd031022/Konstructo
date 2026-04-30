@@ -1604,4 +1604,187 @@ private function getOwnershipDocumentRemarkEmailContent(ApplicationDocument $app
     </html>
     ";
 }
+/**
+ * Notify treasurer that both assessments are ready and payment order is needed
+ */
+public function notifyTreasurerAssessmentsReady(ApplicationDocument $application, $buildingPermitFee, $cpdoFee, $totalAmount)
+{
+    Log::info('========== NOTIFY TREASURER ASSESSMENTS READY ==========');
+    
+    // Get treasurer users
+    $treasurers = User::where('role', 'staff')
+        ->whereHas('profile', function($query) {
+            $query->where('position', 'treasurer');
+        })
+        ->get();
+    
+    $notifiedCount = 0;
+    
+    foreach ($treasurers as $treasurer) {
+        try {
+            // Send email via GmailService
+            $this->gmailService->sendAssessmentsReadyForPaymentOrderEmail(
+                $treasurer->email,
+                $treasurer->first_name,
+                $application->application_number,
+                $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'N/A',
+                $application->id,
+                $buildingPermitFee,
+                $cpdoFee,
+                $totalAmount
+            );
+            $notifiedCount++;
+            Log::info("✅ Assessments ready email sent to treasurer: {$treasurer->email}");
+        } catch (\Exception $e) {
+            Log::error("❌ Failed to send assessments ready email to treasurer {$treasurer->email}: " . $e->getMessage());
+        }
+    }
+    
+    Log::info("Assessments ready notifications sent to {$notifiedCount} treasurer(s)");
+    Log::info('========== NOTIFY TREASURER ASSESSMENTS READY END ==========');
+}
+
+/**
+ * Send payment order created notification to applicant
+ */
+public function notifyPaymentOrderCreated(ApplicationDocument $application, $paymentOrder, User $treasurer)
+{
+    Log::info('========== NOTIFY PAYMENT ORDER CREATED ==========');
+    Log::info('Parameters:', [
+        'application_id' => $application->id,
+        'application_number' => $application->application_number,
+        'order_number' => $paymentOrder->order_number,
+        'treasurer_id' => $treasurer->id
+    ]);
+    
+    $applicant = $application->user;
+    
+    if (!$applicant) {
+        Log::error('❌ No applicant found for payment order notification!');
+        return;
+    }
+    
+    // Calculate total amount (Building Permit Fee + CPDO Fee)
+    $buildingFee = 0;
+    if ($application->assessmentFee) {
+        $buildingFee = ($application->assessmentFee->building_fee ?? 0) + 
+                       ($application->assessmentFee->line_grade ?? 0) + 
+                       ($application->assessmentFee->sanitary_fee ?? 0) + 
+                       ($application->assessmentFee->mechanical_fee ?? 0) + 
+                       ($application->assessmentFee->electrical_fee ?? 0) + 
+                       ($application->assessmentFee->penalties_fines ?? 0);
+    }
+    
+    $cpdoFee = ($application->cpdo_zonal_location_fee ?? 0) + 
+               ($application->cpdo_palc_fee ?? 0) + 
+               ($application->cpdo_development_permit_fee ?? 0) + 
+               ($application->cpdo_alteration_permit_fee ?? 0) + 
+               ($application->cpdo_site_zoning_certificate_fee ?? 0);
+    
+    $totalAmount = $buildingFee + $cpdoFee;
+    
+    // Send email to applicant
+    try {
+        $this->gmailService->sendPaymentOrderCreatedToApplicantEmail(
+            $applicant->email,
+            $applicant->first_name,
+            $application->application_number,
+            $paymentOrder->order_number,
+            $application->id,
+            $totalAmount
+        );
+        Log::info('✅ Payment order created email sent to applicant: ' . $applicant->email);
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to send payment order email to applicant: ' . $e->getMessage());
+    }
+    
+    // Create in-app notification
+    try {
+        $applicant->notify(new \App\Notifications\PaymentOrderCreatedNotification(
+            $application,
+            $paymentOrder,
+            $treasurer
+        ));
+        Log::info('✅ Payment order database notification sent to applicant');
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to send payment order database notification: ' . $e->getMessage());
+    }
+    
+    // Log activity
+    try {
+        if (Schema::hasTable('application_review_activities')) {
+            $application->reviewActivities()->create([
+                'reviewer_id' => $treasurer->id,
+                'action' => 'payment_order_created',
+                'new_status' => $application->status,
+                'remarks' => "Payment Order Number created: {$paymentOrder->order_number}",
+                'ip_address' => Request::ip(),
+                'user_agent' => Request::userAgent()
+            ]);
+            Log::info('✅ Payment order activity logged');
+        }
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to log payment order activity: ' . $e->getMessage());
+    }
+    
+    Log::info('========== NOTIFY PAYMENT ORDER CREATED END ==========');
+}
+
+/**
+ * Notify treasurer when applicant uploads OR
+ */
+public function notifyTreasurerORUploaded(ApplicationDocument $application, PaymentProof $paymentProof, User $applicant)
+{
+    Log::info('========== NOTIFY TREASURER OR UPLOADED ==========');
+    Log::info('Parameters:', [
+        'application_id' => $application->id,
+        'application_number' => $application->application_number,
+        'payment_proof_id' => $paymentProof->id,
+        'applicant_id' => $applicant->id
+    ]);
+    
+    // Get treasurer users
+    $treasurers = User::where('role', 'staff')
+        ->whereHas('profile', function($query) {
+            $query->where('position', 'treasurer');
+        })
+        ->get();
+    
+    $notifiedCount = 0;
+    
+    foreach ($treasurers as $treasurer) {
+        try {
+            // Send email
+            $this->gmailService->sendORUploadedToTreasurerEmail(
+                $treasurer->email,
+                $treasurer->first_name,
+                $application->application_number,
+                $applicant->first_name . ' ' . $applicant->last_name,
+                $application->id,
+                $paymentProof->or_link
+            );
+            $notifiedCount++;
+            Log::info("✅ OR uploaded email sent to treasurer: {$treasurer->email}");
+        } catch (\Exception $e) {
+            Log::error("❌ Failed to send OR uploaded email to treasurer {$treasurer->email}: " . $e->getMessage());
+        }
+        
+        // Send in-app notification to treasurer
+        try {
+            if (class_exists('\App\Notifications\ORUploadedToTreasurerNotification')) {
+                $treasurer->notify(new \App\Notifications\ORUploadedToTreasurerNotification(
+                    $application,
+                    $paymentProof,
+                    $applicant
+                ));
+                Log::info("✅ OR uploaded database notification sent to treasurer: {$treasurer->email}");
+            }
+        } catch (\Exception $e) {
+            Log::error("❌ Failed to send OR uploaded database notification to treasurer: " . $e->getMessage());
+        }
+    }
+    
+    Log::info("OR uploaded notifications sent to {$notifiedCount} treasurer(s)");
+    Log::info('========== NOTIFY TREASURER OR UPLOADED END ==========');
+}
 }

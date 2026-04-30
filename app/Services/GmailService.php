@@ -2073,4 +2073,388 @@ HTML;
             return "Connection failed: " . $e->getMessage();
         }
     }
+    /**
+ * Send email to treasurer when both assessments are ready for payment order creation
+ */
+public function sendAssessmentsReadyForPaymentOrderEmail($to, $treasurerName, $applicationNumber, $applicantName, $applicationId, $buildingPermitFee, $cpdoFee, $totalAmount)
+{
+    $subject = 'Action Required: Payment Order Number Needed - Konstructo';
+    $htmlContent = $this->getAssessmentsReadyEmailContent($treasurerName, $applicationNumber, $applicantName, $applicationId, $buildingPermitFee, $cpdoFee, $totalAmount);
+    
+    Log::info('📧 Sending assessments ready email to treasurer', [
+        'to' => $to,
+        'application_number' => $applicationNumber,
+        'total_amount' => $totalAmount
+    ]);
+    
+    return $this->sendEmailInternal($to, $subject, $htmlContent);
+}
+
+/**
+ * Send email to treasurer when applicant uploads OR
+ */
+public function sendORUploadedToTreasurerEmail($to, $treasurerName, $applicationNumber, $applicantName, $applicationId, $orLink)
+{
+    $subject = 'Official Receipt Uploaded - Action Required - Konstructo';
+    $htmlContent = $this->getORUploadedToTreasurerEmailContent($treasurerName, $applicationNumber, $applicantName, $applicationId, $orLink);
+    
+    Log::info('📧 Sending OR uploaded notification to treasurer', [
+        'to' => $to,
+        'application_number' => $applicationNumber,
+        'or_link' => $orLink
+    ]);
+    
+    return $this->sendEmailInternal($to, $subject, $htmlContent);
+}
+
+/**
+ * Send email to applicant when payment order number is created
+ */
+public function sendPaymentOrderCreatedToApplicantEmail($to, $applicantName, $applicationNumber, $orderNumber, $applicationId, $totalAmount)
+{
+    $subject = 'Payment Order Number Ready - Proceed with Payment - Konstructo';
+    $htmlContent = $this->getPaymentOrderCreatedEmailContent($applicantName, $applicationNumber, $orderNumber, $applicationId, $totalAmount);
+    
+    Log::info('📧 Sending payment order created email to applicant', [
+        'to' => $to,
+        'application_number' => $applicationNumber,
+        'order_number' => $orderNumber
+    ]);
+    
+    return $this->sendEmailInternal($to, $subject, $htmlContent);
+}
+
+/**
+ * Get assessments ready email content for treasurer
+ */
+private function getAssessmentsReadyEmailContent($treasurerName, $applicationNumber, $applicantName, $applicationId, $buildingPermitFee, $cpdoFee, $totalAmount)
+{
+    $appUrl = env('APP_URL') . "/staff/payment-assessments";
+    $greeting = $treasurerName ? "Dear Treasurer " . $treasurerName . "," : "Dear Treasurer,";
+    
+    $formattedNumber = $applicationNumber;
+    if (strlen($applicationNumber) === 10) {
+        $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                          substr($applicationNumber, 2, 4) . '-' . 
+                          substr($applicationNumber, 6, 4);
+    }
+    
+    $formatAmount = function($amount) {
+        if (!$amount || $amount == 0) return '₱0.00';
+        return '₱' . number_format($amount, 2);
+    };
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+            .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .content { padding: 40px 30px; background-color: #ffffff; }
+            .greeting { font-size: 18px; color: #D97706; font-weight: 500; margin-bottom: 20px; }
+            .action-badge { background-color: #FEF3C7; color: #D97706; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #F59E0B; }
+            .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+            .fee-summary { background-color: #f8f9fa; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #e5e7eb; }
+            .fee-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+            .total-row { display: flex; justify-content: space-between; padding: 12px 0; margin-top: 10px; border-top: 2px solid #d1d5db; font-weight: bold; font-size: 18px; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .steps-box { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981; }
+            .steps-box h4 { margin: 0 0 10px 0; color: #065f46; }
+            .steps-box ul { margin: 0; padding-left: 20px; }
+            .steps-box li { margin: 5px 0; color: #065f46; font-size: 14px; }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Action Required: Payment Order Number</h1>
+                <p>Both assessments are ready for payment processing</p>
+            </div>
+            <div class='content'>
+                <div class='greeting'>{$greeting}</div>
+                
+                <p>Both the Building Permit Fee Assessment and CPDO Fee Assessment have been completed for the following application.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='action-badge'>⚠️ Action Required: Create Payment Order Number</span>
+                </div>
+                
+                <div class='info-box'>
+                    <p><strong>📋 Application Number:</strong> {$formattedNumber}</p>
+                    <p><strong>👤 Applicant Name:</strong> " . htmlspecialchars($applicantName) . "</p>
+                </div>
+                
+                <div class='fee-summary'>
+                    <h4 style=\"margin: 0 0 15px 0; color: #1f2937;\">💰 Assessment Summary</h4>
+                    <div class='fee-row'>
+                        <span>Building Permit Fee:</span>
+                        <span><strong>{$formatAmount($buildingPermitFee)}</strong></span>
+                    </div>
+                    <div class='fee-row'>
+                        <span>CPDO Fee:</span>
+                        <span><strong>{$formatAmount($cpdoFee)}</strong></span>
+                    </div>
+                    <div class='total-row'>
+                        <span>TOTAL AMOUNT:</span>
+                        <span style=\"color: #D97706;\">{$formatAmount($totalAmount)}</span>
+                    </div>
+                </div>
+                
+                <div class='steps-box'>
+                    <h4>📌 What You Need to Do:</h4>
+                    <ul>
+                        <li>Create a Payment Order Number for this application</li>
+                        <li>Go to the Payment Assessments page</li>
+                        <li>Click \"Add Order Number\" for this application</li>
+                        <li>Enter the official order number and payment date</li>
+                        <li>Once created, the applicant will be notified automatically</li>
+                    </ul>
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='{$appUrl}' class='button'>Go to Payment Assessments</a>
+                </div>
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                    Please create the payment order number as soon as possible so the applicant can proceed with payment.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+
+/**
+ * Get OR uploaded to treasurer email content
+ */
+private function getORUploadedToTreasurerEmailContent($treasurerName, $applicationNumber, $applicantName, $applicationId, $orLink)
+{
+    $appUrl = env('APP_URL') . "/staff/payment-assessments";
+    $greeting = $treasurerName ? "Dear Treasurer " . $treasurerName . "," : "Dear Treasurer,";
+    
+    $formattedNumber = $applicationNumber;
+    if (strlen($applicationNumber) === 10) {
+        $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                          substr($applicationNumber, 2, 4) . '-' . 
+                          substr($applicationNumber, 6, 4);
+    }
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+            .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .content { padding: 40px 30px; background-color: #ffffff; }
+            .greeting { font-size: 18px; color: #10B981; font-weight: 500; margin-bottom: 20px; }
+            .action-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+            .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981; }
+            .or-link-box { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; word-break: break-all; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .steps-box { background-color: #FEF3C7; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #F59E0B; }
+            .steps-box h4 { margin: 0 0 10px 0; color: #92400E; }
+            .steps-box ul { margin: 0; padding-left: 20px; }
+            .steps-box li { margin: 5px 0; color: #92400E; font-size: 14px; }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Official Receipt Uploaded</h1>
+                <p>Action Required: Verify the OR</p>
+            </div>
+            <div class='content'>
+                <div class='greeting'>{$greeting}</div>
+                
+                <p>The applicant has uploaded their Official Receipt (OR) for the following application.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='action-badge'>📄 OR Ready for Verification</span>
+                </div>
+                
+                <div class='info-box'>
+                    <p><strong>📋 Application Number:</strong> {$formattedNumber}</p>
+                    <p><strong>👤 Applicant Name:</strong> " . htmlspecialchars($applicantName) . "</p>
+                </div>
+                
+                <div class='or-link-box'>
+                    <strong>🔗 Official Receipt Link:</strong><br>
+                    <a href='{$orLink}' target='_blank' style='color: #059669;'>View Official Receipt</a>
+                </div>
+                
+                <div class='steps-box'>
+                    <h4>📌 What You Need to Do:</h4>
+                    <ul>
+                        <li>Review the uploaded Official Receipt</li>
+                        <li>Verify if the amount matches the total assessment fee</li>
+                        <li>Click \"Verify\" or \"Reject\" with reason</li>
+                        <li>Once verified, the application will proceed to the next step</li>
+                    </ul>
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='{$appUrl}' class='button'>Go to Payment Assessments</a>
+                </div>
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                    Please verify the OR as soon as possible to avoid delays in processing.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+
+/**
+ * Get payment order created email content for applicant
+ */
+private function getPaymentOrderCreatedEmailContent($applicantName, $applicationNumber, $orderNumber, $applicationId, $totalAmount)
+{
+    $appUrl = env('APP_URL') . "/applicant/application-details/{$applicationId}";
+    $greeting = $applicantName ? "Dear " . $applicantName . "," : "Dear Valued User,";
+    
+    $formattedNumber = $applicationNumber;
+    if (strlen($applicationNumber) === 10) {
+        $formattedNumber = substr($applicationNumber, 0, 2) . '-' . 
+                          substr($applicationNumber, 2, 4) . '-' . 
+                          substr($applicationNumber, 6, 4);
+    }
+    
+    $formatAmount = function($amount) {
+        if (!$amount || $amount == 0) return '₱0.00';
+        return '₱' . number_format($amount, 2);
+    };
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+            .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .header p { margin: 10px 0 0 0; opacity: 0.9; }
+            .content { padding: 40px 30px; background-color: #ffffff; }
+            .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+            .success-badge { background-color: #D1FAE5; color: #059669; padding: 8px 16px; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 14px; margin-bottom: 25px; border: 1px solid #10B981; }
+            .order-number-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0; border: 1px solid #dee2e6; }
+            .order-number-box .label { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+            .order-number-box .number { font-size: 32px; font-weight: bold; font-family: monospace; color: #155386; letter-spacing: 2px; }
+            .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #155386; }
+            .fee-box { background-color: #e6f7e6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; text-align: center; }
+            .fee-box .amount { font-size: 24px; font-weight: bold; color: #155386; }
+            .button { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: 600; transition: all 0.3s ease; }
+            .button:hover { opacity: 0.9; transform: translateY(-2px); }
+            .steps-box { background-color: #FEF3C7; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #F59E0B; }
+            .steps-box h4 { margin: 0 0 10px 0; color: #92400E; }
+            .steps-box ul { margin: 0; padding-left: 20px; }
+            .steps-box li { margin: 5px 0; color: #92400E; font-size: 14px; }
+            .divider { height: 1px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 30px 0; }
+            .footer { padding: 25px 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; font-size: 13px; color: #6c757d; text-align: center; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Payment Order Number Ready</h1>
+                <p>You can now proceed with your payment</p>
+            </div>
+            <div class='content'>
+                <div class='greeting'>{$greeting}</div>
+                
+                <p>Great news! The treasurer has created a Payment Order Number for your building permit application.</p>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <span class='success-badge'>✓ Payment Order Number Assigned</span>
+                </div>
+                
+                <div class='order-number-box'>
+                    <div class='label'>Your Payment Order Number</div>
+                    <div class='number'>" . htmlspecialchars($orderNumber) . "</div>
+                    <div class='label' style='margin-top: 10px;'>Application Number: {$formattedNumber}</div>
+                </div>
+                
+                <div class='fee-box'>
+                    <strong>💰 Total Amount to Pay:</strong><br>
+                    <span class='amount'>{$formatAmount($totalAmount)}</span>
+                </div>
+                
+                <div class='steps-box'>
+                    <h4>📌 How to Proceed with Payment:</h4>
+                    <ul>
+                        <li>Go to your Application Details page</li>
+                        <li>Click the \"Payment Portal\" button</li>
+                        <li>Use your <strong>Payment Order Number: " . htmlspecialchars($orderNumber) . "</strong> when making the payment</li>
+                        <li>Complete the payment through the Filipizen payment portal</li>
+                        <li>After payment, upload your Official Receipt (OR) on your application page</li>
+                    </ul>
+                </div>
+                
+                <div class='info-box'>
+                    <p><strong>⚠️ Important Notes:</strong></p>
+                    <ul style='margin: 5px 0 0 20px;'>
+                        <li>Keep your Payment Order Number for reference</li>
+                        <li>You must use this order number when paying</li>
+                        <li>Upload your OR immediately after payment</li>
+                        <li>Processing will continue once your OR is verified</li>
+                    </ul>
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='{$appUrl}' class='button'>Go to Your Application</a>
+                </div>
+                
+                <div class='divider'></div>
+                
+                <p style='font-size: 14px; color: #6c757d; text-align: center;'>
+                    If you have any questions about the payment process, please contact the Treasurer's Office.
+                </p>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>&copy; " . date('Y') . " Konstructo. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
 }
