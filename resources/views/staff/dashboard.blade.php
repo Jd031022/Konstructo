@@ -11,52 +11,95 @@
         <p class="text-sm text-gray-500 mt-1">Welcome back! Here's your applications overview.</p>
     </div>
     <div class="flex items-center gap-3 mt-2 md:mt-0">
-        <!-- DATE FILTER CONTROLS -->
-        <div class="flex items-center gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-1">
-            <button onclick="setDateFilter('monthly')" 
-                    id="filter-monthly-btn"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 bg-[#155386] text-white">
-                Monthly
-            </button>
-            <button onclick="setDateFilter('yearly')" 
-                    id="filter-yearly-btn"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-600 hover:bg-gray-100">
-                Yearly
-            </button>
-        </div>
-
-        <!-- Month Picker (shown when monthly is selected) -->
-        <div id="month-picker" class="relative">
-            <input type="month" id="selected-month" 
-                   class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent"
-                   value="{{ date('Y-m') }}">
-        </div>
-
-        <!-- Year Picker (shown when yearly is selected) -->
-        <div id="year-picker" class="relative hidden">
-            <select id="selected-year" 
-                    class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                @for($i = date('Y'); $i >= date('Y')-5; $i--)
-                    <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>{{ $i }}</option>
-                @endfor
-            </select>
-        </div>
-
-        <!-- Apply Filter Button -->
-        <button onclick="applyDateFilter()" 
-                class="px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#0e3d5c] transition shadow-sm text-sm font-medium">
-            Apply Filter
-        </button>
         
-        <!-- Show user's position if set -->
-        @if(Auth::user()->profile && Auth::user()->profile->position)
-        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#155386] rounded-lg text-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span class="font-medium">{{ ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }}</span>
-        </span>
-        @endif
+        <!-- Selected Date Display -->
+        <div class="relative">
+            <button onclick="toggleCalendarDropdown()" 
+                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span id="selected-date-display" class="font-medium">April 2026</span>
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            
+            <!-- Calendar Dropdown -->
+            <div id="calendar-dropdown" class="hidden absolute right-0 mt-2 w-[340px] bg-white rounded-2xl border border-gray-200 shadow-xl z-50">
+                <div class="p-5">
+                    <!-- Calendar Header - Only visible in Daily mode -->
+                    <div id="calendar-header" class="flex items-center justify-between mb-6">
+                        <button onclick="changeCalendarMonth(-1)" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <h2 id="calendar-month-year" class="text-xl font-bold text-gray-800">April 2026</h2>
+                        <button onclick="changeCalendarMonth(1)" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Weekdays - Only visible in Daily mode -->
+                    <div id="weekdays-header" class="grid grid-cols-7 text-center text-gray-400 text-xs font-medium mb-3">
+                        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                    </div>
+                    
+                    <!-- Calendar Days - Only visible in Daily mode -->
+                    <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center text-sm">
+                        <!-- Populated by JS -->
+                    </div>
+                    
+                    <!-- Month Selection for Monthly View -->
+                    <div id="month-selector" class="hidden">
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <button onclick="selectMonth(0)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">January</button>
+                            <button onclick="selectMonth(1)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">February</button>
+                            <button onclick="selectMonth(2)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">March</button>
+                            <button onclick="selectMonth(3)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">April</button>
+                            <button onclick="selectMonth(4)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">May</button>
+                            <button onclick="selectMonth(5)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">June</button>
+                            <button onclick="selectMonth(6)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">July</button>
+                            <button onclick="selectMonth(7)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">August</button>
+                            <button onclick="selectMonth(8)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">September</button>
+                            <button onclick="selectMonth(9)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">October</button>
+                            <button onclick="selectMonth(10)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">November</button>
+                            <button onclick="selectMonth(11)" class="month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">December</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Year Selection for Yearly View -->
+                    <div id="year-selector" class="hidden">
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <button onclick="selectYear(2023)" class="year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">2023</button>
+                            <button onclick="selectYear(2024)" class="year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">2024</button>
+                            <button onclick="selectYear(2025)" class="year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">2025</button>
+                            <button onclick="selectYear(2026)" class="year-option px-3 py-2 text-sm rounded-lg bg-[#155386] text-white">2026</button>
+                            <button onclick="selectYear(2027)" class="year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">2027</button>
+                            <button onclick="selectYear(2028)" class="year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition">2028</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-3 gap-2 mt-6">
+                        <button onclick="applyDailyFilter()" id="daily-apply-btn" class="bg-white border border-gray-200 py-2.5 rounded-xl font-semibold text-sm text-gray-600 hover:bg-gray-50 transition">
+                            Daily
+                        </button>
+                        <button onclick="applyMonthlyFilter()" id="monthly-apply-btn" class="bg-[#155386] text-white py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition">
+                            Monthly
+                        </button>
+                        <button onclick="applyYearlyFilter()" id="yearly-apply-btn" class="bg-white border border-gray-200 py-2.5 rounded-xl font-semibold text-sm text-gray-600 hover:bg-gray-50 transition">
+                            Yearly
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
         
         <!-- EXPORT DROPDOWN -->
         <div class="relative inline-block">
@@ -72,14 +115,14 @@
             </button>
             
             <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                <a href="#" id="export-excel-link" 
+                <a href="{{ route('staff.dashboard.export', ['format' => 'excel']) }}" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
                     <svg class="inline w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Export as Excel
                 </a>
-                <a href="#" id="export-pdf-link" 
+                <a href="{{ route('staff.dashboard.export', ['format' => 'pdf']) }}" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg">
                     <svg class="inline w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -88,218 +131,514 @@
                 </a>
             </div>
         </div>
+
+                <!-- Show user's position -->
+        @if(Auth::user()->profile && Auth::user()->profile->position)
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#155386] rounded-lg text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span class="font-medium">{{ ucfirst(str_replace('_', ' ', Auth::user()->profile->position)) }}</span>
+        </span>
+        @endif
     </div>
 </div>
 
-<!-- CURRENT FILTER DISPLAY -->
-<div class="mb-4 flex items-center gap-2">
+<!-- DATE RANGE INDICATOR - RIGHT ALIGNED -->
+<div class="mb-4 flex items-center justify-end gap-2" id="date-range-indicator">
     <span class="text-xs text-gray-500">Showing data for:</span>
-    <span id="current-filter-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-        {{ date('F Y') }}
-    </span>
+    <span class="text-sm font-semibold text-[#155386] bg-blue-50 px-3 py-1 rounded-full" id="current-date-range">April 2026</span>
 </div>
 
-    <!-- TOP STATS - 4 cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stats-container">
-        <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
-            <div class="h-16 bg-gray-200 rounded"></div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
-            <div class="h-16 bg-gray-200 rounded"></div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
-            <div class="h-16 bg-gray-200 rounded"></div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
-            <div class="h-16 bg-gray-200 rounded"></div>
-        </div>
+<!-- TOP STATS - 4 cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stats-container">
+    <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
+        <div class="h-16 bg-gray-200 rounded"></div>
     </div>
+    <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
+        <div class="h-16 bg-gray-200 rounded"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
+        <div class="h-16 bg-gray-200 rounded"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-5 animate-pulse">
+        <div class="h-16 bg-gray-200 rounded"></div>
+    </div>
+</div>
 
-    <!-- MAIN GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- CHART AREA - Application Trend -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-800">Application Trend</h2>
-                    <p class="text-xs text-gray-500 mt-1">Application volume over time</p>
-                </div>
-                <div class="relative">
-                    <select id="trend-period" class="appearance-none border border-gray-200 rounded-lg text-sm px-4 py-2.5 pr-8 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="quarterly">Quarterly</option>
-                    </select>
-                    <svg class="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
+<!-- MAIN GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- CHART AREA -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800" id="chart-title">Monthly Application Trend</h2>
+                <p class="text-xs text-gray-500 mt-1" id="chart-subtitle">Application volume by day</p>
             </div>
+            <div class="relative">
+                <select id="trend-period" class="appearance-none border border-gray-200 rounded-lg text-sm px-4 py-2.5 pr-8 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                    <option value="this_week">This Week</option>
+                    <option value="last_week">Last Week</option>
+                    <option value="this_month" selected>This Month</option>
+                    <option value="last_month">Last Month</option>
+                    <option value="this_year">This Year</option>
+                </select>
+                <svg class="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+        </div>
 
-            <!-- BAR GRAPH -->
-            <div class="relative h-80">
-                <div id="y-axis-labels" class="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-right pr-2 text-xs text-gray-400">
-                    <span>0</span>
-                    <span>0</span>
-                    <span>0</span>
-                    <span>0</span>
-                    <span>0</span>
-                </div>
-                
-                <div class="absolute left-12 right-0 top-0 bottom-8">
-                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 0%"></div>
-                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 25%"></div>
-                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 50%"></div>
-                    <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 75%"></div>
-                    <div class="absolute w-full border-t border-gray-100" style="bottom: 0%"></div>
-                </div>
-                
-                <div id="trend-bars" class="absolute left-12 right-0 top-0 bottom-8 flex items-end justify-around gap-2 overflow-x-auto pb-2">
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="text-center">
-                            <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
-                        </div>
+        <!-- BAR GRAPH -->
+        <div class="relative h-80">
+            <div id="y-axis-labels" class="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-right pr-2 text-xs text-gray-400">
+                <span>0</span>
+                <span>0</span>
+                <span>0</span>
+                <span>0</span>
+                <span>0</span>
+            </div>
+            
+            <div class="absolute left-12 right-0 top-0 bottom-8">
+                <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 0%"></div>
+                <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 25%"></div>
+                <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 50%"></div>
+                <div class="absolute w-full border-t border-dashed border-gray-200" style="top: 75%"></div>
+                <div class="absolute w-full border-t border-gray-100" style="bottom: 0%"></div>
+            </div>
+            
+            <div id="weekly-bars" class="absolute left-12 right-0 top-0 bottom-8 flex items-end justify-around gap-2 overflow-x-auto pb-2">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                        <svg class="animate-spin h-8 w-8 mx-auto text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-sm text-gray-500 mt-2">Loading chart data...</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100" id="summary-stats">
-                <div class="text-center">
-                    <p class="text-xs text-gray-500">Total</p>
-                    <p class="text-lg font-bold text-gray-800" id="total-apps">0</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-xs text-gray-500">Average</p>
-                    <p class="text-lg font-bold text-gray-800" id="avg-apps">0</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-xs text-gray-500">Peak</p>
-                    <p class="text-lg font-bold text-gray-800" id="peak-apps">0</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-xs text-gray-500">Growth</p>
-                    <p class="text-lg font-bold text-green-600" id="growth-rate">0%</p>
-                </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100" id="summary-stats">
+            <div class="text-center">
+                <p class="text-xs text-gray-500">Total</p>
+                <p class="text-lg font-bold text-gray-800" id="total-apps">0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-xs text-gray-500">Average</p>
+                <p class="text-lg font-bold text-gray-800" id="avg-apps">0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-xs text-gray-500">Peak</p>
+                <p class="text-lg font-bold text-gray-800" id="peak-apps">0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-xs text-gray-500">Growth</p>
+                <p class="text-lg font-bold text-green-600" id="growth-rate">0%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DONUT CHART - Overall -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between w-full mb-6">
+            <h2 class="text-lg font-semibold text-gray-700">Application Status</h2>
+            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
+        </div>
+
+        <div class="relative w-48 h-48 mx-auto mb-6">
+            <canvas id="donut-chart" width="192" height="192"></canvas>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
+                <span class="text-xl font-bold text-gray-700" id="completion-percentage">0%</span>
+                <span class="text-[10px] text-gray-500">complete</span>
             </div>
         </div>
 
-        <!-- DONUT CHART - Status Distribution -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between w-full mb-6">
-                <h2 class="text-lg font-semibold text-gray-700">Application Status</h2>
-                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Live</span>
-            </div>
+        <div class="w-full space-y-4 mt-2" id="status-legend"></div>
 
-            <div class="relative w-48 h-48 mx-auto mb-6">
-                <canvas id="donut-chart" width="192" height="192"></canvas>
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex flex-col items-center justify-center">
-                    <span class="text-xl font-bold text-gray-700" id="completion-percentage">0%</span>
-                    <span class="text-[10px] text-gray-500">complete</span>
+        <div class="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-gray-100">
+            <div class="text-center bg-orange-50 rounded-lg p-3">
+                <p class="text-xs text-orange-600 font-medium">Total</p>
+                <p class="text-lg font-bold text-gray-800" id="total-all-apps">0</p>
+            </div>
+            <div class="text-center bg-blue-50 rounded-lg p-3">
+                <p class="text-xs text-blue-600 font-medium">This Month</p>
+                <p class="text-lg font-bold text-gray-800" id="monthly-apps">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EXTRA SECTION -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <!-- RECENT ACTIVITY -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">Recent Activity</h3>
+                <p class="text-xs text-gray-500 mt-1">Latest application updates</p>
+            </div>
+            <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">View all</a>
+        </div>
+
+        <div id="recent-activity-list" class="space-y-4 text-sm">
+            <div class="flex items-center justify-center p-4">
+                <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- CITIZEN SATISFACTION SECTION -->
+<div class="bg-white rounded-xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-700">Citizen Satisfaction</h3>
+            <p class="text-xs text-gray-500 mt-1">Client feedback and service quality metrics</p>
+        </div>
+        <a href="/staff/surveys" class="text-sm text-[#155386] hover:text-[#40798C] font-medium inline-flex items-center gap-1">
+            View all surveys
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+
+    <!-- Main Satisfaction Score -->
+    <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-[#155386] to-[#40798C] text-white mb-3">
+            <span class="text-3xl font-bold" id="sat-avg-rating">0.0</span>
+            <span class="text-sm ml-0.5">/5</span>
+        </div>
+        <div class="flex items-center justify-center gap-1 mb-1" id="sat-stars">
+            <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <p class="text-xs text-gray-500"><span id="sat-total-surveys">0</span> survey responses</p>
+    </div>
+
+    <!-- Two Column Stats -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-green-700" id="sat-response-rate">0%</p>
+            <p class="text-xs text-gray-600">Response Rate</p>
+        </div>
+        <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-2xl font-bold text-blue-700" id="cpdo-avg-rating">0.0</p>
+            <p class="text-xs text-gray-600">CPDO Service Rating</p>
+            <div class="flex items-center justify-center gap-0.5 mt-1" id="cpdo-stars">
+                <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Quality Metrics -->
+    <div>
+        <p class="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Service Quality</p>
+        <div class="space-y-3">
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-gray-600">Processing Time</span>
+                    <span class="font-medium text-gray-800" id="sqd-proc-time">0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="proc-time-bar" style="width: 0%"></div>
                 </div>
             </div>
-
-            <div class="w-full space-y-4 mt-2" id="status-legend"></div>
-
-            <div class="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-gray-100">
-                <div class="text-center bg-orange-50 rounded-lg p-3">
-                    <p class="text-xs text-orange-600 font-medium">Total</p>
-                    <p class="text-lg font-bold text-gray-800" id="total-all-apps">0</p>
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-gray-600">Staff Responsiveness</span>
+                    <span class="font-medium text-gray-800" id="sqd-responsiveness">0</span>
                 </div>
-                <div class="text-center bg-blue-50 rounded-lg p-3">
-                    <p class="text-xs text-blue-600 font-medium">Filtered</p>
-                    <p class="text-lg font-bold text-gray-800" id="filtered-apps">0</p>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="responsiveness-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-gray-600">Clarity & Fairness</span>
+                    <span class="font-medium text-gray-800" id="sqd-clarity">0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="clarity-bar" style="width: 0%"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- EXTRA SECTION -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <!-- RECENT ACTIVITY -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Recent Activity</h3>
-                    <p class="text-xs text-gray-500 mt-1">Latest application updates</p>
-                </div>
-                <a href="/staff/applications" class="text-sm text-[#155386] hover:text-[#40798C] font-medium">View all</a>
-            </div>
+    <!-- Divider -->
+    <div class="border-t border-gray-100 my-4"></div>
 
-            <div id="recent-activity-list" class="space-y-4 text-sm">
-                <div class="flex items-center justify-center p-4">
-                    <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+    <!-- Rating Distribution -->
+    <div>
+        <p class="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">Rating Breakdown</p>
+        <div class="space-y-2">
+            <div class="flex items-center gap-2">
+                <div class="w-12 text-sm font-medium text-green-600">5 ★</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-500 h-2 rounded-full transition-all duration-300" id="dist-5" style="width: 0%"></div>
                 </div>
+                <div class="w-10 text-xs text-right text-gray-600" id="dist-5-val">0%</div>
             </div>
-        </div>
-
-        <!-- RECENTLY VERIFIED DOCUMENTS -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Recently Verified Documents</h3>
-                    <p class="text-xs text-gray-500 mt-1">
-                        @php
-                            $position = Auth::user()->profile ? Auth::user()->profile->position : null;
-                        @endphp
-                        @if($position === 'cpdo')
-                            Documents you have verified: <span class="font-medium text-green-600">TCT/Deed of Sale</span>
-                        @elseif($position === 'assessor')
-                            Documents you have verified: <span class="font-medium text-purple-600">Tax Declaration, TCT/Deed of Sale</span>
-                        @elseif($position === 'treasurer')
-                            Documents you have verified: <span class="font-medium text-orange-600">Current Tax Receipt, SPA</span>
-                        @else
-                            No position assigned
-                        @endif
-                    </p>
+            <div class="flex items-center gap-2">
+                <div class="w-12 text-sm font-medium text-blue-600">4 ★</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="dist-4" style="width: 0%"></div>
                 </div>
-                <a href="/staff/ownership-verifications/verified" class="text-sm text-[#155386] hover:text-[#40798C] font-medium inline-flex items-center gap-1">
-                    View all verified
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
+                <div class="w-10 text-xs text-right text-gray-600" id="dist-4-val">0%</div>
             </div>
-
-            <div id="verified-ownership-list" class="space-y-4">
-                <div class="flex items-center justify-center p-4">
-                    <svg class="animate-spin h-5 w-5 text-[#155386]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+            <div class="flex items-center gap-2">
+                <div class="w-12 text-sm font-medium text-yellow-600">3 ★</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-yellow-500 h-2 rounded-full transition-all duration-300" id="dist-3" style="width: 0%"></div>
                 </div>
+                <div class="w-10 text-xs text-right text-gray-600" id="dist-3-val">0%</div>
+            </div>
+            <div class="flex items-center gap-2 opacity-60">
+                <div class="w-12 text-sm font-medium text-orange-600">2 ★</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" id="dist-2" style="width: 0%"></div>
+                </div>
+                <div class="w-10 text-xs text-right text-gray-600" id="dist-2-val">0%</div>
+            </div>
+            <div class="flex items-center gap-2 opacity-60">
+                <div class="w-12 text-sm font-medium text-red-600">1 ★</div>
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-500 h-2 rounded-full transition-all duration-300" id="dist-1" style="width: 0%"></div>
+                </div>
+                <div class="w-10 text-xs text-right text-gray-600" id="dist-1-val">0%</div>
             </div>
         </div>
     </div>
+</div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let donutChart = null;
     let currentUserPosition = null;
+    
+    // Filter state - initialize with monthly (default)
     let currentFilterType = 'monthly';
-    let currentFilterValue = '{{ date("Y-m") }}';
+    let selectedDate = new Date();
+    let selectedMonth = new Date().getMonth();
+    let selectedYear = new Date().getFullYear();
+    
+    // Calendar state
+    let calendarCurrentYear = new Date().getFullYear();
+    let calendarCurrentMonth = new Date().getMonth();
 
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, loading dashboard data...');
         
-        // Get user position
-        fetchUserPosition();
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const currentMonthName = monthNames[selectedMonth];
+        const currentYear = selectedYear;
         
-        // Load dashboard data
+        // Set default display to monthly
+        document.getElementById('selected-date-display').textContent = `${currentMonthName} ${currentYear}`;
+        document.getElementById('current-date-range').textContent = `${currentMonthName} ${currentYear}`;
+        document.getElementById('chart-title').textContent = 'Monthly Application Trend';
+        document.getElementById('chart-subtitle').textContent = `Applications for ${currentMonthName} ${currentYear}`;
+        
+        fetchUserPosition();
         loadDashboardData();
         
-        // Add event listener for trend period change
         document.getElementById('trend-period')?.addEventListener('change', function() {
             loadTrendData();
         });
+        
+        updateCalendarDisplay();
     });
+    
+    function toggleCalendarDropdown() {
+        const dropdown = document.getElementById('calendar-dropdown');
+        dropdown.classList.toggle('hidden');
+        
+        if (!dropdown.classList.contains('hidden')) {
+            updateCalendarForFilterType();
+        }
+    }
+    
+    function updateCalendarForFilterType() {
+        const calendarHeader = document.getElementById('calendar-header');
+        const weekdaysHeader = document.getElementById('weekdays-header');
+        const calendarGrid = document.getElementById('calendar-days-grid');
+        const monthSelector = document.getElementById('month-selector');
+        const yearSelector = document.getElementById('year-selector');
+        const dailyApplyBtn = document.getElementById('daily-apply-btn');
+        const monthlyApplyBtn = document.getElementById('monthly-apply-btn');
+        const yearlyApplyBtn = document.getElementById('yearly-apply-btn');
+        
+        // Reset button styles
+        dailyApplyBtn.className = 'bg-white border border-gray-200 py-2.5 rounded-xl font-semibold text-sm text-gray-600 hover:bg-gray-50 transition';
+        monthlyApplyBtn.className = 'bg-white border border-gray-200 py-2.5 rounded-xl font-semibold text-sm text-gray-600 hover:bg-gray-50 transition';
+        yearlyApplyBtn.className = 'bg-white border border-gray-200 py-2.5 rounded-xl font-semibold text-sm text-gray-600 hover:bg-gray-50 transition';
+        
+        if (currentFilterType === 'daily') {
+            dailyApplyBtn.className = 'bg-[#155386] text-white py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition';
+            calendarHeader.classList.remove('hidden');
+            weekdaysHeader.classList.remove('hidden');
+            calendarGrid.classList.remove('hidden');
+            monthSelector.classList.add('hidden');
+            yearSelector.classList.add('hidden');
+            updateCalendarDisplay();
+        } else if (currentFilterType === 'monthly') {
+            monthlyApplyBtn.className = 'bg-[#155386] text-white py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition';
+            calendarHeader.classList.add('hidden');
+            weekdaysHeader.classList.add('hidden');
+            calendarGrid.classList.add('hidden');
+            monthSelector.classList.remove('hidden');
+            yearSelector.classList.add('hidden');
+            highlightSelectedMonth();
+        } else if (currentFilterType === 'yearly') {
+            yearlyApplyBtn.className = 'bg-[#155386] text-white py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 transition';
+            calendarHeader.classList.add('hidden');
+            weekdaysHeader.classList.add('hidden');
+            calendarGrid.classList.add('hidden');
+            monthSelector.classList.add('hidden');
+            yearSelector.classList.remove('hidden');
+            highlightSelectedYear();
+        }
+    }
+    
+    function updateCalendarDisplay() {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        document.getElementById('calendar-month-year').textContent = `${monthNames[calendarCurrentMonth]} ${calendarCurrentYear}`;
+        
+        const firstDayOfMonth = new Date(calendarCurrentYear, calendarCurrentMonth, 1);
+        const startingDayOfWeek = firstDayOfMonth.getDay();
+        const daysInMonth = new Date(calendarCurrentYear, calendarCurrentMonth + 1, 0).getDate();
+        
+        let daysHtml = '';
+        
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            daysHtml += `<div class="h-10"></div>`;
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isSelected = (currentFilterType === 'daily' && 
+                                selectedDate.getDate() === day && 
+                                selectedDate.getMonth() === calendarCurrentMonth && 
+                                selectedDate.getFullYear() === calendarCurrentYear);
+            
+            const selectedClass = isSelected ? 'bg-teal-700 text-white font-semibold shadow' : 'hover:bg-gray-100';
+            
+            daysHtml += `
+                <div onclick="selectCalendarDay(${day})" 
+                     class="h-10 w-10 mx-auto flex items-center justify-center rounded-xl cursor-pointer transition ${selectedClass}">
+                    ${day}
+                </div>
+            `;
+        }
+        
+        document.getElementById('calendar-days-grid').innerHTML = daysHtml;
+    }
+    
+    function selectCalendarDay(day) {
+        selectedDate = new Date(calendarCurrentYear, calendarCurrentMonth, day);
+        updateCalendarDisplay();
+    }
+    
+    function changeCalendarMonth(delta) {
+        calendarCurrentMonth += delta;
+        
+        if (calendarCurrentMonth < 0) {
+            calendarCurrentMonth = 11;
+            calendarCurrentYear--;
+        } else if (calendarCurrentMonth > 11) {
+            calendarCurrentMonth = 0;
+            calendarCurrentYear++;
+        }
+        
+        updateCalendarDisplay();
+    }
+    
+    function selectMonth(monthIndex) {
+        selectedMonth = monthIndex;
+        highlightSelectedMonth();
+    }
+    
+    function highlightSelectedMonth() {
+        document.querySelectorAll('.month-option').forEach((btn, index) => {
+            if (index === selectedMonth) {
+                btn.className = 'month-option px-3 py-2 text-sm rounded-lg bg-[#155386] text-white transition';
+            } else {
+                btn.className = 'month-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition';
+            }
+        });
+    }
+    
+    function selectYear(year) {
+        selectedYear = year;
+        highlightSelectedYear();
+    }
+    
+    function highlightSelectedYear() {
+        document.querySelectorAll('.year-option').forEach(btn => {
+            if (parseInt(btn.textContent) === selectedYear) {
+                btn.className = 'year-option px-3 py-2 text-sm rounded-lg bg-[#155386] text-white transition';
+            } else {
+                btn.className = 'year-option px-3 py-2 text-sm rounded-lg hover:bg-gray-100 transition';
+            }
+        });
+    }
+    
+    function applyDailyFilter() {
+        currentFilterType = 'daily';
+        updateCalendarForFilterType();
+        document.getElementById('calendar-dropdown').classList.add('hidden');
+        
+        const formattedDate = selectedDate.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        document.getElementById('selected-date-display').textContent = formattedDate;
+        document.getElementById('current-date-range').textContent = formattedDate;
+        document.getElementById('chart-title').textContent = 'Daily Application Trend';
+        document.getElementById('chart-subtitle').textContent = `Applications for ${formattedDate}`;
+        
+        loadStats();
+        loadTrendData();
+    }
+    
+    function applyMonthlyFilter() {
+        currentFilterType = 'monthly';
+        updateCalendarForFilterType();
+        document.getElementById('calendar-dropdown').classList.add('hidden');
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthName = monthNames[selectedMonth];
+        
+        document.getElementById('selected-date-display').textContent = `${monthName} ${selectedYear}`;
+        document.getElementById('current-date-range').textContent = `${monthName} ${selectedYear}`;
+        document.getElementById('chart-title').textContent = 'Monthly Application Trend';
+        document.getElementById('chart-subtitle').textContent = `Applications for ${monthName} ${selectedYear}`;
+        
+        loadStats();
+        loadTrendData();
+    }
+    
+    function applyYearlyFilter() {
+        currentFilterType = 'yearly';
+        updateCalendarForFilterType();
+        document.getElementById('calendar-dropdown').classList.add('hidden');
+        
+        document.getElementById('selected-date-display').textContent = selectedYear.toString();
+        document.getElementById('current-date-range').textContent = selectedYear.toString();
+        document.getElementById('chart-title').textContent = 'Yearly Application Trend';
+        document.getElementById('chart-subtitle').textContent = `Applications for ${selectedYear}`;
+        
+        loadStats();
+        loadTrendData();
+    }
 
     async function fetchUserPosition() {
         try {
@@ -314,80 +653,42 @@
         }
     }
 
-    function setDateFilter(type) {
-        currentFilterType = type;
-        
-        // Update button styles
-        const monthlyBtn = document.getElementById('filter-monthly-btn');
-        const yearlyBtn = document.getElementById('filter-yearly-btn');
-        
-        if (type === 'monthly') {
-            monthlyBtn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 bg-[#155386] text-white';
-            yearlyBtn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-600 hover:bg-gray-100';
-            document.getElementById('month-picker').classList.remove('hidden');
-            document.getElementById('year-picker').classList.add('hidden');
-        } else {
-            yearlyBtn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 bg-[#155386] text-white';
-            monthlyBtn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-600 hover:bg-gray-100';
-            document.getElementById('month-picker').classList.add('hidden');
-            document.getElementById('year-picker').classList.remove('hidden');
-        }
-    }
-
-    function applyDateFilter() {
-        if (currentFilterType === 'monthly') {
-            currentFilterValue = document.getElementById('selected-month').value;
-            const [year, month] = currentFilterValue.split('-');
-            document.getElementById('current-filter-badge').textContent = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-        } else {
-            currentFilterValue = document.getElementById('selected-year').value;
-            document.getElementById('current-filter-badge').textContent = `Year ${currentFilterValue}`;
-        }
-        
-        // Update export links
-        updateExportLinks();
-        
-        // Reload all dashboard data with new filter
-        loadDashboardData();
-    }
-
-    function updateExportLinks() {
-        const excelLink = document.getElementById('export-excel-link');
-        const pdfLink = document.getElementById('export-pdf-link');
-        
-        let params = `filter_type=${currentFilterType}&filter_value=${currentFilterValue}`;
-        excelLink.href = `/staff/dashboard/export?format=excel&${params}`;
-        pdfLink.href = `/staff/dashboard/export?format=pdf&${params}`;
-    }
-
     async function loadDashboardData() {
         try {
-            const params = new URLSearchParams({
-                filter_type: currentFilterType,
-                filter_value: currentFilterValue
-            });
-            
-            await loadStats(params);
-            await loadTrendData(params);
-            await loadRecentActivities(params);
-            await loadVerifiedOwnershipDocuments();
+            await loadStats();
+            await loadTrendData();
+            await loadRecentActivities();
+            await loadCitizenSatisfaction();
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         }
     }
 
-    async function loadStats(params) {
+    async function loadStats() {
         try {
-            const response = await fetch(`/staff/applications/stats?${params.toString()}`);
+            let url = `/staff/applications/stats?filter=${currentFilterType}`;
+            
+            if (currentFilterType === 'daily') {
+                const year = selectedDate.getFullYear();
+                const month = selectedDate.getMonth() + 1;
+                const day = selectedDate.getDate();
+                url += `&year=${year}&month=${month}&day=${day}`;
+            } else if (currentFilterType === 'monthly') {
+                url += `&year=${selectedYear}&month=${selectedMonth + 1}`;
+            } else if (currentFilterType === 'yearly') {
+                url += `&year=${selectedYear}`;
+            }
+            
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to load stats');
             
             const stats = await response.json();
             
             const statsContainer = document.getElementById('stats-container');
-            const lastMonthTotal = stats.last_month_total || 0;
-            const thisMonthTotal = stats.this_month_total || 0;
-            const growthPercent = lastMonthTotal > 0 
-                ? ((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100).toFixed(1)
+            const lastPeriodTotal = stats.last_period_total || 0;
+            const thisPeriodTotal = stats.this_period_total || 0;
+            const growthPercent = lastPeriodTotal > 0 
+                ? ((thisPeriodTotal - lastPeriodTotal) / lastPeriodTotal * 100).toFixed(1)
                 : 0;
             
             statsContainer.innerHTML = `
@@ -400,7 +701,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${growthPercent >= 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'}" />
                                 </svg>
-                                ${Math.abs(growthPercent)}% from previous period
+                                ${Math.abs(growthPercent)}% from last period
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -420,7 +721,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                ${stats.new_today || 0} new today
+                                ${stats.new_today || 0} new
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -472,32 +773,17 @@
                 </div>
             `;
 
-            document.getElementById('total-all-apps').textContent = stats.total_all_time || 0;
-            document.getElementById('filtered-apps').textContent = stats.total || 0;
+            document.getElementById('total-all-apps').textContent = stats.total || 0;
+            document.getElementById('monthly-apps').textContent = stats.this_month_total || 0;
             updateDonutChart(stats);
         } catch (error) {
             console.error('Error loading stats:', error);
-            document.getElementById('stats-container').innerHTML = `
-                <div class="col-span-4 text-center py-8 text-red-500 bg-white rounded-xl">
-                    <p>Failed to load statistics</p>
-                    <button onclick="loadStats()" class="mt-2 text-sm text-[#155386] hover:underline">Try again</button>
-                </div>
-            `;
         }
     }
 
-    async function loadTrendData(params = null) {
+    async function loadTrendData() {
         const period = document.getElementById('trend-period').value;
-        const barsContainer = document.getElementById('trend-bars');
-        
-        if (!params) {
-            params = new URLSearchParams({
-                filter_type: currentFilterType,
-                filter_value: currentFilterValue
-            });
-        }
-        
-        params.append('trend_period', period);
+        const barsContainer = document.getElementById('weekly-bars');
         
         barsContainer.innerHTML = `
             <div class="absolute inset-0 flex items-center justify-center">
@@ -512,7 +798,20 @@
         `;
         
         try {
-            const response = await fetch(`/staff/applications/weekly-trend?${params.toString()}&period=${period}`);
+            let url = `/staff/applications/trend-data?period=${period}&filter=${currentFilterType}`;
+            
+            if (currentFilterType === 'daily') {
+                const year = selectedDate.getFullYear();
+                const month = selectedDate.getMonth() + 1;
+                const day = selectedDate.getDate();
+                url += `&year=${year}&month=${month}&day=${day}`;
+            } else if (currentFilterType === 'monthly') {
+                url += `&year=${selectedYear}&month=${selectedMonth + 1}`;
+            } else if (currentFilterType === 'yearly') {
+                url += `&year=${selectedYear}`;
+            }
+            
+            const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
             
             const data = await response.json();
@@ -523,12 +822,6 @@
             if (data.values && data.labels) {
                 values = data.values;
                 labels = data.labels;
-            } else if (data.periods && data.counts) {
-                labels = data.periods;
-                values = data.counts;
-            } else if (Array.isArray(data)) {
-                values = data.map(d => d.count || 0);
-                labels = data.map(d => d.label || d.period || 'Period');
             } else {
                 values = [0, 0, 0, 0];
                 labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
@@ -547,7 +840,7 @@
     }
 
     function renderTrendChart(values, labels) {
-        const barsContainer = document.getElementById('trend-bars');
+        const barsContainer = document.getElementById('weekly-bars');
         const maxValue = Math.max(...values, 1);
         const gradientColors = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#9EC5CB] to-[#B8D8E3]'];
         
@@ -557,11 +850,11 @@
             const percentage = Math.max(4, (value / maxValue) * 100);
             const colorIndex = index % gradientColors.length;
             const formattedValue = value.toLocaleString();
-            const label = labels[index] || `Period ${index + 1}`;
+            const label = labels[index] || `Item ${index + 1}`;
             
             barsHtml += `
                 <div class="group relative flex flex-col items-center justify-end h-full flex-1 min-w-[60px]">
-                    <div class="relative w-full max-w-[60px] mx-auto" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-end;">
+                    <div class="relative w-full max-w-[60px] mx-auto">
                         <div class="w-full bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
                              style="height: ${percentage}%; min-height: 30px;">
                             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
@@ -621,7 +914,7 @@
     }
 
     function showErrorState(message) {
-        const barsContainer = document.getElementById('trend-bars');
+        const barsContainer = document.getElementById('weekly-bars');
         barsContainer.innerHTML = `
             <div class="absolute inset-0 flex items-center justify-center">
                 <div class="text-center">
@@ -641,7 +934,7 @@
     }
 
     function updateDonutChart(stats) {
-        const totalFiltered = stats.total || 0;
+        const total = stats.total || 0;
         const pending = stats.pending || 0;
         const underReview = stats.under_review || 0;
         const approved = stats.approved || 0;
@@ -649,7 +942,7 @@
         const verified = stats.verified || 0;
         const rejected = stats.rejected || 0;
         
-        const completedPercent = totalFiltered > 0 ? (verified / totalFiltered * 100).toFixed(1) : 0;
+        const completedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
         document.getElementById('completion-percentage').textContent = completedPercent + '%';
         
         const ctx = document.getElementById('donut-chart').getContext('2d');
@@ -674,15 +967,13 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
                                 const value = context.raw || 0;
-                                const percentage = totalFiltered > 0 ? ((value / totalFiltered) * 100).toFixed(1) : 0;
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                                 return `${label}: ${value} (${percentage}%)`;
                             }
                         }
@@ -691,119 +982,34 @@
             }
         });
         
-        const pendingPercent = totalFiltered > 0 ? (pending / totalFiltered * 100).toFixed(1) : 0;
-        const underReviewPercent = totalFiltered > 0 ? (underReview / totalFiltered * 100).toFixed(1) : 0;
-        const approvedPercent = totalFiltered > 0 ? (approved / totalFiltered * 100).toFixed(1) : 0;
-        const forReleasePercent = totalFiltered > 0 ? (forRelease / totalFiltered * 100).toFixed(1) : 0;
-        const verifiedPercent = totalFiltered > 0 ? (verified / totalFiltered * 100).toFixed(1) : 0;
-        const rejectedPercent = totalFiltered > 0 ? (rejected / totalFiltered * 100).toFixed(1) : 0;
+        const pendingPercent = total > 0 ? (pending / total * 100).toFixed(1) : 0;
+        const underReviewPercent = total > 0 ? (underReview / total * 100).toFixed(1) : 0;
+        const approvedPercent = total > 0 ? (approved / total * 100).toFixed(1) : 0;
+        const forReleasePercent = total > 0 ? (forRelease / total * 100).toFixed(1) : 0;
+        const verifiedPercent = total > 0 ? (verified / total * 100).toFixed(1) : 0;
+        const rejectedPercent = total > 0 ? (rejected / total * 100).toFixed(1) : 0;
         
         const legend = document.getElementById('status-legend');
         legend.innerHTML = `
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #F59E0B"></div>
-                        <span class="text-sm text-gray-600">Pending</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${pendingPercent}% (${pending})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingPercent}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #8B5CF6"></div>
-                        <span class="text-sm text-gray-600">Under Review</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${underReviewPercent}% (${underReview})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: ${underReviewPercent}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #10B981"></div>
-                        <span class="text-sm text-gray-600">Approved</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${approvedPercent}% (${approved})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${approvedPercent}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #3B82F6"></div>
-                        <span class="text-sm text-gray-600">For Release</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${forReleasePercent}% (${forRelease})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${forReleasePercent}%"></div>
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #22C55E"></div>
-                        <span class="text-sm text-gray-600">Completed</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${verifiedPercent}% (${verified})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-green-500 h-1.5 rounded-full" style="width: ${verifiedPercent}%"></div>
-                </div>
-            </div>
-            ${rejected > 0 ? `
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #EF4444"></div>
-                        <span class="text-sm text-gray-600">Rejected</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-700">${rejectedPercent}% (${rejected})</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-red-500 h-1.5 rounded-full" style="width: ${rejectedPercent}%"></div>
-                </div>
-            </div>
-            ` : ''}
+            <div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #F59E0B"></div><span class="text-sm text-gray-600">Pending</span></div><span class="text-sm font-bold text-gray-700">${pendingPercent}% (${pending})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-amber-500 h-1.5 rounded-full" style="width: ${pendingPercent}%"></div></div></div>
+            <div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #8B5CF6"></div><span class="text-sm text-gray-600">Under Review</span></div><span class="text-sm font-bold text-gray-700">${underReviewPercent}% (${underReview})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-purple-500 h-1.5 rounded-full" style="width: ${underReviewPercent}%"></div></div></div>
+            <div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #10B981"></div><span class="text-sm text-gray-600">Approved</span></div><span class="text-sm font-bold text-gray-700">${approvedPercent}% (${approved})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${approvedPercent}%"></div></div></div>
+            <div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #3B82F6"></div><span class="text-sm text-gray-600">For Release</span></div><span class="text-sm font-bold text-gray-700">${forReleasePercent}% (${forRelease})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-blue-500 h-1.5 rounded-full" style="width: ${forReleasePercent}%"></div></div></div>
+            <div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #22C55E"></div><span class="text-sm text-gray-600">Completed</span></div><span class="text-sm font-bold text-gray-700">${verifiedPercent}% (${verified})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width: ${verifiedPercent}%"></div></div></div>
+            ${rejected > 0 ? `<div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full" style="background-color: #EF4444"></div><span class="text-sm text-gray-600">Rejected</span></div><span class="text-sm font-bold text-gray-700">${rejectedPercent}% (${rejected})</span></div><div class="w-full bg-gray-100 rounded-full h-1.5"><div class="bg-red-500 h-1.5 rounded-full" style="width: ${rejectedPercent}%"></div></div></div>` : ''}
         `;
     }
 
-    async function loadRecentActivities(params = null) {
-        if (!params) {
-            params = new URLSearchParams({
-                filter_type: currentFilterType,
-                filter_value: currentFilterValue
-            });
-        }
-        
+    async function loadRecentActivities() {
         try {
-            const response = await fetch(`/staff/applications/recent-activities?${params.toString()}`);
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            const response = await fetch('/staff/applications/recent-activities');
+            if (!response.ok) throw new Error('Network response was not ok');
             
             const activities = await response.json();
             const listContainer = document.getElementById('recent-activity-list');
             
             if (!activities || activities.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-sm">No recent activities</p>
-                    </div>
-                `;
+                listContainer.innerHTML = `<div class="text-center py-8 text-gray-500"><svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-sm">No recent activities</p></div>`;
                 return;
             }
             
@@ -816,49 +1022,11 @@
                 const reviewerName = activity.reviewer_name || 'System';
                 const remarks = activity.remarks;
                 
-                let iconColor = 'bg-blue-100 text-blue-600';
-                let icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                `;
-                
-                if (activity.action === 'status_updated') {
-                    if (activity.new_status === 'approved') {
-                        iconColor = 'bg-green-100 text-green-600';
-                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
-                    } else if (activity.new_status === 'rejected') {
-                        iconColor = 'bg-red-100 text-red-600';
-                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
-                    } else if (activity.new_status === 'for-assessment') {
-                        iconColor = 'bg-indigo-100 text-indigo-600';
-                        icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
-                    }
-                } else if (activity.action === 'hard_copy_received') {
-                    iconColor = 'bg-indigo-100 text-indigo-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
-                } else if (activity.action === 'application_submitted') {
-                    iconColor = 'bg-emerald-100 text-emerald-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>`;
-                } else if (activity.action === 'document_verified') {
-                    iconColor = 'bg-green-100 text-green-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
-                } else if (activity.action === 'note_added') {
-                    iconColor = 'bg-yellow-100 text-yellow-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>`;
-                } else if (activity.action === 'cpdo_approved') {
-                    iconColor = 'bg-cyan-100 text-cyan-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`;
-                } else if (activity.action === 'fsec_uploaded') {
-                    iconColor = 'bg-red-100 text-red-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>`;
-                }
-                
                 activitiesHtml += `
                     <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
-                                ${icon}
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm font-medium text-gray-800">${escapeHtml(actionDisplay)}</p>
@@ -872,39 +1040,22 @@
             });
             
             listContainer.innerHTML = activitiesHtml;
-            
         } catch (error) {
             console.error('Error loading recent activities:', error);
-            document.getElementById('recent-activity-list').innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <p class="text-sm">Failed to load activities</p>
-                    <button onclick="loadRecentActivities()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
-                </div>
-            `;
+            document.getElementById('recent-activity-list').innerHTML = `<div class="text-center py-8 text-red-500"><p class="text-sm">Failed to load activities</p><button onclick="loadRecentActivities()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button></div>`;
         }
     }
-
+    
     async function loadVerifiedOwnershipDocuments() {
         try {
             const response = await fetch('/staff/ownership-verifications/verified-data');
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
             const listContainer = document.getElementById('verified-ownership-list');
             
             if (!data.verifications || data.verifications.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <p class="text-sm">No verified documents yet</p>
-                        <p class="text-xs text-gray-400 mt-1">Documents you verify will appear here</p>
-                    </div>
-                `;
+                listContainer.innerHTML = `<div class="text-center py-8 text-gray-500"><svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><p class="text-sm">No verified documents yet</p></div>`;
                 return;
             }
             
@@ -915,73 +1066,28 @@
                 const timeAgo = getTimeAgo(item.verified_at);
                 const applicantName = `${item.first_name} ${item.last_name}`;
                 const documentType = item.document_type;
-                const documentLink = item.document_link;
-                const applicationNumber = item.application_number || 'N/A';
                 const verifiedByName = item.verified_by_name || 'You';
-                
-                let iconColor = 'bg-green-100 text-green-600';
-                let icon = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                `;
-                
-                if (documentType === 'TCT / Deed of Sale') {
-                    iconColor = 'bg-green-100 text-green-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
-                } else if (documentType === 'Tax Declaration') {
-                    iconColor = 'bg-purple-100 text-purple-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`;
-                } else if (documentType === 'Current Tax Receipt') {
-                    iconColor = 'bg-orange-100 text-orange-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
-                } else if (documentType === 'Special Power of Attorney (SPA)') {
-                    iconColor = 'bg-red-100 text-red-600';
-                    icon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h6m-6 3h6m-6 3h6M3 9h6m-6 3h6m-6 3h6m-6 0V5a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>`;
-                }
                 
                 verificationsHtml += `
                     <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
-                                ${icon}
+                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(applicantName)}</p>
-                                    <span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">${escapeHtml(applicationNumber)}</span>
-                                </div>
-                                <p class="text-xs text-gray-500">Document: <span class="font-medium">${escapeHtml(documentType)}</span></p>
+                                <p class="text-sm font-medium text-gray-800">${escapeHtml(applicantName)}</p>
+                                <p class="text-xs text-gray-500">${escapeHtml(documentType)}</p>
                                 <p class="text-xs text-green-600 mt-1">Verified by ${escapeHtml(verifiedByName)} • ${timeAgo}</p>
-                                ${documentLink ? `
-                                <div class="mt-1">
-                                    <a href="${escapeHtml(documentLink)}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                        View Document
-                                    </a>
-                                </div>
-                                ` : ''}
                             </div>
                         </div>
-                        <div class="text-right flex-shrink-0 ml-2">
-                            <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Verified</span>
-                        </div>
+                        <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">Verified</span>
                     </div>
                 `;
             });
             
             listContainer.innerHTML = verificationsHtml;
-            
         } catch (error) {
-            console.error('Error loading verified ownership documents:', error);
-            document.getElementById('verified-ownership-list').innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <p class="text-sm">Failed to load verified documents</p>
-                    <button onclick="loadVerifiedOwnershipDocuments()" class="mt-2 text-xs text-[#155386] hover:underline">Try again</button>
-                </div>
-            `;
+            console.error('Error loading verified documents:', error);
         }
     }
 
@@ -1007,58 +1113,128 @@
 
     function toggleExportDropdown() {
         const dropdown = document.getElementById('export-dropdown');
-        if (dropdown) {
-            dropdown.classList.toggle('hidden');
-        }
+        if (dropdown) dropdown.classList.toggle('hidden');
     }
 
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('export-dropdown');
-        const button = event.target.closest('.relative');
-        if (!button && dropdown && !dropdown.classList.contains('hidden')) {
+        const calendarDropdown = document.getElementById('calendar-dropdown');
+        
+        if (!event.target.closest('.relative') && dropdown && !dropdown.classList.contains('hidden')) {
             dropdown.classList.add('hidden');
+        }
+        
+        if (!event.target.closest('#calendar-dropdown') && !event.target.closest('[onclick="toggleCalendarDropdown()"]')) {
+            if (calendarDropdown && !calendarDropdown.classList.contains('hidden')) {
+                calendarDropdown.classList.add('hidden');
+            }
         }
     });
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const dropdown = document.getElementById('export-dropdown');
-            if (dropdown && !dropdown.classList.contains('hidden')) {
-                dropdown.classList.add('hidden');
-            }
+            const calendarDropdown = document.getElementById('calendar-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) dropdown.classList.add('hidden');
+            if (calendarDropdown && !calendarDropdown.classList.contains('hidden')) calendarDropdown.classList.add('hidden');
         }
     });
+
+   async function loadCitizenSatisfaction() {
+    try {
+        // Load satisfaction survey stats
+        const surveyResponse = await fetch('/staff/surveys/data?period=this_year&page=1&per_page=1');
+        const surveyData = await surveyResponse.json();
+        
+        if (surveyData.success && surveyData.stats) {
+            const stats = surveyData.stats;
+            const avgRating = stats.avg_rating || 0;
+            const responseRate = stats.response_rate || 0;
+            const totalSurveys = stats.total || 0;
+            const distribution = stats.rating_distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            const total = distribution[1] + distribution[2] + distribution[3] + distribution[4] + distribution[5];
+            
+            // Update UI
+            document.getElementById('sat-avg-rating').textContent = avgRating.toFixed(1);
+            document.getElementById('sat-response-rate').textContent = Math.round(responseRate);
+            document.getElementById('sat-total-surveys').textContent = totalSurveys;
+            
+            // Update stars
+            const fullStars = Math.floor(avgRating);
+            const starsContainer = document.getElementById('sat-stars');
+            starsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('class', `w-5 h-5 ${i <= fullStars ? 'text-yellow-400' : 'text-gray-300'}`);
+                star.setAttribute('fill', 'currentColor');
+                star.setAttribute('viewBox', '0 0 20 20');
+                star.innerHTML = '<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>';
+                starsContainer.appendChild(star);
+            }
+            
+            // Update distribution percentages
+            const getPercent = (val) => total > 0 ? ((val / total) * 100).toFixed(0) : 0;
+            document.getElementById('dist-5').style.width = getPercent(distribution[5]) + '%';
+            document.getElementById('dist-5-val').textContent = getPercent(distribution[5]) + '%';
+            document.getElementById('dist-4').style.width = getPercent(distribution[4]) + '%';
+            document.getElementById('dist-4-val').textContent = getPercent(distribution[4]) + '%';
+            document.getElementById('dist-3').style.width = getPercent(distribution[3]) + '%';
+            document.getElementById('dist-3-val').textContent = getPercent(distribution[3]) + '%';
+            document.getElementById('dist-2').style.width = getPercent(distribution[2]) + '%';
+            document.getElementById('dist-2-val').textContent = getPercent(distribution[2]) + '%';
+            document.getElementById('dist-1').style.width = getPercent(distribution[1]) + '%';
+            document.getElementById('dist-1-val').textContent = getPercent(distribution[1]) + '%';
+        }
+        
+        // Load CPDO ratings stats
+        const cpdoResponse = await fetch('/staff/cpdo-ratings/stats');
+        const cpdoData = await cpdoResponse.json();
+        
+        if (cpdoData.success && cpdoData.data) {
+            const cpdoStats = cpdoData.data;
+            const avgCpdo = cpdoStats.avg_rating || 0;
+            const metrics = cpdoStats.metrics_scores || { processing_time: 0, responsiveness: 0, clarity: 0, fairness: 0, overall: 0 };
+            
+            document.getElementById('cpdo-avg-rating').textContent = avgCpdo.toFixed(1);
+            
+            // Update stars for CPDO
+            const cpdoFullStars = Math.floor(avgCpdo);
+            const cpdoStarsContainer = document.getElementById('cpdo-stars');
+            cpdoStarsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('class', `w-3 h-3 ${i <= cpdoFullStars ? 'text-yellow-400' : 'text-gray-300'}`);
+                star.setAttribute('fill', 'currentColor');
+                star.setAttribute('viewBox', '0 0 20 20');
+                star.innerHTML = '<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>';
+                cpdoStarsContainer.appendChild(star);
+            }
+            
+            // Update SQD metrics (1-5 scale)
+            const procTime = metrics.processing_time || 0;
+            const responsiveness = metrics.responsiveness || 0;
+            const clarityFairness = ((metrics.clarity || 0) + (metrics.fairness || 0)) / 2;
+            
+            document.getElementById('sqd-proc-time').textContent = procTime.toFixed(1);
+            document.getElementById('sqd-responsiveness').textContent = responsiveness.toFixed(1);
+            document.getElementById('sqd-clarity').textContent = clarityFairness.toFixed(1);
+            
+            document.getElementById('proc-time-bar').style.width = (procTime / 5 * 100) + '%';
+            document.getElementById('responsiveness-bar').style.width = (responsiveness / 5 * 100) + '%';
+            document.getElementById('clarity-bar').style.width = (clarityFairness / 5 * 100) + '%';
+        }
+    } catch (error) {
+        console.error('Error loading citizen satisfaction:', error);
+    }
+}
+
+
 </script>
-
 <style>
-    .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .5; }
-    }
-
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    .group:hover .group-hover\:opacity-100 {
-        opacity: 1;
-    }
-    
-    .group-hover\:scale-105:hover {
-        transform: scale(1.05);
-    }
-    
-    .group-hover\:scale-110:hover {
-        transform: scale(1.1);
-    }
+    .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .group:hover .group-hover\:opacity-100 { opacity: 1; }
 </style>
 @endsection

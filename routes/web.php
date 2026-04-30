@@ -63,16 +63,19 @@ Route::post('/staff/applications/{id}/ownership-remark', [App\Http\Controllers\S
 // Staff UI and API Routes - ORDER MATTERS! Put specific routes FIRST
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
     
-    // ========== SPECIFIC API ROUTES FIRST (before wildcard routes) ==========
+   // ========== SPECIFIC API ROUTES FIRST (before wildcard routes) ==========
     Route::get('/applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'index'])->name('applications.data');
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])->name('applications.export');
     Route::get('/applications/stats', [App\Http\Controllers\Staff\DashboardController::class, 'getStats'])->name('applications.stats');
     Route::get('/applications/weekly-trend', [App\Http\Controllers\Staff\DashboardController::class, 'getWeeklyTrend'])->name('applications.weekly-trend');
+    Route::get('/applications/trend-data', [App\Http\Controllers\Staff\DashboardController::class, 'getTrendData'])->name('applications.trend-data');  // ADD THIS
+    Route::get('/applications/daily-data', [App\Http\Controllers\Staff\DashboardController::class, 'getDailyData'])->name('applications.daily-data');      // ADD THIS
     Route::get('/applications/recent-activities', [App\Http\Controllers\Staff\DashboardController::class, 'getRecentActivities'])->name('applications.recent-activities');
     Route::get('/applications/upcoming-deadlines', [App\Http\Controllers\Staff\DashboardController::class, 'getUpcomingDeadlines'])->name('applications.upcoming-deadlines');
     Route::post('/applications/restore-multiple', [App\Http\Controllers\Staff\ApplicationController::class, 'restoreMultiple'])->name('applications.restore-multiple');
+    Route::get('/position/check', [App\Http\Controllers\Staff\DashboardController::class, 'checkPosition'])->name('position.check');
 
-    // ========== OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
+    // =========Route::get('/position/check', [App\Http\Controllers\Staff\DashboardController::class, 'checkPosition'])->name('position.check');= OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
     Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);
     
     // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
