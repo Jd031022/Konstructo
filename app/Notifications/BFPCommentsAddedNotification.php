@@ -41,6 +41,7 @@ class BFPCommentsAddedNotification extends Notification
                 'application_number' => $this->application->application_number,
                 'bfp_user_name' => $this->bfpUser->first_name . ' ' . $this->bfpUser->last_name,
                 'comments' => $this->comments,
+                'icon' => 'M7 8h10V6m4 0a2 2 0 11-4 0m4 0a2 2 0 014 0m-4-6v2m0 12a2 2 0 11-4 0m4 0a2 2 0 014 0m-4-6v2',
                 'action_url' => "/applicant/application-details/{$this->application->id}"
             ];
         } else {
@@ -53,6 +54,7 @@ class BFPCommentsAddedNotification extends Notification
                 'applicant_name' => $this->application->user ? $this->application->user->first_name . ' ' . $this->application->user->last_name : 'Unknown',
                 'bfp_user_name' => $this->bfpUser->first_name . ' ' . $this->bfpUser->last_name,
                 'comments' => $this->comments,
+                'icon' => 'M7 8h10V6m4 0a2 2 0 11-4 0m4 0a2 2 0 014 0m-4-6v2m0 12a2 2 0 11-4 0m4 0a2 2 0 014 0m-4-6v2',
                 'action_url' => "/staff/application-details/{$this->application->id}"
             ];
         }

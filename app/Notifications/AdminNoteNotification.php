@@ -39,6 +39,7 @@ class AdminNoteNotification extends Notification implements ShouldQueue
             'application_id' => $this->application->id,
             'application_number' => $this->application->application_number,
             'reviewer_name' => $this->reviewer->full_name,
+            'icon' => 'M11 5a2 2 0 012 2v6a2 2 0 01-2 2H9l-4 4v-4H7a2 2 0 01-2-2v-6a2 2 0 012-2h4m0 0V3a2 2 0 012-2h2a2 2 0 012 2v2m0 0V3a2 2 0 012-2h2a2 2 0 012 2v2',
             'link' => "/applicant/applications/{$this->application->id}"
         ];
     }

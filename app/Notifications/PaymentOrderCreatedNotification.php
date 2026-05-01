@@ -36,6 +36,7 @@ class PaymentOrderCreatedNotification extends Notification implements ShouldQueu
             'application_number' => $this->application->application_number,
             'order_number' => $this->paymentOrder->order_number,
             'treasurer_name' => $this->treasurer->first_name . ' ' . $this->treasurer->last_name,
+            'icon' => 'M3 10a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM3 5a2 2 0 012-2h10a2 2 0 012 2v2H3V5z',
             'action_url' => "/applicant/application-details/{$this->application->id}"
         ];
     }

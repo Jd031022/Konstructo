@@ -42,6 +42,7 @@ class ApplicationStatusNotification extends Notification
             'application_number' => $this->application->application_number,
             'old_status' => $this->oldStatus,
             'new_status' => $this->newStatus,
+            'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
             'link' => "/applicant/applications/{$this->application->id}"
         ];
     }

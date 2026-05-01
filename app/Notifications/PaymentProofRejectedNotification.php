@@ -41,6 +41,7 @@ class PaymentProofRejectedNotification extends Notification implements ShouldQue
             'rejected_by' => $this->staff->first_name . ' ' . $this->staff->last_name,
             'rejection_reason' => $this->reason,
             'message' => "Your Official Receipt for application #{$this->application->application_number} was rejected. Reason: {$this->reason}",
+            'icon' => 'M6 18L18 6M6 6l12 12',
             'action_url' => "/applicant/application-details/{$this->application->id}",
             'created_at' => now()
         ];

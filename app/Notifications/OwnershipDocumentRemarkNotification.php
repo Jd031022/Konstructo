@@ -57,6 +57,7 @@ class OwnershipDocumentRemarkNotification extends Notification implements Should
             'document_name' => $this->documentName,
             'remark' => $this->remark,
             'message' => "Clarification needed for your {$this->documentName}. Please review the remarks and provide the requested information.",
+            'icon' => 'M12 9v2m0 4v2m0-6a4 4 0 110 8 4 4 0 010-8zm0-2a6 6 0 100 12 6 6 0 000-12z',
             'action_url' => "/applicant/application-details/{$this->application->id}",
             'requires_action' => true
         ];

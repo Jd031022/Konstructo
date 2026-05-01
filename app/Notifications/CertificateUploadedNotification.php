@@ -44,6 +44,7 @@ class CertificateUploadedNotification extends Notification implements ShouldQueu
             'certificate_link' => $this->certificateLink,
             'uploaded_by' => $this->cpdoUser->first_name . ' ' . $this->cpdoUser->last_name,
             'message' => "{$this->certificateName} has been uploaded for application #{$this->application->application_number}",
+            'icon' => 'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z',
             'action_url' => "/applicant/application-details/{$this->application->id}",
             'created_at' => now()
         ];

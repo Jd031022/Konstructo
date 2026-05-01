@@ -42,7 +42,8 @@ class NewUserPendingApproval extends Notification
             'user_email' => $this->user->email,
             'message' => 'New user pending approval',
             'type' => 'user_approval',
-            'for_role' => 'admin'
+            'for_role' => 'admin',
+            'icon' => 'M12 4.354a4 4 0 110 8.646 4 4 0 010-8.646M12 14H8a4 4 0 00-4 4v2a2 2 0 002 2h12a2 2 0 002-2v-2a4 4 0 00-4-4h-4z'
         ];
     }
 }

@@ -39,6 +39,7 @@ class PaymentProofUploadedNotification extends Notification implements ShouldQue
             'applicant_name' => $this->applicant->first_name . ' ' . $this->applicant->last_name,
             'or_link' => $this->paymentProof->or_link,
             'message' => "New Official Receipt uploaded by {$this->applicant->first_name} {$this->applicant->last_name} for application #{$this->application->application_number}",
+            'icon' => 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12',
             'action_url' => "/staff/application-details/{$this->application->id}",
             'created_at' => now()
         ];

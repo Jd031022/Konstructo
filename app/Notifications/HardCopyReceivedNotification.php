@@ -32,6 +32,7 @@ class HardCopyReceivedNotification extends Notification
             'details' => "Application #: {$this->application->application_number}",
             'application_id' => $this->application->id,
             'application_number' => $this->application->application_number,
+            'icon' => 'M20.354 15.354A9 9 0 008.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z',
             'link' => "/applicant/applications/{$this->application->id}"
         ];
     }
