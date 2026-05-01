@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <!-- Hard Copy Submission Date Notice (when approved with date) -->
+        <!-- Hard Copy Submission Date Notice -->
         <div id="hardcopy-submission-notice" class="mb-6 p-4 bg-green-100 border-l-4 border-green-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Assessment Notice (Building Permit Fee) -->
+        <!-- Assessment Notice -->
         <div id="assessment-notice" class="mb-6 p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -147,12 +147,10 @@
                     </div>
                     <p class="text-sm text-gray-700 mt-1">Our staff has requested clarifications on your ownership documents. Please review the remarks below.</p>
                     
-                    <!-- Remarks List Container -->
                     <div id="ownership-remarks-list" class="mt-3 space-y-3 max-h-80 overflow-y-auto">
                         <!-- Remarks will be dynamically inserted here -->
                     </div>
                     
-                    <!-- Instruction Box -->
                     <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div class="flex items-start gap-2">
                             <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,8 +159,7 @@
                             <div>
                                 <p class="text-sm font-medium text-blue-800">How to Respond:</p>
                                 <p class="text-xs text-blue-700 mt-1">
-                                    Please use the <strong>Chat Feature</strong> to communicate directly with the staff member who reviewed your document. 
-                                    Check your email to see who reviewed it, or look at the remarks above for the staff name.
+                                    Please use the <strong>Chat Feature</strong> to communicate directly with the staff member who reviewed your document.
                                 </p>
                                 <button onclick="openChatWithStaff()" class="mt-2 inline-flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,54 +174,53 @@
             </div>
         </div>
 
-       <!-- Application Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
-                BP
-            </div>
-            <div>
-                <div class="flex items-center gap-3 mb-3">
-                    <h1 id="project-title" class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
-                    <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
+        <!-- Application Header -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-xl flex items-center justify-center text-white text-xl font-bold">
+                        BP
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <h1 id="project-title" class="text-2xl font-bold text-gray-800">Building Permit Application</h1>
+                            <span id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-4 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Application Number</span>
+                                <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
+                            </div>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
+                            <div id="building-permit-container" class="flex flex-col" style="display: none;">
+                                <span class="text-xs text-gray-400">Building Permit Number</span>
+                                <span id="building-permit-number-display" class="font-mono font-bold text-green-600 text-sm"></span>
+                            </div>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Submitted</span>
+                                <span id="submitted-date" class="font-medium text-gray-700"></span>
+                            </div>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400">Last Updated</span>
+                                <span id="updated-date" class="font-medium text-gray-700"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="flex flex-wrap items-center gap-4 text-sm">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-gray-400">Application Number</span>
-                        <span id="application-number" class="font-mono font-medium text-[#155386]"></span>
-                    </div>
-                    <span class="text-gray-300 hidden sm:inline">|</span>
-                    <!-- ADD BUILDING PERMIT NUMBER DISPLAY HERE -->
-                    <div id="building-permit-container" class="flex flex-col" style="display: none;">
-                        <span class="text-xs text-gray-400">Building Permit Number</span>
-                        <span id="building-permit-number-display" class="font-mono font-bold text-green-600 text-sm"></span>
-                    </div>
-                    <span class="text-gray-300 hidden sm:inline">|</span>
-                    <div class="flex flex-col">
-                        <span class="text-xs text-gray-400">Submitted</span>
-                        <span id="submitted-date" class="font-medium text-gray-700"></span>
-                    </div>
-                    <span class="text-gray-300 hidden sm:inline">|</span>
-                    <div class="flex flex-col">
-                        <span class="text-xs text-gray-400">Last Updated</span>
-                        <span id="updated-date" class="font-medium text-gray-700"></span>
-                    </div>
+                <div class="flex gap-2">
+                    <button onclick="downloadApplicationSummary()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download Summary
+                    </button>
                 </div>
             </div>
         </div>
-        
-        <div class="flex gap-2">
-            <button onclick="downloadApplicationSummary()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download Summary
-            </button>
-        </div>
-    </div>
-</div>
 
         <!-- Progress Timeline -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
@@ -314,10 +310,10 @@
             </div>
         </div>
 
-        <!-- Main Content Grid -->
+        <!-- Main Content Grid - Properly arranged with Left and Right Columns -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <!-- Left Column -->
+            
+            <!-- LEFT COLUMN (2/3 width) -->
             <div class="lg:col-span-2 space-y-8">
 
                 <!-- Project Information Card -->
@@ -598,441 +594,376 @@
                 </div>
             </div>
 
-            <!-- Right Column -->
-            <div class="lg:col-span-1">
-                <div class="sticky top-8 space-y-8">
+            <!-- RIGHT COLUMN (1/3 width) -->
+            <div class="lg:col-span-1 space-y-8">
+                
+                <!-- Current Status Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
                     
-                    <!-- CPDO STATUS AND ASSESSMENT CARD (Combined) -->
-                    <div id="cpdo-card" class="bg-white rounded-2xl shadow-sm border border-orange-200 p-6 animate-fade-in">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            </div>
-                            <h2 class="text-lg font-semibold text-gray-800">CPDO Verification</h2>
-                        </div>
-                        
-                        <!-- CPDO Status Display -->
-                        <div id="cpdo-status-display" class="mb-4 p-3 bg-gray-50 rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">CPDO Status:</span>
-                                <span id="cpdo-status-badge" class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
-                            </div>
-                            <div id="cpdo-remarks-display" class="mt-2 text-xs text-gray-500 hidden">
-                                <span class="font-medium">Remarks:</span>
-                                <span id="cpdo-remarks-text"></span>
-                            </div>
-                            <div id="cpdo-approved-info" class="mt-2 text-xs text-gray-500 hidden">
-                                <span class="font-medium">Decision made by:</span>
-                                <span id="cpdo-approved-by"></span>
-                                <span class="font-medium ml-2">on:</span>
-                                <span id="cpdo-approved-at"></span>
-                            </div>
-                        </div>
-                        
-                        <!-- CPDO Assessment Details (shown when assessment exists) -->
-                        <div id="cpdo-assessment-section" class="mt-4 pt-4 border-t border-orange-200">
-                            <div class="flex items-center gap-2 mb-3">
-                                <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-sm font-semibold text-gray-800">CPDO Fee Assessment</h3>
-                            </div>
-                            <div id="cpdo-assessment-details" class="space-y-2">
-                                <div class="text-center py-4 text-gray-500 text-sm">
-                                    <svg class="w-8 h-8 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <p>Loading assessment details...</p>
-                                </div>
-                            </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Status:</span>
+                            <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
                         </div>
                     </div>
-
-                    <!-- EXTERNAL SERVICES CARDS - BFP and Payment Links -->
-                    <!-- BFP Website Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-6 animate-fade-in">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-semibold text-gray-800">Bureau of Fire Protection (BFP)</h2>
-                                <p class="text-xs text-gray-500 mt-0.5">Fire Safety Evaluation Clearance (FSEC)</p>
-                            </div>
-                        </div>
-                        <a href="https://fsis.e-bfp.com/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            Go to BFP e-FSIS Portal
-                        </a>
-                        <p class="text-xs text-gray-500 mt-3">
-                            Apply for Fire Safety Evaluation Clearance (FSEC) through the BFP online portal.
-                        </p>
+                    
+                    <div id="status-card-building-permit" class="flex items-center justify-between pt-2 border-t border-gray-100 hidden">
+                        <span class="text-sm text-gray-600">Building Permit No.:</span>
+                        <span id="status-card-permit-number" class="text-sm font-bold text-green-600 font-mono"></span>
                     </div>
-
-                  <!-- PAYMENT PORTAL CARD WITH ORDER NUMBER VERIFICATION -->
-<div id="payment-portal-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in">
-    <div class="flex items-center gap-2 mb-4">
-        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-        </div>
-        <div>
-            <h2 class="text-lg font-semibold text-gray-800">Payment Portal</h2>
-            <p class="text-xs text-gray-500 mt-0.5">Pay your assessment fees online</p>
-        </div>
-    </div>
-    
-    <!-- Payment Order Number Display -->
-    <div id="payment-order-display" class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200 hidden">
-        <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <div>
-                <p class="text-xs font-medium text-blue-800">Your Payment Order Number:</p>
-                <p id="payment-order-number" class="text-sm font-bold text-blue-700 font-mono"></p>
-                <p class="text-xs text-blue-600 mt-1">Please use this Order Number when making your payment</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- No Payment Order Message -->
-    <div id="no-payment-order-message" class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-        <div class="flex items-start gap-2">
-            <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-                <p class="text-xs font-medium text-yellow-800">⚠️ Payment Order Number Required</p>
-                <p class="text-xs text-yellow-700 mt-1">Please wait for the treasurer to create your payment order number. You will be notified via email once it's ready. You cannot proceed with payment until an order number is assigned.</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Total Amount Computation Section -->
-    <div id="total-payment-computation" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
-        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
-            </svg>
-            <h3 class="text-sm font-semibold text-gray-800">Total Amount Due</h3>
-        </div>
-        
-        <!-- Building Permit Fee -->
-        <div id="building-permit-fee-row" class="flex justify-between items-center py-2">
-            <span class="text-sm text-gray-600">Building Permit Fee:</span>
-            <span id="building-permit-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
-        </div>
-        
-        <!-- CPDO Assessment Fee -->
-        <div id="cpdo-assessment-fee-row" class="flex justify-between items-center py-2">
-            <span class="text-sm text-gray-600">CPDO Assessment Fee:</span>
-            <span id="cpdo-assessment-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
-        </div>
-        
-        <!-- Divider -->
-        <div class="border-t border-gray-200 my-2"></div>
-        
-        <!-- Total -->
-        <div class="flex justify-between items-center py-2">
-            <span class="text-base font-bold text-green-700">TOTAL AMOUNT TO PAY:</span>
-            <span id="total-amount-to-pay" class="text-xl font-bold text-green-600">₱0.00</span>
-        </div>
-    </div>
-    
-    <!-- Payment Button (Disabled until order number exists) -->
-    <a id="payment-portal-link" href="https://filipizen.com/partners/albay_ligao" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition font-medium text-sm opacity-50 pointer-events-none bg-gray-400 text-white">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-        Payment Portal (Awaiting Order Number)
-    </a>
-    
-    <!-- Instruction Text -->
-    <div id="payment-instructions" class="mt-3 p-2 bg-gray-50 rounded-lg">
-        <p class="text-xs text-gray-600">
-            <span class="font-medium">📋 Payment Instructions:</span>
-        </p>
-        <ul class="text-xs text-gray-500 mt-1 list-disc list-inside space-y-1">
-            <li>Wait for the treasurer to issue your <strong>Payment Order Number</strong></li>
-            <li>You will receive an email notification once your order number is ready</li>
-            <li>Use the order number when making payment at the portal</li>
-            <li>After payment, upload your Official Receipt (OR) below</li>
-        </ul>
-    </div>
-</div>
-<!-- Payment Proof (OR Upload) -->
-<div id="payment-proof-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in hidden">
-    <div class="flex items-center gap-2 mb-4">
-        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-        </div>
-        <h2 class="text-lg font-semibold text-gray-800">Payment Proof (Official Receipt)</h2>
-        <span id="payment-status-badge" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
-    </div>
-    
-    <!-- No Order Number Warning (shown when no payment order exists) -->
-    <div id="or-upload-blocked-message" class="hidden mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
-        <div class="flex items-start gap-2">
-            <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-                <p class="text-xs font-medium text-red-800">⚠️ Cannot Upload Official Receipt Yet</p>
-                <p class="text-xs text-red-700 mt-1">You need a Payment Order Number before you can upload your Official Receipt. Please wait for the treasurer to issue your order number.</p>
-            </div>
-        </div>
-    </div>
-    
-    <p class="text-sm text-gray-600 mb-4">After completing your payment, please upload your Official Receipt (OR) here.</p>
-    
-    <!-- Payment Proof Display (when already uploaded) -->
-    <div id="payment-proof-display" class="hidden">
-        <div class="bg-gray-50 rounded-lg p-4 mb-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700">Uploaded OR:</span>
-                <span id="payment-status-text" class="text-xs px-2 py-1 rounded-full"></span>
-            </div>
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <a id="payment-proof-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
-            </div>
-            <div id="payment-rejection-reason" class="mt-3 p-2 bg-red-50 rounded-lg hidden">
-                <p class="text-xs text-red-600"><strong>Rejection Reason:</strong> <span id="rejection-reason-text"></span></p>
-            </div>
-        </div>
-        <button onclick="showPaymentProofForm()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">Update OR Link</button>
-    </div>
-    
-    <!-- Payment Proof Form (disabled if no payment order) -->
-    <div id="payment-proof-form" class="space-y-4 hidden">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to OR <span class="text-red-500">*</span></label>
-            <input type="url" 
-                   id="or-link" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
-                   placeholder="https://drive.google.com/file/d/...">
-            <p class="text-xs text-gray-400 mt-1">Paste the Google Drive link to your Official Receipt</p>
-        </div>
-        
-        <button id="upload-or-btn" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-            Upload Official Receipt
-        </button>
-    </div>
-</div>
-                    <!-- CPDO CERTIFICATES SECTION (Added for applicant to view) -->
-<div id="certificates-section" class="bg-white rounded-2xl shadow-sm border border-purple-200 p-6 animate-fade-in hidden">
-    <div class="flex items-center gap-2 mb-4">
-        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-        </div>
-        <h2 class="text-lg font-semibold text-gray-800">CPDO Certificates</h2>
-        <span class="text-xs text-gray-500">Issued by CPDO</span>
-    </div>
-    
-    <div class="space-y-4">
-        <!-- Zoning Certificate -->
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                        <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
-                </div>
-                <span id="applicant-zoning-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
-            </div>
-            
-            <div id="applicant-zoning-display" class="hidden">
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <a id="applicant-zoning-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
-                </div>
-                <p id="applicant-zoning-meta" class="text-xs text-gray-400 mt-2"></p>
-            </div>
-            
-            <div id="applicant-zoning-empty" class="text-center py-2">
-                <p class="text-xs text-gray-400">No zoning certificate uploaded yet by CPDO</p>
-            </div>
-        </div>
-        
-        <!-- Locational Clearance -->
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
-                </div>
-                <span id="applicant-locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
-            </div>
-            
-            <div id="applicant-locational-display" class="hidden">
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <a id="applicant-locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
-                </div>
-                <p id="applicant-locational-meta" class="text-xs text-gray-400 mt-2"></p>
-            </div>
-            
-            <div id="applicant-locational-empty" class="text-center py-2">
-                <p class="text-xs text-gray-400">No locational clearance uploaded yet by CPDO</p>
-            </div>
-        </div>
-    </div>
-    
-    <p class="text-xs text-gray-400 mt-4 text-center">
-        These certificates are issued by the City Planning and Development Office (CPDO) after verification.
-    </p>
-</div>
-
-                    <!-- Current Status Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Status</h2>
-                        
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Status:</span>
-                                <span id="current-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium transition-all duration-500">Pending Review</span>
-                            </div>
-                        </div>
-   <!-- ADD BUILDING PERMIT NUMBER IN STATUS CARD -->
-        <div id="status-card-building-permit" class="flex items-center justify-between pt-2 border-t border-gray-100 hidden">
-            <span class="text-sm text-gray-600">Building Permit No.:</span>
-            <span id="status-card-permit-number" class="text-sm font-bold text-green-600 font-mono"></span>
-        </div>
-    </div>
-                        <!-- Assessment Fee Card -->
-                        <div id="assessment-fee-card" class="mt-4 p-3 bg-indigo-50 rounded-lg hidden transition-all duration-500">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
-                                    <span class="text-xs font-medium text-gray-700">Building Permit Fee:</span>
-                                </div>
-                                <span id="assessment-fee-amount" class="text-sm font-bold text-indigo-700">₱0.00</span>
-                            </div>
-                            <div id="assessment-fee-details" class="mt-2 text-xs text-gray-500 space-y-1">
-                                <!-- Fee breakdown will be shown here -->
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">Please prepare the exact amount for payment at the OBO.</p>
-                        </div>
-
-                        <!-- Hard Copy Status in Sidebar -->
-                        <div id="hardcopy-status-sidebar" class="mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500">
+                    
+                    <!-- Assessment Fee Card -->
+                    <div id="assessment-fee-card" class="mt-4 p-3 bg-indigo-50 rounded-lg hidden transition-all duration-500">
+                        <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                <span class="text-xs font-medium text-gray-700">Hard Copy Status:</span>
-                                <span id="hardcopy-badge" class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500">Pending</span>
+                                <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-700">Building Permit Fee:</span>
                             </div>
-                            <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
+                            <span id="assessment-fee-amount" class="text-sm font-bold text-indigo-700">₱0.00</span>
                         </div>
+                        <div id="assessment-fee-details" class="mt-2 text-xs text-gray-500 space-y-1"></div>
+                        <p class="text-xs text-gray-500 mt-2">Please prepare the exact amount for payment at the OBO.</p>
+                    </div>
 
-                        <!-- Hard Copy Submission Date Display (when approved) -->
-                        <div id="hardcopy-submission-info" class="mt-4 p-3 bg-green-50 rounded-lg hidden transition-all duration-500">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-2 h-2 bg-green-600 rounded-full"></div>
-                                <span class="text-xs font-semibold text-green-700">Hard Copy Submission Schedule</span>
-                            </div>
-                            <p id="sidebar-submission-date" class="text-sm font-bold text-green-700"></p>
-                            <p id="sidebar-submission-instructions" class="text-xs text-gray-600 mt-1"></p>
+                    <!-- Hard Copy Status in Sidebar -->
+                    <div id="hardcopy-status-sidebar" class="mt-4 p-3 bg-blue-50 rounded-lg transition-all duration-500">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <span class="text-xs font-medium text-gray-700">Hard Copy Status:</span>
+                            <span id="hardcopy-badge" class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full transition-all duration-500">Pending</span>
                         </div>
+                        <p id="hardcopy-message" class="text-xs text-gray-500 mt-1">Submit originals to OBO</p>
+                    </div>
 
-                        <!-- FSEC Document Card (Fire Safety Evaluation Clearance) -->
-                        <div id="fsec-card" class="mt-4 p-3 bg-red-50 rounded-lg border border-red-200 transition-all duration-500 hidden">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-semibold text-red-700">Fire Safety Evaluation Clearance (FSEC)</span>
-                            </div>
-                            <div id="fsec-content">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <span id="fsec-filename" class="text-xs text-gray-600">No document uploaded yet</span>
-                                    </div>
-                                    <a id="fsec-link" href="#" target="_blank" class="text-xs text-red-600 hover:text-red-800 underline flex items-center gap-1 opacity-50 pointer-events-none">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                                        </svg>
-                                        View
-                                    </a>
-                                </div>
-                                <div id="fsec-upload-info" class="mt-2">
-                                    <p id="fsec-upload-date" class="text-xs text-gray-400"></p>
-                                    <p id="fsec-uploaded-by" class="text-xs text-gray-400"></p>
-                                </div>
-                            </div>
+                    <!-- Hard Copy Submission Date Display -->
+                    <div id="hardcopy-submission-info" class="mt-4 p-3 bg-green-50 rounded-lg hidden transition-all duration-500">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+                            <span class="text-xs font-semibold text-green-700">Hard Copy Submission Schedule</span>
                         </div>
+                        <p id="sidebar-submission-date" class="text-sm font-bold text-green-700"></p>
+                        <p id="sidebar-submission-instructions" class="text-xs text-gray-600 mt-1"></p>
+                    </div>
+                </div>
 
-                        <!-- BFP Comments Card -->
-                        <div id="bfp-comments-card" class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200 transition-all duration-500 hidden">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-semibold text-amber-700">BFP Comments</span>
+                <!-- CPDO STATUS AND ASSESSMENT CARD -->
+                <div id="cpdo-card" class="bg-white rounded-2xl shadow-sm border border-orange-200 p-6 animate-fade-in">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-800">CPDO Verification</h2>
+                    </div>
+                    
+                    <div id="cpdo-status-display" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">CPDO Status:</span>
+                            <span id="cpdo-status-badge" class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                        </div>
+                        <div id="cpdo-remarks-display" class="mt-2 text-xs text-gray-500 hidden">
+                            <span class="font-medium">Remarks:</span>
+                            <span id="cpdo-remarks-text"></span>
+                        </div>
+                        <div id="cpdo-approved-info" class="mt-2 text-xs text-gray-500 hidden">
+                            <span class="font-medium">Decision made by:</span>
+                            <span id="cpdo-approved-by"></span>
+                            <span class="font-medium ml-2">on:</span>
+                            <span id="cpdo-approved-at"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="cpdo-assessment-section" class="mt-4 pt-4 border-t border-orange-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                                <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                                </svg>
                             </div>
-                            <div id="bfp-comments-content">
-                                <p id="bfp-comments-text" class="text-xs text-gray-600 italic">No comments yet</p>
-                                <div class="mt-2">
-                                    <p id="bfp-comments-date" class="text-xs text-gray-400"></p>
-                                    <p id="bfp-comments-by" class="text-xs text-gray-400"></p>
-                                </div>
+                            <h3 class="text-sm font-semibold text-gray-800">CPDO Fee Assessment</h3>
+                        </div>
+                        <div id="cpdo-assessment-details" class="space-y-2">
+                            <div class="text-center py-4 text-gray-500 text-sm">
+                                <svg class="w-8 h-8 mx-auto text-gray-300 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p>Loading assessment details...</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Activity Log Card -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-semibold text-gray-800">Activity Log</h2>
-                            <span class="text-xs text-gray-400">Last 3 activities</span>
+                <!-- BFP Website Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-6 animate-fade-in">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                            </svg>
                         </div>
-                        <div id="activity-log" class="space-y-4 min-h-[200px]">
-                            <div class="text-center py-8 text-gray-500">
-                                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p class="text-sm">Loading activities...</p>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800">Bureau of Fire Protection (BFP)</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Fire Safety Evaluation Clearance (FSEC)</p>
+                        </div>
+                    </div>
+                    <a href="https://fsis.e-bfp.com/" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Go to BFP e-FSIS Portal
+                    </a>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Apply for Fire Safety Evaluation Clearance (FSEC) through the BFP online portal.
+                    </p>
+                </div>
+
+                <!-- PAYMENT PORTAL CARD -->
+                <div class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800">Payment Portal</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Pay your assessment fees online</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Order Number Display -->
+                    <div id="payment-order-display" class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <div>
+                                <p class="text-xs font-medium text-blue-800">Your Payment Order Number:</p>
+                                <p id="payment-order-number" class="text-sm font-bold text-blue-700 font-mono"></p>
+                                <p class="text-xs text-blue-600 mt-1">Please use this Order Number when making your payment</p>
                             </div>
                         </div>
-                        <button onclick="viewFullHistory()" class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
-                            View Full History →
+                    </div>
+                    
+                    <!-- No Payment Order Message -->
+                    <div id="no-payment-order-message" class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <p class="text-xs font-medium text-yellow-800">⚠️ Payment Order Number Required</p>
+                                <p class="text-xs text-yellow-700 mt-1">Please wait for the treasurer to create your payment order number. You will be notified via email once it's ready.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Amount Computation Section -->
+                    <div id="total-payment-computation" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                            </svg>
+                            <h3 class="text-sm font-semibold text-gray-800">Total Amount Due</h3>
+                        </div>
+                        
+                        <div id="building-permit-fee-row" class="flex justify-between items-center py-2 hidden">
+                            <span class="text-sm text-gray-600">Building Permit Fee:</span>
+                            <span id="building-permit-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
+                        </div>
+                        
+                        <div id="cpdo-assessment-fee-row" class="flex justify-between items-center py-2 hidden">
+                            <span class="text-sm text-gray-600">CPDO Assessment Fee:</span>
+                            <span id="cpdo-assessment-fee-amount" class="text-sm font-semibold text-gray-800">₱0.00</span>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 my-2"></div>
+                        
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-base font-bold text-green-700">TOTAL AMOUNT TO PAY:</span>
+                            <span id="total-amount-to-pay" class="text-xl font-bold text-green-600">₱0.00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Button -->
+                    <a id="payment-portal-link" href="https://filipizen.com/partners/albay_ligao" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition font-medium text-sm opacity-50 pointer-events-none bg-gray-400 text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Payment Portal (Awaiting Order Number)
+                    </a>
+                    
+                    <div class="mt-3 p-2 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-600">
+                            <span class="font-medium">📋 Payment Instructions:</span>
+                        </p>
+                        <ul class="text-xs text-gray-500 mt-1 list-disc list-inside space-y-1">
+                            <li>Wait for the treasurer to issue your <strong>Payment Order Number</strong></li>
+                            <li>You will receive an email notification once your order number is ready</li>
+                            <li>Use the order number when making payment at the portal</li>
+                            <li>After payment, upload your Official Receipt (OR) below</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Payment Proof (OR Upload) -->
+                <div id="payment-proof-card" class="bg-white rounded-2xl shadow-sm border border-green-200 p-6 animate-fade-in hidden">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-800">Payment Proof (Official Receipt)</h2>
+                        <span id="payment-status-badge" class="ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Pending</span>
+                    </div>
+                    
+                    <!-- No Order Number Warning -->
+                    <div id="or-upload-blocked-message" class="hidden mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <p class="text-xs font-medium text-red-800">⚠️ Cannot Upload Official Receipt Yet</p>
+                                <p class="text-xs text-red-700 mt-1">You need a Payment Order Number before you can upload your Official Receipt.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mb-4">After completing your payment, please upload your Official Receipt (OR) here.</p>
+                    
+                    <!-- Payment Proof Display -->
+                    <div id="payment-proof-display" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Uploaded OR:</span>
+                                <span id="payment-status-text" class="text-xs px-2 py-1 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <a id="payment-proof-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Official Receipt</a>
+                            </div>
+                            <div id="payment-rejection-reason" class="mt-3 p-2 bg-red-50 rounded-lg hidden">
+                                <p class="text-xs text-red-600"><strong>Rejection Reason:</strong> <span id="rejection-reason-text"></span></p>
+                            </div>
+                        </div>
+                        <button onclick="showPaymentProofForm()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">Update OR Link</button>
+                    </div>
+                    
+                    <!-- Payment Proof Form -->
+                    <div id="payment-proof-form" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Google Drive Link to OR <span class="text-red-500">*</span></label>
+                            <input type="url" id="or-link" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="https://drive.google.com/file/d/...">
+                            <p class="text-xs text-gray-400 mt-1">Paste the Google Drive link to your Official Receipt</p>
+                        </div>
+                        <button id="upload-or-btn" onclick="uploadPaymentProof()" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                            Upload Official Receipt
                         </button>
                     </div>
+                </div>
+
+                <!-- CPDO Certificates Section -->
+                <div id="certificates-section" class="bg-white rounded-2xl shadow-sm border border-purple-200 p-6 animate-fade-in hidden">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-800">CPDO Certificates</h2>
+                        <span class="text-xs text-gray-500">Issued by CPDO</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Zoning Certificate -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700">Zoning Certificate</h4>
+                                </div>
+                                <span id="applicant-zoning-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
+                            </div>
+                            
+                            <div id="applicant-zoning-display" class="hidden">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <a id="applicant-zoning-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Zoning Certificate</a>
+                                </div>
+                                <p id="applicant-zoning-meta" class="text-xs text-gray-400 mt-2"></p>
+                            </div>
+                            
+                            <div id="applicant-zoning-empty" class="text-center py-2">
+                                <p class="text-xs text-gray-400">No zoning certificate uploaded yet by CPDO</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Locational Clearance -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700">Locational Clearance</h4>
+                                </div>
+                                <span id="applicant-locational-status" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Not Available</span>
+                            </div>
+                            
+                           <div id="applicant-locational-display" class="hidden">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <a id="applicant-locational-link" href="#" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline break-all">View Locational Clearance</a>
+                                </div>
+                                <p id="applicant-locational-meta" class="text-xs text-gray-400 mt-2"></p>
+                            </div>
+                            
+                            <div id="applicant-locational-empty" class="text-center py-2">
+                                <p class="text-xs text-gray-400">No locational clearance uploaded yet by CPDO</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-400 mt-4 text-center">
+                        These certificates are issued by the City Planning and Development Office (CPDO) after verification.
+                    </p>
+                </div>
+
+                <!-- Activity Log Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Activity Log</h2>
+                        <span class="text-xs text-gray-400">Last 3 activities</span>
+                    </div>
+                    <div id="activity-log" class="space-y-4 min-h-[200px]">
+                        <div class="text-center py-8 text-gray-500">
+                            <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm">Loading activities...</p>
+                        </div>
+                    </div>
+                    <button onclick="viewFullHistory()" class="mt-4 text-sm text-[#155386] hover:text-[#40798C] font-medium w-full text-center inline-block py-2 border-t border-gray-100 hover:bg-gray-50 transition rounded-b-lg">
+                        View Full History →
+                    </button>
                 </div>
             </div>
         </div>
@@ -1075,22 +1006,11 @@
     </div>
 </div>
 
-<!-- Real-time Update Notification -->
-<div id="update-notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 translate-y-[-100px] z-50">
-    <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span id="notification-message">Application status updated!</span>
-    </div>
-</div>
-
 <!-- Global Success Message Modal -->
 <div id="global-success-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-[100] px-4" style="backdrop-filter: blur(4px);">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
             <div class="relative">
-                <!-- Animated success icon -->
                 <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
                     <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce-in">
                         <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1117,7 +1037,6 @@
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
             <div class="relative">
-                <!-- Animated error icon -->
                 <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
                     <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg animate-shake">
                         <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1139,12 +1058,11 @@
     </div>
 </div>
 
-<!-- CPDO Experience Rating Modal - Redesigned -->
+<!-- CPDO Experience Rating Modal -->
 <div id="cpdo-rating-modal" class="fixed inset-0 bg-black bg-opacity-30 overflow-y-auto h-full w-full hidden z-50 px-4 py-8" style="backdrop-filter: blur(8px);">
     <div class="relative min-h-full flex items-center justify-center">
         <div class="mx-auto w-full max-w-3xl animate-modal-slide-up">
             <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                <!-- Header with gradient -->
                 <div class="px-8 py-6 bg-gradient-to-r from-[#155386] to-[#40798C] text-white">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -1170,7 +1088,7 @@
                     <form id="cpdo-rating-form" onsubmit="submitCPDORating(event)">
                         <input type="hidden" id="cpdo-application-id" value="">
                         
-                        <!-- Star Rating Section - Centered -->
+                        <!-- Star Rating Section -->
                         <div class="mb-10 text-center">
                             <label class="block text-lg font-semibold text-gray-800 mb-4">
                                 Overall CPDO Experience 
@@ -1214,9 +1132,8 @@
                             <p id="rating-error" class="text-xs text-red-500 mt-3 hidden bg-red-50 inline-block px-3 py-1 rounded-full">⚠️ Please select a rating</p>
                         </div>
 
-                        <!-- Rating Questions Grid - Centered layout -->
+                        <!-- Rating Questions Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <!-- Processing Time -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
                                     Processing Time <span class="text-red-500">*</span>
@@ -1245,7 +1162,6 @@
                                 </div>
                             </div>
 
-                            <!-- Staff Responsiveness -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
                                     Staff Responsiveness <span class="text-red-500">*</span>
@@ -1274,7 +1190,6 @@
                                 </div>
                             </div>
 
-                            <!-- Clarity of Instructions -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
                                     Clarity of Instructions <span class="text-red-500">*</span>
@@ -1303,10 +1218,9 @@
                                 </div>
                             </div>
 
-                            <!-- Fairness of Assessment -->
                             <div class="bg-gray-50 rounded-xl p-5 hover:shadow-md transition-shadow">
                                 <label class="block text-sm font-semibold text-gray-800 mb-3 text-center">
-                                 Fairness of Assessment <span class="text-red-500">*</span>
+                                    Fairness of Assessment <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white transition cursor-pointer">
@@ -1333,7 +1247,6 @@
                             </div>
                         </div>
 
-                        <!-- Comments Section -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 💬 Comments / Suggestions (Optional)
@@ -1341,7 +1254,6 @@
                             <textarea id="cpdo-comments" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#155386] focus:border-transparent transition resize-none" placeholder="Share your experience with CPDO... Your feedback helps us improve!"></textarea>
                         </div>
 
-                        <!-- Submit Button Section -->
                         <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
                             <button type="button" onclick="closeCPDORatingModal()" class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition transform hover:scale-105 font-medium">
                                 Skip for Now
@@ -1360,7 +1272,7 @@
     </div>
 </div>
 
-<!-- Document Remarks Modal (for viewing remarks on specific document) -->
+<!-- Document Remarks Modal -->
 <div id="document-remarks-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 px-4">
     <div class="relative top-1/2 transform -translate-y-1/2 mx-auto p-4 w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-xl">
@@ -1394,7 +1306,7 @@
                 </div>
                 
                 <div id="modal-remarks-list" class="space-y-3">
-                    <!-- Remarks will be inserted here -->
+                    <!-- Remarks inserted here -->
                 </div>
             </div>
             
@@ -1405,34 +1317,28 @@
     </div>
 </div>
 
+<!-- Real-time Update Notification -->
+<div id="update-notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 translate-y-[-100px] z-50">
+    <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="notification-message">Application status updated!</span>
+    </div>
+</div>
+
 <style>
- /* Modal Animations */
+    /* Modal Animations */
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     @keyframes bounceIn {
-        0% {
-            opacity: 0;
-            transform: scale(0.3);
-        }
-        50% {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-        70% {
-            transform: scale(0.9);
-        }
-        100% {
-            transform: scale(1);
-        }
+        0% { opacity: 0; transform: scale(0.3); }
+        50% { opacity: 1; transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); }
     }
     
     @keyframes shake {
@@ -1441,56 +1347,28 @@
         20%, 40%, 60%, 80% { transform: translateX(5px); }
     }
     
-    .animate-fade-in-up {
-        animation: fadeInUp 0.4s ease-out;
-    }
-    
-    .animate-bounce-in {
-        animation: bounceIn 0.6s ease-out;
-    }
-    
-    .animate-shake {
-        animation: shake 0.5s ease-in-out;
-    }
-    
-    .animate-modal-slide-up {
-        animation: fadeInUp 0.3s ease-out;
-    }
+    .animate-fade-in-up { animation: fadeInUp 0.4s ease-out; }
+    .animate-bounce-in { animation: bounceIn 0.6s ease-out; }
+    .animate-shake { animation: shake 0.5s ease-in-out; }
+    .animate-modal-slide-up { animation: fadeInUp 0.3s ease-out; }
     
     /* Custom Scrollbar */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 10px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
     
     /* Radio button custom styling */
-    input[type="radio"] {
-        accent-color: #155386;
-    }
+    input[type="radio"] { accent-color: #155386; }
     
     /* Hover effects */
-    .rating-star:hover svg {
-        transform: scale(1.1);
-    }
+    .rating-star:hover svg { transform: scale(1.1); }
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
     #error-modal, #success-modal { transition: opacity 0.2s ease-in-out; }
     #error-modal .bg-white, #success-modal .bg-white { animation: modalSlideIn 0.3s ease-out; }
-    @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1); } }
+    @keyframes modalSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in { animation: fadeIn 0.5s ease-out; }
@@ -1519,13 +1397,8 @@
     @keyframes stepGlow { 0%, 100% { box-shadow: 0 0 5px rgba(21,83,134,0.3); transform: scale(1); } 50% { box-shadow: 0 0 20px rgba(64,121,140,0.6); transform: scale(1.05); } }
     .step-processing .w-10 { animation: stepGlow 2s ease-in-out infinite; border: 2px solid rgba(21,83,134,0.3); }
     
-    @keyframes pulse-amber {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.7; transform: scale(1.05); }
-    }
-    .remark-badge-pulse {
-        animation: pulse-amber 2s ease-in-out infinite;
-    }
+    @keyframes pulse-amber { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+    .remark-badge-pulse { animation: pulse-amber 2s ease-in-out infinite; }
     
     .pointer-events-none { pointer-events: none; }
     .break-all { word-break: break-all; }
@@ -1548,11 +1421,10 @@
     // CSRF token helper
     function getCsrfToken() {
         const token = document.querySelector('meta[name="csrf-token"]')?.content;
-        if (!token) console.warn('CSRF token meta tag not found');
         return token || '{{ csrf_token() }}';
     }
 
-    // Get application ID from URL path
+    // Get application ID from URL
     function getApplicationIdFromUrl() {
         const pathParts = window.location.pathname.split('/');
         const lastPart = pathParts[pathParts.length - 1];
@@ -1578,13 +1450,10 @@
     let hasShownCPDORatingModal = false;
     let currentPaymentOrder = null;
     let currentPaymentProof = null;
-    
-    // Ownership remarks storage
     let ownershipRemarks = {};
     let currentModalDocumentKey = null;
     let currentModalDocumentName = null;
 
-    // Ownership document names mapping (Step 1)
     const ownershipDocumentNames = {
         'tct_link': 'TCT / Deed of Sale',
         'tax_declaration_link': 'Tax Declaration',
@@ -1611,119 +1480,90 @@
         'geodetic_plan_link': 'Geodetic Plan'
     };
 
-    // ========== PAYMENT ORDER FUNCTIONS ==========
-    // Load payment order number from dedicated endpoint
-async function loadPaymentOrder() {
-    if (!applicationId) return;
-    
-    try {
-        console.log('Loading payment order for application ID:', applicationId);
-        const csrfToken = getCsrfToken();
-        
-        const response = await fetch(`/applicant/payment-orders/${applicationId}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Payment orders response:', data);
-            
-            if (data.success && data.has_order && data.latest_order) {
-                currentPaymentOrder = data.latest_order;
-                console.log('Payment order found:', currentPaymentOrder);
-                displayPaymentOrderNumber();
-                return;
-            }
+    // ========== LOAD FUNCTIONS ==========
+    async function loadApplicationDetails() {
+        if (!applicationId) {
+            showError();
+            return;
         }
         
-        // No payment order found
-        console.log('No payment order found for application:', applicationId);
-        displayNoPaymentOrder();
-        
-    } catch (error) {
-        console.error('Error loading payment order:', error);
-        displayNoPaymentOrder();
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                currentApplication = data.data;
+                previousStatus = currentApplication.status;
+                cpdoStatus = currentApplication.cpdo_status || null;
+                cpdoRemarks = currentApplication.cpdo_remarks || null;
+                
+                displayApplicationDetails();
+                loadReviewActivities();
+                loadAssessmentData();
+                loadBFPData();
+                loadOwnershipData();
+                loadCPDOData();
+                await loadPaymentOrder();
+                await loadCertificatesForApplicant();
+                
+                if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
+                    displayDocumentsList(currentApplication.document_links);
+                } else {
+                    showEmptyDocuments();
+                }
+            } else {
+                showError();
+            }
+        } catch (error) {
+            console.error('Error loading application:', error);
+            showError();
+        }
     }
-}
 
-    function displayPaymentOrderNumber() {
-        const paymentOrderDisplay = document.getElementById('payment-order-display');
-        const noPaymentOrderMsg = document.getElementById('no-payment-order-message');
-        const paymentPortalLink = document.getElementById('payment-portal-link');
-        const orUploadBlockedMsg = document.getElementById('or-upload-blocked-message');
-        const paymentProofForm = document.getElementById('payment-proof-form');
-        const uploadOrBtn = document.getElementById('upload-or-btn');
+    async function loadPaymentOrder() {
+        if (!applicationId) return;
         
-        if (currentPaymentOrder && currentPaymentOrder.order_number) {
-            if (paymentOrderDisplay) {
-                paymentOrderDisplay.classList.remove('hidden');
-                document.getElementById('payment-order-number').textContent = currentPaymentOrder.order_number;
-            }
-            if (noPaymentOrderMsg) noPaymentOrderMsg.classList.add('hidden');
-            if (paymentPortalLink) {
-                paymentPortalLink.classList.remove('opacity-50', 'pointer-events-none', 'bg-gray-400');
-                paymentPortalLink.classList.add('bg-green-600', 'hover:bg-green-700');
-                paymentPortalLink.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg> Proceed to Payment Portal`;
-            }
-            if (orUploadBlockedMsg) orUploadBlockedMsg.classList.add('hidden');
-            if (paymentProofForm) {
-                const orLinkInput = document.getElementById('or-link');
-                if (orLinkInput) orLinkInput.disabled = false;
-                if (uploadOrBtn) {
-                    uploadOrBtn.disabled = false;
-                    uploadOrBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
-                    uploadOrBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        try {
+            const response = await fetch(`/applicant/payment-orders/${applicationId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.has_order && data.latest_order) {
+                    currentPaymentOrder = data.latest_order;
+                    displayPaymentOrderNumber();
+                    return;
                 }
             }
-        } else {
+            displayNoPaymentOrder();
+        } catch (error) {
+            console.error('Error loading payment order:', error);
             displayNoPaymentOrder();
         }
     }
 
-    function displayNoPaymentOrder() {
-        const paymentOrderDisplay = document.getElementById('payment-order-display');
-        const noPaymentOrderMsg = document.getElementById('no-payment-order-message');
-        const paymentPortalLink = document.getElementById('payment-portal-link');
-        const orUploadBlockedMsg = document.getElementById('or-upload-blocked-message');
-        const paymentProofForm = document.getElementById('payment-proof-form');
-        const uploadOrBtn = document.getElementById('upload-or-btn');
-        
-        if (paymentOrderDisplay) paymentOrderDisplay.classList.add('hidden');
-        if (noPaymentOrderMsg) noPaymentOrderMsg.classList.remove('hidden');
-        if (paymentPortalLink) {
-            paymentPortalLink.classList.add('opacity-50', 'pointer-events-none', 'bg-gray-400');
-            paymentPortalLink.classList.remove('bg-green-600', 'hover:bg-green-700');
-            paymentPortalLink.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-4a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg> Payment Portal (Awaiting Order Number)`;
-        }
-        if (orUploadBlockedMsg) orUploadBlockedMsg.classList.remove('hidden');
-        if (paymentProofForm) {
-            const orLinkInput = document.getElementById('or-link');
-            if (orLinkInput) {
-                orLinkInput.disabled = true;
-                orLinkInput.placeholder = "Awaiting payment order number...";
-            }
-            if (uploadOrBtn) {
-                uploadOrBtn.disabled = true;
-                uploadOrBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
-                uploadOrBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-            }
-        }
-    }
-
-    // ========== PAYMENT PROOF FUNCTIONS ==========
     async function loadPaymentProof() {
         if (!applicationId) return;
         
         try {
-            const csrfToken = getCsrfToken();
             const response = await fetch(`/applicant/payment-proof/${applicationId}`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': getCsrfToken(),
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
@@ -1765,115 +1605,14 @@ async function loadPaymentOrder() {
         }
     }
 
-    function displayPaymentProof() {
-        if (!currentPaymentProof) return;
-        
-        const statusBadge = document.getElementById('payment-status-badge');
-        const statusText = document.getElementById('payment-status-text');
-        const proofLink = document.getElementById('payment-proof-link');
-        const rejectionDiv = document.getElementById('payment-rejection-reason');
-        const form = document.getElementById('payment-proof-form');
-        const display = document.getElementById('payment-proof-display');
-        
-        proofLink.href = currentPaymentProof.or_link;
-        statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-        statusBadge.textContent = 'Uploaded ✓';
-        statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
-        statusText.textContent = 'Uploaded';
-        rejectionDiv.classList.add('hidden');
-        if (form) form.classList.add('hidden');
-        if (display) display.classList.remove('hidden');
-    }
-
-    function showPaymentProofForm() {
-        if (!currentPaymentOrder || !currentPaymentOrder.order_number) {
-            showGlobalError('You need a Payment Order Number before you can upload your Official Receipt. Please wait for the treasurer to issue your order number.');
-            return;
-        }
-        
-        const form = document.getElementById('payment-proof-form');
-        const display = document.getElementById('payment-proof-display');
-        const orLinkInput = document.getElementById('or-link');
-        
-        if (orLinkInput && currentPaymentProof) {
-            orLinkInput.value = currentPaymentProof.or_link || '';
-        }
-        if (orLinkInput) orLinkInput.disabled = false;
-        const uploadBtn = document.getElementById('upload-or-btn');
-        if (uploadBtn) {
-            uploadBtn.disabled = false;
-            uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
-            uploadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-        }
-        if (form) form.classList.remove('hidden');
-        if (display) display.classList.add('hidden');
-    }
-
-    async function uploadPaymentProof() {
-        const orLink = document.getElementById('or-link').value.trim();
-        
-        if (!orLink) {
-            showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
-            return;
-        }
-        
-        if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
-            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
-            return;
-        }
-        
-        const btn = document.getElementById('upload-or-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-        btn.disabled = true;
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch('/applicant/payment-proof/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    application_id: applicationId,
-                    or_link: orLink
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showSuccessModal('Payment proof uploaded successfully! Our staff will verify it shortly.');
-                await loadPaymentProof();
-                const formEl = document.getElementById('payment-proof-form');
-                const displayEl = document.getElementById('payment-proof-display');
-                if (formEl) formEl.classList.add('hidden');
-                if (displayEl) displayEl.classList.remove('hidden');
-                checkCPDORatingNeeded();
-            } else {
-                showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
-            }
-        } catch (error) {
-            console.error('Error uploading payment proof:', error);
-            showErrorModal('Error', 'Failed to upload payment proof');
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    }
-
-    // ========== CERTIFICATE FUNCTIONS ==========
     async function loadCertificatesForApplicant() {
         if (!applicationId) return;
         
         try {
-            const csrfToken = getCsrfToken();
             const response = await fetch(`/applicant/applications/${applicationId}/certificates`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': getCsrfToken(),
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
@@ -1929,17 +1668,11 @@ async function loadPaymentOrder() {
         }
     }
 
-    // ========== LOAD APPLICATION DETAILS ==========
-    async function loadApplicationDetails() {
-        if (!applicationId) {
-            showError();
-            return;
-        }
+    async function loadAssessmentData() {
+        if (!applicationId) return;
         
         try {
-            console.log('Fetching application details for ID:', applicationId);
-            
-            const response = await fetch(`/applicant/applications/${applicationId}`, {
+            const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken(),
@@ -1947,136 +1680,264 @@ async function loadPaymentOrder() {
                 }
             });
             
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Application data:', data);
-            
-            if (data.success && data.data) {
-                currentApplication = data.data;
-                previousStatus = currentApplication.status;
-                if (currentApplication.cpdo_status) {
-                    cpdoStatus = currentApplication.cpdo_status;
-                    cpdoRemarks = currentApplication.cpdo_remarks || null;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentAssessment = data.data;
+                    displayAssessmentInfo();
+                    updateTotalPaymentComputation();
                 }
-                displayApplicationDetails();
-                loadReviewActivities();
-                loadAssessmentData();
-                loadBFPData();
-                loadOwnershipData();
-                loadCPDOData();
-                await loadPaymentOrder();
-                await loadCertificatesForApplicant();
-                
-                if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
-                    displayDocumentsList(currentApplication.document_links);
-                } else {
-                    showEmptyDocuments();
-                }
-            } else {
-                showErrorModal(data.message || 'Application not found');
-                showError();
             }
         } catch (error) {
-            console.error('Error loading application:', error);
-            showErrorModal('Failed to load application details: ' + error.message);
-            showError();
+            console.error('Error loading assessment:', error);
         }
     }
 
-    // ========== HELPER FUNCTIONS ==========
-    function getInitials(name) {
-        if (!name) return 'OB';
-        return name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
-    }
-
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function formatExactDateTime(date) {
-        if (!(date instanceof Date) || isNaN(date)) return '';
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'long', day: 'numeric',
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-        });
-    }
-
-    function formatStatusDisplay(status) {
-        if (!status) return '';
-        const statusMap = {
-            'for-assessment': 'For Assessment',
-            'under-review': 'Under Review',
-            'document-verification': 'Document Verification',
-            'for-release': 'For Release'
-        };
-        if (statusMap[status]) return statusMap[status];
-        return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    }
-
-    function getTimeAgo(date) {
-        if (!(date instanceof Date) || isNaN(date)) return 'Unknown';
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
+    async function loadBFPData() {
+        if (!applicationId) return;
         
-        if (diffMins < 1) return 'just now';
-        if (diffMins < 60) return diffMins + ' minute' + (diffMins > 1 ? 's' : '') + ' ago';
-        if (diffHours < 24) return diffHours + ' hour' + (diffHours > 1 ? 's' : '') + ' ago';
-        if (diffDays < 7) return diffDays + ' day' + (diffDays > 1 ? 's' : '') + ' ago';
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        try {
+            const response = await fetch(`/staff/applications/${applicationId}/bfp-data`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentBfpData = data.data;
+                    displayBFPData();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading BFP data:', error);
+        }
+    }
+
+    async function loadOwnershipData() {
+        if (!applicationId) return;
+        
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}/ownership`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    currentOwnershipData = data.data;
+                    displayOwnershipInfo();
+                    displayOwnershipDocuments();
+                } else {
+                    displayEmptyOwnershipDocuments();
+                }
+            } else {
+                displayEmptyOwnershipDocuments();
+            }
+            
+            loadOwnershipRemarks();
+        } catch (error) {
+            console.error('Error loading ownership data:', error);
+            displayEmptyOwnershipDocuments();
+        }
+    }
+
+    async function loadOwnershipRemarks() {
+        if (!applicationId) return;
+        
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}/ownership-remarks`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.remarks) {
+                    ownershipRemarks = data.remarks;
+                } else {
+                    ownershipRemarks = {};
+                }
+            } else {
+                ownershipRemarks = {};
+            }
+        } catch (error) {
+            console.error('Error loading ownership remarks:', error);
+            ownershipRemarks = {};
+        }
+        
+        displayOwnershipRemarksNotice();
+    }
+
+    async function loadCPDOData() {
+        if (!applicationId) return;
+        
+        try {
+            const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
+                if (statusData.success && statusData.data) {
+                    cpdoStatus = statusData.data.status || 'pending';
+                    cpdoRemarks = statusData.data.remarks || null;
+                    cpdoApprovedBy = statusData.data.approved_by || null;
+                    cpdoApprovedAt = statusData.data.approved_at || null;
+                    displayCPDOStatus();
+                }
+            }
+            
+            const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (assessmentResponse.ok) {
+                const assessmentData = await assessmentResponse.json();
+                if (assessmentData.success && assessmentData.data) {
+                    currentCPDOAssessment = assessmentData.data;
+                    displayCPDOAssessment();
+                    updateTotalPaymentComputation();
+                    
+                    if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
+                        const paymentProofCard = document.getElementById('payment-proof-card');
+                        if (paymentProofCard) paymentProofCard.classList.remove('hidden');
+                        await loadPaymentProof();
+                    }
+                }
+            } else if (cpdoStatus === 'approved') {
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) paymentProofCard.classList.remove('hidden');
+                await loadPaymentProof();
+            }
+        } catch (error) {
+            console.error('Error loading CPDO data:', error);
+            if (cpdoStatus === 'approved') {
+                const paymentProofCard = document.getElementById('payment-proof-card');
+                if (paymentProofCard) paymentProofCard.classList.remove('hidden');
+                await loadPaymentProof();
+            }
+        }
+    }
+
+    async function loadReviewActivities() {
+        if (!applicationId) return;
+        
+        try {
+            const response = await fetch(`/applicant/applications/${applicationId}/review-activities`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.activities) {
+                    displayReviewActivities(data.activities);
+                    displayAllReviewers(data.activities);
+                } else {
+                    showEmptyReviewers();
+                    showEmptyActivities();
+                }
+            } else {
+                showEmptyReviewers();
+                showEmptyActivities();
+            }
+        } catch (error) {
+            console.error('Error loading review activities:', error);
+            showEmptyReviewers();
+            showEmptyActivities();
+        }
     }
 
     // ========== DISPLAY FUNCTIONS ==========
-   function displayApplicationDetails() {
-    if (!currentApplication) return;
-    
-    document.getElementById('loading-state').classList.add('hidden');
-    document.getElementById('application-content').classList.remove('hidden');
+    function displayApplicationDetails() {
+        if (!currentApplication) return;
+        
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('application-content').classList.remove('hidden');
 
-    displayProjectInfo(currentApplication);
+        displayProjectInfo(currentApplication);
+        
+        document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
+        
+        // Display Building Permit Number
+        displayBuildingPermitNumber();
+        
+        if (currentApplication.submitted_at || currentApplication.created_at) {
+            const submittedDate = new Date((currentApplication.submitted_at || currentApplication.created_at) + ' UTC');
+            document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            document.getElementById('step-submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric' 
+            });
+        }
+        
+        if (currentApplication.updated_at) {
+            const updatedDate = new Date(currentApplication.updated_at + ' UTC');
+            document.getElementById('updated-date').textContent = updatedDate.toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+        }
 
-    document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
-    
-    // Display Building Permit Number
-    displayBuildingPermitNumber();
-    
-    if (currentApplication.submitted_at || currentApplication.created_at) {
-        const submittedDate = new Date((currentApplication.submitted_at || currentApplication.created_at) + ' UTC');
-        document.getElementById('submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'long', day: 'numeric' 
-        });
-        document.getElementById('step-submitted-date').textContent = submittedDate.toLocaleDateString('en-US', { 
-            month: 'short', day: 'numeric' 
-        });
+        updateStatusUI(currentApplication.status);
+        updateTimeline(currentApplication.status);
+        updateProgress(currentApplication.status);
+        displayHardCopySubmissionInfo(currentApplication);
+        updateHardCopyStatus(currentApplication.hard_copy_received);
+
+        if (currentApplication.status === 'document-verification') {
+            showDocumentVerificationStatus(true);
+        } else {
+            showDocumentVerificationStatus(false);
+        }
     }
-    
-    if (currentApplication.updated_at) {
-        const updatedDate = new Date(currentApplication.updated_at + ' UTC');
-        document.getElementById('updated-date').textContent = updatedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'long', day: 'numeric' 
-        });
-    }
 
-    updateStatusUI(currentApplication.status);
-    updateTimeline(currentApplication.status);
-    updateProgress(currentApplication.status);
-    displayHardCopySubmissionInfo(currentApplication);
-    updateHardCopyStatus(currentApplication.hard_copy_received);
-
-    if (currentApplication.status === 'document-verification') {
-        showDocumentVerificationStatus(true);
-    } else {
-        showDocumentVerificationStatus(false);
+    function displayBuildingPermitNumber() {
+        if (currentApplication && currentApplication.building_permit_number) {
+            const permitContainer = document.getElementById('building-permit-container');
+            const permitNumberSpan = document.getElementById('building-permit-number-display');
+            const statusCardPermit = document.getElementById('status-card-building-permit');
+            const statusCardPermitNumber = document.getElementById('status-card-permit-number');
+            
+            if (permitContainer) {
+                permitContainer.style.display = 'flex';
+                permitNumberSpan.textContent = currentApplication.building_permit_number;
+            }
+            
+            if (statusCardPermit && statusCardPermitNumber) {
+                statusCardPermit.classList.remove('hidden');
+                statusCardPermitNumber.textContent = currentApplication.building_permit_number;
+            }
+        } else {
+            const permitContainer = document.getElementById('building-permit-container');
+            const statusCardPermit = document.getElementById('status-card-building-permit');
+            
+            if (permitContainer) permitContainer.style.display = 'none';
+            if (statusCardPermit) statusCardPermit.classList.add('hidden');
+        }
     }
-}
 
     function displayProjectInfo(app) {
         document.getElementById('info-project-title').textContent = app.project_title || 'Not provided';
@@ -2103,6 +1964,88 @@ async function loadPaymentOrder() {
         document.getElementById('info-sanitary-license').textContent = app.sanitary_engineer_license || 'Not provided';
         
         document.getElementById('project-title').textContent = app.project_title || 'Building Permit Application';
+    }
+
+    function displayOwnershipInfo() {
+        if (!currentOwnershipData) return;
+        
+        const ownershipCard = document.getElementById('ownership-status-card');
+        const ownershipStatusText = document.getElementById('ownership-status-text');
+        
+        if (ownershipCard && ownershipStatusText) {
+            ownershipCard.classList.remove('hidden');
+            if (currentOwnershipData.is_owner == 1) {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - You are registered as the property owner.';
+            } else {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - You have provided a Special Power of Attorney (SPA).';
+            }
+        }
+    }
+
+    function displayOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        
+        if (!currentOwnershipData) {
+            displayEmptyOwnershipDocuments();
+            return;
+        }
+        
+        let html = '';
+        let hasDocuments = false;
+        
+        const ownershipLinks = {
+            'tct_link': currentOwnershipData.tct_link,
+            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
+            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
+            'spa_link': currentOwnershipData.spa_link
+        };
+        
+        for (const [key, value] of Object.entries(ownershipLinks)) {
+            if (value && value.trim() !== '') {
+                hasDocuments = true;
+                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
+                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                    ${spaBadge}
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
+                            </div>
+                        </div>
+                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            <span class="hidden sm:inline">View</span>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        if (!hasDocuments) {
+            displayEmptyOwnershipDocuments();
+        } else {
+            container.innerHTML = html;
+            addRemarkBadgesToDocuments();
+        }
+    }
+
+    function displayEmptyOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        container.innerHTML = `
+            <div class="text-center py-6 text-gray-500 animate-fade-in">
+                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                <p class="text-sm">No ownership documents uploaded yet</p>
+                <p class="text-xs text-gray-400 mt-1">Please complete Step 1: Ownership Verification</p>
+            </div>
+        `;
     }
 
     function displayDocumentsList(documents) {
@@ -2171,6 +2114,701 @@ async function loadPaymentOrder() {
                 statusEl.className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full transition-all duration-500';
             }
         }
+    }
+
+    function displayAssessmentInfo() {
+        if (currentAssessment && currentAssessment.total_amount) {
+            const assessmentNotice = document.getElementById('assessment-notice');
+            const assessmentTotal = document.getElementById('assessment-total');
+            if (assessmentNotice && assessmentTotal) {
+                assessmentTotal.innerHTML = `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                assessmentNotice.classList.remove('hidden');
+            }
+            
+            const assessmentCard = document.getElementById('assessment-fee-card');
+            const feeAmount = document.getElementById('assessment-fee-amount');
+            const feeDetails = document.getElementById('assessment-fee-details');
+            
+            if (assessmentCard && feeAmount) {
+                feeAmount.textContent = `₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                assessmentCard.classList.remove('hidden');
+                
+                let breakdownHtml = '';
+                if (currentAssessment.line_grade && parseFloat(currentAssessment.line_grade) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Line Grade:</span><span>₱${parseFloat(currentAssessment.line_grade).toLocaleString()}</span></div>`;
+                }
+                if (currentAssessment.building_fee && parseFloat(currentAssessment.building_fee) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Building Fee:</span><span>₱${parseFloat(currentAssessment.building_fee).toLocaleString()}</span></div>`;
+                }
+                if (currentAssessment.sanitary_fee && parseFloat(currentAssessment.sanitary_fee) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Sanitary/Plumbing:</span><span>₱${parseFloat(currentAssessment.sanitary_fee).toLocaleString()}</span></div>`;
+                }
+                if (currentAssessment.mechanical_fee && parseFloat(currentAssessment.mechanical_fee) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Mechanical Fee:</span><span>₱${parseFloat(currentAssessment.mechanical_fee).toLocaleString()}</span></div>`;
+                }
+                if (currentAssessment.electrical_fee && parseFloat(currentAssessment.electrical_fee) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Electrical Fee:</span><span>₱${parseFloat(currentAssessment.electrical_fee).toLocaleString()}</span></div>`;
+                }
+                if (currentAssessment.penalties_fines && parseFloat(currentAssessment.penalties_fines) > 0) {
+                    breakdownHtml += `<div class="flex justify-between"><span>Penalties/Fines:</span><span>₱${parseFloat(currentAssessment.penalties_fines).toLocaleString()}</span></div>`;
+                }
+                
+                if (currentAssessment.additional_fees && currentAssessment.additional_fees.length > 0) {
+                    breakdownHtml += `<div class="border-t border-gray-200 my-2 pt-2"><span class="font-semibold text-gray-600">Additional Fees:</span></div>`;
+                    currentAssessment.additional_fees.forEach(fee => {
+                        if (fee.amount && parseFloat(fee.amount) > 0) {
+                            const description = fee.description || 'Additional Fee';
+                            breakdownHtml += `<div class="flex justify-between pl-2"><span class="text-gray-600">${escapeHtml(description)}:</span><span>₱${parseFloat(fee.amount).toLocaleString()}</span></div>`;
+                        }
+                    });
+                }
+                
+                feeDetails.innerHTML = breakdownHtml || '<div class="text-center text-gray-500">Fee breakdown not available</div>';
+            }
+        }
+    }
+
+    function updateTotalPaymentComputation() {
+        const computationDiv = document.getElementById('total-payment-computation');
+        const buildingPermitFeeRow = document.getElementById('building-permit-fee-row');
+        const cpdoAssessmentFeeRow = document.getElementById('cpdo-assessment-fee-row');
+        const buildingPermitFeeAmount = document.getElementById('building-permit-fee-amount');
+        const cpdoAssessmentFeeAmount = document.getElementById('cpdo-assessment-fee-amount');
+        const totalAmountSpan = document.getElementById('total-amount-to-pay');
+        
+        let buildingPermitTotal = 0;
+        let cpdoTotal = 0;
+        let hasBuildingPermit = false;
+        let hasCPDO = false;
+        
+        if (currentAssessment && currentAssessment.total_amount && parseFloat(currentAssessment.total_amount) > 0) {
+            buildingPermitTotal = parseFloat(currentAssessment.total_amount);
+            hasBuildingPermit = true;
+            if (buildingPermitFeeAmount) buildingPermitFeeAmount.textContent = `₱${buildingPermitTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            if (buildingPermitFeeRow) buildingPermitFeeRow.classList.remove('hidden');
+        } else {
+            if (buildingPermitFeeRow) buildingPermitFeeRow.classList.add('hidden');
+        }
+        
+        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+            cpdoTotal = parseFloat(currentCPDOAssessment.total_cpdo_amount);
+            hasCPDO = true;
+            if (cpdoAssessmentFeeAmount) cpdoAssessmentFeeAmount.textContent = `₱${cpdoTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            if (cpdoAssessmentFeeRow) cpdoAssessmentFeeRow.classList.remove('hidden');
+        } else {
+            if (cpdoAssessmentFeeRow) cpdoAssessmentFeeRow.classList.add('hidden');
+        }
+        
+        const grandTotal = buildingPermitTotal + cpdoTotal;
+        if (totalAmountSpan) totalAmountSpan.textContent = `₱${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        
+        if (hasBuildingPermit && hasCPDO && computationDiv) {
+            computationDiv.classList.remove('hidden');
+        } else if (computationDiv) {
+            computationDiv.classList.add('hidden');
+        }
+    }
+
+    function displayBFPData() {
+        if (!currentBfpData) return;
+        
+        const fsecCard = document.getElementById('fsec-card');
+        if (currentBfpData.fsec_link && fsecCard) {
+            fsecCard.classList.remove('hidden');
+            const fsecLink = document.getElementById('fsec-link');
+            const fsecFilename = document.getElementById('fsec-filename');
+            const fsecUploadDate = document.getElementById('fsec-upload-date');
+            const fsecUploadedBy = document.getElementById('fsec-uploaded-by');
+            
+            fsecLink.href = currentBfpData.fsec_link;
+            fsecLink.classList.remove('opacity-50', 'pointer-events-none');
+            fsecFilename.textContent = currentBfpData.fsec_filename || 'FSEC Document';
+            if (currentBfpData.fsec_uploaded_at) {
+                const uploadDate = new Date(currentBfpData.fsec_uploaded_at);
+                fsecUploadDate.textContent = `Uploaded: ${uploadDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
+            }
+            if (currentBfpData.bfp_user_name) {
+                fsecUploadedBy.textContent = `Uploaded by: ${currentBfpData.bfp_user_name}`;
+            }
+        } else if (fsecCard) {
+            fsecCard.classList.add('hidden');
+        }
+        
+        const bfpCommentsCard = document.getElementById('bfp-comments-card');
+        if (currentBfpData.bfp_comments && currentBfpData.bfp_comments.trim() !== '' && bfpCommentsCard) {
+            bfpCommentsCard.classList.remove('hidden');
+            const commentsText = document.getElementById('bfp-comments-text');
+            const commentsDate = document.getElementById('bfp-comments-date');
+            const commentsBy = document.getElementById('bfp-comments-by');
+            
+            commentsText.textContent = currentBfpData.bfp_comments;
+            if (currentBfpData.bfp_comments_updated_at) {
+                const updateDate = new Date(currentBfpData.bfp_comments_updated_at);
+                commentsDate.textContent = `Updated: ${updateDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
+            }
+            if (currentBfpData.bfp_user_name) {
+                commentsBy.textContent = `By: ${currentBfpData.bfp_user_name}`;
+            }
+        } else if (bfpCommentsCard) {
+            bfpCommentsCard.classList.add('hidden');
+        }
+    }
+
+    function displayCPDOStatus() {
+        const statusBadge = document.getElementById('cpdo-status-badge');
+        const remarksDisplay = document.getElementById('cpdo-remarks-display');
+        const remarksText = document.getElementById('cpdo-remarks-text');
+        const approvedInfo = document.getElementById('cpdo-approved-info');
+        const approvedByName = document.getElementById('cpdo-approved-by');
+        const approvedAtDate = document.getElementById('cpdo-approved-at');
+        
+        if (!statusBadge) return;
+        
+        if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
+            statusBadge.textContent = 'Approved';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
+            }
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+        } else if (cpdoStatus === 'rejected') {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700';
+            statusBadge.textContent = 'Rejected';
+            if (remarksText && cpdoRemarks) {
+                remarksDisplay.classList.remove('hidden');
+                remarksText.textContent = cpdoRemarks;
+            }
+            if (cpdoApprovedBy && cpdoApprovedAt) {
+                approvedInfo.classList.remove('hidden');
+                approvedByName.textContent = cpdoApprovedBy;
+                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
+            }
+        } else {
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700';
+            statusBadge.textContent = 'Pending';
+            if (remarksDisplay) remarksDisplay.classList.add('hidden');
+            if (approvedInfo) approvedInfo.classList.add('hidden');
+        }
+    }
+
+    function displayCPDOAssessment() {
+        if (!currentCPDOAssessment) return;
+        
+        const assessmentDetails = document.getElementById('cpdo-assessment-details');
+        if (!assessmentDetails) return;
+        
+        let hasFees = false;
+        let html = '<div class="space-y-2">';
+        
+        if (currentCPDOAssessment.assessment_date) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
+            html += `<div class="border-t border-orange-200 my-2"></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
+            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
+            html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
+            currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
+                if (fee.amount && parseFloat(fee.amount) > 0) {
+                    const description = fee.description || 'Additional Fee';
+                    html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
+                    hasFees = true;
+                }
+            });
+        }
+        
+        if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
+            html += `<div class="border-t border-orange-200 mt-2 pt-2"><div class="flex justify-between font-bold"><span class="text-orange-800">Total CPDO Fees:</span><span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div></div>`;
+            hasFees = true;
+        }
+        
+        if (currentCPDOAssessment.cpdo_assessment_notes) {
+            html += `<div class="mt-3 pt-2 border-t border-orange-200"><p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p></div>`;
+        }
+        
+        if (currentCPDOAssessment.cpdo_assessed_by) {
+            html += `<div class="mt-2 text-xs text-gray-400">Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}</div>`;
+        }
+        
+        html += `</div>`;
+        
+        assessmentDetails.innerHTML = hasFees ? html : '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
+    }
+
+    function displayPaymentOrderNumber() {
+        const paymentOrderDisplay = document.getElementById('payment-order-display');
+        const noPaymentOrderMsg = document.getElementById('no-payment-order-message');
+        const paymentPortalLink = document.getElementById('payment-portal-link');
+        const orUploadBlockedMsg = document.getElementById('or-upload-blocked-message');
+        const paymentProofForm = document.getElementById('payment-proof-form');
+        const uploadOrBtn = document.getElementById('upload-or-btn');
+        
+        if (currentPaymentOrder && currentPaymentOrder.order_number) {
+            if (paymentOrderDisplay) {
+                paymentOrderDisplay.classList.remove('hidden');
+                document.getElementById('payment-order-number').textContent = currentPaymentOrder.order_number;
+            }
+            if (noPaymentOrderMsg) noPaymentOrderMsg.classList.add('hidden');
+            if (paymentPortalLink) {
+                paymentPortalLink.classList.remove('opacity-50', 'pointer-events-none', 'bg-gray-400');
+                paymentPortalLink.classList.add('bg-green-600', 'hover:bg-green-700');
+                paymentPortalLink.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg> Proceed to Payment Portal`;
+            }
+            if (orUploadBlockedMsg) orUploadBlockedMsg.classList.add('hidden');
+            if (paymentProofForm) {
+                const orLinkInput = document.getElementById('or-link');
+                if (orLinkInput) orLinkInput.disabled = false;
+                if (uploadOrBtn) {
+                    uploadOrBtn.disabled = false;
+                    uploadOrBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+                    uploadOrBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                }
+            }
+        } else {
+            displayNoPaymentOrder();
+        }
+    }
+
+    function displayNoPaymentOrder() {
+        const paymentOrderDisplay = document.getElementById('payment-order-display');
+        const noPaymentOrderMsg = document.getElementById('no-payment-order-message');
+        const paymentPortalLink = document.getElementById('payment-portal-link');
+        const orUploadBlockedMsg = document.getElementById('or-upload-blocked-message');
+        const paymentProofForm = document.getElementById('payment-proof-form');
+        const uploadOrBtn = document.getElementById('upload-or-btn');
+        
+        if (paymentOrderDisplay) paymentOrderDisplay.classList.add('hidden');
+        if (noPaymentOrderMsg) noPaymentOrderMsg.classList.remove('hidden');
+        if (paymentPortalLink) {
+            paymentPortalLink.classList.add('opacity-50', 'pointer-events-none', 'bg-gray-400');
+            paymentPortalLink.classList.remove('bg-green-600', 'hover:bg-green-700');
+            paymentPortalLink.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-4a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg> Payment Portal (Awaiting Order Number)`;
+        }
+        if (orUploadBlockedMsg) orUploadBlockedMsg.classList.remove('hidden');
+        if (paymentProofForm) {
+            const orLinkInput = document.getElementById('or-link');
+            if (orLinkInput) {
+                orLinkInput.disabled = true;
+                orLinkInput.placeholder = "Awaiting payment order number...";
+            }
+            if (uploadOrBtn) {
+                uploadOrBtn.disabled = true;
+                uploadOrBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+                uploadOrBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }
+        }
+    }
+
+    function displayPaymentProof() {
+        if (!currentPaymentProof) return;
+        
+        const statusBadge = document.getElementById('payment-status-badge');
+        const statusText = document.getElementById('payment-status-text');
+        const proofLink = document.getElementById('payment-proof-link');
+        const rejectionDiv = document.getElementById('payment-rejection-reason');
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        
+        proofLink.href = currentPaymentProof.or_link;
+        statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        statusBadge.textContent = 'Uploaded ✓';
+        statusText.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+        statusText.textContent = 'Uploaded';
+        rejectionDiv.classList.add('hidden');
+        if (form) form.classList.add('hidden');
+        if (display) display.classList.remove('hidden');
+    }
+
+    function showPaymentProofForm() {
+        if (!currentPaymentOrder || !currentPaymentOrder.order_number) {
+            showGlobalError('You need a Payment Order Number before you can upload your Official Receipt. Please wait for the treasurer to issue your order number.');
+            return;
+        }
+        
+        const form = document.getElementById('payment-proof-form');
+        const display = document.getElementById('payment-proof-display');
+        const orLinkInput = document.getElementById('or-link');
+        
+        if (orLinkInput && currentPaymentProof) {
+            orLinkInput.value = currentPaymentProof.or_link || '';
+        }
+        if (orLinkInput) orLinkInput.disabled = false;
+        const uploadBtn = document.getElementById('upload-or-btn');
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+            uploadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        }
+        if (form) form.classList.remove('hidden');
+        if (display) display.classList.add('hidden');
+    }
+
+    async function uploadPaymentProof() {
+        const orLink = document.getElementById('or-link').value.trim();
+        
+        if (!orLink) {
+            showErrorModal('Missing Link', 'Please provide a Google Drive link to your Official Receipt.');
+            return;
+        }
+        
+        if (!orLink.includes('drive.google.com') && !orLink.includes('docs.google.com')) {
+            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+            return;
+        }
+        
+        const btn = document.getElementById('upload-or-btn');
+        const originalText = btn ? btn.innerHTML : 'Uploading...';
+        if (btn) {
+            btn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            btn.disabled = true;
+        }
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch('/applicant/payment-proof/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    or_link: orLink
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccessModal('Payment proof uploaded successfully! Our staff will verify it shortly.');
+                await loadPaymentProof();
+                const formEl = document.getElementById('payment-proof-form');
+                const displayEl = document.getElementById('payment-proof-display');
+                if (formEl) formEl.classList.add('hidden');
+                if (displayEl) displayEl.classList.remove('hidden');
+                checkCPDORatingNeeded();
+            } else {
+                showErrorModal('Upload Failed', data.message || 'Failed to upload payment proof');
+            }
+        } catch (error) {
+            console.error('Error uploading payment proof:', error);
+            showErrorModal('Error', 'Failed to upload payment proof');
+        } finally {
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    }
+
+    function displayOwnershipRemarksNotice() {
+        const noticeContainer = document.getElementById('ownership-remarks-notice');
+        const remarksListContainer = document.getElementById('ownership-remarks-list');
+        const remarksCountBadge = document.getElementById('remarks-count-badge');
+        
+        if (!noticeContainer || !remarksListContainer) return;
+        
+        let allRemarks = [];
+        let pendingCount = 0;
+        
+        for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+            if (remarks && remarks.length > 0) {
+                remarks.forEach(remark => {
+                    if (remark.status === 'pending_response') {
+                        pendingCount++;
+                        allRemarks.push({
+                            ...remark,
+                            document_key: docKey,
+                            document_name: remark.document_name || ownershipDocumentNames[docKey] || docKey.replace(/_/g, ' ').replace(/_link$/, '')
+                        });
+                    }
+                });
+            }
+        }
+        
+        allRemarks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        if (pendingCount > 0) {
+            noticeContainer.classList.remove('hidden');
+            remarksCountBadge.textContent = `${pendingCount} remark${pendingCount > 1 ? 's' : ''}`;
+            
+            let remarksHtml = '';
+            allRemarks.forEach(remark => {
+                const date = new Date(remark.created_at);
+                const formattedDate = date.toLocaleString();
+                
+                remarksHtml += `
+                    <div class="remark-item p-3 bg-white rounded-lg border border-amber-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">${escapeHtml(remark.document_name)}</span>
+                                <span class="text-xs text-gray-500">from ${escapeHtml(remark.created_by)}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">${formattedDate}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="viewDocumentRemarks('${remark.document_key}', '${escapeHtml(remark.document_name)}')" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>View Details</button>
+                            <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Message Staff</button>
+                        </div>
+                        ${remark.response ? `<div class="mt-3 pt-2 border-t border-gray-100"><div class="flex items-start gap-2"><svg class="w-3 h-3 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Your Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}
+                    </div>
+                `;
+            });
+            remarksListContainer.innerHTML = remarksHtml;
+            addRemarkBadgesToDocuments();
+        } else {
+            noticeContainer.classList.add('hidden');
+        }
+    }
+
+    function addRemarkBadgesToDocuments() {
+        const documentItems = document.querySelectorAll('#ownership-documents-list .flex');
+        documentItems.forEach(item => {
+            const docNameText = item.querySelector('.text-sm.font-medium')?.textContent;
+            if (docNameText) {
+                let hasRemarks = false;
+                for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+                    const docName = ownershipDocumentNames[docKey];
+                    if (docName === docNameText || docKey.includes(docNameText.toLowerCase().replace(/\s+/g, '_'))) {
+                        const pendingRemarks = remarks.filter(r => r.status === 'pending_response');
+                        if (pendingRemarks.length > 0) { hasRemarks = true; break; }
+                    }
+                }
+                if (hasRemarks && !item.querySelector('.remark-badge')) {
+                    const remarkBadge = document.createElement('span');
+                    remarkBadge.className = 'remark-badge ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full flex items-center gap-1 remark-badge-pulse';
+                    remarkBadge.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Has Remarks`;
+                    const titleDiv = item.querySelector('.text-sm.font-medium');
+                    if (titleDiv && titleDiv.parentElement) titleDiv.parentElement.insertBefore(remarkBadge, titleDiv.nextSibling);
+                }
+            }
+        });
+    }
+
+    function viewDocumentRemarks(documentKey, documentName) {
+        currentModalDocumentKey = documentKey;
+        currentModalDocumentName = documentName;
+        document.getElementById('modal-doc-name').textContent = documentName;
+        
+        const modalRemarksList = document.getElementById('modal-remarks-list');
+        const remarks = ownershipRemarks[documentKey] || [];
+        
+        if (remarks.length === 0) {
+            modalRemarksList.innerHTML = '<div class="text-center py-4 text-gray-500">No remarks found for this document.</div>';
+        } else {
+            let html = '';
+            remarks.forEach(remark => {
+                const date = new Date(remark.created_at);
+                const formattedDate = date.toLocaleString();
+                const statusBadge = remark.status === 'pending_response' ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
+                html += `<div class="p-3 bg-gray-50 rounded-lg border border-gray-200"><div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by)}</span>${statusBadge}</div><span class="text-xs text-gray-400">${formattedDate}</span></div><p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>${remark.response ? `<div class="mt-3 pt-2 border-t border-gray-200"><div class="flex items-start gap-2"><svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Your Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}<div class="mt-3 flex justify-end"><button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Message ${escapeHtml(remark.created_by)}</button></div></div>`;
+            });
+            modalRemarksList.innerHTML = html;
+        }
+        document.getElementById('document-remarks-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDocumentRemarksModal() {
+        document.getElementById('document-remarks-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        currentModalDocumentKey = null;
+        currentModalDocumentName = null;
+    }
+
+    function openChatWithStaff(staffName = null) {
+        let targetStaffName = staffName;
+        if (!targetStaffName) {
+            for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
+                const pendingRemark = remarks.find(r => r.status === 'pending_response');
+                if (pendingRemark && pendingRemark.created_by_name) { targetStaffName = pendingRemark.created_by_name; break; }
+            }
+        }
+        window.location.href = targetStaffName ? `/chat?staff=${encodeURIComponent(targetStaffName)}` : '/chat';
+    }
+
+    // ========== REVIEW ACTIVITIES FUNCTIONS ==========
+    function displayReviewActivities(activities) {
+        const activityLog = document.getElementById('activity-log');
+        if (!activities || activities.length === 0) { showEmptyActivities(); return; }
+        
+        const formatStatusDisplay = (status) => {
+            if (!status) return '';
+            const statusMap = {
+                'for-assessment': 'For Assessment',
+                'under-review': 'Under Review',
+                'document-verification': 'Document Verification',
+                'for-release': 'For Release'
+            };
+            return statusMap[status] || status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        };
+
+        const getTimeAgo = (date) => {
+            if (!date) return 'Unknown';
+            const diffMs = new Date() - new Date(date);
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return diffMins + 'm ago';
+            if (diffHours < 24) return diffHours + 'h ago';
+            if (diffDays < 7) return diffDays + 'd ago';
+            return new Date(date).toLocaleDateString();
+        };
+
+        const sortedActivities = [...activities].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3);
+        let html = '';
+        
+        sortedActivities.forEach(activity => {
+            const date = new Date(activity.created_at);
+            const timeAgo = getTimeAgo(activity.created_at);
+            
+            let iconColor = 'bg-blue-100', iconTextColor = 'text-blue-600';
+            let iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+            
+            if (activity.action === 'status_updated') {
+                if (activity.new_status === 'approved') { iconColor = 'bg-green-100'; iconTextColor = 'text-green-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`; }
+                else if (activity.new_status === 'rejected') { iconColor = 'bg-red-100'; iconTextColor = 'text-red-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`; }
+                else if (activity.new_status === 'document-verification') { iconColor = 'bg-purple-100'; iconTextColor = 'text-purple-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; }
+                else if (activity.new_status === 'for-assessment') { iconColor = 'bg-indigo-100'; iconTextColor = 'text-indigo-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`; }
+            } else if (activity.action === 'note_added') { iconColor = 'bg-yellow-100'; iconTextColor = 'text-yellow-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>`; }
+            else if (activity.action === 'hard_copy_received') { iconColor = 'bg-indigo-100'; iconTextColor = 'text-indigo-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`; }
+            else if (activity.action === 'fsec_uploaded') { iconColor = 'bg-red-100'; iconTextColor = 'text-red-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>`; }
+            else if (activity.action === 'bfp_comments_added') { iconColor = 'bg-amber-100'; iconTextColor = 'text-amber-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>`; }
+            else if (activity.action === 'cpdo_assessment_saved') { iconColor = 'bg-orange-100'; iconTextColor = 'text-orange-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`; }
+            
+            const reviewerName = activity.reviewer_name || (activity.reviewer ? activity.reviewer.name : 'System');
+            const reviewerRole = activity.reviewer_position || (activity.reviewer ? activity.reviewer.role : '');
+            let actionDisplay = activity.action_display || activity.action;
+            
+            if (activity.action === 'status_updated' && activity.old_status && activity.new_status) {
+                actionDisplay = `Status changed from ${formatStatusDisplay(activity.old_status)} to ${formatStatusDisplay(activity.new_status)}`;
+            } else {
+                actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
+            
+            html += `<div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in"><div class="w-8 h-8 ${iconColor} rounded-full flex items-center justify-center flex-shrink-0 mt-1">${iconSvg}</div><div class="flex-1"><div class="flex flex-col"><div class="flex justify-between items-start flex-wrap gap-1"><p class="text-sm font-medium text-gray-800">${escapeHtml(actionDisplay)}</p></div>${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${escapeHtml(activity.remarks)}</p>` : ''}<p class="text-xs text-gray-500 mt-1"><span class="font-medium">${escapeHtml(reviewerName)}</span>${reviewerRole ? `<span class="text-gray-400"> • ${escapeHtml(reviewerRole)}</span>` : ''}</p><div class="mt-1"><p class="text-xs text-gray-400">${timeAgo}</p></div></div></div></div>`;
+        });
+        
+        if (activities.length > 3) html += `<div class="text-center text-xs text-gray-400 pt-2">+${activities.length - 3} more activities</div>`;
+        activityLog.innerHTML = html;
+    }
+
+    function displayAllReviewers(activities) {
+        const reviewersContainer = document.getElementById('reviewers-container');
+        const reviewerCountSpan = document.getElementById('reviewer-count');
+        
+        if (!activities || activities.length === 0) { showEmptyReviewers(); if (reviewerCountSpan) reviewerCountSpan.textContent = '0'; return; }
+        
+        const getInitials = (name) => {
+            if (!name) return 'OB';
+            return name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
+        };
+
+        const getTimeAgo = (date) => {
+            if (!date) return 'Unknown';
+            const diffMs = new Date() - new Date(date);
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 60) return diffMins + 'm ago';
+            if (diffHours < 24) return diffHours + 'h ago';
+            if (diffDays < 7) return diffDays + 'd ago';
+            return new Date(date).toLocaleDateString();
+        };
+        
+        const reviewerMap = new Map();
+        activities.forEach(activity => {
+            if (activity.reviewer && activity.reviewer.name !== 'System') {
+                const reviewerId = activity.reviewer.id || activity.reviewer.name;
+                if (!reviewerMap.has(reviewerId)) {
+                    reviewerMap.set(reviewerId, {
+                        id: reviewerId, name: activity.reviewer.name, role: activity.reviewer.role || 'Staff',
+                        initials: activity.reviewer.initials || getInitials(activity.reviewer.name), actions: [], lastActionDate: null, actionCount: 0
+                    });
+                }
+                const reviewer = reviewerMap.get(reviewerId);
+                reviewer.actions.push({ action: activity.action, date: new Date(activity.created_at), new_status: activity.new_status, old_status: activity.old_status });
+                reviewer.actionCount++;
+                const actionDate = new Date(activity.created_at);
+                if (!reviewer.lastActionDate || actionDate > reviewer.lastActionDate) { reviewer.lastActionDate = actionDate; reviewer.lastAction = activity.action; reviewer.lastActionNewStatus = activity.new_status; }
+            }
+        });
+        
+        const reviewers = Array.from(reviewerMap.values()).sort((a, b) => (b.lastActionDate || 0) - (a.lastActionDate || 0));
+        if (reviewerCountSpan) reviewerCountSpan.textContent = reviewers.length;
+        if (reviewers.length === 0) { showEmptyReviewers(); return; }
+        
+        reviewersContainer.innerHTML = '';
+        reviewers.forEach(reviewer => {
+            let statusText = 'Reviewed', statusClass = 'bg-blue-100 text-blue-600';
+            if (reviewer.lastAction === 'status_updated') {
+                if (reviewer.lastActionNewStatus === 'approved') { statusText = 'Approved'; statusClass = 'bg-green-100 text-green-600'; }
+                else if (reviewer.lastActionNewStatus === 'rejected') { statusText = 'Rejected'; statusClass = 'bg-red-100 text-red-600'; }
+                else if (reviewer.lastActionNewStatus === 'under-review') { statusText = 'Under Review'; statusClass = 'bg-purple-100 text-purple-600'; }
+                else if (reviewer.lastActionNewStatus === 'for-release') { statusText = 'For Release'; statusClass = 'bg-blue-100 text-blue-600'; }
+                else if (reviewer.lastActionNewStatus === 'verified') { statusText = 'Completed'; statusClass = 'bg-emerald-100 text-emerald-600'; }
+                else { statusText = 'Status Updated'; statusClass = 'bg-purple-100 text-purple-600'; }
+            } else if (reviewer.lastAction === 'note_added') { statusText = 'Added Note'; statusClass = 'bg-yellow-100 text-yellow-600'; }
+            else if (reviewer.lastAction === 'hard_copy_received') { statusText = 'Received Hard Copy'; statusClass = 'bg-indigo-100 text-indigo-600'; }
+            else if (reviewer.lastAction === 'fsec_uploaded') { statusText = 'Uploaded FSEC'; statusClass = 'bg-red-100 text-red-600'; }
+            else if (reviewer.lastAction === 'bfp_comments_added') { statusText = 'Added Comments'; statusClass = 'bg-amber-100 text-amber-600'; }
+            else if (reviewer.lastAction === 'cpdo_assessment_saved') { statusText = 'CPDO Assessment'; statusClass = 'bg-orange-100 text-orange-600'; }
+            
+            const timeAgo = reviewer.lastActionDate ? getTimeAgo(reviewer.lastActionDate) : 'No actions';
+            reviewersContainer.innerHTML += `<div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition animate-fade-in"><div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold"><span>${escapeHtml(reviewer.initials)}</span></div><div class="flex-1"><div class="flex justify-between items-start flex-wrap gap-2"><div><p class="text-sm font-medium text-gray-800">${escapeHtml(reviewer.name)}</p><p class="text-xs text-gray-500">${escapeHtml(reviewer.role)}</p></div><span class="text-xs px-2 py-1 ${statusClass} rounded-full whitespace-nowrap">${statusText}</span></div><div class="mt-2"><p class="text-xs text-gray-400">Last action ${timeAgo}</p><p class="text-xs text-gray-300 mt-1">Actions: ${reviewer.actionCount}</p></div></div></div>`;
+        });
+        
+        const content = document.getElementById('reviewers-collapsible-content');
+        const chevron = document.getElementById('reviewers-chevron');
+        if (reviewers.length > 0) { content.classList.remove('hidden'); if (chevron) chevron.style.transform = 'rotate(180deg)'; }
+        else { content.classList.add('hidden'); if (chevron) chevron.style.transform = 'rotate(0deg)'; }
+    }
+
+    function showEmptyReviewers() {
+        const reviewersContainer = document.getElementById('reviewers-container');
+        reviewersContainer.innerHTML = `<div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-fade-in"><div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold"><span>OB</span></div><div class="flex-1"><p class="text-sm font-medium text-gray-800">Office of the Building Official</p><p class="text-xs text-gray-500">Reviewing Officer</p><div class="flex items-center gap-2 mt-2"><span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">Waiting for review</span></div></div></div>`;
+        const reviewerCountSpan = document.getElementById('reviewer-count');
+        if (reviewerCountSpan) reviewerCountSpan.textContent = '0';
+        const content = document.getElementById('reviewers-collapsible-content');
+        const chevron = document.getElementById('reviewers-chevron');
+        content.classList.add('hidden');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+
+    function showEmptyActivities() {
+        const activityLog = document.getElementById('activity-log');
+        activityLog.innerHTML = `<div class="text-center py-8 text-gray-500 animate-fade-in"><svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-sm">No activity yet</p></div>`;
     }
 
     // ========== STATUS UI FUNCTIONS ==========
@@ -2351,817 +2989,6 @@ async function loadPaymentOrder() {
         }
     }
 
-    // ========== ASSESSMENT FUNCTIONS ==========
-    async function loadAssessmentData() {
-        if (!applicationId) return;
-        
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/assessment`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentAssessment = data.data;
-                    displayAssessmentInfo();
-                    updateTotalPaymentComputation();
-                }
-            }
-        } catch (error) {
-            console.error('Error loading assessment:', error);
-        }
-    }
-
-    function displayAssessmentInfo() {
-        if (currentAssessment && currentAssessment.total_amount) {
-            const assessmentNotice = document.getElementById('assessment-notice');
-            const assessmentTotal = document.getElementById('assessment-total');
-            if (assessmentNotice && assessmentTotal) {
-                assessmentTotal.innerHTML = `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-                assessmentNotice.classList.remove('hidden');
-            }
-            
-            const assessmentCard = document.getElementById('assessment-fee-card');
-            const feeAmount = document.getElementById('assessment-fee-amount');
-            const feeDetails = document.getElementById('assessment-fee-details');
-            
-            if (assessmentCard && feeAmount) {
-                feeAmount.textContent = `₱${parseFloat(currentAssessment.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-                assessmentCard.classList.remove('hidden');
-                
-                let breakdownHtml = '';
-                if (currentAssessment.line_grade && parseFloat(currentAssessment.line_grade) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Line Grade:</span><span>₱${parseFloat(currentAssessment.line_grade).toLocaleString()}</span></div>`;
-                }
-                if (currentAssessment.building_fee && parseFloat(currentAssessment.building_fee) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Building Fee:</span><span>₱${parseFloat(currentAssessment.building_fee).toLocaleString()}</span></div>`;
-                }
-                if (currentAssessment.sanitary_fee && parseFloat(currentAssessment.sanitary_fee) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Sanitary/Plumbing:</span><span>₱${parseFloat(currentAssessment.sanitary_fee).toLocaleString()}</span></div>`;
-                }
-                if (currentAssessment.mechanical_fee && parseFloat(currentAssessment.mechanical_fee) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Mechanical Fee:</span><span>₱${parseFloat(currentAssessment.mechanical_fee).toLocaleString()}</span></div>`;
-                }
-                if (currentAssessment.electrical_fee && parseFloat(currentAssessment.electrical_fee) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Electrical Fee:</span><span>₱${parseFloat(currentAssessment.electrical_fee).toLocaleString()}</span></div>`;
-                }
-                if (currentAssessment.penalties_fines && parseFloat(currentAssessment.penalties_fines) > 0) {
-                    breakdownHtml += `<div class="flex justify-between"><span>Penalties/Fines:</span><span>₱${parseFloat(currentAssessment.penalties_fines).toLocaleString()}</span></div>`;
-                }
-                
-                if (currentAssessment.additional_fees && currentAssessment.additional_fees.length > 0) {
-                    breakdownHtml += `<div class="border-t border-gray-200 my-2 pt-2"><span class="font-semibold text-gray-600">Additional Fees:</span></div>`;
-                    currentAssessment.additional_fees.forEach(fee => {
-                        if (fee.amount && parseFloat(fee.amount) > 0) {
-                            const description = fee.description || 'Additional Fee';
-                            breakdownHtml += `<div class="flex justify-between pl-2"><span class="text-gray-600">${escapeHtml(description)}:</span><span>₱${parseFloat(fee.amount).toLocaleString()}</span></div>`;
-                        }
-                    });
-                }
-                
-                feeDetails.innerHTML = breakdownHtml || '<div class="text-center text-gray-500">Fee breakdown not available</div>';
-            }
-        }
-    }
-
-    function updateTotalPaymentComputation() {
-        const computationDiv = document.getElementById('total-payment-computation');
-        const buildingPermitFeeRow = document.getElementById('building-permit-fee-row');
-        const cpdoAssessmentFeeRow = document.getElementById('cpdo-assessment-fee-row');
-        const buildingPermitFeeAmount = document.getElementById('building-permit-fee-amount');
-        const cpdoAssessmentFeeAmount = document.getElementById('cpdo-assessment-fee-amount');
-        const totalAmountSpan = document.getElementById('total-amount-to-pay');
-        
-        let buildingPermitTotal = 0;
-        let cpdoTotal = 0;
-        let hasBuildingPermit = false;
-        let hasCPDO = false;
-        
-        if (currentAssessment && currentAssessment.total_amount && parseFloat(currentAssessment.total_amount) > 0) {
-            buildingPermitTotal = parseFloat(currentAssessment.total_amount);
-            hasBuildingPermit = true;
-            if (buildingPermitFeeAmount) buildingPermitFeeAmount.textContent = `₱${buildingPermitTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            if (buildingPermitFeeRow) buildingPermitFeeRow.classList.remove('hidden');
-        } else {
-            if (buildingPermitFeeRow) buildingPermitFeeRow.classList.add('hidden');
-        }
-        
-        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
-            cpdoTotal = parseFloat(currentCPDOAssessment.total_cpdo_amount);
-            hasCPDO = true;
-            if (cpdoAssessmentFeeAmount) cpdoAssessmentFeeAmount.textContent = `₱${cpdoTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            if (cpdoAssessmentFeeRow) cpdoAssessmentFeeRow.classList.remove('hidden');
-        } else {
-            if (cpdoAssessmentFeeRow) cpdoAssessmentFeeRow.classList.add('hidden');
-        }
-        
-        const grandTotal = buildingPermitTotal + cpdoTotal;
-        if (totalAmountSpan) totalAmountSpan.textContent = `₱${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        
-        if (hasBuildingPermit && hasCPDO && computationDiv) {
-            computationDiv.classList.remove('hidden');
-        } else if (computationDiv) {
-            computationDiv.classList.add('hidden');
-        }
-    }
-
-    // ========== CPDO FUNCTIONS ==========
-    async function loadCPDOData() {
-        if (!applicationId) return;
-        
-        try {
-            const csrfToken = getCsrfToken();
-            
-            const statusResponse = await fetch(`/staff/applications/${applicationId}/cpdo-status`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (statusResponse.ok) {
-                const statusData = await statusResponse.json();
-                if (statusData.success && statusData.data) {
-                    cpdoStatus = statusData.data.status || 'pending';
-                    cpdoRemarks = statusData.data.remarks || null;
-                    cpdoApprovedBy = statusData.data.approved_by || null;
-                    cpdoApprovedAt = statusData.data.approved_at || null;
-                    displayCPDOStatus();
-                }
-            }
-            
-            const assessmentResponse = await fetch(`/staff/applications/${applicationId}/cpdo-assessment`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (assessmentResponse.ok) {
-                const assessmentData = await assessmentResponse.json();
-                if (assessmentData.success && assessmentData.data) {
-                    currentCPDOAssessment = assessmentData.data;
-                    displayCPDOAssessment();
-                    updateTotalPaymentComputation();
-                    
-                    if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
-                        const paymentProofCard = document.getElementById('payment-proof-card');
-                        if (paymentProofCard) paymentProofCard.classList.remove('hidden');
-                        await loadPaymentProof();
-                    }
-                }
-            } else if (cpdoStatus === 'approved') {
-                const paymentProofCard = document.getElementById('payment-proof-card');
-                if (paymentProofCard) paymentProofCard.classList.remove('hidden');
-                await loadPaymentProof();
-            }
-        } catch (error) {
-            console.error('Error loading CPDO data:', error);
-            if (cpdoStatus === 'approved') {
-                const paymentProofCard = document.getElementById('payment-proof-card');
-                if (paymentProofCard) paymentProofCard.classList.remove('hidden');
-                await loadPaymentProof();
-            }
-        }
-    }
-
-    function displayCPDOStatus() {
-        const statusBadge = document.getElementById('cpdo-status-badge');
-        const remarksDisplay = document.getElementById('cpdo-remarks-display');
-        const remarksText = document.getElementById('cpdo-remarks-text');
-        const approvedInfo = document.getElementById('cpdo-approved-info');
-        const approvedByName = document.getElementById('cpdo-approved-by');
-        const approvedAtDate = document.getElementById('cpdo-approved-at');
-        
-        if (!statusBadge) return;
-        
-        if (cpdoStatus === 'approved' || cpdoStatus === 'approved_by_cpdo') {
-            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700';
-            statusBadge.textContent = 'Approved';
-            if (remarksText && cpdoRemarks) {
-                remarksDisplay.classList.remove('hidden');
-                remarksText.textContent = cpdoRemarks;
-            }
-            if (cpdoApprovedBy && cpdoApprovedAt) {
-                approvedInfo.classList.remove('hidden');
-                approvedByName.textContent = cpdoApprovedBy;
-                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
-            }
-        } else if (cpdoStatus === 'rejected') {
-            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700';
-            statusBadge.textContent = 'Rejected';
-            if (remarksText && cpdoRemarks) {
-                remarksDisplay.classList.remove('hidden');
-                remarksText.textContent = cpdoRemarks;
-            }
-            if (cpdoApprovedBy && cpdoApprovedAt) {
-                approvedInfo.classList.remove('hidden');
-                approvedByName.textContent = cpdoApprovedBy;
-                approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString();
-            }
-        } else {
-            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700';
-            statusBadge.textContent = 'Pending';
-            if (remarksDisplay) remarksDisplay.classList.add('hidden');
-            if (approvedInfo) approvedInfo.classList.add('hidden');
-        }
-    }
-
-    function displayCPDOAssessment() {
-        if (!currentCPDOAssessment) return;
-        
-        const assessmentDetails = document.getElementById('cpdo-assessment-details');
-        if (!assessmentDetails) return;
-        
-        let hasFees = false;
-        let html = '<div class="space-y-2">';
-        
-        if (currentCPDOAssessment.assessment_date) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Assessment Date:</span><span class="font-medium text-orange-700">${currentCPDOAssessment.assessment_date}</span></div>`;
-            html += `<div class="border-t border-orange-200 my-2"></div>`;
-            hasFees = true;
-        }
-        
-        if (currentCPDOAssessment.zonal_location_fee && parseFloat(currentCPDOAssessment.zonal_location_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Locational Clearance:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.zonal_location_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.palc_fee && parseFloat(currentCPDOAssessment.palc_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">PALC Fee:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.palc_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.development_permit_fee && parseFloat(currentCPDOAssessment.development_permit_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Development Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.development_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.alteration_permit_fee && parseFloat(currentCPDOAssessment.alteration_permit_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Alteration Permit:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.alteration_permit_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        if (currentCPDOAssessment.site_zoning_certificate_fee && parseFloat(currentCPDOAssessment.site_zoning_certificate_fee) > 0) {
-            html += `<div class="flex justify-between text-sm"><span class="text-gray-600">Site/Zoning Certificate:</span><span class="font-medium">₱${parseFloat(currentCPDOAssessment.site_zoning_certificate_fee).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-            hasFees = true;
-        }
-        
-        if (currentCPDOAssessment.cpdo_additional_fees && currentCPDOAssessment.cpdo_additional_fees.length > 0) {
-            html += `<div class="border-t border-orange-100 my-2 pt-2"><span class="text-xs font-semibold text-gray-600">Additional Fees:</span></div>`;
-            currentCPDOAssessment.cpdo_additional_fees.forEach(fee => {
-                if (fee.amount && parseFloat(fee.amount) > 0) {
-                    const description = fee.description || 'Additional Fee';
-                    html += `<div class="flex justify-between text-sm pl-2"><span class="text-gray-500">${escapeHtml(description)}:</span><span class="font-medium">₱${parseFloat(fee.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>`;
-                    hasFees = true;
-                }
-            });
-        }
-        
-        if (currentCPDOAssessment.total_cpdo_amount && parseFloat(currentCPDOAssessment.total_cpdo_amount) > 0) {
-            html += `<div class="border-t border-orange-200 mt-2 pt-2"><div class="flex justify-between font-bold"><span class="text-orange-800">Total CPDO Fees:</span><span class="text-orange-800">₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div></div>`;
-            hasFees = true;
-        }
-        
-        if (currentCPDOAssessment.cpdo_assessment_notes) {
-            html += `<div class="mt-3 pt-2 border-t border-orange-200"><p class="text-xs text-gray-500 italic">"${escapeHtml(currentCPDOAssessment.cpdo_assessment_notes)}"</p></div>`;
-        }
-        
-        if (currentCPDOAssessment.cpdo_assessed_by) {
-            html += `<div class="mt-2 text-xs text-gray-400">Assessed by: ${escapeHtml(currentCPDOAssessment.cpdo_assessed_by)}${currentCPDOAssessment.cpdo_assessed_at ? ' on ' + new Date(currentCPDOAssessment.cpdo_assessed_at).toLocaleDateString() : ''}</div>`;
-        }
-        
-        html += `</div>`;
-        
-        assessmentDetails.innerHTML = hasFees ? html : '<div class="text-center py-4 text-gray-500 text-sm">No assessment fees have been added yet.</div>';
-    }
-
-    // ========== BFP FUNCTIONS ==========
-    async function loadBFPData() {
-        if (!applicationId) return;
-        
-        try {
-            const response = await fetch(`/staff/applications/${applicationId}/bfp-data`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentBfpData = data.data;
-                    displayBFPData();
-                }
-            }
-        } catch (error) {
-            console.error('Error loading BFP data:', error);
-        }
-    }
-
-    function displayBFPData() {
-        if (!currentBfpData) return;
-        
-        const fsecCard = document.getElementById('fsec-card');
-        if (currentBfpData.fsec_link && fsecCard) {
-            fsecCard.classList.remove('hidden');
-            const fsecLink = document.getElementById('fsec-link');
-            const fsecFilename = document.getElementById('fsec-filename');
-            const fsecUploadDate = document.getElementById('fsec-upload-date');
-            const fsecUploadedBy = document.getElementById('fsec-uploaded-by');
-            
-            fsecLink.href = currentBfpData.fsec_link;
-            fsecLink.classList.remove('opacity-50', 'pointer-events-none');
-            fsecFilename.textContent = currentBfpData.fsec_filename || 'FSEC Document';
-            if (currentBfpData.fsec_uploaded_at) {
-                const uploadDate = new Date(currentBfpData.fsec_uploaded_at);
-                fsecUploadDate.textContent = `Uploaded: ${uploadDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
-            }
-            if (currentBfpData.bfp_user_name) {
-                fsecUploadedBy.textContent = `Uploaded by: ${currentBfpData.bfp_user_name}`;
-            }
-        } else if (fsecCard) {
-            fsecCard.classList.add('hidden');
-        }
-        
-        const bfpCommentsCard = document.getElementById('bfp-comments-card');
-        if (currentBfpData.bfp_comments && currentBfpData.bfp_comments.trim() !== '' && bfpCommentsCard) {
-            bfpCommentsCard.classList.remove('hidden');
-            const commentsText = document.getElementById('bfp-comments-text');
-            const commentsDate = document.getElementById('bfp-comments-date');
-            const commentsBy = document.getElementById('bfp-comments-by');
-            
-            commentsText.textContent = currentBfpData.bfp_comments;
-            if (currentBfpData.bfp_comments_updated_at) {
-                const updateDate = new Date(currentBfpData.bfp_comments_updated_at);
-                commentsDate.textContent = `Updated: ${updateDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
-            }
-            if (currentBfpData.bfp_user_name) {
-                commentsBy.textContent = `By: ${currentBfpData.bfp_user_name}`;
-            }
-        } else if (bfpCommentsCard) {
-            bfpCommentsCard.classList.add('hidden');
-        }
-    }
-
-    // ========== OWNERSHIP FUNCTIONS ==========
-    async function loadOwnershipData() {
-        if (!applicationId) return;
-        
-        try {
-            const response = await fetch(`/applicant/applications/${applicationId}/ownership`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.data) {
-                    currentOwnershipData = data.data;
-                    displayOwnershipInfo();
-                    displayOwnershipDocuments();
-                } else {
-                    displayEmptyOwnershipDocuments();
-                }
-            } else {
-                displayEmptyOwnershipDocuments();
-            }
-            
-            loadOwnershipRemarks();
-        } catch (error) {
-            console.error('Error loading ownership data:', error);
-            displayEmptyOwnershipDocuments();
-        }
-    }
-
-    function displayOwnershipInfo() {
-        if (!currentOwnershipData) return;
-        
-        const ownershipCard = document.getElementById('ownership-status-card');
-        const ownershipStatusText = document.getElementById('ownership-status-text');
-        
-        if (ownershipCard && ownershipStatusText) {
-            ownershipCard.classList.remove('hidden');
-            if (currentOwnershipData.is_owner == 1) {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - You are registered as the property owner.';
-            } else {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - You have provided a Special Power of Attorney (SPA).';
-            }
-        }
-    }
-
-    function displayOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        
-        if (!currentOwnershipData) {
-            displayEmptyOwnershipDocuments();
-            return;
-        }
-        
-        let html = '';
-        let hasDocuments = false;
-        
-        const ownershipLinks = {
-            'tct_link': currentOwnershipData.tct_link,
-            'tax_declaration_link': currentOwnershipData.tax_declaration_link,
-            'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link,
-            'spa_link': currentOwnershipData.spa_link
-        };
-        
-        for (const [key, value] of Object.entries(ownershipLinks)) {
-            if (value && value.trim() !== '') {
-                hasDocuments = true;
-                const docName = ownershipDocumentNames[key] || key.replace(/_/g, ' ').replace(/_link$/, '').replace(/\b\w/g, l => l.toUpperCase());
-                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
-                
-                html += `
-                    <div class="flex items-center justify-between p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 bg-teal-200 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-1">
-                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
-                                    ${spaBadge}
-                                </div>
-                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
-                            </div>
-                        </div>
-                        <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1 flex-shrink-0 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            <span class="hidden sm:inline">View</span>
-                        </a>
-                    </div>
-                `;
-            }
-        }
-        
-        if (!hasDocuments) {
-            displayEmptyOwnershipDocuments();
-        } else {
-            container.innerHTML = html;
-            addRemarkBadgesToDocuments();
-        }
-    }
-
-    function displayEmptyOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        container.innerHTML = `
-            <div class="text-center py-6 text-gray-500 animate-fade-in">
-                <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                <p class="text-sm">No ownership documents uploaded yet</p>
-                <p class="text-xs text-gray-400 mt-1">Please complete Step 1: Ownership Verification</p>
-            </div>
-        `;
-    }
-
-    // ========== OWNERSHIP REMARKS FUNCTIONS ==========
-    async function loadOwnershipRemarks() {
-        if (!applicationId) return;
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/applicant/applications/${applicationId}/ownership-remarks`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.remarks) {
-                    ownershipRemarks = data.remarks;
-                    localStorage.setItem(`applicant_ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
-                } else {
-                    const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
-                    if (saved) try { ownershipRemarks = JSON.parse(saved); } catch(e) { ownershipRemarks = {}; }
-                    else ownershipRemarks = {};
-                }
-            } else {
-                const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
-                if (saved) try { ownershipRemarks = JSON.parse(saved); } catch(e) { ownershipRemarks = {}; }
-                else ownershipRemarks = {};
-            }
-        } catch (error) {
-            console.error('Error loading ownership remarks:', error);
-            const saved = localStorage.getItem(`applicant_ownership_remarks_${applicationId}`);
-            if (saved) try { ownershipRemarks = JSON.parse(saved); } catch(e) { ownershipRemarks = {}; }
-            else ownershipRemarks = {};
-        }
-        
-        displayOwnershipRemarksNotice();
-    }
-
-    function displayOwnershipRemarksNotice() {
-        const noticeContainer = document.getElementById('ownership-remarks-notice');
-        const remarksListContainer = document.getElementById('ownership-remarks-list');
-        const remarksCountBadge = document.getElementById('remarks-count-badge');
-        
-        if (!noticeContainer || !remarksListContainer) return;
-        
-        let allRemarks = [];
-        let pendingCount = 0;
-        
-        for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
-            if (remarks && remarks.length > 0) {
-                remarks.forEach(remark => {
-                    if (remark.status === 'pending_response') {
-                        pendingCount++;
-                        allRemarks.push({
-                            ...remark,
-                            document_key: docKey,
-                            document_name: remark.document_name || ownershipDocumentNames[docKey] || docKey.replace(/_/g, ' ').replace(/_link$/, '')
-                        });
-                    }
-                });
-            }
-        }
-        
-        allRemarks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        
-        if (pendingCount > 0) {
-            noticeContainer.classList.remove('hidden');
-            remarksCountBadge.textContent = `${pendingCount} remark${pendingCount > 1 ? 's' : ''}`;
-            
-            let remarksHtml = '';
-            allRemarks.forEach(remark => {
-                const date = new Date(remark.created_at);
-                const formattedDate = date.toLocaleString();
-                
-                remarksHtml += `
-                    <div class="remark-item p-3 bg-white rounded-lg border border-amber-200 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">${escapeHtml(remark.document_name)}</span>
-                                <span class="text-xs text-gray-500">from ${escapeHtml(remark.created_by)}</span>
-                            </div>
-                            <span class="text-xs text-gray-400">${formattedDate}</span>
-                        </div>
-                        <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
-                        <div class="flex gap-2 mt-3">
-                            <button onclick="viewDocumentRemarks('${remark.document_key}', '${escapeHtml(remark.document_name)}')" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>View Details</button>
-                            <button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Message Staff</button>
-                        </div>
-                        ${remark.response ? `<div class="mt-3 pt-2 border-t border-gray-100"><div class="flex items-start gap-2"><svg class="w-3 h-3 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Your Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}
-                    </div>
-                `;
-            });
-            remarksListContainer.innerHTML = remarksHtml;
-            addRemarkBadgesToDocuments();
-        } else {
-            noticeContainer.classList.add('hidden');
-        }
-    }
-
-    function addRemarkBadgesToDocuments() {
-        const documentItems = document.querySelectorAll('#ownership-documents-list .flex');
-        documentItems.forEach(item => {
-            const docNameText = item.querySelector('.text-sm.font-medium')?.textContent;
-            if (docNameText) {
-                let hasRemarks = false;
-                for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
-                    const docName = ownershipDocumentNames[docKey];
-                    if (docName === docNameText || docKey.includes(docNameText.toLowerCase().replace(/\s+/g, '_'))) {
-                        const pendingRemarks = remarks.filter(r => r.status === 'pending_response');
-                        if (pendingRemarks.length > 0) { hasRemarks = true; break; }
-                    }
-                }
-                if (hasRemarks && !item.querySelector('.remark-badge')) {
-                    const remarkBadge = document.createElement('span');
-                    remarkBadge.className = 'remark-badge ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full flex items-center gap-1 remark-badge-pulse';
-                    remarkBadge.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Has Remarks`;
-                    const titleDiv = item.querySelector('.text-sm.font-medium');
-                    if (titleDiv && titleDiv.parentElement) titleDiv.parentElement.insertBefore(remarkBadge, titleDiv.nextSibling);
-                }
-            }
-        });
-    }
-
-    function viewDocumentRemarks(documentKey, documentName) {
-        currentModalDocumentKey = documentKey;
-        currentModalDocumentName = documentName;
-        document.getElementById('modal-doc-name').textContent = documentName;
-        
-        const modalRemarksList = document.getElementById('modal-remarks-list');
-        const remarks = ownershipRemarks[documentKey] || [];
-        
-        if (remarks.length === 0) {
-            modalRemarksList.innerHTML = '<div class="text-center py-4 text-gray-500">No remarks found for this document.</div>';
-        } else {
-            let html = '';
-            remarks.forEach(remark => {
-                const date = new Date(remark.created_at);
-                const formattedDate = date.toLocaleString();
-                const statusBadge = remark.status === 'pending_response' ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
-                html += `<div class="p-3 bg-gray-50 rounded-lg border border-gray-200"><div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by)}</span>${statusBadge}</div><span class="text-xs text-gray-400">${formattedDate}</span></div><p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>${remark.response ? `<div class="mt-3 pt-2 border-t border-gray-200"><div class="flex items-start gap-2"><svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Your Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}<div class="mt-3 flex justify-end"><button onclick="openChatWithStaff('${escapeHtml(remark.created_by)}')" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Message ${escapeHtml(remark.created_by)}</button></div></div>`;
-            });
-            modalRemarksList.innerHTML = html;
-        }
-        document.getElementById('document-remarks-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeDocumentRemarksModal() {
-        document.getElementById('document-remarks-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        currentModalDocumentKey = null;
-        currentModalDocumentName = null;
-    }
-
-    function openChatWithStaff(staffName = null) {
-        let targetStaffName = staffName;
-        if (!targetStaffName) {
-            for (const [docKey, remarks] of Object.entries(ownershipRemarks)) {
-                const pendingRemark = remarks.find(r => r.status === 'pending_response');
-                if (pendingRemark && pendingRemark.created_by_name) { targetStaffName = pendingRemark.created_by_name; break; }
-            }
-        }
-        window.location.href = targetStaffName ? `/chat?staff=${encodeURIComponent(targetStaffName)}` : '/chat';
-    }
-
-    // ========== REVIEW ACTIVITIES FUNCTIONS ==========
-    async function loadReviewActivities() {
-        if (!applicationId) return;
-        
-        try {
-            const response = await fetch(`/applicant/applications/${applicationId}/review-activities`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.activities) {
-                    displayReviewActivities(data.activities);
-                    displayAllReviewers(data.activities);
-                } else {
-                    showEmptyReviewers();
-                    showEmptyActivities();
-                }
-            } else {
-                showEmptyReviewers();
-                showEmptyActivities();
-            }
-        } catch (error) {
-            console.error('Error loading review activities:', error);
-            showEmptyReviewers();
-            showEmptyActivities();
-        }
-    }
-
-    function displayReviewActivities(activities) {
-        const activityLog = document.getElementById('activity-log');
-        if (!activities || activities.length === 0) { showEmptyActivities(); return; }
-        
-        const sortedActivities = [...activities].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3);
-        let html = '';
-        
-        sortedActivities.forEach(activity => {
-            const date = new Date(activity.created_at);
-            const exactDateTime = formatExactDateTime(date);
-            const timeAgo = getTimeAgo(date);
-            
-            let iconColor = 'bg-blue-100', iconTextColor = 'text-blue-600';
-            let iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
-            
-            if (activity.action === 'status_updated') {
-                if (activity.new_status === 'approved') { iconColor = 'bg-green-100'; iconTextColor = 'text-green-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`; }
-                else if (activity.new_status === 'rejected') { iconColor = 'bg-red-100'; iconTextColor = 'text-red-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`; }
-                else if (activity.new_status === 'document-verification') { iconColor = 'bg-purple-100'; iconTextColor = 'text-purple-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; }
-                else if (activity.new_status === 'for-assessment') { iconColor = 'bg-indigo-100'; iconTextColor = 'text-indigo-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m2 5H7m11-9H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2z" /></svg>`; }
-            } else if (activity.action === 'note_added') { iconColor = 'bg-yellow-100'; iconTextColor = 'text-yellow-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>`; }
-            else if (activity.action === 'hard_copy_received') { iconColor = 'bg-indigo-100'; iconTextColor = 'text-indigo-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`; }
-            else if (activity.action === 'fsec_uploaded') { iconColor = 'bg-red-100'; iconTextColor = 'text-red-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>`; }
-            else if (activity.action === 'bfp_comments_added') { iconColor = 'bg-amber-100'; iconTextColor = 'text-amber-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>`; }
-            else if (activity.action === 'cpdo_assessment_saved') { iconColor = 'bg-orange-100'; iconTextColor = 'text-orange-600'; iconSvg = `<svg class="h-3 w-3 ${iconTextColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`; }
-            
-            const reviewerName = activity.reviewer ? activity.reviewer.name : 'System';
-            const reviewerRole = activity.reviewer ? activity.reviewer.role : '';
-            let actionDisplay = activity.action_display || activity.action;
-            
-            if (activity.action === 'status_updated' && activity.old_status && activity.new_status) {
-                actionDisplay = `Status changed from ${formatStatusDisplay(activity.old_status)} to ${formatStatusDisplay(activity.new_status)}`;
-            } else {
-                actionDisplay = actionDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            }
-            
-            html += `<div class="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition animate-fade-in"><div class="w-8 h-8 ${iconColor} rounded-full flex items-center justify-center flex-shrink-0 mt-1">${iconSvg}</div><div class="flex-1"><div class="flex flex-col"><div class="flex justify-between items-start flex-wrap gap-1"><p class="text-sm font-medium text-gray-800">${escapeHtml(actionDisplay)}</p></div>${activity.remarks ? `<p class="text-xs text-gray-600 mt-1">${escapeHtml(activity.remarks)}</p>` : ''}<p class="text-xs text-gray-500 mt-1"><span class="font-medium">${escapeHtml(reviewerName)}</span>${reviewerRole ? `<span class="text-gray-400"> • ${escapeHtml(reviewerRole)}</span>` : ''}</p><div class="mt-1"><p class="text-xs text-gray-400" title="${exactDateTime}">${timeAgo}</p></div></div></div></div>`;
-        });
-        
-        if (activities.length > 3) html += `<div class="text-center text-xs text-gray-400 pt-2">+${activities.length - 3} more activities</div>`;
-        activityLog.innerHTML = html;
-    }
-// Display Building Permit Number
-function displayBuildingPermitNumber() {
-    if (currentApplication && currentApplication.building_permit_number) {
-        const permitContainer = document.getElementById('building-permit-container');
-        const permitNumberSpan = document.getElementById('building-permit-number-display');
-        const statusCardPermit = document.getElementById('status-card-building-permit');
-        const statusCardPermitNumber = document.getElementById('status-card-permit-number');
-        
-        if (permitContainer) {
-            permitContainer.style.display = 'flex';
-            permitNumberSpan.textContent = currentApplication.building_permit_number;
-        }
-        
-        if (statusCardPermit && statusCardPermitNumber) {
-            statusCardPermit.classList.remove('hidden');
-            statusCardPermitNumber.textContent = currentApplication.building_permit_number;
-        }
-        
-        console.log('Building Permit Number displayed:', currentApplication.building_permit_number);
-    } else {
-        const permitContainer = document.getElementById('building-permit-container');
-        const statusCardPermit = document.getElementById('status-card-building-permit');
-        
-        if (permitContainer) permitContainer.style.display = 'none';
-        if (statusCardPermit) statusCardPermit.classList.add('hidden');
-    }
-}
-    function displayAllReviewers(activities) {
-        const reviewersContainer = document.getElementById('reviewers-container');
-        const reviewerCountSpan = document.getElementById('reviewer-count');
-        
-        if (!activities || activities.length === 0) { showEmptyReviewers(); if (reviewerCountSpan) reviewerCountSpan.textContent = '0'; return; }
-        
-        const reviewerMap = new Map();
-        activities.forEach(activity => {
-            if (activity.reviewer && activity.reviewer.name !== 'System') {
-                const reviewerId = activity.reviewer.id || activity.reviewer.name;
-                if (!reviewerMap.has(reviewerId)) {
-                    reviewerMap.set(reviewerId, {
-                        id: reviewerId, name: activity.reviewer.name, role: activity.reviewer.role || 'Staff',
-                        initials: activity.reviewer.initials || getInitials(activity.reviewer.name), actions: [], lastActionDate: null, actionCount: 0
-                    });
-                }
-                const reviewer = reviewerMap.get(reviewerId);
-                reviewer.actions.push({ action: activity.action, date: new Date(activity.created_at), new_status: activity.new_status, old_status: activity.old_status });
-                reviewer.actionCount++;
-                const actionDate = new Date(activity.created_at);
-                if (!reviewer.lastActionDate || actionDate > reviewer.lastActionDate) { reviewer.lastActionDate = actionDate; reviewer.lastAction = activity.action; reviewer.lastActionNewStatus = activity.new_status; }
-            }
-        });
-        
-        const reviewers = Array.from(reviewerMap.values()).sort((a, b) => (b.lastActionDate || 0) - (a.lastActionDate || 0));
-        if (reviewerCountSpan) reviewerCountSpan.textContent = reviewers.length;
-        if (reviewers.length === 0) { showEmptyReviewers(); return; }
-        
-        reviewersContainer.innerHTML = '';
-        reviewers.forEach(reviewer => {
-            let statusText = 'Reviewed', statusClass = 'bg-blue-100 text-blue-600';
-            if (reviewer.lastAction === 'status_updated') {
-                if (reviewer.lastActionNewStatus === 'approved') { statusText = 'Approved'; statusClass = 'bg-green-100 text-green-600'; }
-                else if (reviewer.lastActionNewStatus === 'rejected') { statusText = 'Rejected'; statusClass = 'bg-red-100 text-red-600'; }
-                else if (reviewer.lastActionNewStatus === 'under-review') { statusText = 'Under Review'; statusClass = 'bg-purple-100 text-purple-600'; }
-                else if (reviewer.lastActionNewStatus === 'for-release') { statusText = 'For Release'; statusClass = 'bg-blue-100 text-blue-600'; }
-                else if (reviewer.lastActionNewStatus === 'verified') { statusText = 'Completed'; statusClass = 'bg-emerald-100 text-emerald-600'; }
-                else { statusText = 'Status Updated'; statusClass = 'bg-purple-100 text-purple-600'; }
-            } else if (reviewer.lastAction === 'note_added') { statusText = 'Added Note'; statusClass = 'bg-yellow-100 text-yellow-600'; }
-            else if (reviewer.lastAction === 'hard_copy_received') { statusText = 'Received Hard Copy'; statusClass = 'bg-indigo-100 text-indigo-600'; }
-            else if (reviewer.lastAction === 'fsec_uploaded') { statusText = 'Uploaded FSEC'; statusClass = 'bg-red-100 text-red-600'; }
-            else if (reviewer.lastAction === 'bfp_comments_added') { statusText = 'Added Comments'; statusClass = 'bg-amber-100 text-amber-600'; }
-            else if (reviewer.lastAction === 'cpdo_assessment_saved') { statusText = 'CPDO Assessment'; statusClass = 'bg-orange-100 text-orange-600'; }
-            
-            const timeAgo = reviewer.lastActionDate ? getTimeAgo(reviewer.lastActionDate) : 'No actions';
-            reviewersContainer.innerHTML += `<div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition animate-fade-in"><div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold"><span>${escapeHtml(reviewer.initials)}</span></div><div class="flex-1"><div class="flex justify-between items-start flex-wrap gap-2"><div><p class="text-sm font-medium text-gray-800">${escapeHtml(reviewer.name)}</p><p class="text-xs text-gray-500">${escapeHtml(reviewer.role)}</p></div><span class="text-xs px-2 py-1 ${statusClass} rounded-full whitespace-nowrap">${statusText}</span></div><div class="mt-2"><p class="text-xs text-gray-400">Last action ${timeAgo}</p><p class="text-xs text-gray-300 mt-1">Actions: ${reviewer.actionCount}</p></div></div></div>`;
-        });
-        
-        const content = document.getElementById('reviewers-collapsible-content');
-        const chevron = document.getElementById('reviewers-chevron');
-        if (reviewers.length > 0) { content.classList.remove('hidden'); if (chevron) chevron.style.transform = 'rotate(180deg)'; }
-        else { content.classList.add('hidden'); if (chevron) chevron.style.transform = 'rotate(0deg)'; }
-    }
-
-    function showEmptyReviewers() {
-        const reviewersContainer = document.getElementById('reviewers-container');
-        reviewersContainer.innerHTML = `<div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-fade-in"><div class="w-16 h-16 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xl font-bold"><span>OB</span></div><div class="flex-1"><p class="text-sm font-medium text-gray-800">Office of the Building Official</p><p class="text-xs text-gray-500">Reviewing Officer</p><div class="flex items-center gap-2 mt-2"><span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">Waiting for review</span></div></div></div>`;
-        const reviewerCountSpan = document.getElementById('reviewer-count');
-        if (reviewerCountSpan) reviewerCountSpan.textContent = '0';
-        const content = document.getElementById('reviewers-collapsible-content');
-        const chevron = document.getElementById('reviewers-chevron');
-        content.classList.add('hidden');
-        if (chevron) chevron.style.transform = 'rotate(0deg)';
-    }
-
-    function showEmptyActivities() {
-        const activityLog = document.getElementById('activity-log');
-        activityLog.innerHTML = `<div class="text-center py-8 text-gray-500 animate-fade-in"><svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><p class="text-sm">No activity yet</p></div>`;
-    }
-
     // ========== MODAL FUNCTIONS ==========
     function showError() {
         document.getElementById('loading-state').classList.add('hidden');
@@ -3223,6 +3050,84 @@ function displayBuildingPermitNumber() {
         if (modal) { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
     }
 
+    function toggleReviewersSection() {
+        const content = document.getElementById('reviewers-collapsible-content');
+        const chevron = document.getElementById('reviewers-chevron');
+        if (content.classList.contains('hidden')) { content.classList.remove('hidden'); chevron.style.transform = 'rotate(180deg)'; }
+        else { content.classList.add('hidden'); chevron.style.transform = 'rotate(0deg)'; }
+    }
+
+    function downloadApplicationSummary() {
+        if (!currentApplication) { showErrorModal('No application data to download'); return; }
+        
+        let summary = `BUILDING PERMIT APPLICATION SUMMARY\n================================\n\nApplication Number: ${currentApplication.application_number || 'N/A'}\n`;
+        
+        if (currentApplication.building_permit_number) {
+            summary += `Building Permit Number: ${currentApplication.building_permit_number}\n`;
+        }
+        
+        summary += `Status: ${currentApplication.status ? currentApplication.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'N/A'}\n`;
+        summary += `Submitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
+        
+        if (currentApplication.hardcopy_submission_date) {
+            summary += `HARD COPY SUBMISSION SCHEDULE\n=============================\n`;
+            summary += `Submission Date: ${currentApplication.hardcopy_submission_date}\n`;
+            if (currentApplication.hardcopy_instructions) summary += `Instructions: ${currentApplication.hardcopy_instructions}\n`;
+            summary += `\n`;
+        }
+        
+        summary += `PROJECT INFORMATION\n------------------\n`;
+        summary += `Title: ${currentApplication.project_title || 'N/A'}\n`;
+        summary += `Type: ${currentApplication.project_type || 'N/A'}\n`;
+        summary += `Location: ${currentApplication.project_location || 'N/A'}\n`;
+        summary += `Lot Area: ${currentApplication.lot_area ? currentApplication.lot_area + ' sqm' : 'N/A'}\n`;
+        summary += `Floor Area: ${currentApplication.floor_area ? currentApplication.floor_area + ' sqm' : 'N/A'}\n`;
+        summary += `Floors: ${currentApplication.num_floors || 'N/A'}\n`;
+        summary += `Estimated Cost: ${currentApplication.estimated_cost ? '₱' + parseFloat(currentApplication.estimated_cost).toLocaleString() : 'N/A'}\n\n`;
+        
+        summary += `OWNER INFORMATION\n-----------------\n`;
+        summary += `Name: ${currentApplication.owner_name || 'N/A'}\n`;
+        summary += `Contact: ${currentApplication.contact_number || 'N/A'}\n`;
+        summary += `Email: ${currentApplication.owner_email || 'N/A'}\n\n`;
+        
+        if (currentAssessment && currentAssessment.total_amount) {
+            summary += `BUILDING PERMIT FEE ASSESSMENT\n-----------------------------\n`;
+            summary += `Total Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
+        }
+        
+        if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount) {
+            summary += `CPDO FEE ASSESSMENT\n-------------------\n`;
+            summary += `Total CPDO Fees: ₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString()}\n`;
+            if (currentCPDOAssessment.assessment_date) summary += `Assessment Date: ${currentCPDOAssessment.assessment_date}\n`;
+            summary += `\n`;
+        }
+        
+        if (cpdoStatus) {
+            summary += `CPDO STATUS\n-----------\n`;
+            summary += `Status: ${cpdoStatus.toUpperCase()}\n`;
+            if (cpdoRemarks) summary += `Remarks: ${cpdoRemarks}\n`;
+            summary += `\n`;
+        }
+        
+        summary += `Generated on: ${new Date().toLocaleString()}\n`;
+        
+        const blob = new Blob([summary], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `application_${currentApplication.application_number || 'summary'}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showSuccessModal('Application summary downloaded!');
+    }
+
+    function viewFullHistory() {
+        if (applicationId) window.location.href = `/applicant/applications/${applicationId}/activity-history`;
+        else showErrorModal('Unable to view history');
+    }
+
     // ========== CPDO RATING FUNCTIONS ==========
     function setCPDORating(rating) {
         currentCPDORating = rating;
@@ -3241,7 +3146,7 @@ function displayBuildingPermitNumber() {
         const rating = document.getElementById('cpdo-rating-value').value;
         if (!rating || rating === '0') { document.getElementById('rating-error')?.classList.remove('hidden'); return; }
         
-        const requiredFields = ['processing_time', 'responsiveness', 'clarity', 'fairness', 'overall_satisfaction'];
+        const requiredFields = ['processing_time', 'responsiveness', 'clarity', 'fairness'];
         let missingFields = [];
         requiredFields.forEach(field => { if (!document.querySelector(`input[name="${field}"]:checked`)) missingFields.push(field.replace('_', ' ')); });
         if (missingFields.length > 0) { showGlobalError(`Please complete all required fields: ${missingFields.join(', ')}`); return; }
@@ -3253,7 +3158,6 @@ function displayBuildingPermitNumber() {
             responsiveness: document.querySelector('input[name="responsiveness"]:checked')?.value,
             clarity: document.querySelector('input[name="clarity"]:checked')?.value,
             fairness: document.querySelector('input[name="fairness"]:checked')?.value,
-            overall_satisfaction: document.querySelector('input[name="overall_satisfaction"]:checked')?.value,
             comments: document.getElementById('cpdo-comments').value
         };
         
@@ -3304,60 +3208,12 @@ function displayBuildingPermitNumber() {
             .catch(error => console.error('Error checking CPDO rating:', error));
     }
 
-    // ========== OTHER FUNCTIONS ==========
-    function toggleReviewersSection() {
-        const content = document.getElementById('reviewers-collapsible-content');
-        const chevron = document.getElementById('reviewers-chevron');
-        if (content.classList.contains('hidden')) { content.classList.remove('hidden'); chevron.style.transform = 'rotate(180deg)'; }
-        else { content.classList.add('hidden'); chevron.style.transform = 'rotate(0deg)'; }
-    }
-function showBuildingPermitNotification(permitNumber) {
-    const notification = document.getElementById('update-notification');
-    const messageSpan = document.getElementById('notification-message');
-    if (notification && messageSpan) {
-        messageSpan.innerHTML = `🎉 Building Permit #${permitNumber} has been issued! 🎉`;
-        notification.classList.add('bg-green-600');
-        notification.style.transform = 'translateY(0)';
-        setTimeout(() => { 
-            notification.style.transform = 'translateY(-100px)';
-            notification.classList.remove('bg-green-600');
-        }, 8000);
-    }
-}
-    function downloadApplicationSummary() {
-    if (!currentApplication) { showErrorModal('No application data to download'); return; }
-    let summary = `BUILDING PERMIT APPLICATION SUMMARY\n================================\n\nApplication Number: ${currentApplication.application_number || 'N/A'}\n`;
-    
-    // Add Building Permit Number if available
-    if (currentApplication.building_permit_number) {
-        summary += `Building Permit Number: ${currentApplication.building_permit_number}\n`;
-    }
-    
-    summary += `Status: ${formatStatusDisplay(currentApplication.status)}\nSubmitted: ${currentApplication.submitted_at ? new Date(currentApplication.submitted_at).toLocaleDateString() : 'N/A'}\n\n`;
-    
-    if (currentApplication.hardcopy_submission_date) {
-        summary += `HARD COPY SUBMISSION SCHEDULE\n=============================\nSubmission Date: ${currentApplication.hardcopy_submission_date}\n${currentApplication.hardcopy_instructions ? `Instructions: ${currentApplication.hardcopy_instructions}\n` : ''}\n`;
-    }
-    summary += `PROJECT INFORMATION\n------------------\nTitle: ${currentApplication.project_title || 'N/A'}\nType: ${currentApplication.project_type || 'N/A'}\nLocation: ${currentApplication.project_location || 'N/A'}\nLot Area: ${currentApplication.lot_area ? currentApplication.lot_area + ' sqm' : 'N/A'}\nFloor Area: ${currentApplication.floor_area ? currentApplication.floor_area + ' sqm' : 'N/A'}\nFloors: ${currentApplication.num_floors || 'N/A'}\nEstimated Cost: ${currentApplication.estimated_cost ? '₱' + parseFloat(currentApplication.estimated_cost).toLocaleString() : 'N/A'}\n\nOWNER INFORMATION\n-----------------\nName: ${currentApplication.owner_name || 'N/A'}\nContact: ${currentApplication.contact_number || 'N/A'}\nEmail: ${currentApplication.owner_email || 'N/A'}\n\n`;
-    if (currentAssessment && currentAssessment.total_amount) summary += `BUILDING PERMIT FEE ASSESSMENT\n-----------------------------\nTotal Fee: ₱${parseFloat(currentAssessment.total_amount).toLocaleString()}\n\n`;
-    if (currentCPDOAssessment && currentCPDOAssessment.total_cpdo_amount) summary += `CPDO FEE ASSESSMENT\n-------------------\nTotal CPDO Fees: ₱${parseFloat(currentCPDOAssessment.total_cpdo_amount).toLocaleString()}\n${currentCPDOAssessment.assessment_date ? `Assessment Date: ${currentCPDOAssessment.assessment_date}\n` : ''}\n`;
-    if (cpdoStatus) summary += `CPDO STATUS\n-----------\nStatus: ${cpdoStatus.toUpperCase()}\n${cpdoRemarks ? `Remarks: ${cpdoRemarks}\n` : ''}\n`;
-    summary += `Generated on: ${new Date().toLocaleString()}\n`;
-    const blob = new Blob([summary], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `application_${currentApplication.application_number || 'summary'}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showSuccessModal('Application summary downloaded!');
-}
-
-    function viewFullHistory() {
-        if (applicationId) window.location.href = `/applicant/applications/${applicationId}/activity-history`;
-        else showErrorModal('Unable to view history');
+    // ========== HELPER FUNCTIONS ==========
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function showUpdateNotification(message) {
@@ -3365,11 +3221,6 @@ function showBuildingPermitNotification(permitNumber) {
         document.getElementById('notification-message').textContent = message;
         notification.style.transform = 'translateY(0)';
         setTimeout(() => { notification.style.transform = 'translateY(-100px)'; }, 5000);
-    }
-
-    function showDocumentVerificationAlert() {
-        const alert = document.getElementById('document-verification-alert');
-        if (alert) { alert.classList.remove('hidden'); setTimeout(() => alert.classList.add('hidden'), 10000); }
     }
 
     function animateStatusChange() {
@@ -3389,56 +3240,40 @@ function showBuildingPermitNotification(permitNumber) {
         }, 1000);
     }
 
-   async function checkForUpdates() {
-    if (!applicationId) return;
-    try {
-        const response = await fetch(`/applicant/applications/${applicationId}`, { 
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' } 
-        });
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                const newApplication = data.data;
-                
-                // Check if building permit number was added
-                const oldPermitNumber = currentApplication ? currentApplication.building_permit_number : null;
-                const newPermitNumber = newApplication.building_permit_number;
-                
-                if (oldPermitNumber !== newPermitNumber && newPermitNumber) {
-                    showBuildingPermitNotification(newPermitNumber);
-                    showGlobalSuccess(`Building Permit #${newPermitNumber} has been issued for your application!`, 'Permit Issued!');
-                }
-                
-                if (previousStatus && previousStatus !== newApplication.status) {
-                    showUpdateNotification('Application status updated to ' + formatStatusDisplay(newApplication.status));
-                    animateStatusChange();
-                    if (newApplication.status === 'document-verification') showDocumentVerificationAlert();
-                    if (previousStatus === 'document-verification' && newApplication.status === 'approved') showUpdateNotification('Documents have been verified and approved!');
-                }
-                
-                currentApplication = newApplication;
-                displayApplicationDetails();
-                if (previousStatus !== newApplication.status) loadReviewActivities();
-                previousStatus = newApplication.status;
-            }
-        }
-    } catch (error) { console.error('Error checking for updates:', error); }
-}
-
-    function startRealTimeUpdates() { updateCheckInterval = setInterval(checkForUpdates, 30000); }
-
-    async function checkPendingSurveys() {
+    async function checkForUpdates() {
+        if (!applicationId) return;
         try {
-            const response = await fetch('/applicant/survey/pending', { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' } });
+            const response = await fetch(`/applicant/applications/${applicationId}`, { 
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' } 
+            });
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.pending_surveys && data.pending_surveys.length > 0) {
-                    const firstSurvey = data.pending_surveys[0];
-                    setTimeout(() => { if (window.showSurveyModal) window.showSurveyModal(firstSurvey.id, firstSurvey.service_availed); }, 2000);
+                if (data.success) {
+                    const newApplication = data.data;
+                    
+                    const oldPermitNumber = currentApplication ? currentApplication.building_permit_number : null;
+                    const newPermitNumber = newApplication.building_permit_number;
+                    
+                    if (oldPermitNumber !== newPermitNumber && newPermitNumber) {
+                        showGlobalSuccess(`Building Permit #${newPermitNumber} has been issued for your application!`, 'Permit Issued!');
+                    }
+                    
+                    if (previousStatus && previousStatus !== newApplication.status) {
+                        const statusText = newApplication.status ? newApplication.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Updated';
+                        showUpdateNotification(`Application status updated to ${statusText}`);
+                        animateStatusChange();
+                    }
+                    
+                    currentApplication = newApplication;
+                    displayApplicationDetails();
+                    if (previousStatus !== newApplication.status) loadReviewActivities();
+                    previousStatus = newApplication.status;
                 }
             }
-        } catch (error) { console.error('Error checking pending surveys:', error); }
+        } catch (error) { console.error('Error checking for updates:', error); }
     }
+
+    function startRealTimeUpdates() { updateCheckInterval = setInterval(checkForUpdates, 30000); }
 
     function setupModals() {
         const errorModal = document.getElementById('error-modal');
@@ -3458,18 +3293,16 @@ function showBuildingPermitNotification(permitNumber) {
 
     // ========== INITIALIZATION ==========
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Application ID from URL:', applicationId);
         if (applicationId && !isNaN(applicationId)) {
             loadApplicationDetails();
             startRealTimeUpdates();
-            checkPendingSurveys();
         } else { showError(); }
         setupModals();
     });
 
     window.addEventListener('beforeunload', function() { if (updateCheckInterval) clearInterval(updateCheckInterval); });
 
-    // Expose global functions for inline onclick handlers
+    // Expose global functions
     window.setCPDORating = setCPDORating;
     window.submitCPDORating = submitCPDORating;
     window.closeCPDORatingModal = closeCPDORatingModal;

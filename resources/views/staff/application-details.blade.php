@@ -546,6 +546,81 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Status Update Card (UPDATED with OR display) -->
+<div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
+    
+   
+    
+    <div class="space-y-4">
+        <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <p class="text-xs text-gray-500 mb-1">Current Status</p>
+            <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
+        </div>
+
+        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <label class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
+                <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
+            </label>
+            <p id="hardcopy-permission-warning" class="text-xs text-red-500 mt-1 hidden">Only Engineers and Architects can mark hard copy as received.</p>
+        </div>
+
+        <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-600">Documents Verified:</span>
+                <span id="summary-verified" class="text-sm font-semibold text-green-600">0</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Pending Verification:</span>
+                <span id="summary-pending" class="text-sm font-semibold text-yellow-600">0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div id="verification-progress-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            @php
+                $statusOptions = [
+                    'under-review' => ['Under Review', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                    'document-verification' => ['Document Verification', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
+                    'for-assessment' => ['For Assessment', 'indigo', ['engineer']],
+                    'approved' => ['Approved', 'green', ['engineer']],
+                    'rejected' => ['Rejected', 'red', ['engineer']],
+                    'for-release' => ['For Release', 'blue', ['engineer']],
+                    'verified' => ['Completed', 'emerald', ['engineer']]
+                ];
+            @endphp
+            
+            @foreach($statusOptions as $value => [$label, $color, $allowedPositions])
+            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 status-option status-option-{{ $value }}" data-allowed-positions='@json($allowedPositions)'>
+                <input type="radio" name="status" value="{{ $value }}" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
+                <span class="ml-3 text-sm font-medium text-{{ $color }}-600">{{ $label }}</span>
+                <span class="ml-auto text-xs text-gray-400 status-restricted-badge hidden">(Restricted)</span>
+            </label>
+            @endforeach
+        </div>
+
+        <div id="status-restriction-notice" class="hidden p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-700">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.</span>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
+            <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
+            <p class="text-xs text-gray-400 mt-1">Remarks will be saved to activity log.</p>
+        </div>
+
+        <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
+    </div>
+</div>
 <!-- CPDO FEE ASSESSMENT CARD - View for all staff, Edit only for CPDO -->
 <div id="cpdo-assessment-card" class="bg-white rounded-2xl shadow-sm border border-indigo-200 p-6 animate-fade-in hidden">
     <div class="flex items-center gap-2 mb-4">
@@ -901,80 +976,7 @@
             <p class="text-xs text-gray-400 mt-1">The applicant will upload the OR after CPDO assessment is completed</p>
         </div>
     </div>
-<!-- Status Update Card (UPDATED with OR display) -->
-<div id="status-update-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Status</h2>
-    
-   
-    
-    <div class="space-y-4">
-        <div id="current-status-card" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-            <p class="text-xs text-gray-500 mb-1">Current Status</p>
-            <p id="current-status" class="text-lg font-semibold text-yellow-600">Pending Review</p>
-        </div>
 
-        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <label class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700">Hard Copy Received</span>
-                <input type="checkbox" id="hardcopy-checkbox" class="h-5 w-5 text-[#155386] border-gray-300 rounded focus:ring-[#155386]">
-            </label>
-            <p id="hardcopy-permission-warning" class="text-xs text-red-500 mt-1 hidden">Only Engineers and Architects can mark hard copy as received.</p>
-        </div>
-
-        <div class="p-3 bg-green-50 rounded-lg border border-green-200">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-600">Documents Verified:</span>
-                <span id="summary-verified" class="text-sm font-semibold text-green-600">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Pending Verification:</span>
-                <span id="summary-pending" class="text-sm font-semibold text-yellow-600">0</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div id="verification-progress-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <div class="space-y-2">
-            @php
-                $statusOptions = [
-                    'under-review' => ['Under Review', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
-                    'document-verification' => ['Document Verification', 'purple', ['engineer', 'architect', 'cpdo', 'administrative_aide']],
-                    'for-assessment' => ['For Assessment', 'indigo', ['engineer']],
-                    'approved' => ['Approved', 'green', ['engineer']],
-                    'rejected' => ['Rejected', 'red', ['engineer']],
-                    'for-release' => ['For Release', 'blue', ['engineer']],
-                    'verified' => ['Completed', 'emerald', ['engineer']]
-                ];
-            @endphp
-            
-            @foreach($statusOptions as $value => [$label, $color, $allowedPositions])
-            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 status-option status-option-{{ $value }}" data-allowed-positions='@json($allowedPositions)'>
-                <input type="radio" name="status" value="{{ $value }}" class="status-radio h-4 w-4 text-[#155386] border-gray-300 focus:ring-[#155386]">
-                <span class="ml-3 text-sm font-medium text-{{ $color }}-600">{{ $label }}</span>
-                <span class="ml-auto text-xs text-gray-400 status-restricted-badge hidden">(Restricted)</span>
-            </label>
-            @endforeach
-        </div>
-
-        <div id="status-restriction-notice" class="hidden p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-700">
-            <div class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.</span>
-            </div>
-        </div>
-
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Remarks / Notes</label>
-            <textarea id="status-remarks" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent text-sm" placeholder="Add remarks or notes about this application..."></textarea>
-            <p class="text-xs text-gray-400 mt-1">Remarks will be saved to activity log.</p>
-        </div>
-
-        <button onclick="updateStatus()" id="update-status-btn" class="w-full px-4 py-3 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition font-medium">Update Status</button>
-    </div>
-</div>
                     <!-- BFP FSEC Section -->
                     <div id="bfp-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in hidden">
                         <div class="flex items-center gap-2 mb-4">
@@ -1664,8 +1666,188 @@
     
     // Payment proof
     let currentPaymentProof = null;
-    
-    // Helper function to format currency
+
+    // ========== USER INFO FUNCTIONS (MOVED UP) ==========
+    let currentUserInfo = {
+        id: null,
+        name: 'Unknown User',
+        position: 'Staff',
+        email: null
+    };
+
+    function setCurrentUserInfo(user) {
+        currentUserInfo = {
+            id: user.id || null,
+            name: user.name || 'Unknown User',
+            position: user.position || user.role || 'Staff',
+            email: user.email || null
+        };
+    }
+
+    function getCurrentUserInfo() {
+        return currentUserInfo;
+    }
+
+    // ========== ACTIVITY LOG REFRESH FUNCTION (MOVED UP) ==========
+    async function refreshActivityLog() {
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/staff/applications/${applicationId}/review-activities`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            });
+            const data = await response.json();
+            if (data.success && data.activities) {
+                reviewActivities = data.activities;
+                displayReviewActivities(reviewActivities);
+            }
+        } catch(error) {
+            console.error('Error refreshing activity log:', error);
+        }
+    }
+
+    // ========== RESET FUNCTIONS (MOVED UP) ==========
+    async function resetSingleDocumentVerification(documentKey, documentName) {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can reset verification status.');
+            return;
+        }
+        
+        const currentUser = getCurrentUserInfo();
+        const oldVerification = documentVerificationStatus[documentKey];
+        const originallyVerifiedBy = oldVerification?.verified_by || 'Unknown';
+        const originallyVerifiedByPosition = oldVerification?.verified_by_position || 'Unknown';
+        
+        if (!confirm(`Reset verification for "${documentName}"?\n\nThis document was originally verified by: ${originallyVerifiedByPosition} (${originallyVerifiedBy})\n\nThis action will be logged.`)) {
+            return;
+        }
+        
+        const verificationInfo = {
+            document_name: documentName,
+            originally_verified_by: originallyVerifiedBy,
+            originally_verified_by_position: originallyVerifiedByPosition,
+            originally_verified_at: oldVerification?.verified_at
+        };
+        
+        delete documentVerificationStatus[documentKey];
+        saveDocumentVerificationStatus();
+        
+        showSubmittingModal('Updating activity log...');
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/staff/applications/${applicationId}/note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ 
+                    note: `${currentUser.name} (${currentUser.position}) reset verification status for document: "${documentName}" (previously verified by ${originallyVerifiedByPosition})`,
+                    action_type: 'document_reset',
+                    metadata: {
+                        document_key: documentKey,
+                        document_name: documentName,
+                        reset_by: currentUser.name,
+                        reset_by_position: currentUser.position,
+                        previously_verified_by: originallyVerifiedBy,
+                        previously_verified_by_position: originallyVerifiedByPosition,
+                        previously_verified_at: verificationInfo.originally_verified_at
+                    }
+                })
+            });
+            
+            const data = await response.json();
+            closeSubmittingModal();
+            
+            if (currentApplication?.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            
+            if (data.success) {
+                showSuccessModal('Reset Complete', `Verification for "${documentName}" has been reset by ${currentUser.position}.`);
+            } else {
+                showSuccessModal('Reset Complete', `Verification for "${documentName}" has been reset by ${currentUser.position}. (Note: Activity log update failed)`);
+            }
+            
+            refreshActivityLog();
+        } catch(error) {
+            closeSubmittingModal();
+            console.error('Error logging reset:', error);
+            if (currentApplication?.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            showSuccessModal('Reset Complete', `Verification for "${documentName}" has been reset by ${currentUser.position}.`);
+            refreshActivityLog();
+        }
+    }
+
+    async function resetAllVerifiedDocuments() {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can reset verification status.');
+            return;
+        }
+        
+        const currentUser = getCurrentUserInfo();
+        const verifiedKeys = Object.keys(documentVerificationStatus).filter(key => documentVerificationStatus[key]?.verified === true);
+        
+        if (verifiedKeys.length === 0) {
+            showErrorModal('No Verified Documents', 'There are no verified documents to reset.');
+            return;
+        }
+        
+        const verifiedDocsList = verifiedKeys.map(key => {
+            const doc = documentsList.find(d => d.key === key);
+            const verification = documentVerificationStatus[key];
+            return {
+                name: doc ? doc.name : key,
+                verified_by: verification?.verified_by || 'Unknown',
+                verified_by_position: verification?.verified_by_position || 'Unknown'
+            };
+        });
+        
+        const verifiedNames = verifiedDocsList.map(d => `${d.name} (verified by ${d.verified_by_position})`).join('\n');
+        
+        if (!confirm(`Reset ALL ${verifiedKeys.length} verified document(s)? This action will be logged.\n\n${verifiedNames}`)) {
+            return;
+        }
+        
+        verifiedKeys.forEach(key => {
+            delete documentVerificationStatus[key];
+        });
+        saveDocumentVerificationStatus();
+        
+        showSubmittingModal('Updating activity log...');
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/staff/applications/${applicationId}/note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ 
+                    note: `${currentUser.position} (${currentUser.name}) batch reset ALL ${verifiedKeys.length} verified document(s)`,
+                    action_type: 'batch_reset_all',
+                    metadata: {
+                        reset_by: currentUser.name,
+                        reset_by_position: currentUser.position,
+                        documents_reset: verifiedDocsList,
+                        count: verifiedKeys.length
+                    }
+                })
+            });
+            
+            closeSubmittingModal();
+            
+            if (currentApplication?.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            showSuccessModal('Reset Complete', `${currentUser.position} reset all ${verifiedKeys.length} verified document(s).`);
+            refreshActivityLog();
+        } catch(error) {
+            closeSubmittingModal();
+            if (currentApplication?.document_links) {
+                displayDocumentChecklist(currentApplication.document_links);
+            }
+            showSuccessModal('Reset Complete', `${currentUser.position} reset all ${verifiedKeys.length} verified document(s).`);
+            refreshActivityLog();
+        }
+    }
+
+    // ========== HELPER FUNCTIONS ==========
     function formatCurrency(value) {
         if (value === null || value === undefined) return '₱0.00';
         const num = parseFloat(value);
@@ -1680,7 +1862,77 @@
         return num.toFixed(2);
     }
     
-    // Ownership verification permissions
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ========== PERMISSION FUNCTIONS ==========
+    function canVerifyDocuments() {
+        const verifyingRoles = ['engineer', 'architect'];
+        return verifyingRoles.includes(currentUserPosition);
+    }
+    
+    function canMarkHardCopy() {
+        const hardCopyRoles = ['engineer', 'architect'];
+        return hardCopyRoles.includes(currentUserPosition);
+    }
+    
+    function canManageVerification() {
+        const manageRoles = ['engineer', 'architect'];
+        return manageRoles.includes(currentUserPosition);
+    }
+    
+    function isCPDOUser() {
+        return currentUserPosition === 'cpdo';
+    }
+
+    // ========== MODAL HELPER FUNCTIONS ==========
+    function showSuccessModal(title, message) {
+        document.getElementById('success-title').textContent = title;
+        document.getElementById('success-message').textContent = message;
+        document.getElementById('success-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSuccessModal() {
+        document.getElementById('success-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    function showErrorModal(title, message) {
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('error-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeErrorModal() {
+        document.getElementById('error-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    function showSubmittingModal(message = 'Please wait while we process your request...') {
+        document.getElementById('submitting-message').textContent = message;
+        document.getElementById('submitting-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSubmittingModal() {
+        document.getElementById('submitting-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // ========== OWNERSHIP VERIFICATION PERMISSIONS ==========
     const ownershipDocumentNames = {
         'tct_link': 'TCT / Deed of Sale',
         'tax_declaration_link': 'Tax Declaration',
@@ -1695,7 +1947,6 @@
         'spa_link': ['cpdo', 'assessor', 'treasurer']
     };
     
-    // Ownership verification status storage
     let ownershipVerificationStatus = {
         tct_link: false,
         tax_declaration_link: false,
@@ -1732,227 +1983,950 @@
         'verified': { allowed: ['engineer'], label: 'Completed' }
     };
 
-    // Set star rating
-    function setCPDORating(rating) {
-        currentCPDORating = rating;
-        document.getElementById('cpdo-rating-value').value = rating;
+    // ========== DOCUMENT VERIFICATION FUNCTIONS ==========
+    function loadDocumentVerificationStatus() {
+        const saved = localStorage.getItem(`doc_verification_${applicationId}`);
+        if (saved) {
+            try { documentVerificationStatus = JSON.parse(saved); } catch(e) { documentVerificationStatus = {}; }
+        } else {
+            documentVerificationStatus = {};
+        }
+    }
+
+    function saveDocumentVerificationStatus() {
+        localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
+        updateVerificationStats();
+    }
+
+    function updateVerificationStats() {
+        let verified = 0;
+        documentsList.forEach(doc => { if (documentVerificationStatus[doc.key]?.verified) verified++; });
+        document.getElementById('verified-count').textContent = verified;
+        document.getElementById('total-count').textContent = documentsList.length;
+        document.getElementById('summary-verified').textContent = verified;
+        document.getElementById('summary-pending').textContent = documentsList.length - verified;
+        document.getElementById('verification-progress-bar').style.width = (verified / documentsList.length) * 100 + '%';
+    }
+
+    function openVerifyDocModal(documentKey, documentName, documentLink) {
+        if (!canVerifyDocuments()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can verify documents.');
+            return;
+        }
         
-        const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star');
-        stars.forEach((star, index) => {
-            const svg = star.querySelector('svg');
-            if (index < rating) {
-                svg.classList.add('text-yellow-400');
-                svg.classList.remove('text-gray-300');
-            } else {
-                svg.classList.add('text-gray-300');
-                svg.classList.remove('text-yellow-400');
+        pendingDocumentKey = documentKey;
+        pendingDocumentName = documentName;
+        pendingDocumentLink = documentLink;
+        
+        document.getElementById('verify-doc-name').textContent = documentName;
+        document.getElementById('verify-doc-link').href = documentLink;
+        document.getElementById('verify-doc-notes').value = '';
+        
+        document.getElementById('verify-doc-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeVerifyDocModal() {
+        document.getElementById('verify-doc-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        pendingDocumentKey = null;
+    }
+    
+    function confirmVerifyDocument() {
+        if (pendingDocumentKey) {
+            const notes = document.getElementById('verify-doc-notes').value;
+            const documentName = pendingDocumentName;
+            
+            const currentUser = getCurrentUserInfo();
+            
+            documentVerificationStatus[pendingDocumentKey] = { 
+                verified: true, 
+                verified_at: new Date().toISOString(), 
+                notes: notes,
+                verified_by: currentUser.name,
+                verified_by_position: currentUser.position,
+                verified_by_id: currentUser.id
+            };
+            saveDocumentVerificationStatus();
+            
+            showSubmittingModal('Logging verification...');
+            
+            const csrfToken = getCsrfToken();
+            const logMessage = notes 
+                ? `${currentUser.position} verified document: "${documentName}" - Notes: ${notes.substring(0, 200)}`
+                : `${currentUser.position} verified document: "${documentName}"`;
+                
+            fetch(`/staff/applications/${applicationId}/note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ 
+                    note: logMessage,
+                    action_type: 'document_verified',
+                    metadata: {
+                        document_key: pendingDocumentKey,
+                        document_name: documentName,
+                        verified_by: currentUser.name,
+                        verified_by_position: currentUser.position,
+                        notes: notes || null
+                    }
+                })
+            }).catch(error => {
+                console.error('Error logging verification:', error);
+            }).finally(() => {
+                closeSubmittingModal();
+                if (currentApplication?.document_links) {
+                    displayDocumentChecklist(currentApplication.document_links);
+                }
+                closeVerifyDocModal();
+                showSuccessModal('Document Verified', `"${documentName}" has been marked as verified by ${currentUser.position}.`);
+                refreshActivityLog();
+            });
+        }
+    }
+    
+    function resetDocumentVerification() {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can reset verification progress.');
+            return;
+        }
+        
+        if (confirm('Reset all verification statuses? This will log the action.')) {
+            resetAllVerifiedDocuments();
+        }
+    }
+    
+    async function saveDocumentVerification() {
+        if (!canManageVerification()) {
+            showErrorModal('Permission Denied', 'Only Engineers and Architects can save verification progress.');
+            return;
+        }
+        
+        const verifiedCount = Object.keys(documentVerificationStatus).length;
+        showSubmittingModal('Saving verification progress...');
+        try {
+            const csrfToken = getCsrfToken();
+            await fetch(`/staff/applications/${applicationId}/note`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ note: `Verification progress saved: ${verifiedCount}/${documentsList.length} documents verified.` })
+            });
+            closeSubmittingModal();
+            showSuccessModal('Progress Saved', 'Document verification progress saved successfully!');
+            refreshActivityLog();
+        } catch(error) { 
+            closeSubmittingModal();
+            showErrorModal('Save Failed', 'Progress saved locally only'); 
+        }
+    }
+    
+    function displayDocumentChecklist(documents) {
+        const container = document.getElementById('documents-checklist');
+        let html = '';
+        let categories = {};
+        const canVerify = canVerifyDocuments();
+        const cpdoApproved = cpdoStatus === 'approved';
+        const canManage = canManageVerification();
+        
+        documentsList.forEach(doc => {
+            if (documents[doc.key] && documents[doc.key].trim() !== '' && documents[doc.key] !== 'undefined') {
+                if (!categories[doc.category]) categories[doc.category] = [];
+                categories[doc.category].push({ ...doc, link: documents[doc.key], isVerified: documentVerificationStatus[doc.key]?.verified || false });
             }
         });
         
-        document.getElementById('rating-error')?.classList.add('hidden');
-    }
-
-    // Show CPDO Rating Modal
-    function showCPDORatingModal(applicationId) {
-        if (hasShownCPDORatingModal) return;
-        
-        const appIdInput = document.getElementById('cpdo-application-id');
-        if (appIdInput) {
-            appIdInput.value = applicationId;
-        }
-        
-        document.getElementById('cpdo-rating-value').value = '';
-        currentCPDORating = 0;
-        
-        document.querySelectorAll('#cpdo-rating-modal input[type="radio"]').forEach(radio => radio.checked = false);
-        document.getElementById('cpdo-comments').value = '';
-        
-        const stars = document.querySelectorAll('#cpdo-rating-modal .rating-star svg');
-        stars.forEach(star => {
-            star.classList.add('text-gray-300');
-            star.classList.remove('text-yellow-400');
-        });
-        
-        const modal = document.getElementById('cpdo-rating-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            hasShownCPDORatingModal = true;
-        }
-    }
-
-    // Close CPDO Rating Modal
-    function closeCPDORatingModal() {
-        const modal = document.getElementById('cpdo-rating-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    // Submit CPDO Rating
-    async function submitCPDORating(event) {
-        event.preventDefault();
-        
-        const appIdInput = document.getElementById('cpdo-application-id');
-        const applicationIdValue = appIdInput ? appIdInput.value : null;
-        
-        if (!applicationIdValue) {
-            showErrorModal('Application ID is missing. Please refresh the page and try again.');
+        if (Object.keys(categories).length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
+            updateVerificationStats();
             return;
         }
         
-        const rating = document.getElementById('cpdo-rating-value').value;
-        if (!rating || rating === '0') {
-            document.getElementById('rating-error')?.classList.remove('hidden');
+        for (const [category, docs] of Object.entries(categories)) {
+            html += `<div class="mb-4"><h3 class="text-sm font-semibold mb-2 border-b pb-1">${category}</h3><div class="space-y-2">`;
+            docs.forEach(doc => {
+                const isVerified = doc.isVerified;
+                const showVerifyButton = !isVerified && doc.link && cpdoApproved && canVerify;
+                const showViewButton = doc.link && doc.link !== 'undefined';
+                const showResetButton = isVerified && canManage;
+                
+                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${isVerified ? 'bg-green-50' : 'bg-gray-50'}">
+                    <div class="flex items-center gap-2 flex-1">
+                        <span class="text-sm ${isVerified ? 'line-through text-gray-500' : ''}">${doc.name}</span>
+                        ${isVerified ? '<span class="text-xs text-green-600">✓ Verified</span>' : ''}
+                    </div>
+                    <div class="flex gap-2">
+                        ${showViewButton ? `<a href="${doc.link}" target="_blank" class="px-2 py-1 text-xs rounded bg-[#155386] text-white hover:bg-[#40798C]">View</a>` : '<span class="text-xs text-gray-400">No file</span>'}
+                        ${showVerifyButton ? `<button onclick="openVerifyDocModal('${doc.key}', '${escapeHtml(doc.name)}', '${doc.link}')" class="px-2 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700">Verify</button>` : ''}
+                        ${showResetButton ? `<button onclick="resetSingleDocumentVerification('${doc.key}', '${escapeHtml(doc.name)}')" class="px-2 py-1 text-xs rounded bg-red-100 text-red-600 hover:bg-red-200 transition" title="Reset verification"><svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Reset</button>` : ''}
+                    </div>
+                </div>`;
+            });
+            html += `</div></div>`;
+        }
+        container.innerHTML = html;
+        updateVerificationStats();
+    }
+    
+    function showEmptyDocuments() {
+        document.getElementById('documents-checklist').innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
+    }
+
+    // ========== OWNERSHIP FUNCTIONS ==========
+    function loadOwnershipVerificationStatus() {
+        const saved = localStorage.getItem(`ownership_verification_${applicationId}`);
+        if (saved) {
+            try { ownershipVerificationStatus = JSON.parse(saved); } catch(e) { ownershipVerificationStatus = { tct_link: false, tax_declaration_link: false, current_tax_receipt_link: false, spa_link: false }; }
+        }
+    }
+
+    function saveOwnershipVerificationStatus() {
+        localStorage.setItem(`ownership_verification_${applicationId}`, JSON.stringify(ownershipVerificationStatus));
+    }
+    
+    function loadOwnershipRemarks() {
+        const saved = localStorage.getItem(`ownership_remarks_${applicationId}`);
+        if (saved) {
+            try { ownershipRemarks = JSON.parse(saved); } catch(e) { ownershipRemarks = {}; }
+        } else { ownershipRemarks = {}; }
+    }
+
+    function saveOwnershipRemarks() {
+        localStorage.setItem(`ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
+    }
+    
+    function canVerifyOwnershipDocument(documentKey) {
+        const allowedRoles = ownershipVerificationPermissions[documentKey] || [];
+        return allowedRoles.includes(currentUserPosition);
+    }
+    
+    async function toggleOwnershipVerification(documentKey, isChecked) {
+        if (!canVerifyOwnershipDocument(documentKey)) {
+            let permissionMessage = `You don't have permission to verify this document. `;
+            if (documentKey === 'tct_link') permissionMessage += `Only CPDO can verify TCT/Deed of Sale.`;
+            else if (documentKey === 'tax_declaration_link') permissionMessage += `Only Assessor can verify Tax Declaration.`;
+            else if (documentKey === 'current_tax_receipt_link') permissionMessage += `Only Treasurer can verify Current Tax Receipt.`;
+            else permissionMessage += `CPDO, Assessor, or Treasurer can verify SPA.`;
+            showErrorModal('Permission Denied', permissionMessage);
+            const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+            if (checkbox) checkbox.checked = !isChecked;
             return;
         }
         
-        const processingTimeElem = document.querySelector('input[name="processing_time"]:checked');
-        const responsivenessElem = document.querySelector('input[name="responsiveness"]:checked');
-        const clarityElem = document.querySelector('input[name="clarity"]:checked');
-        const fairnessElem = document.querySelector('input[name="fairness"]:checked');
-        const overallSatisfactionElem = document.querySelector('input[name="overall_satisfaction"]:checked');
-        
-        const missingFields = [];
-        if (!processingTimeElem) missingFields.push('Processing Time');
-        if (!responsivenessElem) missingFields.push('Staff Responsiveness');
-        if (!clarityElem) missingFields.push('Clarity of Instructions');
-        if (!fairnessElem) missingFields.push('Fairness of Assessment');
-        if (!overallSatisfactionElem) missingFields.push('Overall Satisfaction');
-        
-        if (missingFields.length > 0) {
-            showErrorModal(`Please complete all required fields: ${missingFields.join(', ')}`);
-            return;
-        }
-        
-        function getSelectedLabel(radioGroupName) {
-            const selected = document.querySelector(`input[name="${radioGroupName}"]:checked`);
-            if (!selected) return null;
-            const label = selected.closest('label');
-            const span = label?.querySelector('span');
-            return span ? span.textContent.trim() : null;
-        }
-        
-        const formData = {
-            application_id: parseInt(applicationIdValue),
-            rating: parseInt(rating),
-            processing_time: getSelectedLabel('processing_time'),
-            responsiveness: getSelectedLabel('responsiveness'),
-            clarity: getSelectedLabel('clarity'),
-            fairness: getSelectedLabel('fairness'),
-            overall_satisfaction: getSelectedLabel('overall_satisfaction'),
-            comments: document.getElementById('cpdo-comments').value || ''
-        };
-        
-        const submitBtn = document.getElementById('submit-cpdo-rating-btn');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-        submitBtn.disabled = true;
+        const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
+        if (checkbox) checkbox.disabled = true;
+        showSubmittingModal('Updating verification status...');
         
         try {
             const csrfToken = getCsrfToken();
-            const response = await fetch('/applicant/cpdo-rating/submit', {
+            const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify(formData)
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ document_key: documentKey, verified: isChecked })
             });
-            
             const data = await response.json();
-            
-            if (response.ok && data.success) {
-                showSuccessModal('Thank you for your valuable feedback! Your rating has been submitted successfully.');
-                closeCPDORatingModal();
+            closeSubmittingModal();
+            if (data.success) {
+                ownershipVerificationStatus[documentKey] = isChecked;
+                saveOwnershipVerificationStatus();
+                if (currentOwnershipData) displayOwnershipDocuments();
+                showSuccessModal('Verification Updated', data.message);
+                refreshActivityLog();
             } else {
-                showErrorModal(data.message || 'Failed to submit rating. Please try again.');
+                showErrorModal('Update Failed', data.message || 'Failed to update verification');
+                if (checkbox) checkbox.checked = !isChecked;
             }
-        } catch (error) {
-            console.error('Error submitting CPDO rating:', error);
-            showErrorModal('An error occurred while submitting your rating. Please try again.');
+        } catch(error) {
+            closeSubmittingModal();
+            showErrorModal('Error', 'Error updating verification');
+            if (checkbox) checkbox.checked = !isChecked;
         } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            if (checkbox) checkbox.disabled = false;
         }
     }
+    
+    function displayOwnershipInfo() {
+        if (!currentOwnershipData) return;
+        const ownershipCard = document.getElementById('ownership-status-card');
+        const ownershipStatusText = document.getElementById('ownership-status-text');
+        if (ownershipCard && ownershipStatusText) {
+            ownershipCard.classList.remove('hidden');
+            if (currentOwnershipData.is_owner == 1) {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - Applicant is registered as the property owner.';
+            } else {
+                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - Applicant has provided a Special Power of Attorney (SPA).';
+            }
+        }
+    }
+    
+    function displayOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        if (!currentOwnershipData) { displayEmptyOwnershipDocuments(); return; }
+        
+        let html = '';
+        let hasDocuments = false;
+        const documentNamesMap = { 'tct_link': 'TCT / Deed of Sale', 'tax_declaration_link': 'Tax Declaration', 'current_tax_receipt_link': 'Current Tax Receipt', 'spa_link': 'Special Power of Attorney (SPA)' };
+        const ownershipLinks = { 'tct_link': currentOwnershipData.tct_link, 'tax_declaration_link': currentOwnershipData.tax_declaration_link, 'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link, 'spa_link': currentOwnershipData.spa_link };
+        
+        for (const [key, value] of Object.entries(ownershipLinks)) {
+            if (value && value.trim() !== '') {
+                hasDocuments = true;
+                const docName = documentNamesMap[key];
+                const isVerified = ownershipVerificationStatus[key] || false;
+                const canVerify = canVerifyOwnershipDocument(key);
+                const hasRemark = ownershipRemarks[key] && ownershipRemarks[key].length > 0;
+                
+                let verifyInfo = '';
+                if (key === 'tct_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO only)</span>';
+                else if (key === 'tax_declaration_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
+                else if (key === 'current_tax_receipt_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Treasurer only)</span>';
+                else if (key === 'spa_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO/Assessor/Treasurer)</span>';
+                
+                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
+                
+                let remarkPreview = '';
+                if (ownershipRemarks[key] && ownershipRemarks[key].length > 0) {
+                    const latestRemark = ownershipRemarks[key][ownershipRemarks[key].length - 1];
+                    remarkPreview = `<div class="mt-1 text-xs text-amber-600 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span class="italic">"${escapeHtml(latestRemark.remark.substring(0, 80))}${latestRemark.remark.length > 80 ? '...' : ''}"</span>
+                        <button onclick="viewFullRemarksHistory('${key}', '${escapeHtml(docName)}')" class="text-blue-500 hover:text-blue-700 underline ml-1">View all</button>
+                    </div>`;
+                }
+                
+                html += `<div class="flex flex-col p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
+                                    ${spaBadge}${verifyInfo}
+                                    ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
+                                    ${hasRemark ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full">Has Remarks</span>' : ''}
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
+                                ${remarkPreview}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                            ${canVerify ? `<button onclick="openOwnershipRemarkModal('${key}', '${escapeHtml(docName)}')" class="text-amber-600 hover:text-amber-800 text-sm flex items-center gap-1 px-2 py-1 rounded hover:bg-amber-50 transition" title="Add remark/clarification">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="text-xs">Remark</span>
+                            </button>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
+                                <span class="text-xs text-gray-600">Verify</span>
+                            </label>` : isVerified ? `<div class="flex items-center gap-1"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-xs text-green-600">Verified</span></div>` : ''}
+                            <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                <span class="hidden sm:inline">View</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        }
+        if (!hasDocuments) displayEmptyOwnershipDocuments();
+        else container.innerHTML = html;
+    }
+    
+    function displayEmptyOwnershipDocuments() {
+        const container = document.getElementById('ownership-documents-list');
+        container.innerHTML = `<div class="text-center py-6 text-gray-500"><svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg><p class="text-sm">No ownership documents uploaded yet</p><p class="text-xs text-gray-400 mt-1">Applicant has not completed Step 1: Ownership Verification</p></div>`;
+    }
+    
+    function openOwnershipRemarkModal(documentKey, documentName) {
+        window.currentRemarkDocumentKey = documentKey;
+        window.currentRemarkDocumentName = documentName;
+        document.getElementById('remark-doc-name').textContent = documentName;
+        document.getElementById('ownership-remark-text').value = '';
+        document.getElementById('ownership-remark-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeOwnershipRemarkModal() {
+        document.getElementById('ownership-remark-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        window.currentRemarkDocumentKey = null;
+        window.currentRemarkDocumentName = null;
+    }
+    
+    async function submitOwnershipRemark() {
+        const remarkText = document.getElementById('ownership-remark-text').value.trim();
+        const docKey = window.currentRemarkDocumentKey;
+        const docName = window.currentRemarkDocumentName;
+        
+        if (!remarkText) { showErrorModal('Remark Required', 'Please enter a remark or clarification request.'); return; }
+        if (!docKey) { showErrorModal('Error', 'No document selected. Please try again.'); return; }
+        
+        closeOwnershipRemarkModal();
+        showSubmittingModal('Sending remark to applicant...');
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const formData = new FormData();
+            formData.append('document_key', docKey);
+            formData.append('document_name', docName);
+            formData.append('remark', remarkText);
+            
+            const response = await fetch(`/staff/applications/${applicationId}/ownership-remark`, {
+                method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: formData
+            });
+            const data = await response.json();
+            closeSubmittingModal();
+            
+            if (response.ok && data.success) {
+                const remarkObj = { document_key: docKey, document_name: docName, remark: remarkText, created_by: currentUserPosition || 'Staff', created_by_name: getStaffDisplayName(), created_at: new Date().toISOString(), status: 'pending_response' };
+                if (!ownershipRemarks[docKey]) ownershipRemarks[docKey] = [];
+                ownershipRemarks[docKey].push(remarkObj);
+                saveOwnershipRemarks();
+                showSuccessModal('Remark Sent', `Your clarification request for "${docName}" has been sent to the applicant.`);
+                if (currentOwnershipData) displayOwnershipDocuments();
+                refreshActivityLog();
+            } else {
+                showErrorModal('Failed to Send Remark', data.message || 'Unknown error');
+            }
+        } catch(error) { closeSubmittingModal(); showErrorModal('Error', 'Failed to send remark: ' + (error.message || 'Please try again.')); }
+    }
+    
+    function getStaffDisplayName() {
+        if (currentUserPosition === 'cpdo') return 'CPDO Staff';
+        if (currentUserPosition === 'assessor') return 'Assessor Staff';
+        if (currentUserPosition === 'treasurer') return 'Treasurer Staff';
+        if (currentUserPosition === 'engineer') return 'Engineer Staff';
+        if (currentUserPosition === 'architect') return 'Architect Staff';
+        return currentUserPosition ? currentUserPosition.charAt(0).toUpperCase() + currentUserPosition.slice(1) + ' Staff' : 'Staff';
+    }
+    
+    function viewFullRemarksHistory(documentKey, documentName) {
+        window.currentViewRemarksDocumentKey = documentKey;
+        window.currentViewRemarksDocumentName = documentName;
+        const container = document.getElementById('remarks-history-container');
+        const remarks = ownershipRemarks[documentKey] || [];
+        
+        if (remarks.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-gray-500"><p class="text-sm">No remarks yet for this document.</p></div>';
+        } else {
+            let html = '';
+            remarks.forEach((remark) => {
+                const date = new Date(remark.created_at);
+                const formattedDate = date.toLocaleString();
+                const statusBadge = remark.status === 'pending_response' ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
+                html += `<div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by_name || remark.created_by)}</span>${statusBadge}</div><span class="text-xs text-gray-400">${formattedDate}</span></div>
+                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
+                    ${remark.response ? `<div class="mt-2 pt-2 border-t border-gray-200"><div class="flex items-start gap-2"><svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Applicant Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+        document.getElementById('view-remarks-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeViewRemarksModal() {
+        document.getElementById('view-remarks-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        window.currentViewRemarksDocumentKey = null;
+        window.currentViewRemarksDocumentName = null;
+    }
 
-    // Check if user can verify documents (Engineer or Architect only)
-    function canVerifyDocuments() {
-        const verifyingRoles = ['engineer', 'architect'];
-        return verifyingRoles.includes(currentUserPosition);
+    // ========== APPLICATION DISPLAY FUNCTIONS ==========
+    function displayApplicationDetails() {
+        document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
+        if (currentApplication.created_at) {
+            document.getElementById('submitted-date').textContent = new Date(currentApplication.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        if (currentApplication.updated_at) document.getElementById('updated-date').textContent = new Date(currentApplication.updated_at).toLocaleDateString();
+        updateStatusUI(currentApplication.status);
+        document.getElementById('applicant-name').textContent = currentApplication.applicant_name || 'N/A';
+        document.getElementById('applicant-email').textContent = currentApplication.email || 'N/A';
+        document.getElementById('applicant-phone').textContent = currentApplication.phone || 'N/A';
+        document.getElementById('applicant-address').textContent = currentApplication.address || 'N/A';
+        document.querySelectorAll('.status-radio').forEach(radio => { if (radio.value === currentApplication.status) radio.checked = true; });
     }
     
-    // Check if user can mark hard copy as received (Engineer or Architect only)
-    function canMarkHardCopy() {
-        const hardCopyRoles = ['engineer', 'architect'];
-        return hardCopyRoles.includes(currentUserPosition);
+    function updateStatusUI(status) {
+        const config = { 'pending': 'yellow', 'under-review': 'purple', 'document-verification': 'purple', 'for-assessment': 'indigo', 'approved': 'green', 'rejected': 'red', 'for-release': 'blue', 'verified': 'emerald' };
+        const color = config[status] || 'gray';
+        const textMap = { 'for-assessment': 'For Assessment', 'document-verification': 'Document Verification', 'under-review': 'Under Review', 'for-release': 'For Release' };
+        const text = textMap[status] || status.replace('-', ' ');
+        document.getElementById('status-badge').className = `px-3 py-1 bg-${color}-100 text-${color}-600 rounded-full text-xs font-medium`;
+        document.getElementById('status-badge').textContent = text;
+        document.getElementById('current-status').textContent = text;
+        document.getElementById('current-status-card').className = `p-4 bg-${color}-50 rounded-lg border border-${color}-200`;
     }
     
-    // Check if user can manage verification (Reset and Save Progress - Engineer or Architect only)
-    function canManageVerification() {
-        const manageRoles = ['engineer', 'architect'];
-        return manageRoles.includes(currentUserPosition);
+    function updateTimeline(status) {
+        const steps = ['submitted', 'under-review', 'verification', 'assessment', 'approval', 'release'];
+        const stepMap = { 'pending': 0, 'under-review': 1, 'document-verification': 2, 'for-assessment': 3, 'approved': 4, 'for-release': 5, 'verified': 5, 'rejected': -1 };
+        const currentIndex = stepMap[status] ?? -1;
+        steps.forEach((step, index) => {
+            const el = document.getElementById(`step-${step}`);
+            if (!el) return;
+            const circle = el.querySelector('.w-10.h-10');
+            const text = el.querySelector('.text-sm');
+            if (index <= currentIndex) {
+                circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2';
+                circle.innerHTML = '<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                text.className = 'text-sm font-medium text-gray-800';
+                if (index === currentIndex) {
+                    const dateEl = document.getElementById(`step-${step}-date`);
+                    if (dateEl) dateEl.textContent = 'In Progress';
+                    el.classList.add('step-processing');
+                } else { el.classList.remove('step-processing'); }
+            } else {
+                circle.className = 'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2';
+                circle.innerHTML = '<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                text.className = 'text-sm font-medium text-gray-400';
+                el.classList.remove('step-processing');
+            }
+        });
+        const progressWidth = currentIndex >= 0 ? ((currentIndex + 1) / steps.length) * 100 : 0;
+        document.getElementById('progress-line').style.width = progressWidth + '%';
     }
     
-    // Check if user is CPDO
-    function isCPDOUser() {
-        return currentUserPosition === 'cpdo';
+    function updateProgress(status) {
+        const progress = { 'draft': 0, 'pending': 20, 'under-review': 35, 'document-verification': 50, 'for-assessment': 65, 'approved': 80, 'for-release': 95, 'verified': 100, 'rejected': 100 }[status] || 0;
+        document.getElementById('progress-percentage').textContent = progress + '%';
+        document.getElementById('progress-bar').style.width = progress + '%';
     }
-
-    // Modal helper functions
-    function showSuccessModal(title, message) {
-        document.getElementById('success-title').textContent = title;
-        document.getElementById('success-message').textContent = message;
-        document.getElementById('success-modal').classList.remove('hidden');
+    
+    function updateHardCopyStatus(received) {
+        document.getElementById('hardcopy-notice').classList.toggle('hidden', received);
+        document.getElementById('hardcopy-received-notice').classList.toggle('hidden', !received);
+        document.getElementById('hardcopy-checkbox').checked = received;
+        if (canMarkHardCopy()) {
+            const csrfToken = getCsrfToken();
+            fetch(`/staff/applications/${applicationId}/hardcopy-status`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ hardcopy_received: received }) }).catch(err => console.error('Error saving hard copy status:', err));
+        }
+    }
+    
+    function displayProjectInformation(app) {
+        document.getElementById('project-title').textContent = app.project_title || 'Not provided';
+        document.getElementById('project-location').textContent = app.project_location || 'Not provided';
+        document.getElementById('project-description').textContent = app.project_description || 'Not provided';
+        document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
+        if (app.lot_area) document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
+        else document.getElementById('lot-area').textContent = 'Not provided';
+        if (app.floor_area) document.getElementById('floor-area').textContent = `${parseFloat(app.floor_area).toLocaleString()} sqm`;
+        else document.getElementById('floor-area').textContent = 'Not provided';
+        document.getElementById('num-floors').textContent = app.num_floors || 'Not provided';
+        if (app.estimated_cost) document.getElementById('estimated-cost').textContent = `₱ ${parseFloat(app.estimated_cost).toLocaleString()}`;
+        else document.getElementById('estimated-cost').textContent = 'Not provided';
+        document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
+        document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
+        document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
+        document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
+        document.getElementById('electrical-engineer-name').textContent = app.electrical_engineer_name || 'Not provided';
+        document.getElementById('electrical-engineer-license').textContent = app.electrical_engineer_license || 'Not provided';
+        document.getElementById('sanitary-engineer-name').textContent = app.sanitary_engineer_name || 'Not provided';
+        document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
+    }
+    
+    function calculateEstimatedTime() {
+        if (!currentApplication) return;
+        const estimatedDate = new Date(new Date(currentApplication.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
+        document.getElementById('estimated-time').textContent = estimatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const releaseDate = new Date(estimatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+        document.getElementById('target-release').textContent = releaseDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    
+    function displayReviewActivities(activities) {
+        const container = document.getElementById('activity-log');
+        if (!activities?.length) { 
+            showEmptyActivities(); 
+            return; 
+        }
+        
+        let html = '';
+        activities.slice(0, 10).forEach(a => {
+            const date = new Date(a.created_at);
+            const now = new Date();
+            const diffMins = Math.floor((now - date) / 60000);
+            let timeAgo;
+            if (diffMins < 1) timeAgo = 'just now';
+            else if (diffMins < 60) timeAgo = diffMins + ' min ago';
+            else if (diffMins < 1440) timeAgo = Math.floor(diffMins / 60) + ' hours ago';
+            else timeAgo = Math.floor(diffMins / 1440) + ' days ago';
+            
+            let iconColor = 'blue';
+            let iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />';
+            
+            if (a.action_type === 'document_verified') {
+                iconColor = 'green';
+                iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+            } else if (a.action_type === 'document_reset' || a.action_type === 'batch_reset_all') {
+                iconColor = 'red';
+                iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />';
+            } else if (a.action_type === 'status_update') {
+                iconColor = 'purple';
+                iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
+            }
+            
+            html += `<div class="flex gap-3 p-3 border-b border-gray-100 hover:bg-gray-50 transition rounded-lg">
+                <div class="w-8 h-8 bg-${iconColor}-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-${iconColor}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconSvg}</svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <p class="text-sm font-medium text-gray-800">${escapeHtml(a.action_display || a.action)}</p>
+                        <span class="text-xs text-gray-400">${timeAgo}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">By: ${escapeHtml(a.reviewer_name || 'System')} ${a.reviewer_position ? `(${a.reviewer_position})` : ''}</p>
+                    ${a.remarks ? `<p class="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">"${escapeHtml(a.remarks.substring(0, 200))}"</p>` : ''}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function showEmptyActivities() {
+        document.getElementById('activity-log').innerHTML = '<div class="text-center py-8 text-gray-500">No activity yet</div>';
+    }
+    
+    function updateCPDOUI() {
+        const statusBadge = document.getElementById('cpdo-status-badge');
+        const remarksDisplay = document.getElementById('cpdo-remarks-display');
+        const remarksText = document.getElementById('cpdo-remarks-text');
+        const approvedInfo = document.getElementById('cpdo-approved-info');
+        const approvedByName = document.getElementById('cpdo-approved-by');
+        const approvedAtDate = document.getElementById('cpdo-approved-at');
+        const cpdoForm = document.getElementById('cpdo-form');
+        const pendingMessage = document.getElementById('cpdo-pending-message');
+        const rejectedMessage = document.getElementById('cpdo-rejected-message');
+        const approvedMessage = document.getElementById('cpdo-approved-message');
+        const statusUpdateCard = document.getElementById('status-update-card');
+        
+        if (cpdoStatus === 'approved') {
+            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700'; statusBadge.textContent = 'Approved'; }
+            if (remarksText && cpdoRemarks && remarksDisplay) { remarksDisplay.classList.remove('hidden'); remarksText.textContent = cpdoRemarks; }
+            if (cpdoApprovedBy && cpdoApprovedAt && approvedInfo) { approvedInfo.classList.remove('hidden'); if (approvedByName) approvedByName.textContent = cpdoApprovedBy; if (approvedAtDate) approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString(); }
+            if (cpdoForm) cpdoForm.classList.add('hidden');
+            if (pendingMessage) pendingMessage.classList.add('hidden');
+            if (rejectedMessage) rejectedMessage.classList.add('hidden');
+            if (approvedMessage) approvedMessage.classList.remove('hidden');
+            if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
+            enableStep2Verification(true);
+        } else if (cpdoStatus === 'rejected') {
+            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700'; statusBadge.textContent = 'Rejected'; }
+            if (remarksText && cpdoRemarks && remarksDisplay) { remarksDisplay.classList.remove('hidden'); remarksText.textContent = cpdoRemarks; }
+            if (cpdoApprovedBy && cpdoApprovedAt && approvedInfo) { approvedInfo.classList.remove('hidden'); if (approvedByName) approvedByName.textContent = cpdoApprovedBy; if (approvedAtDate) approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString(); }
+            if (cpdoForm) cpdoForm.classList.add('hidden');
+            if (pendingMessage) pendingMessage.classList.add('hidden');
+            if (rejectedMessage) rejectedMessage.classList.remove('hidden');
+            if (approvedMessage) approvedMessage.classList.add('hidden');
+            if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
+            enableStep2Verification(false);
+            disableStatusUpdates();
+        } else {
+            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700'; statusBadge.textContent = 'Pending'; }
+            if (remarksDisplay) remarksDisplay.classList.add('hidden');
+            if (approvedInfo) approvedInfo.classList.add('hidden');
+            if (rejectedMessage) rejectedMessage.classList.add('hidden');
+            if (approvedMessage) approvedMessage.classList.add('hidden');
+            if (pendingMessage) pendingMessage.classList.remove('hidden');
+            if (currentUserPosition === 'cpdo') {
+                if (cpdoForm) cpdoForm.classList.remove('hidden');
+                if (pendingMessage) pendingMessage.classList.add('hidden');
+                enableStep2Verification(false);
+            } else {
+                if (cpdoForm) cpdoForm.classList.add('hidden');
+                if (pendingMessage) pendingMessage.classList.remove('hidden');
+                if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
+                enableStep2Verification(false);
+                disableStatusUpdates();
+            }
+        }
+    }
+    
+    function enableStep2Verification(enabled) {}
+    function disableStatusUpdates() {
+        const statusRadios = document.querySelectorAll('.status-radio');
+        statusRadios.forEach(radio => { radio.disabled = true; });
+        const updateBtn = document.getElementById('update-status-btn');
+        if (updateBtn) updateBtn.disabled = true;
+    }
+    
+    function applyStatusRestrictions() {
+        const isEngineer = currentUserPosition === 'engineer';
+        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
+        const statusRadios = document.querySelectorAll('.status-radio');
+        statusRadios.forEach(radio => {
+            const statusValue = radio.value;
+            const parentLabel = radio.closest('.status-option');
+            const restrictedBadge = parentLabel?.querySelector('.status-restricted-badge');
+            if (restrictedStatuses.includes(statusValue)) {
+                if (!isEngineer) {
+                    radio.disabled = true;
+                    if (parentLabel) { parentLabel.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-50'); parentLabel.style.cursor = 'not-allowed'; }
+                    if (restrictedBadge) restrictedBadge.classList.remove('hidden');
+                } else {
+                    radio.disabled = false;
+                    if (parentLabel) { parentLabel.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-50'); parentLabel.style.cursor = 'pointer'; }
+                    if (restrictedBadge) restrictedBadge.classList.add('hidden');
+                }
+            }
+        });
+        const restrictionNotice = document.getElementById('status-restriction-notice');
+        if (restrictionNotice) { if (!isEngineer) restrictionNotice.classList.remove('hidden'); else restrictionNotice.classList.add('hidden'); }
+    }
+    
+    function applyHardCopyPermission() {
+        const hardCopyCheckbox = document.getElementById('hardcopy-checkbox');
+        const warningText = document.getElementById('hardcopy-permission-warning');
+        if (!canMarkHardCopy()) { hardCopyCheckbox.disabled = true; warningText.classList.remove('hidden'); } 
+        else { hardCopyCheckbox.disabled = false; warningText.classList.add('hidden'); }
+    }
+    
+    function applyVerificationUIRestrictions() {
+        const adminButtons = document.getElementById('admin-verification-buttons');
+        if (!canManageVerification() && adminButtons) adminButtons.classList.add('hidden');
+        else if (adminButtons) adminButtons.classList.remove('hidden');
+        const statsContainer = document.getElementById('verification-stats-container');
+        if (!canManageVerification() && statsContainer) statsContainer.classList.add('hidden');
+        else if (statsContainer) statsContainer.classList.remove('hidden');
+    }
+    
+    function checkStatusPermission(statusValue) {
+        const isEngineer = currentUserPosition === 'engineer';
+        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
+        if (restrictedStatuses.includes(statusValue) && !isEngineer) {
+            showErrorModal('Permission Denied', 'Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
+            return false;
+        }
+        if (cpdoStatus !== 'approved') {
+            showErrorModal('CPDO Approval Required', 'CPDO approval is required before changing application status.');
+            return false;
+        }
+        return true;
+    }
+    
+    async function processStatusUpdate(status, additionalData = {}) {
+        const btn = document.getElementById('update-status-btn');
+        const original = btn.innerHTML;
+        btn.innerHTML = 'Updating...';
+        btn.disabled = true;
+        const remarks = document.getElementById('status-remarks').value;
+        showSubmittingModal('Updating application status...');
+        
+        try {
+            const csrfToken = getCsrfToken();
+            const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
+            const response = await fetch(`/staff/applications/${applicationId}/status`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            closeSubmittingModal();
+            if (data.success) {
+                let successMessage = 'Application status has been updated successfully.';
+                if (additionalData.building_permit_number) successMessage = `Building Permit #${additionalData.building_permit_number} has been issued successfully.`;
+                showSuccessModal('Status Updated', successMessage);
+                setTimeout(() => location.reload(), 1500);
+            } else { showErrorModal('Update Failed', data.message || 'Failed to update status'); }
+        } catch(error) { closeSubmittingModal(); console.error('Error:', error); showErrorModal('Error', 'Error updating status'); }
+        finally { btn.innerHTML = original; btn.disabled = false; }
+    }
+    
+    async function updateStatus() {
+        const selected = document.querySelector('input[name="status"]:checked');
+        if (!selected) { showErrorModal('No Status Selected', 'Please select a status'); return; }
+        if (!checkStatusPermission(selected.value)) return;
+        if (selected.value === 'for-release') { pendingApprovalStatus = selected.value; openBuildingPermitModal(); return; }
+        if (selected.value === 'approved') { pendingApprovalStatus = selected.value; openHardCopyDateModal(); return; }
+        if (selected.value === 'for-assessment') { openAssessmentModal(); return; }
+        await processStatusUpdate(selected.value);
+    }
+    
+    function openHardCopyDateModal() {
+        document.getElementById('hardcopy-submission-date').value = '';
+        document.getElementById('hardcopy-submission-time').value = '';
+        document.getElementById('hardcopy-instructions').value = '';
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('hardcopy-submission-date').min = tomorrow.toISOString().split('T')[0];
+        document.getElementById('hardcopy-date-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
     
-    function closeSuccessModal() {
-        document.getElementById('success-modal').classList.add('hidden');
+    function closeHardCopyDateModal() {
+        document.getElementById('hardcopy-date-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+        pendingApprovalStatus = null;
     }
     
-    function showErrorModal(title, message) {
-        document.getElementById('error-title').textContent = title;
-        document.getElementById('error-message').textContent = message;
-        document.getElementById('error-modal').classList.remove('hidden');
+    async function confirmApprovalWithDate() {
+        const submissionDate = document.getElementById('hardcopy-submission-date').value;
+        if (!submissionDate) { showErrorModal('Date Required', 'Please select a submission date.'); return; }
+        const submissionTime = document.getElementById('hardcopy-submission-time').value;
+        const instructions = document.getElementById('hardcopy-instructions').value;
+        let submissionDateTime = submissionDate;
+        if (submissionTime) submissionDateTime = `${submissionDate} ${submissionTime}`;
+        closeHardCopyDateModal();
+        await processStatusUpdate('approved', { hardcopy_submission_date: submissionDateTime, hardcopy_instructions: instructions });
+    }
+    
+    function openBuildingPermitModal() {
+        document.getElementById('building-permit-number').value = '';
+        document.getElementById('permit-remarks').value = '';
+        document.getElementById('permit-number-error').classList.add('hidden');
+        document.getElementById('building-permit-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
     
-    function closeErrorModal() {
-        document.getElementById('error-modal').classList.add('hidden');
+    function closeBuildingPermitModal() {
+        document.getElementById('building-permit-modal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+        pendingApprovalStatus = null;
     }
     
-    function showSubmittingModal(message = 'Please wait while we process your request...') {
-        document.getElementById('submitting-message').textContent = message;
-        document.getElementById('submitting-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    function validatePermitNumber(input) {
+        const value = input.value;
+        const errorDiv = document.getElementById('permit-number-error');
+        input.value = value.replace(/[^0-9]/g, '');
+        if (input.value.length === 10) { errorDiv.classList.add('hidden'); return true; } 
+        else { errorDiv.classList.remove('hidden'); return false; }
     }
     
-    function closeSubmittingModal() {
-        document.getElementById('submitting-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+    async function confirmBuildingPermit() {
+        const permitNumber = document.getElementById('building-permit-number').value;
+        const remarks = document.getElementById('permit-remarks').value;
+        if (!permitNumber || permitNumber.length !== 10 || !/^\d{10}$/.test(permitNumber)) {
+            document.getElementById('permit-number-error').classList.remove('hidden');
+            document.getElementById('permit-number-error').textContent = 'Please enter exactly 10 digits (0-9 only)';
+            return;
+        }
+        closeBuildingPermitModal();
+        await processStatusUpdate('for-release', { building_permit_number: permitNumber, permit_remarks: remarks });
     }
     
-    function getCsrfToken() {
-        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    // ========== ASSESSMENT FUNCTIONS ==========
+    function addDynamicFee(description = '', amount = 0) {
+        const container = document.getElementById('dynamic-fees-container');
+        const rowId = `dynamic-fee-${feeRowCounter}`;
+        const rowHtml = `<div id="${rowId}" class="flex gap-2 items-center p-2 bg-gray-50 rounded-lg">
+            <input type="text" placeholder="Fee description" class="dynamic-fee-desc flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${escapeHtml(description)}" onchange="updateDynamicFeesArray()">
+            <input type="number" step="0.01" placeholder="Amount" class="dynamic-fee-amount w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${amount}" oninput="updateDynamicFeesArray(); calculateTotal()">
+            <button type="button" onclick="removeDynamicFee('${rowId}')" class="text-red-500 hover:text-red-700 p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+        </div>`;
+        container.insertAdjacentHTML('beforeend', rowHtml);
+        dynamicFees.push({ id: rowId, description: description, amount: amount });
+        feeRowCounter++;
+        calculateTotal();
     }
     
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
+    function removeDynamicFee(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) { row.remove(); dynamicFees = dynamicFees.filter(fee => fee.id !== rowId); calculateTotal(); }
+    }
+    
+    function updateDynamicFeesArray() {
+        const rows = document.querySelectorAll('#dynamic-fees-container > div');
+        dynamicFees = [];
+        rows.forEach(row => {
+            const descInput = row.querySelector('.dynamic-fee-desc');
+            const amountInput = row.querySelector('.dynamic-fee-amount');
+            if (descInput && amountInput) dynamicFees.push({ id: row.id, description: descInput.value, amount: parseFloat(amountInput.value) || 0 });
         });
     }
-
-    // ========== BUILDING PERMIT FEE ASSESSMENT CARD ==========
+    
+    function getDynamicFeesTotal() { let total = 0; dynamicFees.forEach(fee => { total += fee.amount || 0; }); return total; }
+    
+    function loadDynamicFeesFromData(feesData) {
+        const container = document.getElementById('dynamic-fees-container');
+        container.innerHTML = '';
+        dynamicFees = [];
+        feeRowCounter = 0;
+        if (feesData && feesData.length > 0) feesData.forEach(fee => { addDynamicFee(fee.description, fee.amount); });
+    }
+    
+    function calculateTotal() {
+        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) + (parseFloat(document.getElementById('building-fee').value) || 0) + (parseFloat(document.getElementById('sanitary-fee').value) || 0) + (parseFloat(document.getElementById('mechanical-fee').value) || 0) + (parseFloat(document.getElementById('electrical-fee').value) || 0) + (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        const dynamicTotal = getDynamicFeesTotal();
+        const total = standardTotal + dynamicTotal;
+        document.getElementById('total-amount-display').textContent = total.toFixed(2);
+        return total;
+    }
+    
+    function openAssessmentModal() {
+        if (currentAssessment) {
+            document.getElementById('line-grade').value = currentAssessment.line_grade || '';
+            document.getElementById('building-fee').value = currentAssessment.building_fee || '';
+            document.getElementById('sanitary-fee').value = currentAssessment.sanitary_fee || '';
+            document.getElementById('mechanical-fee').value = currentAssessment.mechanical_fee || '';
+            document.getElementById('electrical-fee').value = currentAssessment.electrical_fee || '';
+            document.getElementById('penalties-fines').value = currentAssessment.penalties_fines || '';
+            document.getElementById('assessment-notes').value = currentAssessment.assessment_notes || '';
+            if (currentAssessment.additional_fees) {
+                try { const fees = typeof currentAssessment.additional_fees === 'string' ? JSON.parse(currentAssessment.additional_fees) : currentAssessment.additional_fees; loadDynamicFeesFromData(fees); } catch(e) { console.error('Error parsing additional fees:', e); }
+            } else { loadDynamicFeesFromData([]); }
+            calculateTotal();
+        } else {
+            document.querySelectorAll('#assessment-modal input, #assessment-modal textarea').forEach(el => el.value = '');
+            loadDynamicFeesFromData([]);
+            document.getElementById('total-amount-display').textContent = '0.00';
+        }
+        document.getElementById('assessment-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeAssessmentModal() { document.getElementById('assessment-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+    
+    function openFinalReviewModal() {
+        const lineGrade = parseFloat(document.getElementById('line-grade').value) || 0;
+        const buildingFee = parseFloat(document.getElementById('building-fee').value) || 0;
+        const sanitaryFee = parseFloat(document.getElementById('sanitary-fee').value) || 0;
+        const mechanicalFee = parseFloat(document.getElementById('mechanical-fee').value) || 0;
+        const electricalFee = parseFloat(document.getElementById('electrical-fee').value) || 0;
+        const penaltiesFines = parseFloat(document.getElementById('penalties-fines').value) || 0;
+        const total = calculateTotal();
+        const assessmentNotes = document.getElementById('assessment-notes').value || 'No notes provided';
+        
+        document.getElementById('review-line-grade').textContent = lineGrade.toFixed(2);
+        document.getElementById('review-building-fee').textContent = buildingFee.toFixed(2);
+        document.getElementById('review-sanitary-fee').textContent = sanitaryFee.toFixed(2);
+        document.getElementById('review-mechanical-fee').textContent = mechanicalFee.toFixed(2);
+        document.getElementById('review-electrical-fee').textContent = electricalFee.toFixed(2);
+        document.getElementById('review-penalties-fines').textContent = penaltiesFines.toFixed(2);
+        document.getElementById('review-total-amount').textContent = total.toFixed(2);
+        document.getElementById('review-assessment-notes').textContent = assessmentNotes;
+        
+        updateDynamicFeesArray();
+        const container = document.getElementById('review-additional-fees-container');
+        container.innerHTML = '';
+        if (dynamicFees.length > 0) {
+            dynamicFees.forEach(fee => {
+                if (fee.description.trim() || fee.amount > 0) {
+                    container.innerHTML += `<div class="flex justify-between py-1 text-sm"><span class="text-gray-600">${escapeHtml(fee.description) || 'Additional Fee'}:</span><span class="font-medium">₱${(fee.amount || 0).toFixed(2)}</span></div>`;
+                }
+            });
+        } else { container.innerHTML = '<div class="text-center py-2 text-gray-500 text-sm">No additional fees added</div>'; }
+        
+        document.getElementById('final-review-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFinalReviewModal() { document.getElementById('final-review-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+    
+    async function confirmSaveAssessment() { closeFinalReviewModal(); showSubmittingModal('Saving assessment and updating status...'); try { await saveAssessment(); } finally { closeSubmittingModal(); } }
+    
+    async function saveAssessment() {
+        updateDynamicFeesArray();
+        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) + (parseFloat(document.getElementById('building-fee').value) || 0) + (parseFloat(document.getElementById('sanitary-fee').value) || 0) + (parseFloat(document.getElementById('mechanical-fee').value) || 0) + (parseFloat(document.getElementById('electrical-fee').value) || 0) + (parseFloat(document.getElementById('penalties-fines').value) || 0);
+        const dynamicTotal = getDynamicFeesTotal();
+        const total = standardTotal + dynamicTotal;
+        const additionalFees = dynamicFees.map(fee => ({ description: fee.description, amount: fee.amount })).filter(fee => fee.description.trim() !== '' || fee.amount > 0);
+        const data = { line_grade: parseFloat(document.getElementById('line-grade').value) || null, building_fee: parseFloat(document.getElementById('building-fee').value) || null, sanitary_fee: parseFloat(document.getElementById('sanitary-fee').value) || null, mechanical_fee: parseFloat(document.getElementById('mechanical-fee').value) || null, electrical_fee: parseFloat(document.getElementById('electrical-fee').value) || null, penalties_fines: parseFloat(document.getElementById('penalties-fines').value) || null, total_amount: total, assessment_notes: document.getElementById('assessment-notes').value || null, additional_fees: additionalFees };
+        try {
+            const csrfToken = getCsrfToken();
+            const response = await fetch(`/staff/applications/${applicationId}/assessment`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if (result.success) { closeAssessmentModal(); showSuccessModal('Assessment Saved', 'Assessment saved successfully! Application status updated to "For Assessment".'); setTimeout(() => location.reload(), 2000); } 
+            else { showErrorModal('Save Failed', result.message || 'Failed to save assessment'); }
+        } catch (error) { console.error('Error:', error); showErrorModal('Error', 'Failed to save assessment: ' + error.message); }
+    }
+    
+    // ========== LOAD FUNCTIONS ==========
     async function loadBuildingPermitAssessment() {
         try {
             const csrfToken = getCsrfToken();
@@ -2058,7 +3032,6 @@
         }
     }
 
-    // ========== CPDO ASSESSMENT FUNCTIONS ==========
     async function loadCPDOAssessment() {
         try {
             const csrfToken = getCsrfToken();
@@ -2359,7 +3332,6 @@
         }
     }
 
-    // ========== CERTIFICATE FUNCTIONS ==========
     async function loadCertificates() {
         const isCPDO = currentUserPosition === 'cpdo';
         
@@ -2380,7 +3352,6 @@
             }
         }
         
-        // Zoning Certificate
         const zoningCertStatus = document.getElementById('zoning-cert-status');
         const zoningCertDisplay = document.getElementById('zoning-cert-display');
         const zoningCertForm = document.getElementById('zoning-cert-form');
@@ -2425,7 +3396,6 @@
             if (zoningRemoveBtn) zoningRemoveBtn.classList.add('hidden');
         }
         
-        // Locational Clearance
         const locationalStatus = document.getElementById('locational-status');
         const locationalDisplay = document.getElementById('locational-display');
         const locationalForm = document.getElementById('locational-form');
@@ -2604,7 +3574,6 @@
         }
     }
 
-    // ========== CPDO VERIFICATION FUNCTIONS ==========
     function openCPDOConfirmationModal() {
         const selected = document.querySelector('input[name="cpdo_decision"]:checked');
         if (!selected) {
@@ -2687,870 +3656,6 @@
         }
     }
 
-    // ========== DOCUMENT VERIFICATION FUNCTIONS ==========
-    function loadDocumentVerificationStatus() {
-        const saved = localStorage.getItem(`doc_verification_${applicationId}`);
-        if (saved) {
-            try { documentVerificationStatus = JSON.parse(saved); } catch(e) { documentVerificationStatus = {}; }
-        } else {
-            documentVerificationStatus = {};
-        }
-    }
-
-    function saveDocumentVerificationStatus() {
-        localStorage.setItem(`doc_verification_${applicationId}`, JSON.stringify(documentVerificationStatus));
-        updateVerificationStats();
-    }
-
-    function updateVerificationStats() {
-        let verified = 0;
-        documentsList.forEach(doc => { if (documentVerificationStatus[doc.key]) verified++; });
-        document.getElementById('verified-count').textContent = verified;
-        document.getElementById('total-count').textContent = documentsList.length;
-        document.getElementById('summary-verified').textContent = verified;
-        document.getElementById('summary-pending').textContent = documentsList.length - verified;
-        document.getElementById('verification-progress-bar').style.width = (verified / documentsList.length) * 100 + '%';
-    }
-
-    function openVerifyDocModal(documentKey, documentName, documentLink) {
-        if (!canVerifyDocuments()) {
-            showErrorModal('Permission Denied', 'Only Engineers and Architects can verify documents.');
-            return;
-        }
-        
-        pendingDocumentKey = documentKey;
-        pendingDocumentName = documentName;
-        pendingDocumentLink = documentLink;
-        
-        document.getElementById('verify-doc-name').textContent = documentName;
-        document.getElementById('verify-doc-link').href = documentLink;
-        document.getElementById('verify-doc-notes').value = '';
-        
-        document.getElementById('verify-doc-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeVerifyDocModal() {
-        document.getElementById('verify-doc-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        pendingDocumentKey = null;
-    }
-    
-    function confirmVerifyDocument() {
-        if (pendingDocumentKey) {
-            const notes = document.getElementById('verify-doc-notes').value;
-            documentVerificationStatus[pendingDocumentKey] = { verified: true, verified_at: new Date().toISOString(), notes: notes };
-            saveDocumentVerificationStatus();
-            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            closeVerifyDocModal();
-            showSuccessModal('Document Verified', `"${pendingDocumentName}" has been marked as verified.`);
-        }
-    }
-    
-    function resetDocumentVerification() {
-        if (!canManageVerification()) {
-            showErrorModal('Permission Denied', 'Only Engineers and Architects can reset verification progress.');
-            return;
-        }
-        
-        if (confirm('Reset all verification statuses?')) {
-            documentVerificationStatus = {};
-            saveDocumentVerificationStatus();
-            if (currentApplication?.document_links) displayDocumentChecklist(currentApplication.document_links);
-            showSuccessModal('Reset Complete', 'All document verification statuses have been reset.');
-        }
-    }
-    
-    async function saveDocumentVerification() {
-        if (!canManageVerification()) {
-            showErrorModal('Permission Denied', 'Only Engineers and Architects can save verification progress.');
-            return;
-        }
-        
-        const verifiedCount = Object.keys(documentVerificationStatus).length;
-        showSubmittingModal('Saving verification progress...');
-        try {
-            const csrfToken = getCsrfToken();
-            await fetch(`/staff/applications/${applicationId}/add-note`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ note: `Verification progress: ${verifiedCount}/${documentsList.length} documents verified.` })
-            });
-            closeSubmittingModal();
-            showSuccessModal('Progress Saved', 'Document verification progress saved successfully!');
-        } catch(error) { 
-            closeSubmittingModal();
-            showErrorModal('Save Failed', 'Progress saved locally only'); 
-        }
-    }
-    
-    function displayDocumentChecklist(documents) {
-        const container = document.getElementById('documents-checklist');
-        let html = '';
-        let categories = {};
-        const canVerify = canVerifyDocuments();
-        const cpdoApproved = cpdoStatus === 'approved';
-        
-        documentsList.forEach(doc => {
-            if (documents[doc.key] && documents[doc.key].trim() !== '' && documents[doc.key] !== 'undefined') {
-                if (!categories[doc.category]) categories[doc.category] = [];
-                categories[doc.category].push({ ...doc, link: documents[doc.key], isVerified: documentVerificationStatus[doc.key]?.verified || false });
-            }
-        });
-        
-        if (Object.keys(categories).length === 0) {
-            container.innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
-            updateVerificationStats();
-            return;
-        }
-        
-        for (const [category, docs] of Object.entries(categories)) {
-            html += `<div class="mb-4"><h3 class="text-sm font-semibold mb-2 border-b pb-1">${category}</h3><div class="space-y-2">`;
-            docs.forEach(doc => {
-                const isVerified = doc.isVerified;
-                const showVerifyButton = !isVerified && doc.link && cpdoApproved && canVerify;
-                const showViewButton = doc.link && doc.link !== 'undefined';
-                
-                html += `<div data-doc-key="${doc.key}" class="flex justify-between items-center p-2 rounded-lg ${isVerified ? 'bg-green-50' : 'bg-gray-50'}">
-                    <div class="flex items-center gap-2 flex-1">
-                        <span class="text-sm ${isVerified ? 'line-through text-gray-500' : ''}">${doc.name}</span>
-                        ${isVerified ? '<span class="text-xs text-green-600">✓ Verified</span>' : ''}
-                    </div>
-                    <div class="flex gap-2">
-                        ${showViewButton ? `<a href="${doc.link}" target="_blank" class="px-2 py-1 text-xs rounded bg-[#155386] text-white hover:bg-[#40798C]">View</a>` : '<span class="text-xs text-gray-400">No file</span>'}
-                        ${showVerifyButton ? `<button onclick="openVerifyDocModal('${doc.key}', '${escapeHtml(doc.name)}', '${doc.link}')" class="px-2 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700">Verify</button>` : ''}
-                    </div>
-                </div>`;
-            });
-            html += `</div></div>`;
-        }
-        container.innerHTML = html;
-        updateVerificationStats();
-    }
-    
-    function showEmptyDocuments() {
-        document.getElementById('documents-checklist').innerHTML = '<div class="text-center py-8 text-gray-500">No documents uploaded yet</div>';
-    }
-
-    // ========== OWNERSHIP FUNCTIONS ==========
-    function loadOwnershipVerificationStatus() {
-        const saved = localStorage.getItem(`ownership_verification_${applicationId}`);
-        if (saved) {
-            try { ownershipVerificationStatus = JSON.parse(saved); } catch(e) { ownershipVerificationStatus = { tct_link: false, tax_declaration_link: false, current_tax_receipt_link: false, spa_link: false }; }
-        }
-    }
-
-    function saveOwnershipVerificationStatus() {
-        localStorage.setItem(`ownership_verification_${applicationId}`, JSON.stringify(ownershipVerificationStatus));
-    }
-    
-    function loadOwnershipRemarks() {
-        const saved = localStorage.getItem(`ownership_remarks_${applicationId}`);
-        if (saved) {
-            try { ownershipRemarks = JSON.parse(saved); } catch(e) { ownershipRemarks = {}; }
-        } else { ownershipRemarks = {}; }
-    }
-
-    function saveOwnershipRemarks() {
-        localStorage.setItem(`ownership_remarks_${applicationId}`, JSON.stringify(ownershipRemarks));
-    }
-    
-    function canVerifyOwnershipDocument(documentKey) {
-        const allowedRoles = ownershipVerificationPermissions[documentKey] || [];
-        return allowedRoles.includes(currentUserPosition);
-    }
-    
-    async function toggleOwnershipVerification(documentKey, isChecked) {
-        if (!canVerifyOwnershipDocument(documentKey)) {
-            let permissionMessage = `You don't have permission to verify this document. `;
-            if (documentKey === 'tct_link') permissionMessage += `Only CPDO can verify TCT/Deed of Sale.`;
-            else if (documentKey === 'tax_declaration_link') permissionMessage += `Only Assessor can verify Tax Declaration.`;
-            else if (documentKey === 'current_tax_receipt_link') permissionMessage += `Only Treasurer can verify Current Tax Receipt.`;
-            else permissionMessage += `CPDO, Assessor, or Treasurer can verify SPA.`;
-            showErrorModal('Permission Denied', permissionMessage);
-            const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
-            if (checkbox) checkbox.checked = !isChecked;
-            return;
-        }
-        
-        const checkbox = document.querySelector(`.ownership-verify-checkbox[data-doc-key="${documentKey}"]`);
-        if (checkbox) checkbox.disabled = true;
-        showSubmittingModal('Updating verification status...');
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/staff/applications/${applicationId}/verify-ownership-document`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ document_key: documentKey, verified: isChecked })
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                ownershipVerificationStatus[documentKey] = isChecked;
-                saveOwnershipVerificationStatus();
-                if (currentOwnershipData) displayOwnershipDocuments();
-                showSuccessModal('Verification Updated', data.message);
-            } else {
-                showErrorModal('Update Failed', data.message || 'Failed to update verification');
-                if (checkbox) checkbox.checked = !isChecked;
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            showErrorModal('Error', 'Error updating verification');
-            if (checkbox) checkbox.checked = !isChecked;
-        } finally {
-            if (checkbox) checkbox.disabled = false;
-        }
-    }
-    
-    function displayOwnershipInfo() {
-        if (!currentOwnershipData) return;
-        const ownershipCard = document.getElementById('ownership-status-card');
-        const ownershipStatusText = document.getElementById('ownership-status-text');
-        if (ownershipCard && ownershipStatusText) {
-            ownershipCard.classList.remove('hidden');
-            if (currentOwnershipData.is_owner == 1) {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Property Owner</span> - Applicant is registered as the property owner.';
-            } else {
-                ownershipStatusText.innerHTML = '<span class="font-medium text-teal-700">Authorized Representative</span> - Applicant has provided a Special Power of Attorney (SPA).';
-            }
-        }
-    }
-    
-    function displayOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        if (!currentOwnershipData) { displayEmptyOwnershipDocuments(); return; }
-        
-        let html = '';
-        let hasDocuments = false;
-        const documentNamesMap = { 'tct_link': 'TCT / Deed of Sale', 'tax_declaration_link': 'Tax Declaration', 'current_tax_receipt_link': 'Current Tax Receipt', 'spa_link': 'Special Power of Attorney (SPA)' };
-        const ownershipLinks = { 'tct_link': currentOwnershipData.tct_link, 'tax_declaration_link': currentOwnershipData.tax_declaration_link, 'current_tax_receipt_link': currentOwnershipData.current_tax_receipt_link, 'spa_link': currentOwnershipData.spa_link };
-        
-        for (const [key, value] of Object.entries(ownershipLinks)) {
-            if (value && value.trim() !== '') {
-                hasDocuments = true;
-                const docName = documentNamesMap[key];
-                const isVerified = ownershipVerificationStatus[key] || false;
-                const canVerify = canVerifyOwnershipDocument(key);
-                const hasRemark = ownershipRemarks[key] && ownershipRemarks[key].length > 0;
-                
-                let verifyInfo = '';
-                if (key === 'tct_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO only)</span>';
-                else if (key === 'tax_declaration_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Assessor only)</span>';
-                else if (key === 'current_tax_receipt_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(Treasurer only)</span>';
-                else if (key === 'spa_link') verifyInfo = '<span class="text-xs text-gray-400 ml-2">(CPDO/Assessor/Treasurer)</span>';
-                
-                const spaBadge = key === 'spa_link' ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full">Authorization</span>' : '';
-                
-                let remarkPreview = '';
-                if (ownershipRemarks[key] && ownershipRemarks[key].length > 0) {
-                    const latestRemark = ownershipRemarks[key][ownershipRemarks[key].length - 1];
-                    remarkPreview = `<div class="mt-1 text-xs text-amber-600 flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="italic">"${escapeHtml(latestRemark.remark.substring(0, 80))}${latestRemark.remark.length > 80 ? '...' : ''}"</span>
-                        <button onclick="viewFullRemarksHistory('${key}', '${escapeHtml(docName)}')" class="text-blue-500 hover:text-blue-700 underline ml-1">View all</button>
-                    </div>`;
-                }
-                
-                html += `<div class="flex flex-col p-3 ${isVerified ? 'bg-green-50 border border-green-200' : 'bg-teal-50'} rounded-lg hover:bg-teal-100 transition group">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-8 h-8 ${isVerified ? 'bg-green-200' : 'bg-teal-200'} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 ${isVerified ? 'text-green-700' : 'text-teal-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center flex-wrap gap-1">
-                                    <p class="text-sm font-medium text-gray-800">${escapeHtml(docName)}</p>
-                                    ${spaBadge}${verifyInfo}
-                                    ${isVerified ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-green-100 text-green-600 rounded-full">Verified</span>' : ''}
-                                    ${hasRemark ? '<span class="ml-2 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded-full">Has Remarks</span>' : ''}
-                                </div>
-                                <p class="text-xs text-gray-500 truncate">${escapeHtml(value.length > 60 ? value.substring(0, 60) + '...' : value)}</p>
-                                ${remarkPreview}
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                            ${canVerify ? `<button onclick="openOwnershipRemarkModal('${key}', '${escapeHtml(docName)}')" class="text-amber-600 hover:text-amber-800 text-sm flex items-center gap-1 px-2 py-1 rounded hover:bg-amber-50 transition" title="Add remark/clarification">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="text-xs">Remark</span>
-                            </button>
-                            <label class="flex items-center gap-1 cursor-pointer">
-                                <input type="checkbox" class="ownership-verify-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" data-doc-key="${key}" onchange="toggleOwnershipVerification('${key}', this.checked)" ${isVerified ? 'checked' : ''}>
-                                <span class="text-xs text-gray-600">Verify</span>
-                            </label>` : isVerified ? `<div class="flex items-center gap-1"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-xs text-green-600">Verified</span></div>` : ''}
-                            <a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="text-teal-700 hover:text-teal-900 text-sm flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                                <span class="hidden sm:inline">View</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>`;
-            }
-        }
-        if (!hasDocuments) displayEmptyOwnershipDocuments();
-        else container.innerHTML = html;
-    }
-    
-    function displayEmptyOwnershipDocuments() {
-        const container = document.getElementById('ownership-documents-list');
-        container.innerHTML = `<div class="text-center py-6 text-gray-500"><svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg><p class="text-sm">No ownership documents uploaded yet</p><p class="text-xs text-gray-400 mt-1">Applicant has not completed Step 1: Ownership Verification</p></div>`;
-    }
-    
-    function openOwnershipRemarkModal(documentKey, documentName) {
-        window.currentRemarkDocumentKey = documentKey;
-        window.currentRemarkDocumentName = documentName;
-        document.getElementById('remark-doc-name').textContent = documentName;
-        document.getElementById('ownership-remark-text').value = '';
-        document.getElementById('ownership-remark-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeOwnershipRemarkModal() {
-        document.getElementById('ownership-remark-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        window.currentRemarkDocumentKey = null;
-        window.currentRemarkDocumentName = null;
-    }
-    
-    async function submitOwnershipRemark() {
-        const remarkText = document.getElementById('ownership-remark-text').value.trim();
-        const docKey = window.currentRemarkDocumentKey;
-        const docName = window.currentRemarkDocumentName;
-        
-        if (!remarkText) { showErrorModal('Remark Required', 'Please enter a remark or clarification request.'); return; }
-        if (!docKey) { showErrorModal('Error', 'No document selected. Please try again.'); return; }
-        
-        closeOwnershipRemarkModal();
-        showSubmittingModal('Sending remark to applicant...');
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const formData = new FormData();
-            formData.append('document_key', docKey);
-            formData.append('document_name', docName);
-            formData.append('remark', remarkText);
-            
-            const response = await fetch(`/staff/applications/${applicationId}/ownership-remark`, {
-                method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: formData
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            
-            if (response.ok && data.success) {
-                const remarkObj = { document_key: docKey, document_name: docName, remark: remarkText, created_by: currentUserPosition || 'Staff', created_by_name: getStaffDisplayName(), created_at: new Date().toISOString(), status: 'pending_response' };
-                if (!ownershipRemarks[docKey]) ownershipRemarks[docKey] = [];
-                ownershipRemarks[docKey].push(remarkObj);
-                saveOwnershipRemarks();
-                showSuccessModal('Remark Sent', `Your clarification request for "${docName}" has been sent to the applicant.`);
-                if (currentOwnershipData) displayOwnershipDocuments();
-            } else {
-                showErrorModal('Failed to Send Remark', data.message || 'Unknown error');
-            }
-        } catch(error) { closeSubmittingModal(); showErrorModal('Error', 'Failed to send remark: ' + (error.message || 'Please try again.')); }
-    }
-    
-    function getStaffDisplayName() {
-        if (currentUserPosition === 'cpdo') return 'CPDO Staff';
-        if (currentUserPosition === 'assessor') return 'Assessor Staff';
-        if (currentUserPosition === 'treasurer') return 'Treasurer Staff';
-        if (currentUserPosition === 'engineer') return 'Engineer Staff';
-        if (currentUserPosition === 'architect') return 'Architect Staff';
-        return currentUserPosition ? currentUserPosition.charAt(0).toUpperCase() + currentUserPosition.slice(1) + ' Staff' : 'Staff';
-    }
-    
-    function viewFullRemarksHistory(documentKey, documentName) {
-        window.currentViewRemarksDocumentKey = documentKey;
-        window.currentViewRemarksDocumentName = documentName;
-        const container = document.getElementById('remarks-history-container');
-        const remarks = ownershipRemarks[documentKey] || [];
-        
-        if (remarks.length === 0) {
-            container.innerHTML = '<div class="text-center py-4 text-gray-500"><p class="text-sm">No remarks yet for this document.</p></div>';
-        } else {
-            let html = '';
-            remarks.forEach((remark) => {
-                const date = new Date(remark.created_at);
-                const formattedDate = date.toLocaleString();
-                const statusBadge = remark.status === 'pending_response' ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full">Waiting Response</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full">Resolved</span>';
-                html += `<div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><span class="text-xs font-medium text-gray-700">${escapeHtml(remark.created_by_name || remark.created_by)}</span>${statusBadge}</div><span class="text-xs text-gray-400">${formattedDate}</span></div>
-                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(remark.remark)}</p>
-                    ${remark.response ? `<div class="mt-2 pt-2 border-t border-gray-200"><div class="flex items-start gap-2"><svg class="w-4 h-4 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg><div><p class="text-xs font-medium text-green-600">Applicant Response:</p><p class="text-sm text-gray-600">${escapeHtml(remark.response)}</p><p class="text-xs text-gray-400 mt-1">Responded: ${new Date(remark.responded_at).toLocaleString()}</p></div></div></div>` : ''}
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-        document.getElementById('view-remarks-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeViewRemarksModal() {
-        document.getElementById('view-remarks-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        window.currentViewRemarksDocumentKey = null;
-        window.currentViewRemarksDocumentName = null;
-    }
-
-    // ========== APPLICATION DISPLAY FUNCTIONS ==========
-    function displayApplicationDetails() {
-        document.getElementById('application-number').textContent = currentApplication.application_number || 'N/A';
-        if (currentApplication.created_at) {
-            document.getElementById('submitted-date').textContent = new Date(currentApplication.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-        if (currentApplication.updated_at) document.getElementById('updated-date').textContent = new Date(currentApplication.updated_at).toLocaleDateString();
-        updateStatusUI(currentApplication.status);
-        document.getElementById('applicant-name').textContent = currentApplication.applicant_name || 'N/A';
-        document.getElementById('applicant-email').textContent = currentApplication.email || 'N/A';
-        document.getElementById('applicant-phone').textContent = currentApplication.phone || 'N/A';
-        document.getElementById('applicant-address').textContent = currentApplication.address || 'N/A';
-        document.querySelectorAll('.status-radio').forEach(radio => { if (radio.value === currentApplication.status) radio.checked = true; });
-    }
-    
-    function updateStatusUI(status) {
-        const config = { 'pending': 'yellow', 'under-review': 'purple', 'document-verification': 'purple', 'for-assessment': 'indigo', 'approved': 'green', 'rejected': 'red', 'for-release': 'blue', 'verified': 'emerald' };
-        const color = config[status] || 'gray';
-        const textMap = { 'for-assessment': 'For Assessment', 'document-verification': 'Document Verification', 'under-review': 'Under Review', 'for-release': 'For Release' };
-        const text = textMap[status] || status.replace('-', ' ');
-        document.getElementById('status-badge').className = `px-3 py-1 bg-${color}-100 text-${color}-600 rounded-full text-xs font-medium`;
-        document.getElementById('status-badge').textContent = text;
-        document.getElementById('current-status').textContent = text;
-        document.getElementById('current-status-card').className = `p-4 bg-${color}-50 rounded-lg border border-${color}-200`;
-    }
-    
-    function updateTimeline(status) {
-        const steps = ['submitted', 'under-review', 'verification', 'assessment', 'approval', 'release'];
-        const stepMap = { 'pending': 0, 'under-review': 1, 'document-verification': 2, 'for-assessment': 3, 'approved': 4, 'for-release': 5, 'verified': 5, 'rejected': -1 };
-        const currentIndex = stepMap[status] ?? -1;
-        steps.forEach((step, index) => {
-            const el = document.getElementById(`step-${step}`);
-            if (!el) return;
-            const circle = el.querySelector('.w-10.h-10');
-            const text = el.querySelector('.text-sm');
-            if (index <= currentIndex) {
-                circle.className = 'w-10 h-10 bg-[#155386] rounded-full flex items-center justify-center mx-auto mb-2';
-                circle.innerHTML = '<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
-                text.className = 'text-sm font-medium text-gray-800';
-                if (index === currentIndex) {
-                    const dateEl = document.getElementById(`step-${step}-date`);
-                    if (dateEl) dateEl.textContent = 'In Progress';
-                    el.classList.add('step-processing');
-                } else { el.classList.remove('step-processing'); }
-            } else {
-                circle.className = 'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2';
-                circle.innerHTML = '<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-                text.className = 'text-sm font-medium text-gray-400';
-                el.classList.remove('step-processing');
-            }
-        });
-        const progressWidth = currentIndex >= 0 ? ((currentIndex + 1) / steps.length) * 100 : 0;
-        document.getElementById('progress-line').style.width = progressWidth + '%';
-    }
-    
-    function updateProgress(status) {
-        const progress = { 'draft': 0, 'pending': 20, 'under-review': 35, 'document-verification': 50, 'for-assessment': 65, 'approved': 80, 'for-release': 95, 'verified': 100, 'rejected': 100 }[status] || 0;
-        document.getElementById('progress-percentage').textContent = progress + '%';
-        document.getElementById('progress-bar').style.width = progress + '%';
-    }
-    
-    function updateHardCopyStatus(received) {
-        document.getElementById('hardcopy-notice').classList.toggle('hidden', received);
-        document.getElementById('hardcopy-received-notice').classList.toggle('hidden', !received);
-        document.getElementById('hardcopy-checkbox').checked = received;
-        if (canMarkHardCopy()) {
-            const csrfToken = getCsrfToken();
-            fetch(`/staff/applications/${applicationId}/hardcopy-status`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ hardcopy_received: received }) }).catch(err => console.error('Error saving hard copy status:', err));
-        }
-    }
-    
-    function displayProjectInformation(app) {
-        document.getElementById('project-title').textContent = app.project_title || 'Not provided';
-        document.getElementById('project-location').textContent = app.project_location || 'Not provided';
-        document.getElementById('project-description').textContent = app.project_description || 'Not provided';
-        document.getElementById('project-type-badge').textContent = app.project_type || 'Not specified';
-        if (app.lot_area) document.getElementById('lot-area').textContent = `${parseFloat(app.lot_area).toLocaleString()} sqm`;
-        else document.getElementById('lot-area').textContent = 'Not provided';
-        if (app.floor_area) document.getElementById('floor-area').textContent = `${parseFloat(app.floor_area).toLocaleString()} sqm`;
-        else document.getElementById('floor-area').textContent = 'Not provided';
-        document.getElementById('num-floors').textContent = app.num_floors || 'Not provided';
-        if (app.estimated_cost) document.getElementById('estimated-cost').textContent = `₱ ${parseFloat(app.estimated_cost).toLocaleString()}`;
-        else document.getElementById('estimated-cost').textContent = 'Not provided';
-        document.getElementById('architect-name').textContent = app.architect_name || 'Not provided';
-        document.getElementById('architect-license').textContent = app.architect_license || 'Not provided';
-        document.getElementById('engineer-name').textContent = app.engineer_name || 'Not provided';
-        document.getElementById('engineer-license').textContent = app.engineer_license || 'Not provided';
-        document.getElementById('electrical-engineer-name').textContent = app.electrical_engineer_name || 'Not provided';
-        document.getElementById('electrical-engineer-license').textContent = app.electrical_engineer_license || 'Not provided';
-        document.getElementById('sanitary-engineer-name').textContent = app.sanitary_engineer_name || 'Not provided';
-        document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
-    }
-    
-    function calculateEstimatedTime() {
-        if (!currentApplication) return;
-        const estimatedDate = new Date(new Date(currentApplication.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
-        document.getElementById('estimated-time').textContent = estimatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-        const releaseDate = new Date(estimatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-        document.getElementById('target-release').textContent = releaseDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-    
-    function displayReviewActivities(activities) {
-        const container = document.getElementById('activity-log');
-        if (!activities?.length) { showEmptyActivities(); return; }
-        let html = '';
-        activities.slice(0, 5).forEach(a => {
-            const date = new Date(a.created_at);
-            const diffMins = Math.floor((new Date() - date) / 60000);
-            const timeAgo = diffMins < 1 ? 'just now' : diffMins < 60 ? diffMins + ' min ago' : Math.floor(diffMins / 60) + ' hours ago';
-            html += `<div class="flex gap-2 p-2 border-b"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div><div><p class="text-sm font-medium">${a.action_display || a.action}</p><p class="text-xs text-gray-500">${a.reviewer_name || 'System'} • ${timeAgo}</p>${a.remarks ? `<p class="text-xs text-gray-400 mt-1">"${escapeHtml(a.remarks.substring(0, 100))}"</p>` : ''}</div></div>`;
-        });
-        container.innerHTML = html;
-    }
-    
-    function showEmptyActivities() {
-        document.getElementById('activity-log').innerHTML = '<div class="text-center py-8 text-gray-500">No activity yet</div>';
-    }
-    
-    function updateCPDOUI() {
-        const statusBadge = document.getElementById('cpdo-status-badge');
-        const remarksDisplay = document.getElementById('cpdo-remarks-display');
-        const remarksText = document.getElementById('cpdo-remarks-text');
-        const approvedInfo = document.getElementById('cpdo-approved-info');
-        const approvedByName = document.getElementById('cpdo-approved-by');
-        const approvedAtDate = document.getElementById('cpdo-approved-at');
-        const cpdoForm = document.getElementById('cpdo-form');
-        const pendingMessage = document.getElementById('cpdo-pending-message');
-        const rejectedMessage = document.getElementById('cpdo-rejected-message');
-        const approvedMessage = document.getElementById('cpdo-approved-message');
-        const statusUpdateCard = document.getElementById('status-update-card');
-        
-        if (cpdoStatus === 'approved') {
-            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700'; statusBadge.textContent = 'Approved'; }
-            if (remarksText && cpdoRemarks && remarksDisplay) { remarksDisplay.classList.remove('hidden'); remarksText.textContent = cpdoRemarks; }
-            if (cpdoApprovedBy && cpdoApprovedAt && approvedInfo) { approvedInfo.classList.remove('hidden'); if (approvedByName) approvedByName.textContent = cpdoApprovedBy; if (approvedAtDate) approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString(); }
-            if (cpdoForm) cpdoForm.classList.add('hidden');
-            if (pendingMessage) pendingMessage.classList.add('hidden');
-            if (rejectedMessage) rejectedMessage.classList.add('hidden');
-            if (approvedMessage) approvedMessage.classList.remove('hidden');
-            if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
-            enableStep2Verification(true);
-        } else if (cpdoStatus === 'rejected') {
-            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700'; statusBadge.textContent = 'Rejected'; }
-            if (remarksText && cpdoRemarks && remarksDisplay) { remarksDisplay.classList.remove('hidden'); remarksText.textContent = cpdoRemarks; }
-            if (cpdoApprovedBy && cpdoApprovedAt && approvedInfo) { approvedInfo.classList.remove('hidden'); if (approvedByName) approvedByName.textContent = cpdoApprovedBy; if (approvedAtDate) approvedAtDate.textContent = new Date(cpdoApprovedAt).toLocaleString(); }
-            if (cpdoForm) cpdoForm.classList.add('hidden');
-            if (pendingMessage) pendingMessage.classList.add('hidden');
-            if (rejectedMessage) rejectedMessage.classList.remove('hidden');
-            if (approvedMessage) approvedMessage.classList.add('hidden');
-            if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
-            enableStep2Verification(false);
-            disableStatusUpdates();
-        } else {
-            if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700'; statusBadge.textContent = 'Pending'; }
-            if (remarksDisplay) remarksDisplay.classList.add('hidden');
-            if (approvedInfo) approvedInfo.classList.add('hidden');
-            if (rejectedMessage) rejectedMessage.classList.add('hidden');
-            if (approvedMessage) approvedMessage.classList.add('hidden');
-            if (pendingMessage) pendingMessage.classList.remove('hidden');
-            if (currentUserPosition === 'cpdo') {
-                if (cpdoForm) cpdoForm.classList.remove('hidden');
-                if (pendingMessage) pendingMessage.classList.add('hidden');
-                enableStep2Verification(false);
-            } else {
-                if (cpdoForm) cpdoForm.classList.add('hidden');
-                if (pendingMessage) pendingMessage.classList.remove('hidden');
-                if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
-                enableStep2Verification(false);
-                disableStatusUpdates();
-            }
-        }
-    }
-    
-    function enableStep2Verification(enabled) {}
-    function disableStatusUpdates() {
-        const statusRadios = document.querySelectorAll('.status-radio');
-        statusRadios.forEach(radio => { radio.disabled = true; });
-        const updateBtn = document.getElementById('update-status-btn');
-        if (updateBtn) updateBtn.disabled = true;
-    }
-    
-    function applyStatusRestrictions() {
-        const isEngineer = currentUserPosition === 'engineer';
-        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
-        const statusRadios = document.querySelectorAll('.status-radio');
-        statusRadios.forEach(radio => {
-            const statusValue = radio.value;
-            const parentLabel = radio.closest('.status-option');
-            const restrictedBadge = parentLabel?.querySelector('.status-restricted-badge');
-            if (restrictedStatuses.includes(statusValue)) {
-                if (!isEngineer) {
-                    radio.disabled = true;
-                    if (parentLabel) { parentLabel.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-50'); parentLabel.style.cursor = 'not-allowed'; }
-                    if (restrictedBadge) restrictedBadge.classList.remove('hidden');
-                } else {
-                    radio.disabled = false;
-                    if (parentLabel) { parentLabel.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-50'); parentLabel.style.cursor = 'pointer'; }
-                    if (restrictedBadge) restrictedBadge.classList.add('hidden');
-                }
-            }
-        });
-        const restrictionNotice = document.getElementById('status-restriction-notice');
-        if (restrictionNotice) { if (!isEngineer) restrictionNotice.classList.remove('hidden'); else restrictionNotice.classList.add('hidden'); }
-    }
-    
-    function applyHardCopyPermission() {
-        const hardCopyCheckbox = document.getElementById('hardcopy-checkbox');
-        const warningText = document.getElementById('hardcopy-permission-warning');
-        if (!canMarkHardCopy()) { hardCopyCheckbox.disabled = true; warningText.classList.remove('hidden'); } 
-        else { hardCopyCheckbox.disabled = false; warningText.classList.add('hidden'); }
-    }
-    
-    function applyVerificationUIRestrictions() {
-        const adminButtons = document.getElementById('admin-verification-buttons');
-        if (!canManageVerification() && adminButtons) adminButtons.classList.add('hidden');
-        else if (adminButtons) adminButtons.classList.remove('hidden');
-        const statsContainer = document.getElementById('verification-stats-container');
-        if (!canManageVerification() && statsContainer) statsContainer.classList.add('hidden');
-        else if (statsContainer) statsContainer.classList.remove('hidden');
-    }
-    
-    function checkStatusPermission(statusValue) {
-        const isEngineer = currentUserPosition === 'engineer';
-        const restrictedStatuses = ['for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
-        if (restrictedStatuses.includes(statusValue) && !isEngineer) {
-            showErrorModal('Permission Denied', 'Only Engineers can change status to For Assessment, Approved, Rejected, For Release, and Completed.');
-            return false;
-        }
-        if (cpdoStatus !== 'approved') {
-            showErrorModal('CPDO Approval Required', 'CPDO approval is required before changing application status.');
-            return false;
-        }
-        return true;
-    }
-    
-    async function processStatusUpdate(status, additionalData = {}) {
-        const btn = document.getElementById('update-status-btn');
-        const original = btn.innerHTML;
-        btn.innerHTML = 'Updating...';
-        btn.disabled = true;
-        const remarks = document.getElementById('status-remarks').value;
-        showSubmittingModal('Updating application status...');
-        
-        try {
-            const csrfToken = getCsrfToken();
-            const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
-            const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                let successMessage = 'Application status has been updated successfully.';
-                if (additionalData.building_permit_number) successMessage = `Building Permit #${additionalData.building_permit_number} has been issued successfully.`;
-                showSuccessModal('Status Updated', successMessage);
-                setTimeout(() => location.reload(), 1500);
-            } else { showErrorModal('Update Failed', data.message || 'Failed to update status'); }
-        } catch(error) { closeSubmittingModal(); console.error('Error:', error); showErrorModal('Error', 'Error updating status'); }
-        finally { btn.innerHTML = original; btn.disabled = false; }
-    }
-    
-    async function updateStatus() {
-        const selected = document.querySelector('input[name="status"]:checked');
-        if (!selected) { showErrorModal('No Status Selected', 'Please select a status'); return; }
-        if (!checkStatusPermission(selected.value)) return;
-        if (selected.value === 'for-release') { pendingApprovalStatus = selected.value; openBuildingPermitModal(); return; }
-        if (selected.value === 'approved') { pendingApprovalStatus = selected.value; openHardCopyDateModal(); return; }
-        if (selected.value === 'for-assessment') { openAssessmentModal(); return; }
-        await processStatusUpdate(selected.value);
-    }
-    
-    function openHardCopyDateModal() {
-        document.getElementById('hardcopy-submission-date').value = '';
-        document.getElementById('hardcopy-submission-time').value = '';
-        document.getElementById('hardcopy-instructions').value = '';
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('hardcopy-submission-date').min = tomorrow.toISOString().split('T')[0];
-        document.getElementById('hardcopy-date-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeHardCopyDateModal() {
-        document.getElementById('hardcopy-date-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        pendingApprovalStatus = null;
-    }
-    
-    async function confirmApprovalWithDate() {
-        const submissionDate = document.getElementById('hardcopy-submission-date').value;
-        if (!submissionDate) { showErrorModal('Date Required', 'Please select a submission date.'); return; }
-        const submissionTime = document.getElementById('hardcopy-submission-time').value;
-        const instructions = document.getElementById('hardcopy-instructions').value;
-        let submissionDateTime = submissionDate;
-        if (submissionTime) submissionDateTime = `${submissionDate} ${submissionTime}`;
-        closeHardCopyDateModal();
-        await processStatusUpdate('approved', { hardcopy_submission_date: submissionDateTime, hardcopy_instructions: instructions });
-    }
-    
-    // ========== BUILDING PERMIT NUMBER MODAL ==========
-    function openBuildingPermitModal() {
-        document.getElementById('building-permit-number').value = '';
-        document.getElementById('permit-remarks').value = '';
-        document.getElementById('permit-number-error').classList.add('hidden');
-        document.getElementById('building-permit-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeBuildingPermitModal() {
-        document.getElementById('building-permit-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        pendingApprovalStatus = null;
-    }
-    
-    function validatePermitNumber(input) {
-        const value = input.value;
-        const errorDiv = document.getElementById('permit-number-error');
-        input.value = value.replace(/[^0-9]/g, '');
-        if (input.value.length === 10) { errorDiv.classList.add('hidden'); return true; } 
-        else { errorDiv.classList.remove('hidden'); return false; }
-    }
-    
-    async function confirmBuildingPermit() {
-        const permitNumber = document.getElementById('building-permit-number').value;
-        const remarks = document.getElementById('permit-remarks').value;
-        if (!permitNumber || permitNumber.length !== 10 || !/^\d{10}$/.test(permitNumber)) {
-            document.getElementById('permit-number-error').classList.remove('hidden');
-            document.getElementById('permit-number-error').textContent = 'Please enter exactly 10 digits (0-9 only)';
-            return;
-        }
-        closeBuildingPermitModal();
-        await processStatusUpdate('for-release', { building_permit_number: permitNumber, permit_remarks: remarks });
-    }
-    
-    // ========== ASSESSMENT FUNCTIONS ==========
-    function addDynamicFee(description = '', amount = 0) {
-        const container = document.getElementById('dynamic-fees-container');
-        const rowId = `dynamic-fee-${feeRowCounter}`;
-        const rowHtml = `<div id="${rowId}" class="flex gap-2 items-center p-2 bg-gray-50 rounded-lg">
-            <input type="text" placeholder="Fee description" class="dynamic-fee-desc flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${escapeHtml(description)}" onchange="updateDynamicFeesArray()">
-            <input type="number" step="0.01" placeholder="Amount" class="dynamic-fee-amount w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="${amount}" oninput="updateDynamicFeesArray(); calculateTotal()">
-            <button type="button" onclick="removeDynamicFee('${rowId}')" class="text-red-500 hover:text-red-700 p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-        </div>`;
-        container.insertAdjacentHTML('beforeend', rowHtml);
-        dynamicFees.push({ id: rowId, description: description, amount: amount });
-        feeRowCounter++;
-        calculateTotal();
-    }
-    
-    function removeDynamicFee(rowId) {
-        const row = document.getElementById(rowId);
-        if (row) { row.remove(); dynamicFees = dynamicFees.filter(fee => fee.id !== rowId); calculateTotal(); }
-    }
-    
-    function updateDynamicFeesArray() {
-        const rows = document.querySelectorAll('#dynamic-fees-container > div');
-        dynamicFees = [];
-        rows.forEach(row => {
-            const descInput = row.querySelector('.dynamic-fee-desc');
-            const amountInput = row.querySelector('.dynamic-fee-amount');
-            if (descInput && amountInput) dynamicFees.push({ id: row.id, description: descInput.value, amount: parseFloat(amountInput.value) || 0 });
-        });
-    }
-    
-    function getDynamicFeesTotal() { let total = 0; dynamicFees.forEach(fee => { total += fee.amount || 0; }); return total; }
-    
-    function loadDynamicFeesFromData(feesData) {
-        const container = document.getElementById('dynamic-fees-container');
-        container.innerHTML = '';
-        dynamicFees = [];
-        feeRowCounter = 0;
-        if (feesData && feesData.length > 0) feesData.forEach(fee => { addDynamicFee(fee.description, fee.amount); });
-    }
-    
-    function calculateTotal() {
-        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) + (parseFloat(document.getElementById('building-fee').value) || 0) + (parseFloat(document.getElementById('sanitary-fee').value) || 0) + (parseFloat(document.getElementById('mechanical-fee').value) || 0) + (parseFloat(document.getElementById('electrical-fee').value) || 0) + (parseFloat(document.getElementById('penalties-fines').value) || 0);
-        const dynamicTotal = getDynamicFeesTotal();
-        const total = standardTotal + dynamicTotal;
-        document.getElementById('total-amount-display').textContent = total.toFixed(2);
-        return total;
-    }
-    
-    function openAssessmentModal() {
-        if (currentAssessment) {
-            document.getElementById('line-grade').value = currentAssessment.line_grade || '';
-            document.getElementById('building-fee').value = currentAssessment.building_fee || '';
-            document.getElementById('sanitary-fee').value = currentAssessment.sanitary_fee || '';
-            document.getElementById('mechanical-fee').value = currentAssessment.mechanical_fee || '';
-            document.getElementById('electrical-fee').value = currentAssessment.electrical_fee || '';
-            document.getElementById('penalties-fines').value = currentAssessment.penalties_fines || '';
-            document.getElementById('assessment-notes').value = currentAssessment.assessment_notes || '';
-            if (currentAssessment.additional_fees) {
-                try { const fees = typeof currentAssessment.additional_fees === 'string' ? JSON.parse(currentAssessment.additional_fees) : currentAssessment.additional_fees; loadDynamicFeesFromData(fees); } catch(e) { console.error('Error parsing additional fees:', e); }
-            } else { loadDynamicFeesFromData([]); }
-            calculateTotal();
-        } else {
-            document.querySelectorAll('#assessment-modal input, #assessment-modal textarea').forEach(el => el.value = '');
-            loadDynamicFeesFromData([]);
-            document.getElementById('total-amount-display').textContent = '0.00';
-        }
-        document.getElementById('assessment-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeAssessmentModal() { document.getElementById('assessment-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-    
-    function openFinalReviewModal() {
-        const lineGrade = parseFloat(document.getElementById('line-grade').value) || 0;
-        const buildingFee = parseFloat(document.getElementById('building-fee').value) || 0;
-        const sanitaryFee = parseFloat(document.getElementById('sanitary-fee').value) || 0;
-        const mechanicalFee = parseFloat(document.getElementById('mechanical-fee').value) || 0;
-        const electricalFee = parseFloat(document.getElementById('electrical-fee').value) || 0;
-        const penaltiesFines = parseFloat(document.getElementById('penalties-fines').value) || 0;
-        const total = calculateTotal();
-        const assessmentNotes = document.getElementById('assessment-notes').value || 'No notes provided';
-        
-        document.getElementById('review-line-grade').textContent = lineGrade.toFixed(2);
-        document.getElementById('review-building-fee').textContent = buildingFee.toFixed(2);
-        document.getElementById('review-sanitary-fee').textContent = sanitaryFee.toFixed(2);
-        document.getElementById('review-mechanical-fee').textContent = mechanicalFee.toFixed(2);
-        document.getElementById('review-electrical-fee').textContent = electricalFee.toFixed(2);
-        document.getElementById('review-penalties-fines').textContent = penaltiesFines.toFixed(2);
-        document.getElementById('review-total-amount').textContent = total.toFixed(2);
-        document.getElementById('review-assessment-notes').textContent = assessmentNotes;
-        
-        updateDynamicFeesArray();
-        const container = document.getElementById('review-additional-fees-container');
-        container.innerHTML = '';
-        if (dynamicFees.length > 0) {
-            dynamicFees.forEach(fee => {
-                if (fee.description.trim() || fee.amount > 0) {
-                    container.innerHTML += `<div class="flex justify-between py-1 text-sm"><span class="text-gray-600">${escapeHtml(fee.description) || 'Additional Fee'}:</span><span class="font-medium">₱${(fee.amount || 0).toFixed(2)}</span></div>`;
-                }
-            });
-        } else { container.innerHTML = '<div class="text-center py-2 text-gray-500 text-sm">No additional fees added</div>'; }
-        
-        document.getElementById('final-review-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeFinalReviewModal() { document.getElementById('final-review-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-    
-    async function confirmSaveAssessment() { closeFinalReviewModal(); showSubmittingModal('Saving assessment and updating status...'); try { await saveAssessment(); } finally { closeSubmittingModal(); } }
-    
-    async function saveAssessment() {
-        updateDynamicFeesArray();
-        const standardTotal = (parseFloat(document.getElementById('line-grade').value) || 0) + (parseFloat(document.getElementById('building-fee').value) || 0) + (parseFloat(document.getElementById('sanitary-fee').value) || 0) + (parseFloat(document.getElementById('mechanical-fee').value) || 0) + (parseFloat(document.getElementById('electrical-fee').value) || 0) + (parseFloat(document.getElementById('penalties-fines').value) || 0);
-        const dynamicTotal = getDynamicFeesTotal();
-        const total = standardTotal + dynamicTotal;
-        const additionalFees = dynamicFees.map(fee => ({ description: fee.description, amount: fee.amount })).filter(fee => fee.description.trim() !== '' || fee.amount > 0);
-        const data = { line_grade: parseFloat(document.getElementById('line-grade').value) || null, building_fee: parseFloat(document.getElementById('building-fee').value) || null, sanitary_fee: parseFloat(document.getElementById('sanitary-fee').value) || null, mechanical_fee: parseFloat(document.getElementById('mechanical-fee').value) || null, electrical_fee: parseFloat(document.getElementById('electrical-fee').value) || null, penalties_fines: parseFloat(document.getElementById('penalties-fines').value) || null, total_amount: total, assessment_notes: document.getElementById('assessment-notes').value || null, additional_fees: additionalFees };
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/staff/applications/${applicationId}/assessment`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify(data) });
-            const result = await response.json();
-            if (result.success) { closeAssessmentModal(); showSuccessModal('Assessment Saved', 'Assessment saved successfully! Application status updated to "For Assessment".'); setTimeout(() => location.reload(), 2000); } 
-            else { showErrorModal('Save Failed', result.message || 'Failed to save assessment'); }
-        } catch (error) { console.error('Error:', error); showErrorModal('Error', 'Failed to save assessment: ' + error.message); }
-    }
-    
     async function loadPaymentProof() {
         if (!applicationId) return;
         const loadingDiv = document.getElementById('or-loading');
@@ -3576,7 +3681,7 @@
             loadingDiv.classList.add('hidden'); contentDiv.classList.add('hidden'); emptyDiv.classList.remove('hidden');
         } catch (error) { console.error('Error loading payment proof:', error); if (loadingDiv && emptyDiv) { loadingDiv.classList.add('hidden'); emptyDiv.classList.remove('hidden'); emptyDiv.innerHTML = `<div class="text-center py-3 text-red-500"><p class="text-xs">Error loading OR information</p></div>`; } }
     }
-    
+
     async function handleFSECUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -3607,7 +3712,7 @@
         } catch (error) { closeSubmittingModal(); console.error('Error uploading FSEC:', error); statusDiv.innerHTML = '<span class="text-red-600">✗ Upload failed. Please try again.</span>'; showErrorModal('Upload Error', 'An error occurred while uploading. Please try again.'); }
         finally { event.target.value = ''; setTimeout(() => { if (statusDiv.innerHTML) statusDiv.innerHTML = ''; }, 5000); }
     }
-    
+
     async function deleteFSEC() {
         if (!confirm('Are you sure you want to delete the uploaded FSEC file?')) return;
         showSubmittingModal('Deleting FSEC document...');
@@ -3620,7 +3725,7 @@
             else { showErrorModal('Delete Failed', data.message || 'Failed to delete FSEC'); }
         } catch (error) { closeSubmittingModal(); console.error('Error deleting FSEC:', error); showErrorModal('Error', 'Failed to delete FSEC document.'); }
     }
-    
+
     async function saveBFPComments() {
         const comments = document.getElementById('bfp-comments').value;
         const btn = event.target;
@@ -3638,12 +3743,12 @@
                 document.getElementById('bfp-comments-text').textContent = comments;
                 document.getElementById('bfp-comments-date').textContent = 'Last updated: ' + new Date().toLocaleString();
                 showSuccessModal('Comments Saved', 'Your comments have been saved successfully.');
+                refreshActivityLog();
             } else { showErrorModal('Save Failed', data.message || 'Failed to save comments'); }
         } catch (error) { closeSubmittingModal(); console.error('Error saving comments:', error); showErrorModal('Error', 'Failed to save comments. Please try again.'); } 
         finally { btn.innerHTML = originalText; btn.disabled = false; }
     }
-    
-    // ========== MISSING DOCUMENTS ==========
+
     function toggleMissingDocumentsDropdown() {
         const dropdown = document.getElementById('missing-documents-dropdown');
         dropdown.classList.toggle('hidden');
@@ -3684,7 +3789,7 @@
             const response = await fetch(`/staff/applications/${applicationId}/request-missing-documents`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ documents: selected, remarks: remarks }) });
             const data = await response.json();
             closeSubmittingModal();
-            if (data.success) { showSuccessModal('Request Sent', 'Missing documents request has been sent to the applicant.'); toggleMissingDocumentsDropdown(); } 
+            if (data.success) { showSuccessModal('Request Sent', 'Missing documents request has been sent to the applicant.'); toggleMissingDocumentsDropdown(); refreshActivityLog(); } 
             else { showErrorModal('Request Failed', data.message || 'Failed to send request'); }
         } catch(error) { closeSubmittingModal(); showErrorModal('Error', 'Error sending request'); }
     }
@@ -3712,13 +3817,29 @@
             else { const data = await response.json(); showErrorModal('Archive Failed', data.message || 'Failed to archive application.'); }
         } catch(e) { closeSubmittingModal(); showErrorModal('Error', 'Failed to archive application.'); }
     }
-    
-    // ========== LOAD ALL DATA ==========
+
     async function loadAllData() {
         const loadingState = document.getElementById('loading-state');
         const contentDiv = document.getElementById('application-content');
         try {
             const csrfToken = getCsrfToken();
+            
+            // Load current user info first
+            try {
+                const userResponse = await fetch('/staff/current-user', { 
+                    headers: { 'Accept': 'application/json' } 
+                });
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    if (userData.success && userData.user) {
+                        setCurrentUserInfo(userData.user);
+                        console.log('Current user loaded:', getCurrentUserInfo());
+                    }
+                }
+            } catch(e) {
+                console.error('Error loading user info:', e);
+            }
+            
             const [positionRes, applicationRes, activitiesRes, ownershipRes, cpdoRes, assessmentRes, bfpRes, paymentProofRes] = await Promise.all([
                 fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
                 fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),

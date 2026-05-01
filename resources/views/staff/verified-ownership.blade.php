@@ -8,11 +8,6 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
             <div class="flex items-center gap-3">
-                <a href="/staff/dashboard" class="text-gray-400 hover:text-[#155386] transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </a>
                 <h1 class="text-2xl font-bold text-gray-800">Verified Ownership Documents</h1>
             </div>
             <p class="text-sm text-gray-500 mt-1">
@@ -43,7 +38,7 @@
             
             <!-- EXPORT BUTTON -->
             <button onclick="exportToCSV()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
-                <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 mr-2 text-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export to CSV
@@ -51,39 +46,40 @@
         </div>
     </div>
 
-    <!-- FILTERS -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div class="flex flex-wrap gap-4 items-end">
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
-                <input type="text" id="search-input" placeholder="Search by applicant name or application #" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-            </div>
-            <div class="w-40">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Document Type</label>
-                <select id="document-type-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    <option value="all">All Types</option>
-                    <option value="TCT / Deed of Sale">TCT / Deed of Sale</option>
-                    <option value="Tax Declaration">Tax Declaration</option>
-                    <option value="Current Tax Receipt">Current Tax Receipt</option>
-                    <option value="Special Power of Attorney (SPA)">Special Power of Attorney (SPA)</option>
-                </select>
-            </div>
-            <div class="w-40">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Date Range</label>
-                <select id="date-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-                    <option value="all">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="year">This Year</option>
-                </select>
-            </div>
-            <button onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
-                Reset Filters
-            </button>
+   <!-- Filters and Search -->
+<div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+    <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Search -->
+        <div class="flex-1 relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" 
+                   id="search-input"
+                   placeholder="Search by applicant name or application number..." 
+                   class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white">
         </div>
+        
+        <!-- Date Range Filter -->
+        <select id="date-filter" class="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155386] bg-white min-w-[180px]">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+        </select>
+        
+        <!-- Filter Button -->
+        <button onclick="applyFilters()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm">
+            Apply Filters
+        </button>
+        
+        <!-- Reset Button -->
+        <button onclick="resetFilters()" class="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">
+            Reset
+        </button>
     </div>
+</div>
 
     <!-- VERIFIED DOCUMENTS TABLE -->
     <div id="table-container" class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -443,6 +439,63 @@
         div.textContent = str;
         return div.innerHTML;
     }
+    // Apply filters
+function applyFilters() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const dateRange = document.getElementById('date-filter').value;
+    
+    filteredDocuments = allDocuments.filter(doc => {
+        // Search filter
+        if (searchTerm) {
+            const applicantName = `${doc.first_name} ${doc.last_name}`.toLowerCase();
+            const appNumber = (doc.application_number || '').toLowerCase();
+            if (!applicantName.includes(searchTerm) && !appNumber.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        // Date range filter
+        if (dateRange !== 'all') {
+            const verifiedDate = new Date(doc.verified_at);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            switch(dateRange) {
+                case 'today':
+                    if (verifiedDate.toDateString() !== today.toDateString()) return false;
+                    break;
+                case 'week':
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(today.getDate() - 7);
+                    if (verifiedDate < weekAgo) return false;
+                    break;
+                case 'month':
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(today.getMonth() - 1);
+                    if (verifiedDate < monthAgo) return false;
+                    break;
+                case 'year':
+                    const yearAgo = new Date(today);
+                    yearAgo.setFullYear(today.getFullYear() - 1);
+                    if (verifiedDate < yearAgo) return false;
+                    break;
+            }
+        }
+        
+        return true;
+    });
+    
+    currentPage = 1;
+    renderTable();
+    updatePaginationInfo();
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('date-filter').value = 'all';
+    applyFilters();
+}
 </script>
 
 <style>

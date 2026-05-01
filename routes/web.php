@@ -78,6 +78,18 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     // =========Route::get('/position/check', [App\Http\Controllers\Staff\DashboardController::class, 'checkPosition'])->name('position.check');= OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
     Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);
     
+     Route::get('/current-user', function() {
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => auth()->id(),
+                'name' => auth()->user()->name,
+                'position' => auth()->user()->position ?? auth()->user()->role ?? 'Staff',
+                'email' => auth()->user()->email
+            ]
+        ]);
+    })->name('current-user');
+
     // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
     Route::get('/ownership-verifications/verified-data', [App\Http\Controllers\Staff\DashboardController::class, 'getVerifiedOwnershipDocuments']);
     

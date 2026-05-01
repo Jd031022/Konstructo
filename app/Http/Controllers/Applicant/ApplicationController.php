@@ -412,13 +412,16 @@ public function show($id)
                         'application_id' => $activity->application_id,
                         'reviewer_id' => $activity->reviewer_id,
                         'action' => $activity->action,
+                        'action_type' => $activity->action,
                         'action_display' => $this->getActionDisplay($activity->action),
                         'old_status' => $activity->old_status,
                         'new_status' => $activity->new_status,
                         'remarks' => $activity->remarks,
                         'created_at' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : null,
                         'time_ago' => $activity->created_at ? $activity->created_at->diffForHumans() : null,
-                        'reviewer' => $reviewerInfo
+                        'reviewer' => $reviewerInfo,
+                        'reviewer_name' => $reviewerInfo['name'] ?? 'System',
+                        'reviewer_position' => $reviewerInfo['role'] ?? null
                     ];
                 });
 
@@ -1335,6 +1338,11 @@ public function submitSurvey(Request $request)
             'status_updated' => 'Status Updated',
             'note_added' => 'Note Added',
             'document_verified' => 'Documents Verified',
+            'document_reset' => 'Document Verification Reset',
+            'batch_reset_all' => 'Batch Reset All Documents',
+            'ownership_document_verified' => 'Ownership Document Verified',
+            'ownership_document_unverified' => 'Ownership Document Unverified',
+            'document_rejected' => 'Documents Rejected',
             'hard_copy_received' => 'Hard Copy Received',
             'application_created' => 'Application Created',
             'application_deleted' => 'Application Deleted',

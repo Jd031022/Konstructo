@@ -19,32 +19,30 @@ class DashboardController extends Controller
             $year = $request->get('year', now()->year);
             $month = $request->get('month', now()->month);
             $day = $request->get('day', now()->day);
-            
-            // Base query for submitted applications (exclude drafts)
-            $baseQuery = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified']);
-            
+
+            $submittedQuery = ApplicationDocument::submitted();
+            $baseQuery = clone $submittedQuery;
+
             // Apply filter
             if ($filter === 'daily') {
                 $baseQuery->whereDate('created_at', "{$year}-{$month}-{$day}");
                 $thisPeriodQuery = clone $baseQuery;
-                $lastPeriodQuery = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                    ->whereDate('created_at', date('Y-m-d', strtotime("{$year}-{$month}-{$day} -1 day")));
+                $lastPeriodQuery = clone $submittedQuery;
+                $lastPeriodQuery->whereDate('created_at', date('Y-m-d', strtotime("{$year}-{$month}-{$day} -1 day")));
             } elseif ($filter === 'monthly') {
                 $baseQuery->whereYear('created_at', $year)->whereMonth('created_at', $month);
                 $thisPeriodQuery = clone $baseQuery;
-                $lastPeriodQuery = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                    ->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month - 1);
+                $lastPeriodQuery = clone $submittedQuery;
                 if ($month == 1) {
-                    $lastPeriodQuery = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                        ->whereYear('created_at', $year - 1)
-                        ->whereMonth('created_at', 12);
+                    $lastPeriodQuery->whereYear('created_at', $year - 1)->whereMonth('created_at', 12);
+                } else {
+                    $lastPeriodQuery->whereYear('created_at', $year)->whereMonth('created_at', $month - 1);
                 }
             } else { // yearly
                 $baseQuery->whereYear('created_at', $year);
                 $thisPeriodQuery = clone $baseQuery;
-                $lastPeriodQuery = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                    ->whereYear('created_at', $year - 1);
+                $lastPeriodQuery = clone $submittedQuery;
+                $lastPeriodQuery->whereYear('created_at', $year - 1);
             }
             
             // Get totals for the selected period
@@ -61,13 +59,12 @@ class DashboardController extends Controller
             $lastPeriodTotal = $lastPeriodQuery->count();
             
             // Get new today (for daily view, show new for that day; for others, show today's)
-            $newToday = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                ->whereDate('created_at', today())
-                ->count();
+            $newToday = clone $submittedQuery;
+            $newToday = $newToday->whereDate('created_at', today())->count();
             
             // Get this month total (for the donut chart footer)
-            $thisMonthTotal = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
-                ->whereMonth('created_at', now()->month)
+            $thisMonthTotal = clone $submittedQuery;
+            $thisMonthTotal = $thisMonthTotal->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count();
             
@@ -83,7 +80,7 @@ class DashboardController extends Controller
                 'this_period_total' => $thisPeriodTotal,
                 'last_period_total' => $lastPeriodTotal,
                 'this_month_total' => $thisMonthTotal,
-                'last_month_total' => ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                'last_month_total' => ApplicationDocument::submitted()
                     ->whereMonth('created_at', now()->subMonth()->month)
                     ->whereYear('created_at', now()->subMonth()->year)
                     ->count(),
@@ -134,17 +131,30 @@ class DashboardController extends Controller
         
         $labels = [];
         $values = [];
+
+        $now = now();
+        if ($filter === 'monthly') {
+            if ($period === 'last_month' && $year == $now->year && $month == $now->month) {
+                $lastMonth = $now->copy()->subMonth();
+                $year = $lastMonth->year;
+                $month = $lastMonth->month;
+            }
+        } elseif ($filter === 'yearly') {
+            if ($period === 'last_year' && $year == $now->year) {
+                $year = $now->copy()->subYear()->year;
+            }
+        }
+
         
         if ($filter === 'daily') {
             // For daily view, show hourly breakdown
             $date = sprintf("%d-%02d-%02d", $year, $month, $day);
             Log::info('Daily filter - date: ' . $date);
             
-            $hourlyData = ApplicationDocument::select(
-                DB::raw('HOUR(created_at) as hour'),
+            $hourlyData = ApplicationDocument::submitted()->select(
+                DB::raw('EXTRACT(HOUR FROM created_at) as hour'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
             ->whereDate('created_at', $date)
             ->groupBy('hour')
             ->orderBy('hour')
@@ -165,11 +175,10 @@ class DashboardController extends Controller
             
             Log::info('Monthly filter - year: ' . $year . ', month: ' . $month . ', days: ' . $daysInMonth);
             
-            $dailyData = ApplicationDocument::select(
-                DB::raw('DAY(created_at) as day'),
+            $dailyData = ApplicationDocument::submitted()->select(
+                DB::raw('EXTRACT(DAY FROM created_at) as day'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
             ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->groupBy('day')
@@ -187,11 +196,10 @@ class DashboardController extends Controller
         } else { // yearly view
             Log::info('Yearly filter - year: ' . $year);
             
-            $monthlyData = ApplicationDocument::select(
-                DB::raw('MONTH(created_at) as month'),
+            $monthlyData = ApplicationDocument::submitted()->select(
+                DB::raw('EXTRACT(MONTH FROM created_at) as month'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
             ->whereYear('created_at', $year)
             ->groupBy('month')
             ->orderBy('month')
@@ -240,11 +248,10 @@ class DashboardController extends Controller
             $endDate = date('Y-m-t', strtotime($startDate));
             $daysInMonth = date('t', strtotime($startDate));
             
-            $dailyCounts = ApplicationDocument::select(
+            $dailyCounts = ApplicationDocument::submitted()->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
             ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->groupBy('date')
@@ -290,7 +297,7 @@ class DashboardController extends Controller
                 $endOfMonth = now()->endOfMonth();
                 
                 // Get all applications for this month
-                $applications = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                $applications = ApplicationDocument::submitted()
                     ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                     ->orderBy('created_at', 'asc')
                     ->get();
@@ -333,7 +340,7 @@ class DashboardController extends Controller
                 $endOfMonth = $lastMonth->copy()->endOfMonth();
                 $daysInMonth = $lastMonth->daysInMonth;
                 
-                $applications = ApplicationDocument::whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                $applications = ApplicationDocument::submitted()
                     ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                     ->orderBy('created_at', 'asc')
                     ->get();
@@ -364,11 +371,10 @@ class DashboardController extends Controller
                 
             } else { // this_year
                 // Get monthly data for the year
-                $monthlyData = ApplicationDocument::select(
-                    DB::raw('MONTH(created_at) as month'),
+                $monthlyData = ApplicationDocument::submitted()->select(
+                    DB::raw('EXTRACT(MONTH FROM created_at) as month'),
                     DB::raw('COUNT(*) as total')
                 )
-                ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
                 ->whereYear('created_at', now()->year)
                 ->groupBy('month')
                 ->orderBy('month')
@@ -443,8 +449,7 @@ class DashboardController extends Controller
             
             // If no review activities, fall back to application status changes
             if (empty($activities)) {
-                $applications = ApplicationDocument::with('user')
-                    ->whereIn('status', ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'])
+                $applications = ApplicationDocument::submitted()->with('user')
                     ->orderBy('updated_at', 'desc')
                     ->limit(10)
                     ->get();
@@ -644,7 +649,7 @@ class DashboardController extends Controller
      */
     private function getExportStats()
     {
-        $statuses = ['pending', 'under-review', 'approved', 'rejected', 'for-release', 'verified'];
+        $statuses = ['pending', 'under-review', 'document-verification', 'for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
         $total = ApplicationDocument::whereIn('status', $statuses)->count();
         $pending = ApplicationDocument::where('status', 'pending')->count();
         $underReview = ApplicationDocument::where('status', 'under-review')->count();

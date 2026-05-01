@@ -1244,157 +1244,177 @@ public function saveCPDOAssessment(Request $request, $id)
     }
 
     /**
-     * Get review activities for an application - FIXED to remove duplicates
-     */
-    public function getReviewActivities($id)
-    {
-        try {
-            Log::info('Fetching review activities for application ID: ' . $id);
+ * Get review activities for an application - UPDATED to include reviewer position and use getActionDisplayText
+ */
+public function getReviewActivities($id)
+{
+    try {
+        Log::info('Fetching review activities for application ID: ' . $id);
+        
+        $application = ApplicationDocument::find($id);
+        
+        if (!$application) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Application not found'
+            ], 404);
+        }
+        
+        $activities = [];
+        
+        if (class_exists('App\Models\ApplicationReviewActivity')) {
+            $rawActivities = ApplicationReviewActivity::with('reviewer')
+                ->where('application_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
             
-            $application = ApplicationDocument::find($id);
-            
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
+            $uniqueActivities = [];
+            foreach ($rawActivities as $activity) {
+                $key = $activity->action . '_' . $activity->created_at->format('Y-m-d H:i:s');
+                if (!isset($uniqueActivities[$key])) {
+                    $uniqueActivities[$key] = $activity;
+                }
             }
             
-            $activities = [];
-            
-            if (class_exists('App\Models\ApplicationReviewActivity')) {
-                $rawActivities = ApplicationReviewActivity::with('reviewer')
-                    ->where('application_id', $id)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-                
-                $uniqueActivities = [];
-                foreach ($rawActivities as $activity) {
-                    $key = $activity->action . '_' . $activity->created_at->format('Y-m-d H:i:s');
-                    if (!isset($uniqueActivities[$key])) {
-                        $uniqueActivities[$key] = $activity;
+            $activities = collect(array_values($uniqueActivities))->map(function($activity) {
+                // Get reviewer position from profile
+                $reviewerPosition = null;
+                $reviewerName = 'System';
+                if ($activity->reviewer) {
+                    $reviewerName = $activity->reviewer->first_name . ' ' . $activity->reviewer->last_name;
+                    if ($activity->reviewer->profile) {
+                        $reviewerPosition = $activity->reviewer->profile->position;
+                    }
+                    if (!$reviewerPosition) {
+                        $reviewerPosition = $activity->reviewer->role ?? 'Staff';
                     }
                 }
                 
-                $activities = collect(array_values($uniqueActivities))->map(function($activity) {
-                    return [
-                        'id' => $activity->id,
-                        'action' => $activity->action,
-                        'action_display' => $this->getActionDisplayText($activity),
-                        'old_status' => $activity->old_status,
-                        'new_status' => $activity->new_status,
-                        'remarks' => $activity->remarks,
-                        'reviewer_id' => $activity->reviewer_id,
-                        'reviewer_name' => $activity->reviewer ? 
-                            ($activity->reviewer->first_name . ' ' . $activity->reviewer->last_name) : 
-                            'System',
-                        'reviewer_role' => $activity->reviewer ? $activity->reviewer->role : null,
-                        'created_at' => $activity->created_at,
-                        'ip_address' => $activity->ip_address,
-                        'user_agent' => $activity->user_agent
-                    ];
-                });
-            }
-            
-            Log::info('Found ' . count($activities) . ' unique review activities');
-            
-            return response()->json([
-                'success' => true,
-                'activities' => $activities
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error fetching review activities: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching activities: ' . $e->getMessage(),
-                'activities' => []
-            ], 500);
+                return [
+                    'id' => $activity->id,
+                    'action' => $activity->action,
+                    'action_display' => $this->getActionDisplayText($activity),  // USING THE METHOD HERE
+                    'action_type' => $activity->action,
+                    'old_status' => $activity->old_status,
+                    'new_status' => $activity->new_status,
+                    'remarks' => $activity->remarks,
+                    'reviewer_id' => $activity->reviewer_id,
+                    'reviewer_name' => $reviewerName,
+                    'reviewer_position' => $reviewerPosition,
+                    'reviewer_role' => $activity->reviewer ? $activity->reviewer->role : null,
+                    'created_at' => $activity->created_at,
+                    'created_at_formatted' => $activity->created_at ? $activity->created_at->format('M d, Y h:i A') : null,
+                    'time_ago' => $activity->created_at ? $activity->created_at->diffForHumans() : null,
+                    'ip_address' => $activity->ip_address,
+                    'user_agent' => $activity->user_agent
+                ];
+            });
         }
+        
+        Log::info('Found ' . count($activities) . ' unique review activities');
+        
+        return response()->json([
+            'success' => true,
+            'activities' => $activities
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error fetching review activities: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching activities: ' . $e->getMessage(),
+            'activities' => []
+        ], 500);
     }
-
+}
     /**
-     * Get human-readable action display text
-     */
-    private function getActionDisplayText($activity)
-    {
-        $actionText = '';
-        
-        switch ($activity->action) {
-            case 'application_submitted':
-                $actionText = 'Application Submitted';
-                break;
-            case 'status_updated':
-                $old = $activity->old_status ? $this->formatStatusForDisplay($activity->old_status) : 'Unknown';
-                $new = $activity->new_status ? $this->formatStatusForDisplay($activity->new_status) : 'Unknown';
-                $actionText = "Status changed from {$old} to {$new}";
-                break;
-            case 'document_verified':
-                $actionText = 'Documents Verified';
-                break;
-            case 'document_rejected':
-                $actionText = 'Documents Rejected';
-                break;
-            case 'hard_copy_received':
-                $actionText = 'Hard Copy Received';
-                break;
-            case 'missing_documents_requested':
-                $actionText = 'Missing Documents Requested';
-                break;
-            case 'note_added':
-                $actionText = 'Note Added';
-                break;
-            case 'application_created':
-                $actionText = 'Application Created';
-                break;
-            case 'application_deleted':
-                $actionText = 'Application Deleted';
-                break;
-            case 'application_archived':
-                $actionText = 'Application Archived';
-                break;
-            case 'application_restored':
-                $actionText = 'Application Restored';
-                break;
-            case 'assessment_saved':
-                $actionText = 'Assessment Saved';
-                break;
-            case 'assessment_completed':
-                $actionText = 'Assessment Completed';
-                break;
-            case 'fsec_uploaded':
-                $actionText = 'FSEC Document Uploaded';
-                break;
-            case 'fsec_deleted':
-                $actionText = 'FSEC Document Deleted';
-                break;
-            case 'bfp_comments_added':
-                $actionText = 'BFP Comments Added';
-                break;
-            case 'ownership_document_verified':
-                $actionText = 'Ownership Document Verified';
-                break;
-            case 'ownership_document_unverified':
-                $actionText = 'Ownership Document Unverified';
-                break;
-            case 'cpdo_approved':
-                $actionText = 'CPDO Approved';
-                break;
-            case 'cpdo_rejected':
-                $actionText = 'CPDO Rejected';
-                break;
-            case 'cpdo_assessment_saved':
-                $actionText = 'CPDO Assessment Saved';
-                break;
-            default:
-                $actionText = ucfirst(str_replace('_', ' ', $activity->action));
-                break;
-        }
-        
-        return $actionText;
+ * Get human-readable action display text - UPDATED with document reset cases
+ */
+private function getActionDisplayText($activity)
+{
+    $actionText = '';
+    
+    switch ($activity->action) {
+        case 'application_submitted':
+            $actionText = 'Application Submitted';
+            break;
+        case 'status_updated':
+            $old = $activity->old_status ? $this->formatStatusForDisplay($activity->old_status) : 'Unknown';
+            $new = $activity->new_status ? $this->formatStatusForDisplay($activity->new_status) : 'Unknown';
+            $actionText = "Status changed from {$old} to {$new}";
+            break;
+        case 'document_verified':
+            $actionText = 'Document Verified';
+            break;
+        case 'document_reset':
+            $actionText = 'Document Verification Reset';
+            break;
+        case 'batch_reset_all':
+            $actionText = 'Batch Reset All Documents';
+            break;
+        case 'document_rejected':
+            $actionText = 'Documents Rejected';
+            break;
+        case 'hard_copy_received':
+            $actionText = 'Hard Copy Received';
+            break;
+        case 'missing_documents_requested':
+            $actionText = 'Missing Documents Requested';
+            break;
+        case 'note_added':
+            $actionText = 'Note Added';
+            break;
+        case 'application_created':
+            $actionText = 'Application Created';
+            break;
+        case 'application_deleted':
+            $actionText = 'Application Deleted';
+            break;
+        case 'application_archived':
+            $actionText = 'Application Archived';
+            break;
+        case 'application_restored':
+            $actionText = 'Application Restored';
+            break;
+        case 'assessment_saved':
+            $actionText = 'Assessment Saved';
+            break;
+        case 'assessment_completed':
+            $actionText = 'Assessment Completed';
+            break;
+        case 'fsec_uploaded':
+            $actionText = 'FSEC Document Uploaded';
+            break;
+        case 'fsec_deleted':
+            $actionText = 'FSEC Document Deleted';
+            break;
+        case 'bfp_comments_added':
+            $actionText = 'BFP Comments Added';
+            break;
+        case 'ownership_document_verified':
+            $actionText = 'Ownership Document Verified';
+            break;
+        case 'ownership_document_unverified':
+            $actionText = 'Ownership Document Unverified';
+            break;
+        case 'cpdo_approved':
+            $actionText = 'CPDO Approved';
+            break;
+        case 'cpdo_rejected':
+            $actionText = 'CPDO Rejected';
+            break;
+        case 'cpdo_assessment_saved':
+            $actionText = 'CPDO Assessment Saved';
+            break;
+        default:
+            $actionText = ucfirst(str_replace('_', ' ', $activity->action));
+            break;
     }
+    
+    return $actionText;
+}
 
     /**
      * Format status for display (e.g., 'under-review' -> 'Under Review')
@@ -1792,94 +1812,157 @@ public function updateStatus(Request $request, $id)
     }
 }
 
-    /**
-     * Add note to application without changing status
-     */
-    public function addNote(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'note' => 'required|string'
-        ]);
+   /**
+ * Add note to application without changing status
+ * Also handles document verification and reset logging
+ */
+public function addNote(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'note' => 'required|string'
+    ]);
 
-        if ($validator->fails()) {
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $application = ApplicationDocument::with('user')->find($id);
+        
+        if (!$application) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'Application not found'
+            ], 404);
         }
 
-        try {
-            $application = ApplicationDocument::with('user')->find($id);
+        $staff = auth()->user();
+        $actionType = $request->input('action_type', 'note_added');
+        $metadata = $request->input('metadata', []);
+        $note = $request->note;
+
+        // For document verification and reset actions, log specially
+        if (in_array($actionType, ['document_verified', 'document_reset', 'batch_reset_all'])) {
+            // Get reviewer position
+            $staff->load('profile');
+            $position = $staff->profile ? $staff->profile->position : ($staff->role ?? 'Staff');
             
-            if (!$application) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            $staff = auth()->user();
-
+            // Log to application_review_activities table
+            ApplicationReviewActivity::create([
+                'application_id' => $application->id,
+                'reviewer_id' => $staff->id,
+                'action' => $actionType,
+                'old_status' => $application->status,
+                'new_status' => $application->status,
+                'remarks' => $note,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            // Also update admin_notes for backward compatibility
             $existingNotes = $application->admin_notes;
-            $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . ": " . $request->note;
+            $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " (" . $position . "): " . $note;
             $application->admin_notes = $existingNotes 
                 ? $existingNotes . "\n\n" . $newNote 
                 : $newNote;
             
             $application->last_updated_by = $staff->id;
             $application->save();
-
-            $this->notificationService->notifyApplicantOfNote(
-                $application,
-                $request->note,
-                $staff
-            );
-
-            try {
-                if ($application->user && $application->user->email) {
-                    Log::info("📧 ATTEMPTING TO SEND NOTE ADDED EMAIL TO {$application->user->email}");
-                    
-                    $emailSent = $this->gmailService->sendStatusEmail(
-                        $application->user->email,
-                        $application->status,
-                        $application->application_number,
-                        $application->user->first_name,
-                        $application->id
-                    );
-                    
-                    if ($emailSent) {
-                        Log::info('✓✓✓ NOTE ADDED EMAIL SENT SUCCESSFULLY');
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::error('Failed to send note email: ' . $e->getMessage());
-            }
-
-            $this->logReviewActivity(
-                $application->id,
-                $staff->id,
-                'note_added',
-                null,
-                null,
-                $request->note,
-                $request->ip(),
-                $request->userAgent()
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Note added successfully'
+            
+            Log::info('Document action logged to activities', [
+                'application_id' => $id,
+                'action_type' => $actionType,
+                'staff' => $staff->email,
+                'position' => $position
             ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error adding note: ' . $e->getMessage());
+            
+            // Also log to activity_logs for audit tracking
+            $staff->logActivity(
+                $actionType,
+                ucfirst(str_replace('_', ' ', $actionType)) . ' for application #' . $application->application_number,
+                [
+                    'application_id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'remarks' => $note,
+                    'position' => $position,
+                ]
+            );
             
             return response()->json([
-                'success' => false,
-                'message' => 'Error adding note: ' . $e->getMessage()
-            ], 500);
+                'success' => true,
+                'message' => 'Activity logged successfully',
+                'action_type' => $actionType
+            ]);
         }
+        
+        // Original note handling for regular notes
+        $staff->load('profile');
+        $position = $staff->profile ? $staff->profile->position : ($staff->role ?? 'Staff');
+        
+        $existingNotes = $application->admin_notes;
+        $newNote = "[" . now()->format('Y-m-d H:i') . "] " . $staff->first_name . " " . $staff->last_name . " (" . $position . "): " . $note;
+        $application->admin_notes = $existingNotes 
+            ? $existingNotes . "\n\n" . $newNote 
+            : $newNote;
+        
+        $application->last_updated_by = $staff->id;
+        $application->save();
+
+        // Log to review activities table
+        ApplicationReviewActivity::create([
+            'application_id' => $application->id,
+            'reviewer_id' => $staff->id,
+            'action' => $actionType,
+            'old_status' => $application->status,
+            'new_status' => $application->status,
+            'remarks' => $note,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        $this->notificationService->notifyApplicantOfNote(
+            $application,
+            $note,
+            $staff
+        );
+
+        try {
+            if ($application->user && $application->user->email) {
+                Log::info("📧 ATTEMPTING TO SEND NOTE ADDED EMAIL TO {$application->user->email}");
+                
+                $emailSent = $this->gmailService->sendStatusEmail(
+                    $application->user->email,
+                    $application->status,
+                    $application->application_number,
+                    $application->user->first_name,
+                    $application->id
+                );
+                
+                if ($emailSent) {
+                    Log::info('✓✓✓ NOTE ADDED EMAIL SENT SUCCESSFULLY');
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send note email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Note added successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error adding note: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error adding note: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Verify documents for an application
@@ -1959,6 +2042,19 @@ public function updateStatus(Request $request, $id)
                 $request->remarks ?? null,
                 $request->ip(),
                 $request->userAgent()
+            );
+
+            // Also log to activity_logs for audit tracking
+            $staff->logActivity(
+                $action,
+                ($request->verified ? 'Verified documents' : 'Rejected documents') . ' for application #' . $application->application_number,
+                [
+                    'application_id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'verified' => $request->verified,
+                    'remarks' => $request->remarks ?? null,
+                    'status' => $newStatus,
+                ]
             );
             
             try {
@@ -3191,6 +3287,18 @@ public function verifyOwnershipDocument(Request $request, $id)
             ($isVerified ? 'Verified' : 'Unverified') . ' ' . str_replace('_', ' ', $documentKey) . ' as ' . $position,
             $request->ip(),
             $request->userAgent()
+        );
+
+        // Also record this on activity_logs
+        $staff->logActivity(
+            $isVerified ? 'ownership_document_verified' : 'ownership_document_unverified',
+            ($isVerified ? 'Verified' : 'Unverified') . ' ' . str_replace('_', ' ', $documentKey) . ' for application #' . $application->application_number,
+            [
+                'application_id' => $application->id,
+                'document_key' => $documentKey,
+                'verified' => $isVerified,
+                'position' => $position,
+            ]
         );
         
         Log::info('Ownership document verification updated successfully', [

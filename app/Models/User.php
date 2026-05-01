@@ -337,7 +337,7 @@ public function paymentProofs()
      */
     public function getPositionAttribute(): ?string
     {
-        return $this->profile?->position;
+        return $this->role ?? $this->position ?? 'Staff';
     }
 
     /**
