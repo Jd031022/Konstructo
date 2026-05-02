@@ -414,7 +414,125 @@
     </div>
 </div>
 </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <div class="bg-white rounded-xl shadow-sm p-6 h-full">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Document Verification Queue</h2>
+            <a href="/staff/applications" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
+        </div>
+
+        <div class="space-y-4" id="verification-queue">
+            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <span id="pending-queue-count" class="text-yellow-600 font-bold text-sm">0</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Pending Document Verification</p>
+                        <p class="text-xs text-gray-500">Applications awaiting review</p>
+                    </div>
+                </div>
+                <span class="text-2xl font-bold text-yellow-600" id="pending-queue-count-value">0</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Under Review</p>
+                        <p class="text-xs text-gray-500">Being checked by staff</p>
+                    </div>
+                </div>
+                <span class="text-2xl font-bold text-blue-600" id="under-review-queue-count">0</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Ready for Release</p>
+                        <p class="text-xs text-gray-500">Approved documents ready next</p>
+                    </div>
+                </div>
+                <span class="text-2xl font-bold text-green-600" id="for-release-queue-count">0</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Rejected</p>
+                        <p class="text-xs text-gray-500">Applications not accepted</p>
+                    </div>
+                </div>
+                <span class="text-2xl font-bold text-red-600" id="rejected-queue-count">0</span>
+            </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-sm text-gray-600">Average Processing Time</span>
+                </div>
+                <span id="doc-avg-processing-time" class="text-lg font-semibold text-gray-800">0 days</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 h-full">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Staff Performance</h2>
+            <a href="/staff/applications" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
+        </div>
+
+        <div id="staff-performance" class="space-y-3">
+            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-[#155386] to-[#40798C] rounded-full flex items-center justify-center text-white text-xs font-bold">ST</div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Loading...</p>
+                        <p class="text-xs text-gray-500">Loading stats...</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-gray-600">-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-2 gap-4">
+            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                <p class="text-xs text-gray-500">Total Processed</p>
+                <p id="total-processed" class="text-xl font-bold text-gray-800">0</p>
+                <p class="text-xs text-green-600 mt-1" id="processed-trend">↑ 0%</p>
+            </div>
+            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                <p class="text-xs text-gray-500">Avg. per Staff</p>
+                <p id="avg-per-staff" class="text-xl font-bold text-gray-800">0</p>
+                <p class="text-xs text-green-600 mt-1" id="avg-trend">↑ 0%</p>
+            </div>
+        </div>
+    </div>
 </div>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -659,6 +777,7 @@
             await loadTrendData();
             await loadRecentActivities();
             await loadCitizenSatisfaction();
+            await loadStaffPerformance();
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         }
@@ -776,6 +895,7 @@
             document.getElementById('total-all-apps').textContent = stats.total || 0;
             document.getElementById('monthly-apps').textContent = stats.this_month_total || 0;
             updateDonutChart(stats);
+            updateVerificationQueue(stats);
         } catch (error) {
             console.error('Error loading stats:', error);
         }
@@ -1013,7 +1133,7 @@
                 return;
             }
             
-            const recentActivities = activities.slice(0, 5);
+            const recentActivities = activities.slice(0, 6);
             let activitiesHtml = '';
             
             recentActivities.forEach(activity => {
@@ -1227,6 +1347,70 @@
         console.error('Error loading citizen satisfaction:', error);
     }
 }
+
+    function updateVerificationQueue(stats) {
+        const pending = stats.pending || 0;
+        const underReview = stats.under_review || 0;
+        const forRelease = stats.for_release || 0;
+        const rejected = stats.rejected || 0;
+        const avgProcessing = stats.avg_processing_time || '0 days';
+
+        document.getElementById('pending-queue-count').textContent = pending;
+        document.getElementById('pending-queue-count-value').textContent = pending;
+        document.getElementById('under-review-queue-count').textContent = underReview;
+        document.getElementById('for-release-queue-count').textContent = forRelease;
+        document.getElementById('rejected-queue-count').textContent = rejected;
+        document.getElementById('doc-avg-processing-time').textContent = avgProcessing;
+    }
+
+    async function loadStaffPerformance() {
+        try {
+            const response = await fetch('/staff/dashboard/staff-performance');
+            if (!response.ok) throw new Error('Failed to load staff performance');
+            const data = await response.json();
+
+            const container = document.getElementById('staff-performance');
+            if (!data.success || !Array.isArray(data.staff) || data.staff.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No staff performance data available</div>';
+                document.getElementById('total-processed').textContent = '0';
+                document.getElementById('avg-per-staff').textContent = '0';
+                document.getElementById('processed-trend').textContent = '0%';
+                document.getElementById('avg-trend').textContent = '0%';
+                return;
+            }
+
+            let html = '';
+            const gradients = ['from-[#155386] to-[#40798C]', 'from-[#40798C] to-[#70A9A1]', 'from-[#70A9A1] to-[#9EC5CB]', 'from-[#9EC5CB] to-[#B8D8E3]'];
+            data.staff.slice(0, 5).forEach((staff, idx) => {
+                const initials = `${staff.first_name?.[0] || ''}${staff.last_name?.[0] || ''}`.toUpperCase() || 'ST';
+                const gradient = gradients[idx % gradients.length];
+                html += `
+                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-r ${gradient} rounded-full flex items-center justify-center text-white text-xs font-bold">${initials}</div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${staff.first_name || ''} ${staff.last_name || ''}</p>
+                                <p class="text-xs text-gray-500">${staff.position || staff.role || 'Staff'}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-800">${staff.processed || 0}</p>
+                            <p class="text-xs text-gray-400">this week</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('total-processed').textContent = data.total_processed || 0;
+            document.getElementById('avg-per-staff').textContent = data.avg_per_staff || 0;
+            document.getElementById('processed-trend').textContent = data.processed_trend >= 0 ? `↑ ${data.processed_trend}%` : `↓ ${Math.abs(data.processed_trend)}%`;
+            document.getElementById('avg-trend').textContent = data.avg_trend >= 0 ? `↑ ${data.avg_trend}%` : `↓ ${Math.abs(data.avg_trend)}%`;
+        } catch (error) {
+            console.error('Error loading staff performance:', error);
+            document.getElementById('staff-performance').innerHTML = '<div class="text-center py-8 text-red-500">Unable to load staff performance</div>';
+        }
+    }
 
 
 </script>

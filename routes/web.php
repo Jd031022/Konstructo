@@ -92,6 +92,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
 
     // ========== VERIFIED OWNERSHIP DOCUMENTS API ROUTE ==========
     Route::get('/ownership-verifications/verified-data', [App\Http\Controllers\Staff\DashboardController::class, 'getVerifiedOwnershipDocuments']);
+    Route::get('/dashboard/staff-performance', [App\Http\Controllers\Staff\DashboardController::class, 'getStaffPerformance'])->name('dashboard.staff-performance');
     
     // ========== VERIFIED OWNERSHIP DOCUMENTS PAGE ==========
     Route::get('/ownership-verifications/verified', function () {

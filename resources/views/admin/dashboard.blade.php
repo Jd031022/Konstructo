@@ -326,7 +326,7 @@
     <!-- THIRD ROW -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <!-- Document Verification Queue -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 h-full">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Document Verification Queue</h2>
                 <a href="/admin/verification-queue" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
@@ -407,7 +407,7 @@
         </div>
 
         <!-- Staff Performance -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 h-full">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Staff Performance</h2>
                 <a href="/admin/staff" class="text-sm text-[#155386] hover:underline font-medium">View All →</a>
@@ -911,7 +911,10 @@
                         <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-gradient-to-r ${gradient} rounded-full flex items-center justify-center text-white text-xs font-bold">${initials || 'ST'}</div>
-                                <div><p class="text-sm font-medium text-gray-800">${staff.first_name || ''} ${staff.last_name || ''}</p><p class="text-xs text-gray-500">${staff.role || 'Staff'}</p></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">${staff.first_name || ''} ${staff.last_name || ''}</p>
+                                    <p class="text-xs text-gray-500">${staff.position || staff.role || 'Staff'}</p>
+                                </div>
                             </div>
                             <div class="text-right"><p class="text-sm font-bold ${staff.processed >= 15 ? 'text-green-600' : staff.processed >= 10 ? 'text-yellow-600' : 'text-gray-600'}">${staff.processed || 0}</p><p class="text-xs text-gray-400">this week</p></div>
                         </div>

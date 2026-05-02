@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\ApplicationDocument;
 use App\Models\ApplicationReviewActivity;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -68,6 +69,25 @@ class DashboardController extends Controller
                 ->whereYear('created_at', now()->year)
                 ->count();
             
+            $avgProcessingTime = 0;
+            $completedApps = ApplicationDocument::submitted()
+                ->where('status', 'verified')
+                ->whereNotNull('verified_at')
+                ->whereNotNull('created_at')
+                ->select('created_at', 'verified_at')
+                ->limit(100)
+                ->get();
+
+            if ($completedApps->count() > 0) {
+                $totalDays = 0;
+                foreach ($completedApps as $app) {
+                    $createdAt = strtotime($app->created_at);
+                    $verifiedAt = strtotime($app->verified_at);
+                    $totalDays += max(0, ($verifiedAt - $createdAt) / 86400);
+                }
+                $avgProcessingTime = round($totalDays / $completedApps->count(), 1);
+            }
+            
             return response()->json([
                 'total' => $total,
                 'pending' => $pending,
@@ -85,7 +105,8 @@ class DashboardController extends Controller
                     ->whereYear('created_at', now()->subMonth()->year)
                     ->count(),
                 'new_today' => $newToday,
-                'completion_rate' => $total > 0 ? round(($verified / $total) * 100) : 0
+                'completion_rate' => $total > 0 ? round(($verified / $total) * 100) : 0,
+                'avg_processing_time' => $avgProcessingTime . ' days'
             ]);
             
         } catch (\Exception $e) {
@@ -280,6 +301,63 @@ class DashboardController extends Controller
                 'daily_counts' => [],
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function getStaffPerformance()
+    {
+        try {
+            $staff = User::whereIn('role', ['staff', 'admin'])->get();
+            $performanceData = [];
+            $totalProcessed = 0;
+            
+            foreach ($staff as $user) {
+                $processed = ApplicationReviewActivity::where('reviewer_id', $user->id)
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count();
+                
+                $performanceData[] = [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'position' => optional($user->profile)->position ?? $user->position ?? $user->role,
+                    'role' => $user->role,
+                    'processed' => $processed,
+                ];
+                
+                $totalProcessed += $processed;
+            }
+            
+            usort($performanceData, function ($a, $b) {
+                return $b['processed'] - $a['processed'];
+            });
+            
+            $staffCount = count($staff);
+            $avgPerStaff = $staffCount > 0 ? round($totalProcessed / $staffCount, 1) : 0;
+            
+            $lastWeekProcessed = ApplicationReviewActivity::where('created_at', '>=', now()->subDays(14))
+                ->where('created_at', '<', now()->subDays(7))
+                ->count();
+            
+            $processedTrend = $lastWeekProcessed > 0
+                ? round((($totalProcessed - $lastWeekProcessed) / $lastWeekProcessed) * 100)
+                : 0;
+            
+            return response()->json([
+                'success' => true,
+                'staff' => array_slice($performanceData, 0, 5),
+                'total_processed' => $totalProcessed,
+                'avg_per_staff' => $avgPerStaff,
+                'processed_trend' => $processedTrend,
+                'avg_trend' => $processedTrend
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getStaffPerformance: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading staff performance'
+            ], 500);
         }
     }
     

@@ -32,6 +32,7 @@ class StaffPerformanceController extends Controller
                     'id' => $user->id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
+                    'position' => optional($user->profile)->position ?? $user->position ?? $user->role,
                     'role' => $user->role,
                     'processed' => $processed,
                 ];
