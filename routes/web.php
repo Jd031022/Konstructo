@@ -143,6 +143,29 @@ Route::get('/payment-assessments', function () {
     
     // ========== VIEW ROUTES ==========
     Route::get('/dashboard', function () { return view('staff.dashboard'); })->name('dashboard');
+    Route::get('/settings', function (Request $request) {
+        $user = auth()->user();
+        if (!$user || $user->role !== 'staff' || strtolower($user->profile?->position ?? '') !== 'mayor') {
+            abort(403);
+        }
+
+        $controller = app(App\Http\Controllers\Admin\SettingsController::class);
+        $response = $controller->index($request);
+
+        if ($response instanceof Illuminate\Contracts\View\View) {
+            return view('staff.settings', array_merge($response->getData(), ['currentTab' => $request->get('tab', 'system-logs')]));
+        }
+
+        return $response;
+    })->name('settings');
+    Route::get('/logs/export', function (Request $request) {
+        $user = auth()->user();
+        if (!$user || $user->role !== 'staff' || strtolower($user->profile?->position ?? '') !== 'mayor') {
+            abort(403);
+        }
+
+        return app(App\Http\Controllers\Admin\SettingsController::class)->exportLogs($request);
+    })->name('logs.export');
     Route::get('/application-details/{id}', function ($id) { return view('staff.application-details', ['applicationId' => $id]); })->name('application.details');
     Route::get('/applications/{id}/activity-history', function ($id) { return view('staff.activity-history', ['applicationId' => $id]); })->name('activity-history');
     Route::get('/applications', function () { return view('staff.applications'); })->name('applications');
