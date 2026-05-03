@@ -236,17 +236,6 @@
                     @endforeach
                 </div>
             </div>
-
-            <div class="mt-6 pt-4 border-t border-gray-100">
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">Estimated Review Completion:</span>
-                    <span id="estimated-time" class="font-semibold text-[#155386]">Calculating...</span>
-                </div>
-                <div class="flex items-center justify-between text-sm mt-1">
-                    <span class="text-gray-600">Target Release Date:</span>
-                    <span id="target-release" class="font-semibold text-[#155386]">-</span>
-                </div>
-            </div>
         </div>
 
         <!-- Main Grid -->
@@ -2524,13 +2513,6 @@
         document.getElementById('sanitary-engineer-license').textContent = app.sanitary_engineer_license || 'Not provided';
     }
     
-    function calculateEstimatedTime() {
-        if (!currentApplication) return;
-        const estimatedDate = new Date(new Date(currentApplication.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
-        document.getElementById('estimated-time').textContent = estimatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-        const releaseDate = new Date(estimatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-        document.getElementById('target-release').textContent = releaseDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
     
     function displayReviewActivities(activities) {
         const container = document.getElementById('activity-log');
@@ -3882,7 +3864,6 @@
             updateHardCopyStatus(currentApplication.hard_copy_received);
             if (currentApplication.document_links) displayDocumentChecklist(currentApplication.document_links);
             else showEmptyDocuments();
-            calculateEstimatedTime();
             displayProjectInformation(currentApplication);
         }
         if (reviewActivities.length > 0) displayReviewActivities(reviewActivities);
