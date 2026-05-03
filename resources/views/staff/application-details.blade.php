@@ -407,7 +407,7 @@
                         </div>
                     </div>
 
-                    <div id="verification-actions-container" class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between gap-3">
+                    <div id="verification-actions-container" class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between gap-3 hidden">
                         <button onclick="toggleMissingDocumentsDropdown()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm inline-flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -2540,7 +2540,7 @@
         }
         
         let html = '';
-        activities.slice(0, 10).forEach(a => {
+        activities.slice(-3).forEach(a => {
             const date = new Date(a.created_at);
             const now = new Date();
             const diffMins = Math.floor((now - date) / 60000);
@@ -2640,7 +2640,16 @@
         }
     }
     
-    function enableStep2Verification(enabled) {}
+    function enableStep2Verification(enabled) {
+        const verificationActions = document.getElementById('verification-actions-container');
+        if (verificationActions) {
+            if (enabled) {
+                verificationActions.classList.remove('hidden');
+            } else {
+                verificationActions.classList.add('hidden');
+            }
+        }
+    }
     function disableStatusUpdates() {
         const statusRadios = document.querySelectorAll('.status-radio');
         statusRadios.forEach(radio => { radio.disabled = true; });
@@ -3824,23 +3833,9 @@
         try {
             const csrfToken = getCsrfToken();
             
-            // Load current user info first
-            try {
-                const userResponse = await fetch('/staff/current-user', { 
-                    headers: { 'Accept': 'application/json' } 
-                });
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    if (userData.success && userData.user) {
-                        setCurrentUserInfo(userData.user);
-                        console.log('Current user loaded:', getCurrentUserInfo());
-                    }
-                }
-            } catch(e) {
-                console.error('Error loading user info:', e);
-            }
-            
-            const [positionRes, applicationRes, activitiesRes, ownershipRes, cpdoRes, assessmentRes, bfpRes, paymentProofRes] = await Promise.all([
+            // OPTIMIZATION: All API calls in parallel, including user info and assessments
+            const [userRes, positionRes, applicationRes, activitiesRes, ownershipRes, cpdoRes, assessmentRes, bfpRes, paymentProofRes] = await Promise.all([
+                fetch('/staff/current-user', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
                 fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
                 fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
                 fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
@@ -3851,30 +3846,35 @@
                 fetch(`/staff/applications/${applicationId}/payment-proof`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false }))
             ]);
             
-            if (positionRes.ok) { const data = await positionRes.json(); currentUserPosition = data.position || ''; console.log('Current user position:', currentUserPosition); }
+            // Process all responses in parallel
+            if (userRes.ok) { try { const userData = await userRes.json(); if (userData.success && userData.user) setCurrentUserInfo(userData.user); } catch(e) { console.error('Error parsing user data:', e); } }
+            if (positionRes.ok) { const data = await positionRes.json(); currentUserPosition = data.position || ''; }
             if (applicationRes.ok) { const data = await applicationRes.json(); if (data.success) { currentApplication = data.data; cpdoStatus = currentApplication.cpdo_status || 'pending'; cpdoRemarks = currentApplication.cpdo_remarks || null; cpdoApprovedBy = currentApplication.cpdo_approved_by || null; cpdoApprovedAt = currentApplication.cpdo_approved_at || null; if (currentApplication.applicant_name) { const clientNameEl = document.getElementById('cpdo-client-name'); if (clientNameEl) clientNameEl.textContent = currentApplication.applicant_name; } if (currentApplication.address) { const clientAddressEl = document.getElementById('cpdo-client-address'); if (clientAddressEl) clientAddressEl.textContent = currentApplication.address; } } }
             if (activitiesRes.ok) { const data = await activitiesRes.json(); if (data.success) reviewActivities = data.activities || []; }
             if (ownershipRes.ok) { const data = await ownershipRes.json(); if (data.success && data.data) currentOwnershipData = data.data; }
             if (cpdoRes.ok) { const data = await cpdoRes.json(); if (data.success && data.data) { cpdoStatus = data.data.status || cpdoStatus; cpdoRemarks = data.data.remarks || cpdoRemarks; cpdoApprovedBy = data.data.approved_by || cpdoApprovedBy; cpdoApprovedAt = data.data.approved_at || cpdoApprovedAt; } }
             if (assessmentRes.ok) { const data = await assessmentRes.json(); if (data.success && data.data) currentAssessment = data.data; }
             if (bfpRes.ok) { const data = await bfpRes.json(); if (data.success && data.data) bfpData = data.data; }
-            if (paymentProofRes.ok) { const data = await paymentProofRes.json(); if (data.success && data.data) { currentPaymentProof = data.data; console.log('Payment proof loaded:', currentPaymentProof); } }
+            if (paymentProofRes.ok) { const data = await paymentProofRes.json(); if (data.success && data.data) { currentPaymentProof = data.data; } }
             
+            // OPTIMIZATION: Load verification data once (not duplicated in renderAllData)
             loadDocumentVerificationStatus();
             loadOwnershipVerificationStatus();
             loadOwnershipRemarks();
-            await loadBuildingPermitAssessment();
-            await loadCPDOAssessment();
+            
+            // OPTIMIZATION: Synchronous render using already-loaded data (no additional fetches)
             renderAllData();
         } catch (error) { console.error('Error loading data:', error); showError(); } 
         finally { loadingState.classList.add('hidden'); contentDiv.classList.remove('hidden'); }
     }
     
     function renderAllData() {
-        loadDocumentVerificationStatus();
-        loadOwnershipVerificationStatus();
-        loadOwnershipRemarks();
+        // OPTIMIZATION: Removed duplicate calls - already executed in loadAllData()
+        // loadDocumentVerificationStatus();
+        // loadOwnershipVerificationStatus();
+        // loadOwnershipRemarks();
         loadPaymentProof();
+        
         if (currentApplication) {
             displayApplicationDetails();
             updateTimeline(currentApplication.status);
@@ -3889,16 +3889,111 @@
         else showEmptyActivities();
         if (currentOwnershipData) { displayOwnershipInfo(); displayOwnershipDocuments(); } 
         else displayEmptyOwnershipDocuments();
-        if (currentAssessment && currentAssessment.total_amount) { const assessmentNotice = document.getElementById('assessment-notice'); const assessmentTotal = document.getElementById('assessment-total'); if (assessmentNotice) assessmentNotice.classList.remove('hidden'); if (assessmentTotal) assessmentTotal.innerHTML = `Total Building Permit Fee: ${formatCurrency(currentAssessment.total_amount)}`; }
-        if (bfpData) {
-            if (bfpData.fsec_link) { const existingFsecContainer = document.getElementById('existing-fsec-container'); const fsecLink = document.getElementById('fsec-link'); const fsecFilename = document.getElementById('fsec-filename'); const fsecUploadDate = document.getElementById('fsec-upload-date'); if (existingFsecContainer) existingFsecContainer.classList.remove('hidden'); if (fsecLink) fsecLink.href = bfpData.fsec_link; if (bfpData.fsec_filename && fsecFilename) fsecFilename.textContent = bfpData.fsec_filename; if (bfpData.fsec_uploaded_at && fsecUploadDate) fsecUploadDate.textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString(); }
-            if (bfpData.bfp_comments) { const bfpCommentsDisplay = document.getElementById('bfp-comments-display'); const bfpCommentsText = document.getElementById('bfp-comments-text'); const bfpCommentsDate = document.getElementById('bfp-comments-date'); const bfpCommentsInput = document.getElementById('bfp-comments'); if (bfpCommentsDisplay) bfpCommentsDisplay.classList.remove('hidden'); if (bfpCommentsText) bfpCommentsText.textContent = bfpData.bfp_comments; if (bfpData.bfp_comments_updated_at && bfpCommentsDate) bfpCommentsDate.textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString(); if (bfpCommentsInput) bfpCommentsInput.value = bfpData.bfp_comments; }
-        }
+        
+        // OPTIMIZATION: Synchronous renders using global data (no re-fetching)
+        renderBuildingPermitAssessment();
+        renderCPDOAssessment();
+        
         updateCPDOUI();
         applyStatusRestrictions();
         applyHardCopyPermission();
         applyVerificationUIRestrictions();
         if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') { const bfpSection = document.getElementById('bfp-section'); if (bfpSection) bfpSection.classList.remove('hidden'); }
+    }
+    
+    // OPTIMIZATION: Synchronous render using global currentAssessment data
+    function renderBuildingPermitAssessment() {
+        const card = document.getElementById('building-permit-fee-card');
+        const displayDiv = document.getElementById('building-assessment-display');
+        const noAssessmentDiv = document.getElementById('building-no-assessment-message');
+        const statusBadge = document.getElementById('building-fee-status');
+        
+        if (!card || !currentAssessment) return;
+        
+        const hasAssessment = (parseFloat(currentAssessment.total_amount) > 0) || 
+                             (parseFloat(currentAssessment.line_grade) > 0) || 
+                             (parseFloat(currentAssessment.building_fee) > 0);
+        
+        card.classList.remove('hidden');
+        
+        if (hasAssessment) {
+            displayDiv.classList.remove('hidden');
+            noAssessmentDiv.classList.add('hidden');
+            if (statusBadge) {
+                statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+                statusBadge.textContent = 'Completed';
+            }
+            
+            document.getElementById('display-building-line-grade').textContent = formatCurrency(currentAssessment.line_grade);
+            document.getElementById('display-building-fee').textContent = formatCurrency(currentAssessment.building_fee);
+            document.getElementById('display-sanitary-fee').textContent = formatCurrency(currentAssessment.sanitary_fee);
+            document.getElementById('display-mechanical-fee').textContent = formatCurrency(currentAssessment.mechanical_fee);
+            document.getElementById('display-electrical-fee').textContent = formatCurrency(currentAssessment.electrical_fee);
+            document.getElementById('display-penalties-fees').textContent = formatCurrency(currentAssessment.penalties_fines);
+            document.getElementById('display-total-building').textContent = formatCurrency(currentAssessment.total_amount);
+            
+            // OPTIMIZATION: Use DocumentFragment to batch DOM insertions
+            const additionalContainer = document.getElementById('display-building-additional-fees-container');
+            additionalContainer.innerHTML = ''; // Clear first
+            let additionalFees = currentAssessment.additional_fees;
+            if (typeof additionalFees === 'string') {
+                try { additionalFees = JSON.parse(additionalFees); } catch(e) { additionalFees = []; }
+            }
+            if (additionalFees && additionalFees.length > 0) {
+                const fragment = document.createDocumentFragment();
+                additionalFees.forEach(fee => {
+                    if (fee.description || fee.amount) {
+                        const div = document.createElement('div');
+                        div.className = 'flex justify-between text-sm';
+                        div.innerHTML = `
+                            <span class="text-gray-600">${escapeHtml(fee.description) || 'Additional Fee'}:</span>
+                            <span class="font-medium">${formatCurrency(fee.amount)}</span>
+                        `;
+                        fragment.appendChild(div);
+                    }
+                });
+                additionalContainer.appendChild(fragment);
+            }
+            
+            if (currentAssessment.assessment_notes) {
+                document.getElementById('display-building-notes').classList.remove('hidden');
+                document.getElementById('display-building-notes-text').textContent = currentAssessment.assessment_notes;
+            } else {
+                document.getElementById('display-building-notes').classList.add('hidden');
+            }
+            
+            if (currentAssessment.assessed_by_name) {
+                document.getElementById('display-building-assessed-by').textContent = currentAssessment.assessed_by_name;
+                const assessedAt = currentAssessment.assessed_at ? new Date(currentAssessment.assessed_at).toLocaleString() : 'N/A';
+                document.getElementById('display-building-assessed-at').textContent = assessedAt;
+            }
+        }
+    }
+    
+    // OPTIMIZATION: Synchronous render using global bfpData data with batched DOM operations
+    function renderCPDOAssessment() {
+        if (bfpData) {
+            if (bfpData.fsec_link) { 
+                const existingFsecContainer = document.getElementById('existing-fsec-container'); 
+                const fsecLink = document.getElementById('fsec-link'); 
+                const fsecFilename = document.getElementById('fsec-filename'); 
+                const fsecUploadDate = document.getElementById('fsec-upload-date'); 
+                if (existingFsecContainer) existingFsecContainer.classList.remove('hidden'); 
+                if (fsecLink) fsecLink.href = bfpData.fsec_link; 
+                if (bfpData.fsec_filename && fsecFilename) fsecFilename.textContent = bfpData.fsec_filename; 
+                if (bfpData.fsec_uploaded_at && fsecUploadDate) fsecUploadDate.textContent = 'Uploaded: ' + new Date(bfpData.fsec_uploaded_at).toLocaleDateString(); 
+            }
+            if (bfpData.bfp_comments) { 
+                const bfpCommentsDisplay = document.getElementById('bfp-comments-display'); 
+                const bfpCommentsText = document.getElementById('bfp-comments-text'); 
+                const bfpCommentsDate = document.getElementById('bfp-comments-date'); 
+                const bfpCommentsInput = document.getElementById('bfp-comments'); 
+                if (bfpCommentsDisplay) bfpCommentsDisplay.classList.remove('hidden'); 
+                if (bfpCommentsText) bfpCommentsText.textContent = bfpData.bfp_comments; 
+                if (bfpData.bfp_comments_updated_at && bfpCommentsDate) bfpCommentsDate.textContent = 'Last updated: ' + new Date(bfpData.bfp_comments_updated_at).toLocaleString(); 
+                if (bfpCommentsInput) bfpCommentsInput.value = bfpData.bfp_comments; 
+            }
+        }
     }
     
     function loadFullActivityHistory() { window.location.href = `/staff/applications/${applicationId}/activity-history`; }

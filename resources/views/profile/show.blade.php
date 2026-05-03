@@ -124,18 +124,18 @@
                     </div>
                 </div>
                 @else
-                <!-- For all non-admin users - show their own application statistics with colored badges -->
+                <!-- For staff/admin users - show applications they've processed -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                        <span class="text-sm text-gray-600">Total Applications</span>
+                        <span class="text-sm text-gray-600">Applications Processed</span>
                         <span class="text-sm font-bold text-gray-800">{{ $user->total_applications ?? 0 }}</span>
                     </div>
                     <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                        <span class="text-sm text-gray-600">Draft</span>
+                        <span class="text-sm text-gray-600">Marked as Draft</span>
                         <span class="text-sm font-bold text-gray-500">{{ $user->draft_count ?? 0 }}</span>
                     </div>
                     <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                        <span class="text-sm text-gray-600">Pending Review</span>
+                        <span class="text-sm text-gray-600">Marked as Pending</span>
                         <span class="text-sm font-bold text-yellow-600">{{ $user->pending_count ?? 0 }}</span>
                     </div>
                     <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">

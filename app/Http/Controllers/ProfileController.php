@@ -39,25 +39,45 @@ class ProfileController extends Controller
         // Load profile relationship
         $user->load('profile');
         
-        // Load application document counts for the user (their own applications)
-        $user->loadCount([
-            'applicationDocuments as total_applications',
-            'applicationDocuments as draft_count' => function ($query) {
-                $query->where('status', 'draft');
-            },
-            'applicationDocuments as pending_count' => function ($query) {
-                $query->where('status', 'pending');
-            },
-            'applicationDocuments as verified_count' => function ($query) {
-                $query->where('status', 'verified');
-            },
-            'applicationDocuments as approved_count' => function ($query) {
-                $query->where('status', 'approved');
-            },
-            'applicationDocuments as rejected_count' => function ($query) {
-                $query->where('status', 'rejected');
-            },
-        ]);
+        // Load application document counts for the user (their own applications for applicants, processed applications for staff)
+        if ($user->role === 'applicant') {
+            // For applicants: show their own application statistics
+            $user->loadCount([
+                'applicationDocuments as total_applications',
+                'applicationDocuments as draft_count' => function ($query) {
+                    $query->where('status', 'draft');
+                },
+                'applicationDocuments as pending_count' => function ($query) {
+                    $query->where('status', 'pending');
+                },
+                'applicationDocuments as verified_count' => function ($query) {
+                    $query->where('status', 'verified');
+                },
+                'applicationDocuments as approved_count' => function ($query) {
+                    $query->where('status', 'approved');
+                },
+                'applicationDocuments as rejected_count' => function ($query) {
+                    $query->where('status', 'rejected');
+                },
+            ]);
+        } else {
+            // For staff/admin: show applications they've processed/reviewed
+            $processedCounts = \App\Models\ApplicationReviewActivity::where('reviewer_id', $user->id)
+                ->selectRaw('COUNT(DISTINCT application_id) as total_processed')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN new_status = \'draft\' THEN application_id END) as draft_count')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN new_status = \'pending\' THEN application_id END) as pending_count')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN new_status = \'verified\' THEN application_id END) as verified_count')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN new_status = \'approved\' THEN application_id END) as approved_count')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN new_status = \'rejected\' THEN application_id END) as rejected_count')
+                ->first();
+            
+            $user->total_applications = $processedCounts->total_processed ?? 0;
+            $user->draft_count = $processedCounts->draft_count ?? 0;
+            $user->pending_count = $processedCounts->pending_count ?? 0;
+            $user->verified_count = $processedCounts->verified_count ?? 0;
+            $user->approved_count = $processedCounts->approved_count ?? 0;
+            $user->rejected_count = $processedCounts->rejected_count ?? 0;
+        }
         
         return view('profile.show', compact('user'));
     }
