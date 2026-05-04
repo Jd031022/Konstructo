@@ -3843,6 +3843,7 @@
             loadDocumentVerificationStatus();
             loadOwnershipVerificationStatus();
             loadOwnershipRemarks();
+            await loadCPDOAssessment();
             
             // OPTIMIZATION: Synchronous render using already-loaded data (no additional fetches)
             renderAllData();
