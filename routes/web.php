@@ -324,7 +324,7 @@ Route::get('/payment-orders/{applicationId}', [App\Http\Controllers\Applicant\Ap
     Route::get('/application/details', [App\Http\Controllers\ApplicationDocumentController::class, 'getApplicationDetails'])->name('application.details');
     Route::get('/application/debug', [App\Http\Controllers\ApplicationDocumentController::class, 'debug'])->name('application.debug');
     Route::post('/application/create-draft', [ApplicationController::class, 'createDraft'])->name('application.create-draft');
-    Route::post('/application/submit', [App\Http\Controllers\ApplicationDocumentController::class, 'submitApplication'])->name('application.submit');
+   Route::post('/application/submit', [ApplicationController::class, 'submitApplication'])->name('application.submit');
     Route::post('/application/generate-number', [ApplicationController::class, 'generateApplicationNumber'])->name('application.generate-number');
     Route::get('/application/{id}/check-number', [ApplicationController::class, 'checkApplicationHasNumber'])->name('application.check-number');
     Route::post('/application/save-edited-pdf', [ApplicationController::class, 'saveEditedPdf'])->name('application.save-edited-pdf');

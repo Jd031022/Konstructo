@@ -501,7 +501,46 @@ class NotificationService
         
         Log::info('========== NOTIFY CPDO REJECTED END ==========');
     }
-
+/**
+ * Send notification when application is submitted (with application number)
+ * 
+ * @param ApplicationDocument $application
+ * @return void
+ */
+public function applicationSubmitted(ApplicationDocument $application)
+{
+    Log::info('========== APPLICATION SUBMITTED NOTIFICATION ==========');
+    Log::info('Parameters:', [
+        'application_id' => $application->id,
+        'application_number' => $application->application_number,
+        'applicant_id' => $application->user_id
+    ]);
+    
+    $applicant = $application->user;
+    
+    if (!$applicant) {
+        Log::error('❌ No applicant found for application submission notification!');
+        return;
+    }
+    
+    // Send email notification to applicant
+    try {
+        $this->sendApplicationSubmittedEmail($application, $applicant);
+        Log::info('✅ Application submission email sent to applicant: ' . $applicant->email);
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to send application submission email: ' . $e->getMessage());
+    }
+    
+    // Notify staff about new application
+    try {
+        $this->notifyStaffNewApplication($application);
+        Log::info('✅ Staff notified about new application');
+    } catch (\Exception $e) {
+        Log::error('❌ Failed to notify staff about new application: ' . $e->getMessage());
+    }
+    
+    Log::info('========== APPLICATION SUBMITTED NOTIFICATION END ==========');
+}
     /**
      * Send email notification for application submission (with application number)
      */
