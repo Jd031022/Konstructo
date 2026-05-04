@@ -18,13 +18,8 @@ use Illuminate\Support\Facades\Log;
 
 class FastLoadController extends Controller
 {
-    // Cache duration in seconds (5 minutes = 300 seconds for file cache)
     private $cacheDuration = 300;
     
-    /**
-     * Get all application data in a SINGLE optimized API call
-     * This replaces 9 separate API calls
-     */
     public function getApplicationData($id)
     {
         try {
@@ -33,17 +28,13 @@ class FastLoadController extends Controller
             $user = auth()->user();
             $userPosition = $user->profile->position ?? $user->role;
             
-            // Cache key based on application ID and user
             $cacheKey = "fast_load_app_{$id}_user_{$user->id}";
             
-            // Try to get from cache first (file cache works on Windows)
             $data = Cache::remember($cacheKey, $this->cacheDuration, function() use ($id, $userPosition) {
                 return $this->fetchAllApplicationData($id, $userPosition);
             });
             
             $loadTime = round((microtime(true) - $startTime) * 1000);
-            
-            Log::info("FastLoad completed in {$loadTime}ms for application {$id}");
             
             return response()->json([
                 'success' => true,
@@ -61,12 +52,9 @@ class FastLoadController extends Controller
         }
     }
     
-    /**
-     * Fetch all application data with optimized queries
-     */
     private function fetchAllApplicationData($id, $userPosition)
     {
-        // Get application with relationships (single query with eager loading)
+        // Get application with relationships
         $application = ApplicationDocument::with([
             'user:id,first_name,last_name,email,phone_number,address',
             'lastUpdatedBy:id,first_name,last_name,role'
@@ -76,19 +64,19 @@ class FastLoadController extends Controller
             return null;
         }
         
-        // Get assessment (single query)
+        // Get assessment
         $assessment = AssessmentFee::where('application_id', $id)->first();
         
-        // Get BFP data (single query)
+        // Get BFP data
         $bfpData = BfpApplicationData::where('application_id', $id)->first();
         
-        // Get ownership data (single query)
+        // Get ownership data
         $ownership = OwnershipVerification::where('application_id', $id)->first();
         
-        // Get payment proof/certificates (single query)
+        // Get payment proof/certificates
         $paymentProof = PaymentProof::where('application_id', $id)->first();
         
-        // Get last 5 activities (single query)
+        // Get activities
         $activities = ApplicationReviewActivity::with('reviewer')
             ->where('application_id', $id)
             ->orderBy('created_at', 'desc')
@@ -104,7 +92,7 @@ class FastLoadController extends Controller
         $isAssessor = $userPosition === 'assessor';
         $isTreasurer = $userPosition === 'treasurer';
         
-        // Filter document links (remove empty values)
+        // Filter document links
         $documentLinks = [];
         if ($application->document_links) {
             $documentLinks = array_filter($application->document_links, function($value) {
@@ -125,22 +113,28 @@ class FastLoadController extends Controller
             }
         }
         
-        // Get CPDO assessment data
+        // ========== CPDO ASSESSMENT DATA - FULL DETAILS ==========
         $cpdoAssessment = [
             'assessment_date' => $application->cpdo_assessment_date,
-            'zonal_location_fee' => $application->cpdo_zonal_location_fee,
-            'palc_fee' => $application->cpdo_palc_fee,
-            'development_permit_fee' => $application->cpdo_development_permit_fee,
-            'alteration_permit_fee' => $application->cpdo_alteration_permit_fee,
-            'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee,
-            'total_cpdo_amount' => $application->cpdo_total_amount,
+            'zonal_location_fee' => $application->cpdo_zonal_location_fee ?? 0,
+            'palc_fee' => $application->cpdo_palc_fee ?? 0,
+            'development_permit_fee' => $application->cpdo_development_permit_fee ?? 0,
+            'alteration_permit_fee' => $application->cpdo_alteration_permit_fee ?? 0,
+            'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee ?? 0,
+            'total_cpdo_amount' => $application->cpdo_total_amount ?? 0,
             'cpdo_assessment_notes' => $application->cpdo_assessment_notes,
             'cpdo_additional_fees' => [],
+            'has_assessment' => false
         ];
         
         // Parse additional fees
         if ($application->cpdo_additional_fees) {
             $cpdoAssessment['cpdo_additional_fees'] = json_decode($application->cpdo_additional_fees, true) ?: [];
+        }
+        
+        // Check if assessment exists
+        if ($application->cpdo_assessment_date || $application->cpdo_total_amount > 0 || !empty($cpdoAssessment['cpdo_additional_fees'])) {
+            $cpdoAssessment['has_assessment'] = true;
         }
         
         // Get assessed by name
@@ -153,6 +147,57 @@ class FastLoadController extends Controller
         }
         $cpdoAssessment['cpdo_assessed_by'] = $assessedByName;
         $cpdoAssessment['cpdo_assessed_at'] = $application->cpdo_assessed_at;
+        
+        // ========== CERTIFICATES DATA (for upload section) ==========
+        $certificates = [
+            'zoning_cert' => [
+                'link' => $paymentProof ? $paymentProof->zoning_cert_link : null,
+                'uploaded_at' => $paymentProof ? $paymentProof->zoning_cert_uploaded_at : null,
+                'uploaded_by' => null,
+                'is_uploaded' => $paymentProof && !empty($paymentProof->zoning_cert_link)
+            ],
+            'locational_clearance' => [
+                'link' => $paymentProof ? $paymentProof->locational_clearance_link : null,
+                'uploaded_at' => $paymentProof ? $paymentProof->locational_clearance_uploaded_at : null,
+                'uploaded_by' => null,
+                'is_uploaded' => $paymentProof && !empty($paymentProof->locational_clearance_link)
+            ]
+        ];
+        
+        // Get uploader names
+        if ($paymentProof && $paymentProof->zoning_cert_uploaded_by) {
+            $uploader = User::find($paymentProof->zoning_cert_uploaded_by);
+            if ($uploader) {
+                $certificates['zoning_cert']['uploaded_by'] = $uploader->first_name . ' ' . $uploader->last_name;
+            }
+        }
+        
+        if ($paymentProof && $paymentProof->locational_clearance_uploaded_by) {
+            $uploader = User::find($paymentProof->locational_clearance_uploaded_by);
+            if ($uploader) {
+                $certificates['locational_clearance']['uploaded_by'] = $uploader->first_name . ' ' . $uploader->last_name;
+            }
+        }
+        
+        // ========== BUILDING PERMIT ASSESSMENT DATA ==========
+        $buildingAssessment = null;
+        if ($assessment) {
+            $buildingAssessment = [
+                'id' => $assessment->id,
+                'line_grade' => $assessment->line_grade ?? 0,
+                'building_fee' => $assessment->building_fee ?? 0,
+                'sanitary_fee' => $assessment->sanitary_fee ?? 0,
+                'mechanical_fee' => $assessment->mechanical_fee ?? 0,
+                'electrical_fee' => $assessment->electrical_fee ?? 0,
+                'penalties_fines' => $assessment->penalties_fines ?? 0,
+                'total_amount' => $assessment->total_amount ?? 0,
+                'assessment_notes' => $assessment->assessment_notes,
+                'additional_fees' => $assessment->additional_fees ? (is_string($assessment->additional_fees) ? json_decode($assessment->additional_fees, true) : $assessment->additional_fees) : [],
+                'has_assessment' => ($assessment->total_amount > 0 || $assessment->line_grade > 0 || $assessment->building_fee > 0),
+                'assessed_by_name' => $assessment->assessed_by ? User::where('id', $assessment->assessed_by)->value('first_name') . ' ' . User::where('id', $assessment->assessed_by)->value('last_name') : null,
+                'assessed_at' => $assessment->assessed_at,
+            ];
+        }
         
         // Build the complete response
         return [
@@ -197,19 +242,13 @@ class FastLoadController extends Controller
                 'sanitary_engineer_name' => $application->sanitary_engineer_name,
                 'sanitary_engineer_license' => $application->sanitary_engineer_license,
                 
-                // Owner Information
-                'owner_name' => $application->owner_name,
-                'owner_address' => $application->owner_address,
-                'contact_number' => $application->contact_number,
-                'owner_email' => $application->owner_email,
-                
                 // CPDO Status
                 'cpdo_status' => $application->cpdo_status ?? 'pending',
                 'cpdo_remarks' => $application->cpdo_remarks,
                 'cpdo_approved_by' => $application->cpdo_approved_by,
                 'cpdo_approved_at' => $application->cpdo_approved_at,
                 
-                // CPDO Assessment
+                // CPDO Assessment (full details)
                 'cpdo_assessment' => $cpdoAssessment,
                 
                 // Document Links
@@ -221,20 +260,7 @@ class FastLoadController extends Controller
                 'archive_reason' => $application->archive_reason,
             ],
             
-            'assessment' => $assessment ? [
-                'id' => $assessment->id,
-                'line_grade' => $assessment->line_grade,
-                'building_fee' => $assessment->building_fee,
-                'sanitary_fee' => $assessment->sanitary_fee,
-                'mechanical_fee' => $assessment->mechanical_fee,
-                'electrical_fee' => $assessment->electrical_fee,
-                'penalties_fines' => $assessment->penalties_fines,
-                'total_amount' => $assessment->total_amount,
-                'assessment_notes' => $assessment->assessment_notes,
-                'additional_fees' => $assessment->additional_fees ? (is_string($assessment->additional_fees) ? json_decode($assessment->additional_fees, true) : $assessment->additional_fees) : [],
-                'assessed_by_name' => $assessment->assessed_by ? User::where('id', $assessment->assessed_by)->value('first_name') . ' ' . User::where('id', $assessment->assessed_by)->value('last_name') : null,
-                'assessed_at' => $assessment->assessed_at,
-            ] : null,
+            'assessment' => $buildingAssessment,
             
             'bfp_data' => $bfpData ? [
                 'fsec_link' => $bfpData->fsec_link,
@@ -261,7 +287,11 @@ class FastLoadController extends Controller
                 'locational_clearance_link' => $paymentProof->locational_clearance_link,
                 'zoning_cert_uploaded_at' => $paymentProof->zoning_cert_uploaded_at,
                 'locational_clearance_uploaded_at' => $paymentProof->locational_clearance_uploaded_at,
+                'zoning_cert_uploaded_by' => $paymentProof->zoning_cert_uploaded_by,
+                'locational_clearance_uploaded_by' => $paymentProof->locational_clearance_uploaded_by,
             ] : null,
+            
+            'certificates' => $certificates,
             
             'recent_activities' => $activities->map(function($activity) {
                 $reviewerName = 'System';
@@ -320,9 +350,6 @@ class FastLoadController extends Controller
         ];
     }
     
-    /**
-     * Clear cache for an application
-     */
     public function clearCache($id)
     {
         try {
@@ -341,9 +368,6 @@ class FastLoadController extends Controller
         }
     }
     
-    /**
-     * Get action display text
-     */
     private function getActionDisplayText($action)
     {
         $actionMap = [

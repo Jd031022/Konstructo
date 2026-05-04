@@ -1736,11 +1736,11 @@
         return (ownershipVerificationPermissions[documentKey] || []).includes(currentUserPosition);
     }
 
-    function isCPDOUser() {
-        if (isMonitoringRole()) return false;
-        return currentUserPosition === 'cpdo';
-    }
-
+function isCPDOUser() {
+    if (isMonitoringRole()) return false;
+    // Case-insensitive comparison
+    return currentUserPosition?.toLowerCase() === 'cpdo';
+}
     function checkStatusPermission(statusValue) {
         const monitoringAllowed = ['under-review', 'document-verification', 'for-assessment', 'approved', 'rejected', 'for-release', 'verified'];
         
@@ -2415,7 +2415,192 @@
             if (assessedByName && currentAssessment.assessed_by_name) assessedByName.textContent = currentAssessment.assessed_by_name;
         }
     }
+function renderCPDOAssessmentCard() {
+    const card = document.getElementById('cpdo-assessment-card');
+    if (!card) return;
+    
+    card.classList.remove('hidden');
+    
+    // Use isCPDOUser() function for permission check
+    const isCPDO = isCPDOUser();
+    const hasAssessment = currentApplication?.cpdo_assessment?.has_assessment === true;
+    
+    console.log('renderCPDOAssessmentCard - isCPDO:', isCPDO);
+    
+    const displayDiv = document.getElementById('cpdo-assessment-display');
+    const formDiv = document.getElementById('cpdo-assessment-form');
+    const noAssessmentDiv = document.getElementById('cpdo-no-assessment-message');
+    const statusBadge = document.getElementById('cpdo-assessment-status');
+    const editBtn = document.getElementById('edit-cpdo-assessment-btn');
+    
+    // Update permission badge
+    const certPermissionBadge = document.getElementById('cert-upload-permission-badge');
+    if (certPermissionBadge) {
+        certPermissionBadge.textContent = isCPDO ? '(CPDO - Can Upload/Edit)' : '(View Only)';
+        certPermissionBadge.className = isCPDO ? 'text-xs text-green-600 font-medium' : 'text-xs text-gray-500';
+    }
+    
+    const cpdoAssessment = currentApplication?.cpdo_assessment || {};
+    const assessmentExists = cpdoAssessment.assessment_date || cpdoAssessment.total_cpdo_amount > 0;
+    
+    if (assessmentExists) {
+        // Show display view for everyone
+        if (displayDiv) displayDiv.classList.remove('hidden');
+        if (formDiv) formDiv.classList.add('hidden');
+        if (noAssessmentDiv) noAssessmentDiv.classList.add('hidden');
+        if (statusBadge) {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            statusBadge.textContent = 'Completed';
+        }
+        
+        // Populate display data (same for all users)
+        setElementText('display-assessment-date', cpdoAssessment.assessment_date);
+        setElementText('display-zonal-fee', formatCurrency(cpdoAssessment.zonal_location_fee));
+        setElementText('display-palc-fee', formatCurrency(cpdoAssessment.palc_fee));
+        setElementText('display-dev-fee', formatCurrency(cpdoAssessment.development_permit_fee));
+        setElementText('display-alt-fee', formatCurrency(cpdoAssessment.alteration_permit_fee));
+        setElementText('display-zoning-fee', formatCurrency(cpdoAssessment.site_zoning_certificate_fee));
+        setElementText('display-total-cpdo', formatCurrency(cpdoAssessment.total_cpdo_amount));
+        
+        // Show/hide edit button only for CPDO
+        if (editBtn) {
+            editBtn.classList.toggle('hidden', !isCPDO);
+        }
+        
+    } else if (isCPDO) {
+        // Show edit form only for CPDO
+        if (displayDiv) displayDiv.classList.add('hidden');
+        if (formDiv) formDiv.classList.remove('hidden');
+        if (noAssessmentDiv) noAssessmentDiv.classList.add('hidden');
+        if (statusBadge) {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            statusBadge.textContent = 'Not Created';
+        }
+        
+        // Set default values
+        const dateInput = document.getElementById('cpdo-assessment-date');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+        
+        // Set client info
+        const clientNameSpan = document.getElementById('cpdo-client-name');
+        const clientAddressSpan = document.getElementById('cpdo-client-address');
+        if (clientNameSpan) clientNameSpan.textContent = currentApplication?.applicant_name || 'N/A';
+        if (clientAddressSpan) clientAddressSpan.textContent = currentApplication?.address || 'N/A';
+        
+    } else {
+        // Show "no assessment" message for non-CPDO users
+        if (displayDiv) displayDiv.classList.add('hidden');
+        if (formDiv) formDiv.classList.add('hidden');
+        if (noAssessmentDiv) noAssessmentDiv.classList.remove('hidden');
+        if (statusBadge) {
+            statusBadge.className = 'ml-2 text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
+            statusBadge.textContent = 'Not Created';
+        }
+    }
+    
+    // Helper function for setting element text
+    function setElementText(id, value, defaultValue = 'N/A') {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value || defaultValue;
+    }
+}
 
+function renderCertificatesSection() {
+    const isCPDO = isCPDOUser();
+    
+    console.log('renderCertificatesSection - isCPDO:', isCPDO);
+    console.log('currentPaymentProof:', currentPaymentProof);
+    
+    // Update permission badge
+    const certPermissionBadge = document.getElementById('cert-upload-permission-badge');
+    if (certPermissionBadge) {
+        certPermissionBadge.textContent = isCPDO ? '(CPDO - Can Upload/Remove)' : '(View Only)';
+        certPermissionBadge.className = isCPDO ? 'text-xs text-green-600 font-medium' : 'text-xs text-gray-500';
+    }
+    
+    // Get certificate data from currentPaymentProof
+    const zoningCertLink = currentPaymentProof?.zoning_cert_link;
+    const locationalClearanceLink = currentPaymentProof?.locational_clearance_link;
+    
+    // Zoning Certificate Section
+    const zoningDisplay = document.getElementById('zoning-cert-display');
+    const zoningForm = document.getElementById('zoning-cert-form');
+    const zoningStatus = document.getElementById('zoning-cert-status');
+    const zoningLink = document.getElementById('zoning-cert-link');
+    const zoningRemoveBtn = document.getElementById('zoning-cert-remove-btn');
+    
+    if (zoningCertLink) {
+        // Has certificate - show display view
+        if (zoningDisplay) {
+            zoningDisplay.classList.remove('hidden');
+            // Update the link text to be shorter if needed
+            const linkText = zoningCertLink.length > 50 ? zoningCertLink.substring(0, 50) + '...' : zoningCertLink;
+            if (zoningLink) {
+                zoningLink.href = zoningCertLink;
+                zoningLink.textContent = linkText;
+            }
+        }
+        if (zoningForm) zoningForm.classList.add('hidden');
+        if (zoningStatus) {
+            zoningStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            zoningStatus.textContent = 'Uploaded';
+        }
+        if (zoningRemoveBtn) {
+            zoningRemoveBtn.classList.toggle('hidden', !isCPDO);
+        }
+    } else {
+        // No certificate - show upload form for CPDO, otherwise show "Not Uploaded"
+        if (zoningDisplay) zoningDisplay.classList.add('hidden');
+        if (zoningStatus) {
+            zoningStatus.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            zoningStatus.textContent = 'Not Uploaded';
+        }
+        if (zoningForm) {
+            zoningForm.classList.toggle('hidden', !isCPDO);
+        }
+        if (zoningRemoveBtn) zoningRemoveBtn.classList.add('hidden');
+    }
+    
+    // Locational Clearance Section
+    const locationalDisplay = document.getElementById('locational-display');
+    const locationalForm = document.getElementById('locational-form');
+    const locationalStatus = document.getElementById('locational-status');
+    const locationalLink = document.getElementById('locational-link');
+    const locationalRemoveBtn = document.getElementById('locational-remove-btn');
+    
+    if (locationalClearanceLink) {
+        // Has certificate - show display view
+        if (locationalDisplay) {
+            locationalDisplay.classList.remove('hidden');
+            const linkText = locationalClearanceLink.length > 50 ? locationalClearanceLink.substring(0, 50) + '...' : locationalClearanceLink;
+            if (locationalLink) {
+                locationalLink.href = locationalClearanceLink;
+                locationalLink.textContent = linkText;
+            }
+        }
+        if (locationalForm) locationalForm.classList.add('hidden');
+        if (locationalStatus) {
+            locationalStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full';
+            locationalStatus.textContent = 'Uploaded';
+        }
+        if (locationalRemoveBtn) {
+            locationalRemoveBtn.classList.toggle('hidden', !isCPDO);
+        }
+    } else {
+        // No certificate - show upload form for CPDO, otherwise show "Not Uploaded"
+        if (locationalDisplay) locationalDisplay.classList.add('hidden');
+        if (locationalStatus) {
+            locationalStatus.className = 'text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full';
+            locationalStatus.textContent = 'Not Uploaded';
+        }
+        if (locationalForm) {
+            locationalForm.classList.toggle('hidden', !isCPDO);
+        }
+        if (locationalRemoveBtn) locationalRemoveBtn.classList.add('hidden');
+    }
+}
     function renderCPDOAssessment() {
         if (!bfpData) return;
         
@@ -3236,100 +3421,153 @@
         }
     }
 
-    async function uploadCertificate(type) {
-        if (!isCPDOUser()) {
-            showErrorModal('Permission Denied', 'Only CPDO staff can upload certificates.');
-            return;
-        }
-        const inputId = type === 'zoning_cert' ? 'zoning-cert-link-input' : 'locational-link-input';
-        const button = document.querySelector(type === 'zoning_cert' ? '#zoning-cert-form button' : '#locational-form button');
-        const link = document.getElementById(inputId)?.value.trim();
+   async function uploadCertificate(type) {
+    if (!isCPDOUser()) {
+        showErrorModal('Permission Denied', 'Only CPDO staff can upload certificates.');
+        return;
+    }
+    
+    const inputId = type === 'zoning_cert' ? 'zoning-cert-link-input' : 'locational-link-input';
+    const button = document.querySelector(type === 'zoning_cert' ? '#zoning-cert-form button' : '#locational-form button');
+    const link = document.getElementById(inputId)?.value.trim();
+    
+    if (!link) {
+        showErrorModal('Link Required', 'Please provide a Google Drive link to the certificate.');
+        return;
+    }
+    if (!link.includes('drive.google.com') && !link.includes('docs.google.com')) {
+        showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
+        return;
+    }
+    
+    const originalText = button?.innerHTML || '';
+    if (button) { 
+        button.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'; 
+        button.disabled = true; 
+    }
+    showSubmittingModal(`Uploading ${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'}...`);
+    
+    try {
+        const csrfToken = getCsrfToken();
+        let paymentProofId = currentPaymentProof?.id;
         
-        if (!link) {
-            showErrorModal('Link Required', 'Please provide a Google Drive link to the certificate.');
-            return;
-        }
-        if (!link.includes('drive.google.com') && !link.includes('docs.google.com')) {
-            showErrorModal('Invalid Link', 'Please provide a valid Google Drive link.');
-            return;
+        if (!paymentProofId) {
+            const createResponse = await fetch(`/staff/applications/${applicationId}/create-payment-proof`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+            const createData = await createResponse.json();
+            if (createData.success && createData.data) {
+                paymentProofId = createData.data.id;
+                currentPaymentProof = createData.data;
+            } else {
+                throw new Error(createData.message || 'Failed to create payment proof record');
+            }
         }
         
-        const originalText = button?.innerHTML || '';
-        if (button) { button.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'; button.disabled = true; }
-        showSubmittingModal(`Uploading ${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'}...`);
+        const response = await fetch(`/staff/payment-proof/${paymentProofId}/upload-certificate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ type, link })
+        });
         
-        try {
-            const csrfToken = getCsrfToken();
-            let paymentProofId = currentPaymentProof?.id;
-            if (!paymentProofId) {
-                const createResponse = await fetch(`/staff/applications/${applicationId}/create-payment-proof`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            // IMPORTANT: Update currentPaymentProof with the new data
+            if (data.data) {
+                currentPaymentProof = data.data;
+            } else {
+                // Refresh payment proof data from server
+                const refreshResponse = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
-                const createData = await createResponse.json();
-                if (createData.success && createData.data) {
-                    paymentProofId = createData.data.id;
-                    currentPaymentProof = createData.data;
-                } else {
-                    throw new Error(createData.message || 'Failed to create payment proof record');
+                const refreshData = await refreshResponse.json();
+                if (refreshData.success && refreshData.data) {
+                    currentPaymentProof = refreshData.data;
                 }
             }
             
-            const response = await fetch(`/staff/payment-proof/${paymentProofId}/upload-certificate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: JSON.stringify({ type, link })
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                showSuccessModal('Upload Successful', data.message);
-                if (document.getElementById(inputId)) document.getElementById(inputId).value = '';
-                if (data.data) currentPaymentProof = data.data;
-                await loadCPDOAssessment();
-            } else {
-                showErrorModal('Upload Failed', data.message || 'Failed to upload certificate');
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            showErrorModal('Error', 'Failed to upload certificate: ' + (error.message || 'Please try again.'));
-        } finally {
-            if (button) { button.innerHTML = originalText; button.disabled = false; }
+            // Clear the input field
+            document.getElementById(inputId).value = '';
+            
+            // Re-render the certificates section to show the uploaded certificate
+            renderCertificatesSection();
+            
+            // Also re-render the CPDO assessment card in case it needs update
+            renderCPDOAssessmentCard();
+            
+            showSuccessModal('Upload Successful', data.message);
+        } else {
+            showErrorModal('Upload Failed', data.message || 'Failed to upload certificate');
+        }
+    } catch(error) {
+        closeSubmittingModal();
+        console.error('Error uploading certificate:', error);
+        showErrorModal('Error', 'Failed to upload certificate: ' + (error.message || 'Please try again.'));
+    } finally {
+        if (button) { 
+            button.innerHTML = originalText; 
+            button.disabled = false; 
         }
     }
-
-    async function removeCertificate(type) {
-        if (!isCPDOUser()) {
-            showErrorModal('Permission Denied', 'Only CPDO staff can remove certificates.');
-            return;
-        }
-        if (!currentPaymentProof) {
-            showErrorModal('Error', 'No certificate found to remove');
-            return;
-        }
-        const confirmMsg = type === 'zoning_cert' ? 'Are you sure you want to remove the Zoning Certificate? This action cannot be undone.' : 'Are you sure you want to remove the Locational Clearance? This action cannot be undone.';
-        if (!confirm(confirmMsg)) return;
-        showSubmittingModal('Removing certificate...');
-        try {
-            const csrfToken = getCsrfToken();
-            const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/remove-certificate`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: JSON.stringify({ type })
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                showSuccessModal('Removed', `${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'} has been removed successfully.`);
-                await loadCPDOAssessment();
-            } else {
-                showErrorModal('Remove Failed', data.message || 'Failed to remove certificate');
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            showErrorModal('Error', 'Failed to remove certificate. Please try again.');
-        }
+}
+   async function removeCertificate(type) {
+    if (!isCPDOUser()) {
+        showErrorModal('Permission Denied', 'Only CPDO staff can remove certificates.');
+        return;
     }
+    
+    if (!currentPaymentProof) {
+        showErrorModal('Error', 'No certificate found to remove');
+        return;
+    }
+    
+    const confirmMsg = type === 'zoning_cert' 
+        ? 'Are you sure you want to remove the Zoning Certificate? This action cannot be undone.' 
+        : 'Are you sure you want to remove the Locational Clearance? This action cannot be undone.';
+    
+    if (!confirm(confirmMsg)) return;
+    
+    showSubmittingModal('Removing certificate...');
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const response = await fetch(`/staff/payment-proof/${currentPaymentProof.id}/remove-certificate`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ type })
+        });
+        
+        const data = await response.json();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            // Refresh payment proof data from server
+            const refreshResponse = await fetch(`/staff/applications/${applicationId}/payment-proof`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            });
+            const refreshData = await refreshResponse.json();
+            if (refreshData.success && refreshData.data) {
+                currentPaymentProof = refreshData.data;
+            } else {
+                currentPaymentProof = null;
+            }
+            
+            // Re-render the certificates section to hide the removed certificate
+            renderCertificatesSection();
+            
+            showSuccessModal('Removed', `${type === 'zoning_cert' ? 'Zoning Certificate' : 'Locational Clearance'} has been removed successfully.`);
+        } else {
+            showErrorModal('Remove Failed', data.message || 'Failed to remove certificate');
+        }
+    } catch(error) {
+        closeSubmittingModal();
+        console.error('Error removing certificate:', error);
+        showErrorModal('Error', 'Failed to remove certificate. Please try again.');
+    }
+}
 
     function openVerifyDocModal(documentKey, documentName, documentLink) {
         if (!canVerifyDocuments()) {
@@ -3725,7 +3963,6 @@
     try {
         const startTime = performance.now();
         
-        // SINGLE API CALL - This replaces all 9 separate calls!
         const response = await fetch(`/staff/fast-load/application/${applicationId}`, {
             headers: {
                 'Accept': 'application/json',
@@ -3744,7 +3981,7 @@
             currentUserPosition = data.user_info.position;
             window.KonstructoUser = data.user_info;
             
-            // Set application data
+            // Set application data (includes cpdo_assessment)
             currentApplication = data.application;
             currentAssessment = data.assessment;
             bfpData = data.bfp_data;
@@ -3752,16 +3989,22 @@
             currentPaymentProof = data.payment_proof;
             reviewActivities = data.recent_activities || [];
             
-            // Set CPDO status
+            // Set CPDO status from application
             cpdoStatus = currentApplication.cpdo_status || 'pending';
             cpdoRemarks = currentApplication.cpdo_remarks;
             
-            // Load local storage data (synchronous, fast)
+            // IMPORTANT: Store CPDO assessment data for use in renderers
+            window.cpdoAssessmentData = currentApplication.cpdo_assessment || {};
+            
+            console.log('CPDO Assessment Data:', window.cpdoAssessmentData);
+            console.log('Has CPDO Assessment:', window.cpdoAssessmentData.has_assessment);
+            
+            // Load local storage data
             loadDocumentVerificationStatus();
             loadOwnershipVerificationStatus();
             loadOwnershipRemarks();
             
-            // Render everything immediately
+            // Render everything
             renderAllData();
             
         } else {
@@ -3778,51 +4021,62 @@
     }
 }
 
-    function renderAllData() {
-        loadPaymentProof();
-        
-        if (currentApplication) {
-            displayApplicationDetails();
-            updateTimeline(currentApplication.status);
-            updateProgress(currentApplication.status);
-            updateHardCopyStatus(currentApplication.hard_copy_received);
-            if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
-                displayDocumentChecklist(currentApplication.document_links);
-            } else {
-                showEmptyDocuments();
-            }
-            displayProjectInformation(currentApplication);
-        }
-        
-        if (reviewActivities && reviewActivities.length > 0) {
-            displayReviewActivities(reviewActivities);
+  function renderAllData() {
+    console.log('========== RENDER ALL DATA DEBUG ==========');
+    console.log('currentUserPosition:', currentUserPosition);
+    console.log('isCPDOUser() result:', isCPDOUser());
+    
+    loadPaymentProof();
+    
+    if (currentApplication) {
+        displayApplicationDetails();
+        updateTimeline(currentApplication.status);
+        updateProgress(currentApplication.status);
+        updateHardCopyStatus(currentApplication.hard_copy_received);
+        if (currentApplication.document_links && Object.keys(currentApplication.document_links).length > 0) {
+            displayDocumentChecklist(currentApplication.document_links);
         } else {
-            const activityLog = document.getElementById('activity-log');
-            if (activityLog) activityLog.innerHTML = '<div class="text-center py-8 text-gray-500">No activity yet</div>';
+            showEmptyDocuments();
         }
-        
-        if (currentOwnershipData && Object.keys(currentOwnershipData).length > 0) {
-            displayOwnershipInfo();
-            displayOwnershipDocuments();
-        } else {
-            displayEmptyOwnershipDocuments();
-        }
-        
-        renderBuildingPermitAssessment();
-        renderCPDOAssessment();
-        
-        updateCPDOUI();
-        applyStatusRestrictions();
-        applyHardCopyPermission();
-        applyVerificationUIRestrictions();
-        applyMonitoringRestrictions();
-        
-        if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
-            const bfpSection = document.getElementById('bfp-section');
-            if (bfpSection) bfpSection.classList.remove('hidden');
-        }
+        displayProjectInformation(currentApplication);
     }
-
+    
+    if (reviewActivities && reviewActivities.length > 0) {
+        displayReviewActivities(reviewActivities);
+    } else {
+        const activityLog = document.getElementById('activity-log');
+        if (activityLog) activityLog.innerHTML = '<div class="text-center py-8 text-gray-500">No activity yet</div>';
+    }
+    
+    if (currentOwnershipData && Object.keys(currentOwnershipData).length > 0) {
+        displayOwnershipInfo();
+        displayOwnershipDocuments();
+    } else {
+        displayEmptyOwnershipDocuments();
+    }
+    
+    // Show building permit assessment
+    renderBuildingPermitAssessment();
+    
+    // ========== ADD THESE MISSING FUNCTION CALLS ==========
+    // Show CPDO assessment card
+    renderCPDOAssessmentCard();
+    
+    // Show certificates upload section (Zoning Certificate & Locational Clearance)
+    renderCertificatesSection();
+    // =====================================================
+    
+    updateCPDOUI();
+    applyStatusRestrictions();
+    applyHardCopyPermission();
+    applyVerificationUIRestrictions();
+    applyMonitoringRestrictions();
+    
+    if (currentUserPosition && currentUserPosition.toUpperCase() === 'BFP') {
+        const bfpSection = document.getElementById('bfp-section');
+        if (bfpSection) bfpSection.classList.remove('hidden');
+    }
+}
     // ========== EVENT LISTENERS ==========
     document.addEventListener('DOMContentLoaded', function() {
         if (applicationId && !isNaN(applicationId)) {
