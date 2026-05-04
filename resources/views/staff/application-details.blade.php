@@ -1029,7 +1029,7 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-semibold text-gray-800">Activity Log</h2>
-                            <span class="text-xs text-gray-400">Last 5 activities</span>
+                            <span class="text-xs text-gray-400">Recent activities</span>
                         </div>
                         <div id="activity-log" class="space-y-3 min-h-[250px]">
                             <div class="text-center py-8 text-gray-500">
@@ -2186,16 +2186,16 @@ function isCPDOUser() {
         }
         
         let html = '';
-        activities.slice(-3).forEach(a => {
+        activities.slice(0, 3).forEach(a => {
             const date = new Date(a.created_at);
             const diffMins = Math.floor((new Date() - date) / 60000);
             let timeAgo = diffMins < 1 ? 'just now' : diffMins < 60 ? diffMins + ' min ago' : diffMins < 1440 ? Math.floor(diffMins / 60) + ' hours ago' : Math.floor(diffMins / 1440) + ' days ago';
             
             let iconColor = 'blue', iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />';
-            if (a.action_type === 'document_verified') {
+            if (a.action_type === 'document_verified' || a.action_type === 'ownership_document_verified') {
                 iconColor = 'green';
                 iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
-            } else if (a.action_type === 'document_reset' || a.action_type === 'batch_reset_all') {
+            } else if (a.action_type === 'document_reset' || a.action_type === 'batch_reset_all' || a.action_type === 'ownership_document_unverified') {
                 iconColor = 'red';
                 iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />';
             }
