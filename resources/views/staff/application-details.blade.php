@@ -2563,38 +2563,56 @@
     }
 
     // ========== API CALL FUNCTIONS ==========
-    async function processStatusUpdate(status, additionalData = {}) {
-        const btn = document.getElementById('update-status-btn');
-        const original = btn?.innerHTML || '';
-        if (btn) { btn.innerHTML = 'Updating...'; btn.disabled = true; }
+   async function processStatusUpdate(status, additionalData = {}) {
+    const btn = document.getElementById('update-status-btn');
+    const original = btn ? btn.innerHTML : '';
+    if (btn) { btn.innerHTML = 'Updating...'; btn.disabled = true; }
+    
+    const remarks = document.getElementById('status-remarks')?.value || '';
+    showSubmittingModal('Updating application status...');
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const payload = { 
+            status: status, 
+            remarks: remarks, 
+            hardcopy_received: document.getElementById('hardcopy-checkbox')?.checked || false, 
+            ...additionalData 
+        };
         
-        const remarks = document.getElementById('status-remarks')?.value || '';
-        showSubmittingModal('Updating application status...');
+        const response = await fetch(`/staff/applications/${applicationId}/status`, {
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
         
-        try {
-            const csrfToken = getCsrfToken();
-            const payload = { status, remarks, hardcopy_received: document.getElementById('hardcopy-checkbox')?.checked || false, ...additionalData };
-            const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            closeSubmittingModal();
+        closeSubmittingModal();
+        
+        if (data.success) {
+            // Clear the cache after successful update
+            await fetch(`/staff/fast-load/clear-cache/${applicationId}`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            }).catch(err => console.error('Cache clear error:', err));
             
-            if (data.success) {
-                showSuccessModal('Status Updated', additionalData.building_permit_number ? `Building Permit #${additionalData.building_permit_number} issued successfully.` : 'Application status updated successfully.');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showErrorModal('Update Failed', data.message || 'Failed to update status');
-            }
-        } catch(error) {
-            closeSubmittingModal();
-            showErrorModal('Error', 'Error updating status');
-        } finally {
-            if (btn) { btn.innerHTML = original; btn.disabled = false; }
+            let successMessage = 'Application status has been updated successfully.';
+            if (additionalData.building_permit_number) successMessage = `Building Permit #${additionalData.building_permit_number} has been issued successfully.`;
+            showSuccessModal('Status Updated', successMessage);
+            
+            // Reload data to show updated status
+            setTimeout(() => location.reload(), 1500);
+        } else { 
+            showErrorModal('Update Failed', data.message || 'Failed to update status'); 
         }
+    } catch(error) { 
+        closeSubmittingModal(); 
+        console.error('Error:', error); 
+        showErrorModal('Error', 'Error updating status'); 
+    } finally { 
+        if (btn) { btn.innerHTML = original; btn.disabled = false; }
     }
+}
 
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
@@ -3700,99 +3718,65 @@
     }
 
     // ========== MAIN LOAD FUNCTION ==========
-    async function loadAllData() {
-        const loadingState = document.getElementById('loading-state');
-        const contentDiv = document.getElementById('application-content');
+   async function loadAllData() {
+    const loadingState = document.getElementById('loading-state');
+    const contentDiv = document.getElementById('application-content');
+    
+    try {
+        const startTime = performance.now();
         
-        try {
-            const csrfToken = getCsrfToken();
-            const [userRes, positionRes, applicationRes, activitiesRes, ownershipRes, cpdoRes, assessmentRes, bfpRes, paymentProofRes] = await Promise.all([
-                fetch('/staff/current-user', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
-                fetch('/staff/position/check', { headers: { 'Accept': 'application/json' } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/review-activities`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/ownership`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/cpdo-status`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/assessment`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/bfp-data`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false })),
-                fetch(`/staff/applications/${applicationId}/payment-proof`, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }).catch(() => ({ ok: false }))
-            ]);
-            
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                if (userData.success && userData.user) {
-                    window.KonstructoUser = {
-                        id: userData.user.id,
-                        name: userData.user.name,
-                        position: userData.user.position,
-                        email: userData.user.email
-                    };
-                }
+        // SINGLE API CALL - This replaces all 9 separate calls!
+        const response = await fetch(`/staff/fast-load/application/${applicationId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
             }
+        });
+        
+        const result = await response.json();
+        const loadTime = performance.now() - startTime;
+        console.log(`✅ FastLoad completed in ${loadTime.toFixed(0)}ms | From cache: ${result.from_cache}`);
+        
+        if (result.success && result.data) {
+            const data = result.data;
             
-            if (positionRes.ok) {
-                const data = await positionRes.json();
-                currentUserPosition = data.position || '';
-            }
+            // Set current user position and permissions
+            currentUserPosition = data.user_info.position;
+            window.KonstructoUser = data.user_info;
             
-            if (applicationRes.ok) {
-                const data = await applicationRes.json();
-                if (data.success) {
-                    currentApplication = data.data;
-                    cpdoStatus = currentApplication.cpdo_status || 'pending';
-                    cpdoRemarks = currentApplication.cpdo_remarks || null;
-                    cpdoApprovedBy = currentApplication.cpdo_approved_by || null;
-                    cpdoApprovedAt = currentApplication.cpdo_approved_at || null;
-                }
-            }
+            // Set application data
+            currentApplication = data.application;
+            currentAssessment = data.assessment;
+            bfpData = data.bfp_data;
+            currentOwnershipData = data.ownership_data;
+            currentPaymentProof = data.payment_proof;
+            reviewActivities = data.recent_activities || [];
             
-            if (activitiesRes.ok) {
-                const data = await activitiesRes.json();
-                if (data.success) reviewActivities = data.activities || [];
-            }
+            // Set CPDO status
+            cpdoStatus = currentApplication.cpdo_status || 'pending';
+            cpdoRemarks = currentApplication.cpdo_remarks;
             
-            if (ownershipRes.ok) {
-                const data = await ownershipRes.json();
-                if (data.success && data.data) currentOwnershipData = data.data;
-            }
-            
-            if (cpdoRes.ok) {
-                const data = await cpdoRes.json();
-                if (data.success && data.data) {
-                    cpdoStatus = data.data.status || cpdoStatus;
-                    cpdoRemarks = data.data.remarks || cpdoRemarks;
-                }
-            }
-            
-            if (assessmentRes.ok) {
-                const data = await assessmentRes.json();
-                if (data.success && data.data) currentAssessment = data.data;
-            }
-            
-            if (bfpRes.ok) {
-                const data = await bfpRes.json();
-                if (data.success && data.data) bfpData = data.data;
-            }
-            
-            if (paymentProofRes.ok) {
-                const data = await paymentProofRes.json();
-                if (data.success && data.data) currentPaymentProof = data.data;
-            }
-            
+            // Load local storage data (synchronous, fast)
             loadDocumentVerificationStatus();
             loadOwnershipVerificationStatus();
             loadOwnershipRemarks();
-            await loadCPDOAssessment();
             
+            // Render everything immediately
             renderAllData();
-        } catch (error) {
-            console.error('Error loading data:', error);
-            showError();
-        } finally {
-            if (loadingState) loadingState.classList.add('hidden');
-            if (contentDiv) contentDiv.classList.remove('hidden');
+            
+        } else {
+            console.error('Failed to load data:', result);
+            showErrorModal('Error', result.message || 'Failed to load application');
         }
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showError();
+    } finally {
+        if (loadingState) loadingState.classList.add('hidden');
+        if (contentDiv) contentDiv.classList.remove('hidden');
     }
+}
 
     function renderAllData() {
         loadPaymentProof();
