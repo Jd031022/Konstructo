@@ -423,6 +423,26 @@ Route::get('/dashboard', function () {
 // Profile routes
 Route::get('/profile/profile', function () { return view('profile.profile'); });
 Route::get('/profile/avatar-info', [App\Http\Controllers\ProfileController::class, 'getAvatarInfo'])->name('profile.avatar.info');
+ 
+Route::get('/profile/info', function () {
+        $user = Auth::user();
+        $profile = $user->profile;
+        
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'profile' => $profile ? [
+                    'position' => $profile->position,
+                    'specialization' => $profile->specialization
+                ] : null
+            ]
+        ]);
+    })->name('profile.info');
 
 // Test routes
 Route::get('/test-gmail', function() {

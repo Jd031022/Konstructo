@@ -42,21 +42,39 @@
                     @auth
                         <h1 class="text-xl sm:text-2xl font-bold">Welcome, {{ Auth::user()->first_name }}!</h1>
                         
-                        {{-- Show position for staff, otherwise show role --}}
+                        {{-- Show position and specialization for staff --}}
                         @if(Auth::user()->isStaff() && Auth::user()->profile && Auth::user()->profile->position)
-                            <p class="text-white-500 text-sm">
+                            <p class="text-white-500 text-sm" id="header-position-display">
                                 @php
                                     $position = Auth::user()->profile->position;
-                                    $positionDisplay = match($position) {
-                                        'engineer' => 'Engineer',
-                                        'architect' => 'Architect',
-                                        'BFP' => 'BFP - Bureau of Fire Protection',
-                                        'cpdo' => 'CPDO - City Planning and Development Office',
-                                        'administrative_aide' => 'Administrative Aide',
-                                        default => ucfirst(str_replace('_', ' ', $position))
-                                    };
+                                    $specialization = Auth::user()->profile->specialization;
+                                    
+                                    // If position is engineer and has specialization, show only specialization
+                                    if ($position === 'engineer' && $specialization) {
+                                        $specializationDisplay = match($specialization) {
+                                            'civil_engineer' => 'Civil Engineer',
+                                            'electrical_engineer' => 'Electrical Engineer',
+                                            'chemical_engineer' => 'Chemical Engineer',
+                                            'mechanical_engineer' => 'Mechanical Engineer',
+                                            default => ucfirst(str_replace('_', ' ', $specialization))
+                                        };
+                                        echo $specializationDisplay;
+                                    } else {
+                                        // Get position display for non-engineer roles
+                                        $positionDisplay = match($position) {
+                                            'engineer' => 'Engineer',
+                                            'architect' => 'Architect',
+                                            'BFP' => 'BFP - Bureau of Fire Protection',
+                                            'cpdo' => 'CPDO - City Planning and Development Office',
+                                            'administrative_aide' => 'Administrative Aide',
+                                            'treasurer' => 'Treasurer',
+                                            'assessor' => 'Assessor',
+                                            'mayor' => 'Mayor',
+                                            default => ucfirst(str_replace('_', ' ', $position))
+                                        };
+                                        echo $positionDisplay;
+                                    }
                                 @endphp
-                                {{ $positionDisplay }}
                             </p>
                         @else
                             <p class="text-white-500 text-sm capitalize">{{ Auth::user()->role }}</p>
@@ -107,52 +125,122 @@ function updateHeaderAvatar() {
     @endauth
 }
 
-// Function to update header position display
-function updateHeaderPosition(position) {
-    const positionElement = document.querySelector('.text-white-500.text-sm');
+// Function to update header position and specialization display
+function updateHeaderPosition(position, specialization = null) {
+    const positionElement = document.getElementById('header-position-display');
     if (positionElement) {
-        let positionDisplay = '';
-        switch(position) {
-            case 'engineer':
-                positionDisplay = 'Engineer';
-                break;
-            case 'architect':
-                positionDisplay = 'Architect';
-                break;
-            case 'BFP':
-                positionDisplay = 'BFP - Bureau of Fire Protection';
-                break;
-            case 'cpdo':
-                positionDisplay = 'CPDO - City Planning and Development Office';
-                break;
-            case 'administrative_aide':
-                positionDisplay = 'Administrative Aide';
-                break;
-            case 'mayor':
-                positionDisplay = 'Mayor';
-                break;
-            default:
-                positionDisplay = position.replace('_', ' ').replace('bfp', 'BFP').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+        let displayText = '';
+        
+        // If position is engineer and has specialization, show only specialization
+        if (position === 'engineer' && specialization) {
+            switch(specialization) {
+                case 'civil_engineer':
+                    displayText = 'Civil Engineer';
+                    break;
+                case 'electrical_engineer':
+                    displayText = 'Electrical Engineer';
+                    break;
+                case 'chemical_engineer':
+                    displayText = 'Chemical Engineer';
+                    break;
+                case 'mechanical_engineer':
+                    displayText = 'Mechanical Engineer';
+                    break;
+                default:
+                    displayText = specialization.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+            }
+        } else {
+            // Get position display text for non-engineer roles
+            switch(position) {
+                case 'engineer':
+                    displayText = 'Engineer';
+                    break;
+                case 'architect':
+                    displayText = 'Architect';
+                    break;
+                case 'BFP':
+                    displayText = 'BFP - Bureau of Fire Protection';
+                    break;
+                case 'cpdo':
+                    displayText = 'CPDO - City Planning and Development Office';
+                    break;
+                case 'administrative_aide':
+                    displayText = 'Administrative Aide';
+                    break;
+                case 'treasurer':
+                    displayText = 'Treasurer';
+                    break;
+                case 'assessor':
+                    displayText = 'Assessor';
+                    break;
+                case 'mayor':
+                    displayText = 'Mayor';
+                    break;
+                default:
+                    displayText = position?.replace('_', ' ')?.replace('bfp', 'BFP')?.toLowerCase()?.replace(/\b\w/g, l => l.toUpperCase()) || '';
+            }
         }
-        positionElement.textContent = positionDisplay;
+        
+        positionElement.textContent = displayText;
     }
+}
+
+// Function to fetch and update user profile data including specialization
+function updateUserProfileData() {
+    @auth
+    fetch('{{ route("profile.info") }}', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.user) {
+            // Update position and specialization
+            if (data.user.role === 'staff' && data.user.profile) {
+                updateHeaderPosition(data.user.profile.position, data.user.profile.specialization);
+            }
+            
+            // Trigger custom event for other components
+            window.dispatchEvent(new CustomEvent('userProfileUpdated', {
+                detail: {
+                    position: data.user.profile?.position,
+                    specialization: data.user.profile?.specialization
+                }
+            }));
+        }
+    })
+    .catch(error => console.error('Error updating user profile data:', error));
+    @endauth
 }
 
 // Listen for avatar updates from profile page
 document.addEventListener('DOMContentLoaded', function() {
     // Check for avatar update every 3 seconds (polling)
-    // This ensures the header updates when profile page changes avatar
     setInterval(updateHeaderAvatar, 3000);
+    
+    // Check for profile updates (position/specialization) every 5 seconds
+    setInterval(updateUserProfileData, 5000);
     
     // Also listen for custom events (if you want to trigger update immediately after upload)
     window.addEventListener('avatarUpdated', function() {
         updateHeaderAvatar();
     });
     
-    // Listen for position updates
+    // Listen for position/specialization updates
     window.addEventListener('positionUpdated', function(event) {
-        if (event.detail && event.detail.position) {
-            updateHeaderPosition(event.detail.position);
+        if (event.detail) {
+            updateHeaderPosition(event.detail.position, event.detail.specialization);
+        }
+    });
+    
+    // Listen for profile updates (including specialization)
+    window.addEventListener('profileUpdated', function(event) {
+        if (event.detail) {
+            updateHeaderPosition(event.detail.position, event.detail.specialization);
         }
     });
     
@@ -161,11 +249,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'avatar_updated') {
             updateHeaderAvatar();
         }
-        if (e.key === 'position_updated' && e.newValue) {
-            const positionData = JSON.parse(e.newValue);
-            updateHeaderPosition(positionData.position);
+        if (e.key === 'profile_updated' && e.newValue) {
+            const profileData = JSON.parse(e.newValue);
+            updateHeaderPosition(profileData.position, profileData.specialization);
         }
     });
+    
+    // Initial load of user profile data
+    updateUserProfileData();
 });
 
 // Update date and time functions
@@ -194,8 +285,11 @@ function updateDateTime() {
         day: 'numeric'
     });
     
-    document.getElementById('current-time').textContent = timeString;
-    document.getElementById('current-date').textContent = dateString;
+    const timeElement = document.getElementById('current-time');
+    const dateElement = document.getElementById('current-date');
+    
+    if (timeElement) timeElement.textContent = timeString;
+    if (dateElement) dateElement.textContent = dateString;
 }
 
 // Update immediately

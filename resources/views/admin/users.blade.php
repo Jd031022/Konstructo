@@ -14,51 +14,36 @@
         
         <!-- Action Buttons -->
         <div class="mt-4 md:mt-0 flex items-center gap-3">
-<div class="relative inline-block">
-    <button onclick="toggleExportDropdown()" 
-        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-        Export
-        <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-    </button>
-    
-    <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-        <a href="{{ route('admin.users.export', array_merge(request()->query(), ['format' => 'excel'])) }}" 
-           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            <svg class="inline w-4 h-4 mr-2 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Export as Excel 
-        </a>
-        <a href="{{ route('admin.users.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" 
-           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            <svg class="inline w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Export as PDF
-        </a>
-    </div>
-</div>
+            <div class="relative inline-block">
+                <button onclick="toggleExportDropdown()" 
+                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm text-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export
+                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <a href="{{ route('admin.users.export', array_merge(request()->query(), ['format' => 'excel'])) }}" 
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg class="inline w-4 h-4 mr-2 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export as Excel 
+                    </a>
+                    <a href="{{ route('admin.users.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" 
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg class="inline w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Export as PDF
+                    </a>
+                </div>
+            </div>
 
-<script>
-function toggleExportDropdown() {
-    const dropdown = document.getElementById('export-dropdown');
-    dropdown.classList.toggle('hidden');
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('export-dropdown');
-    const button = event.target.closest('.relative');
-    if (!button && dropdown && !dropdown.classList.contains('hidden')) {
-        dropdown.classList.add('hidden');
-    }
-});
-</script>
             <button onclick="openUserModal()" class="inline-flex items-center px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#40798C] transition shadow-md text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -182,6 +167,7 @@ document.addEventListener('click', function(event) {
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Position</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Specialization</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Active</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -239,105 +225,118 @@ document.addEventListener('click', function(event) {
                     <form id="user-form" onsubmit="saveUser(event)">
                         <input type="hidden" id="user-id">
                         
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- First Name -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
-        <input type="text" id="first_name" required
-            placeholder="First name"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-    
-    <!-- Last Name -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
-        <input type="text" id="last_name" required
-            placeholder="Last name"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-    
-    <!-- Middle Name -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-        <input type="text" id="middle_name"
-            placeholder="Middle name (optional)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-    
-    <!-- Suffix -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
-        <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-            <option value="">None</option>
-            <option value="Jr.">Jr.</option>
-            <option value="Sr.">Sr.</option>
-            <option value="II">II</option>
-            <option value="III">III</option>
-            <option value="IV">IV</option>
-        </select>
-    </div>
-    
-    <!-- Email -->
-    <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-        <input type="email" id="email" required
-            placeholder="example@email.com"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-    </div>
-    
-    <!-- Username -->
-    <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
-        <input type="text" id="username" required
-            placeholder="Username"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-        <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
-    </div>
-    
-    <!-- Password Fields -->
-    <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
-            <input type="password" id="password" 
-                placeholder="Password"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
-            <input type="password" id="password_confirmation" 
-                placeholder="Confirm password"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-        </div>
-    </div>
-    
-    <!-- Role -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
-        <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-            <option value="">Select Role</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-            <option value="applicant">Applicant</option>
-        </select>
-    </div>
-    
-    <!-- Position (Staff only) -->
-    <div id="position-field" class="hidden">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Position <span class="text-red-500">*</span></label>
-        <select id="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
-            <option value="">Select Position</option>
-            <option value="engineer">Engineer</option>
-            <option value="architect">Architect</option>
-            <option value="BFP">BFP</option>
-            <option value="cpdo">CPDO</option>
-            <option value="administrative_aide">Administrative Aide</option>
-            <option value="treasurer">Treasurer</option>
-            <option value="assessor">Assessor</option>
-            <option value="mayor">Mayor</option>
-        </select>
-        <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
-    </div>
-</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- First Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="first_name" required
+                                    placeholder="First name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Last Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="last_name" required
+                                    placeholder="Last name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Middle Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
+                                <input type="text" id="middle_name"
+                                    placeholder="Middle name (optional)"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Suffix -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
+                                <select id="suffix" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">None</option>
+                                    <option value="Jr.">Jr.</option>
+                                    <option value="Sr.">Sr.</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" id="email" required
+                                    placeholder="example@email.com"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                            </div>
+                            
+                            <!-- Username -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
+                                <input type="text" id="username" required
+                                    placeholder="Username"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
+                            </div>
+                            
+                            <!-- Password Fields -->
+                            <div id="password-fields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
+                                    <input type="password" id="password" 
+                                        placeholder="Password"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password <span class="text-red-500">*</span></label>
+                                    <input type="password" id="password_confirmation" 
+                                        placeholder="Confirm password"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                </div>
+                            </div>
+                            
+                            <!-- Role -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">User Role <span class="text-red-500">*</span></label>
+                                <select id="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">Select Role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="staff">Staff</option>
+                                    <option value="applicant">Applicant</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Position (Staff only) -->
+                            <div id="position-field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Position <span class="text-red-500">*</span></label>
+                                <select id="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">Select Position</option>
+                                    <option value="engineer">Engineer</option>
+                                    <option value="architect">Architect</option>
+                                    <option value="BFP">BFP</option>
+                                    <option value="cpdo">CPDO</option>
+                                    <option value="administrative_aide">Administrative Aide</option>
+                                    <option value="treasurer">Treasurer</option>
+                                    <option value="assessor">Assessor</option>
+                                    <option value="mayor">Mayor</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
+                            </div>
+                            
+                            <!-- Specialization (Separate column, appears only for Engineer) -->
+                            <div id="specialization-field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Engineering Specialization</label>
+                                <select id="specialization" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#155386] focus:border-transparent">
+                                    <option value="">Select Specialization (Optional)</option>
+                                    <option value="civil_engineer">Civil Engineer</option>
+                                    <option value="electrical_engineer">Electrical Engineer</option>
+                                    <option value="chemical_engineer">Chemical Engineer</option>
+                                    <option value="mechanical_engineer">Mechanical Engineer</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Specific engineering specialization (optional, only for engineers)</p>
+                            </div>
+                        </div>
                         
                         <div class="mt-8 flex justify-end gap-3">
                             <button type="button" onclick="closeUserModal()" 
@@ -497,9 +496,11 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUsers();
     
     const roleSelect = document.getElementById('role');
+    const positionSelect = document.getElementById('position');
+    const specializationField = document.getElementById('specialization-field');
+    
     roleSelect.addEventListener('change', function() {
         const positionField = document.getElementById('position-field');
-        const positionSelect = document.getElementById('position');
         if (this.value === 'staff') {
             positionField.classList.remove('hidden');
             positionSelect.required = true;
@@ -507,6 +508,17 @@ document.addEventListener('DOMContentLoaded', function() {
             positionField.classList.add('hidden');
             positionSelect.required = false;
             positionSelect.value = '';
+            specializationField.classList.add('hidden');
+        }
+    });
+    
+    // Position change handler to show/hide specialization field (optional for engineers)
+    positionSelect.addEventListener('change', function() {
+        if (this.value === 'engineer') {
+            specializationField.classList.remove('hidden');
+        } else {
+            specializationField.classList.add('hidden');
+            document.getElementById('specialization').value = '';
         }
     });
     
@@ -546,6 +558,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('role-filter').addEventListener('change', applyFilters);
     document.getElementById('status-filter').addEventListener('change', applyFilters);
+});
+
+function toggleExportDropdown() {
+    const dropdown = document.getElementById('export-dropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('export-dropdown');
+    const button = event.target.closest('.relative');
+    if (!button && dropdown && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+    }
 });
 
 async function loadUsers() {
@@ -649,8 +675,26 @@ function getPositionDisplay(position) {
     return positionMap[position] || position;
 }
 
+function getSpecializationDisplay(specialization) {
+    if (!specialization) return '—';
+    const specMap = {
+        'civil_engineer': 'Civil Engineer',
+        'electrical_engineer': 'Electrical Engineer',
+        'chemical_engineer': 'Chemical Engineer',
+        'mechanical_engineer': 'Mechanical Engineer'
+    };
+    return specMap[specialization] || specialization;
+}
+
 function getUserAvatarUrl(user) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=40&background=155386&color=fff&bold=true`;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function renderUsers() {
@@ -672,6 +716,7 @@ function renderUsers() {
         const statusColor = getStatusColor(user.status);
         const avatarUrl = getUserAvatarUrl(user);
         const positionDisplay = getPositionDisplay(user.position);
+        const specializationDisplay = getSpecializationDisplay(user.specialization);
         
         return `
         <tr class="hover:bg-gray-50 transition">
@@ -679,30 +724,33 @@ function renderUsers() {
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200">
                         <img src="${avatarUrl}" 
-                             alt="${user.name}" 
+                             alt="${escapeHtml(user.name)}" 
                              class="w-full h-full object-cover"
-                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${user.name}') + '&size=40&background=155386&color=fff&bold=true';">
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${escapeHtml(user.name)}') + '&size=40&background=155386&color=fff&bold=true';">
                     </div>
                     <div>
-                        <p class="font-medium text-gray-800">${user.name}</p>
+                        <p class="font-medium text-gray-800">${escapeHtml(user.name)}</p>
                         <p class="text-xs text-gray-400">ID: USR-${String(user.id).padStart(4, '0')}</p>
                     </div>
                 </div>
-            </td>
-            <td class="py-4 px-6 text-sm text-gray-600">${user.email}</td>
+             </td>
+            <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(user.email)}</td>
             <td class="py-4 px-6">
                 <span class="px-3 py-1 bg-${roleColor}-100 text-${roleColor}-600 rounded-full text-xs font-medium capitalize">
                     ${user.role}
                 </span>
-            </td>
+              </td>
             <td class="py-4 px-6">
-                ${user.role === 'staff' ? `<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">${positionDisplay}</span>` : '<span class="text-gray-400 text-xs">—</span>'}
-            </td>
+                ${user.role === 'staff' ? `<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">${escapeHtml(positionDisplay)}</span>` : '<span class="text-gray-400 text-xs">—</span>'}
+              </td>
+            <td class="py-4 px-6">
+                ${user.role === 'staff' && user.position === 'engineer' && user.specialization ? `<span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">${escapeHtml(specializationDisplay)}</span>` : '<span class="text-gray-400 text-xs">—</span>'}
+              </td>
             <td class="py-4 px-6">
                 <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-600 rounded-full text-xs font-medium">
                     ${user.status}
                 </span>
-            </td>
+              </td>
             <td class="py-4 px-6 text-sm text-gray-500">${user.last_active || 'Never'}</td>
             <td class="py-4 px-6">
                 <div class="flex items-center gap-2">
@@ -711,12 +759,12 @@ function renderUsers() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
-                    <button onclick="resetPassword(${user.id}, '${user.name}')" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Reset Password">
+                    <button onclick="resetPassword(${user.id}, '${escapeHtml(user.name)}')" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Reset Password">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                     </button>
-                    <button onclick="toggleUserStatus(${user.id}, '${user.name}', '${user.status}')" class="p-2 ${user.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} rounded-lg transition" title="${user.status === 'active' ? 'Deactivate' : 'Activate'}">
+                    <button onclick="toggleUserStatus(${user.id}, '${escapeHtml(user.name)}', '${user.status}')" class="p-2 ${user.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} rounded-lg transition" title="${user.status === 'active' ? 'Deactivate' : 'Activate'}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${user.status === 'active' 
                                 ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />'
@@ -724,13 +772,13 @@ function renderUsers() {
                             }
                         </svg>
                     </button>
-                    <button onclick="confirmDeleteUser(${user.id}, '${user.name}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                    <button onclick="confirmDeleteUser(${user.id}, '${escapeHtml(user.name)}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>
                 </div>
-            </td>
+              </td>
         </tr>
     `}).join('');
 }
@@ -755,6 +803,7 @@ function openUserModal() {
     document.getElementById('password').required = true;
     document.getElementById('password_confirmation').required = true;
     document.getElementById('position-field').classList.add('hidden');
+    document.getElementById('specialization-field').classList.add('hidden');
     document.getElementById('position').required = false;
     document.getElementById('user-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -876,7 +925,10 @@ async function saveUser(event) {
         email: document.getElementById('email').value,
         username: document.getElementById('username').value,
         role: role,
-        position: role === 'staff' ? document.getElementById('position').value : null
+        position: role === 'staff' ? document.getElementById('position').value : null,
+        specialization: role === 'staff' && document.getElementById('position').value === 'engineer' 
+            ? (document.getElementById('specialization').value || null)
+            : null
     };
     
     if (!isEditing) {
@@ -955,9 +1007,20 @@ async function editUser(userId) {
                 document.getElementById('position-field').classList.remove('hidden');
                 document.getElementById('position').required = true;
                 document.getElementById('position').value = user.position || '';
+                
+                // Handle specialization field
+                const specializationField = document.getElementById('specialization-field');
+                if (user.position === 'engineer') {
+                    specializationField.classList.remove('hidden');
+                    document.getElementById('specialization').value = user.specialization || '';
+                } else {
+                    specializationField.classList.add('hidden');
+                    document.getElementById('specialization').value = '';
+                }
             } else {
                 document.getElementById('position-field').classList.add('hidden');
                 document.getElementById('position').required = false;
+                document.getElementById('specialization-field').classList.add('hidden');
             }
             
             document.getElementById('password-fields').classList.add('hidden');
@@ -981,7 +1044,7 @@ function resetPassword(userId, userName) {
     
     const modalContent = document.getElementById('reset-password-content');
     modalContent.innerHTML = `
-        <p class="text-gray-700 mb-6">Are you sure you want to reset the password for <strong>${userName}</strong>? A new random password will be generated.</p>
+        <p class="text-gray-700 mb-6">Are you sure you want to reset the password for <strong>${escapeHtml(userName)}</strong>? A new random password will be generated.</p>
         <div class="flex justify-end gap-3">
             <button onclick="closeResetPasswordModal()" 
                 class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
@@ -1063,7 +1126,7 @@ function toggleUserStatus(userId, userName, currentStatus) {
     toggleAction = currentStatus === 'active' ? 'deactivate' : 'activate';
     
     document.getElementById('toggle-modal-title').textContent = toggleAction === 'deactivate' ? 'Deactivate User' : 'Activate User';
-    document.getElementById('toggle-modal-message').innerHTML = `Are you sure you want to <strong>${toggleAction}</strong> <strong>${userName}</strong>?`;
+    document.getElementById('toggle-modal-message').innerHTML = `Are you sure you want to <strong>${toggleAction}</strong> <strong>${escapeHtml(userName)}</strong>?`;
     
     document.getElementById('toggle-status-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';

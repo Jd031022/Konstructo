@@ -31,6 +31,7 @@ class UserProfile extends Model
         'password_changed_at',
         'two_factor_secret',
         'two_factor_enabled',
+        'specialization', 
         'position', // Added position field
     ];
 
@@ -251,4 +252,18 @@ class UserProfile extends Model
             }
         });
     }
+    
+    // Helper method to get display specialization
+    public function getSpecializationDisplayAttribute(): string
+    {
+        $specializations = [
+            'civil_engineer' => 'Civil Engineer',
+            'electrical_engineer' => 'Electrical Engineer',
+            'chemical_engineer' => 'Chemical Engineer',
+            'mechanical_engineer' => 'Mechanical Engineer',
+        ];
+        
+        return $specializations[$this->specialization] ?? ucfirst(str_replace('_', ' ', $this->specialization ?? ''));
+    }
+
 }
