@@ -320,6 +320,7 @@
                                     <option value="treasurer">Treasurer</option>
                                     <option value="assessor">Assessor</option>
                                     <option value="mayor">Mayor</option>
+                                    <option value="monitoring">Monitoring</option>
                                 </select>
                                 <p class="text-xs text-gray-500 mt-1">Select the staff member's position/department</p>
                             </div>
@@ -670,7 +671,8 @@ function getPositionDisplay(position) {
         'administrative_aide': 'Admin Aide',
         'treasurer': 'Treasurer',
         'assessor': 'Assessor',
-        'mayor': 'Mayor'
+        'mayor': 'Mayor',
+        'monitoring': 'Monitoring'
     };
     return positionMap[position] || position;
 }
@@ -733,8 +735,8 @@ function renderUsers() {
                         <p class="text-xs text-gray-400">ID: USR-${String(user.id).padStart(4, '0')}</p>
                     </div>
                 </div>
-             </td>
-            <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(user.email)}</td>
+              </td>
+            <td class="py-4 px-6 text-sm text-gray-600">${escapeHtml(user.email)}</span></td>
             <td class="py-4 px-6">
                 <span class="px-3 py-1 bg-${roleColor}-100 text-${roleColor}-600 rounded-full text-xs font-medium capitalize">
                     ${user.role}
@@ -779,8 +781,7 @@ function renderUsers() {
                     </button>
                 </div>
               </td>
-        </tr>
-    `}).join('');
+         \n    `}).join('');
 }
 
 function showLoading() {

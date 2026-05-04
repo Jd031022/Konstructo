@@ -95,185 +95,61 @@ class UserController extends Controller
         return $position;
     }
 
-   public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'first_name' => 'required|string|max:100',
-        'last_name' => 'required|string|max:100',
-        'email' => 'required|email|unique:users,email',
-        'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_-]+$/',
-        'password' => 'required|string|min:8|max:16|confirmed',
-        'role' => 'required|in:admin,staff,applicant',
-        'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor',
-        'specialization' => 'required_if:position,engineer|nullable|in:civil_engineer,electrical_engineer,chemical_engineer,mechanical_engineer'
-    ]);
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_-]+$/',
+            'password' => 'required|string|min:8|max:16|confirmed',
+            'role' => 'required|in:admin,staff,applicant',
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor,monitoring',
+            'specialization' => 'required_if:position,engineer|nullable|in:civil_engineer,electrical_engineer,chemical_engineer,mechanical_engineer'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    // Set approval status based on role
-    $approvalStatus = ($request->role === 'applicant') ? 'pending' : 'approved';
-    $emailVerifiedAt = ($request->role !== 'applicant') ? now() : null;
-
-    // Store the plain password for email before hashing
-    $plainPassword = $request->password;
-
-    // Generate a dummy phone number that will pass validation (09 + 9 digits)
-    $dummyPhoneNumber = '09123456789';
-    
-    // Dummy address and zip code
-    $dummyAddress = 'System Generated User';
-    $dummyZipCode = '0000';
-
-    $user = User::create([
-        'first_name' => $request->first_name,
-        'last_name' => $request->last_name,
-        'middle_name' => $request->middle_name,
-        'suffix' => $request->suffix,
-        'email' => $request->email,
-        'username' => $request->username,
-        'password' => Hash::make($plainPassword),
-        'role' => $request->role,
-        'phone_number' => $dummyPhoneNumber,
-        'address' => $dummyAddress,
-        'zip_code' => $dummyZipCode,
-        'email_verified_at' => $emailVerifiedAt,
-        'approval_status' => $approvalStatus,
-    ]);
-
-    // Create profile for staff with position and specialization
-    if ($request->role === 'staff' && $request->filled('position')) {
-        $normalizedPosition = $this->normalizePosition($request->position);
-        $profileData = ['position' => $normalizedPosition];
-        
-        // Add specialization if position is engineer
-        if ($request->position === 'engineer' && $request->filled('specialization')) {
-            $profileData['specialization'] = $request->specialization;
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
+
+        // Set approval status based on role
+        $approvalStatus = ($request->role === 'applicant') ? 'pending' : 'approved';
+        $emailVerifiedAt = ($request->role !== 'applicant') ? now() : null;
+
+        // Store the plain password for email before hashing
+        $plainPassword = $request->password;
+
+        // Generate a dummy phone number that will pass validation (09 + 9 digits)
+        $dummyPhoneNumber = '09123456789';
         
-        UserProfile::updateOrCreate(
-            ['user_id' => $user->id],
-            $profileData
-        );
-    }
+        // Dummy address and zip code
+        $dummyAddress = 'System Generated User';
+        $dummyZipCode = '0000';
 
-    // Send email with credentials using GmailService
-    $emailSent = false;
-    try {
-        $gmailService = new GmailService();
-        $fullName = trim($request->first_name . ' ' . $request->last_name);
-        $emailSent = $gmailService->sendCredentialsEmail(
-            $user->email,
-            $fullName,
-            $user->username,
-            $plainPassword,
-            false // not a reset
-        );
-        
-        if ($emailSent) {
-            Log::info('Credentials email sent successfully to: ' . $user->email);
-        } else {
-            Log::warning('Failed to send credentials email to: ' . $user->email);
-        }
-    } catch (\Exception $e) {
-        Log::error('Exception sending credentials email: ' . $e->getMessage());
-        $emailSent = false;
-    }
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'middle_name' => $request->middle_name,
+            'suffix' => $request->suffix,
+            'email' => $request->email,
+            'username' => $request->username,
+            'password' => Hash::make($plainPassword),
+            'role' => $request->role,
+            'phone_number' => $dummyPhoneNumber,
+            'address' => $dummyAddress,
+            'zip_code' => $dummyZipCode,
+            'email_verified_at' => $emailVerifiedAt,
+            'approval_status' => $approvalStatus,
+        ]);
 
-    // Log the creation
-    ActivityLog::create([
-        'user_id' => auth()->id(),
-        'action' => 'create_user',
-        'description' => "Created user: {$user->first_name} {$user->last_name}",
-        'metadata' => json_encode([
-            'user_id' => $user->id, 
-            'role' => $user->role,
-            'approval_status' => $user->approval_status,
-            'position' => $request->position,
-            'specialization' => $request->specialization ?? null,
-            'email_sent' => $emailSent
-        ]),
-        'ip_address' => $request->ip(),
-        'user_agent' => $request->userAgent(),
-        'status' => 'success'
-    ]);
-
-    // Load profile for response
-    $user->load('profile');
-
-    $message = 'User created successfully';
-    if ($emailSent) {
-        $message .= ' Credentials have been sent to the user\'s email.';
-    } else {
-        $message .= ' However, failed to send email credentials. Please inform the user manually.';
-    }
-
-    return response()->json([
-        'message' => $message,
-        'user' => $user,
-        'email_sent' => $emailSent
-    ], 201);
-}
-   public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-
-    $validator = Validator::make($request->all(), [
-        'first_name' => 'required|string|max:100',
-        'last_name' => 'required|string|max:100',
-        'email' => 'required|email|unique:users,email,' . $id,
-        'username' => 'required|string|regex:/^[a-zA-Z0-9_-]+$/|unique:users,username,' . $id,
-        'role' => 'required|in:admin,staff,applicant',
-        'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor',
-        'specialization' => 'required_if:position,engineer|nullable|in:civil_engineer,electrical_engineer,chemical_engineer,mechanical_engineer'
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    $oldRole = $user->role;
-    $newRole = $request->role;
-
-    $updateData = [
-        'first_name' => $request->first_name,
-        'last_name' => $request->last_name,
-        'middle_name' => $request->middle_name,
-        'suffix' => $request->suffix,
-        'email' => $request->email,
-        'username' => $request->username,
-        'role' => $newRole,
-    ];
-
-    // If role changed from applicant to admin/staff, auto-approve
-    if ($oldRole === 'applicant' && in_array($newRole, ['admin', 'staff'])) {
-        $updateData['approval_status'] = 'approved';
-        $updateData['approved_at'] = now();
-        $updateData['approved_by'] = auth()->id();
-        $updateData['email_verified_at'] = now();
-    }
-
-    // If role changed to applicant, set approval to pending
-    if ($newRole === 'applicant' && $oldRole !== 'applicant') {
-        $updateData['approval_status'] = 'pending';
-        $updateData['approved_at'] = null;
-        $updateData['approved_by'] = null;
-    }
-
-    $user->update($updateData);
-
-    // Handle position and specialization for staff
-    if ($newRole === 'staff') {
-        if ($request->filled('position')) {
+        // Create profile for staff with position and specialization
+        if ($request->role === 'staff' && $request->filled('position')) {
             $normalizedPosition = $this->normalizePosition($request->position);
             $profileData = ['position' => $normalizedPosition];
             
             // Add specialization if position is engineer
             if ($request->position === 'engineer' && $request->filled('specialization')) {
                 $profileData['specialization'] = $request->specialization;
-            } else {
-                $profileData['specialization'] = null;
             }
             
             UserProfile::updateOrCreate(
@@ -281,40 +157,164 @@ class UserController extends Controller
                 $profileData
             );
         }
-    } else {
-        // If user is no longer staff, remove profile data
-        if ($user->profile) {
-            $user->profile->delete();
+
+        // Send email with credentials using GmailService
+        $emailSent = false;
+        try {
+            $gmailService = new GmailService();
+            $fullName = trim($request->first_name . ' ' . $request->last_name);
+            $emailSent = $gmailService->sendCredentialsEmail(
+                $user->email,
+                $fullName,
+                $user->username,
+                $plainPassword,
+                false // not a reset
+            );
+            
+            if ($emailSent) {
+                Log::info('Credentials email sent successfully to: ' . $user->email);
+            } else {
+                Log::warning('Failed to send credentials email to: ' . $user->email);
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception sending credentials email: ' . $e->getMessage());
+            $emailSent = false;
         }
+
+        // Log the creation
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'create_user',
+            'description' => "Created user: {$user->first_name} {$user->last_name}",
+            'metadata' => json_encode([
+                'user_id' => $user->id, 
+                'role' => $user->role,
+                'approval_status' => $user->approval_status,
+                'position' => $request->position,
+                'specialization' => $request->specialization ?? null,
+                'email_sent' => $emailSent
+            ]),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'success'
+        ]);
+
+        // Load profile for response
+        $user->load('profile');
+
+        $message = 'User created successfully';
+        if ($emailSent) {
+            $message .= ' Credentials have been sent to the user\'s email.';
+        } else {
+            $message .= ' However, failed to send email credentials. Please inform the user manually.';
+        }
+
+        return response()->json([
+            'message' => $message,
+            'user' => $user,
+            'email_sent' => $emailSent
+        ], 201);
     }
 
-    // Log the update
-    ActivityLog::create([
-        'user_id' => auth()->id(),
-        'action' => 'update_user',
-        'description' => "Updated user: {$user->first_name} {$user->last_name}",
-        'metadata' => json_encode([
-            'user_id' => $user->id, 
-            'changes' => array_keys($request->all()),
-            'old_role' => $oldRole,
-            'new_role' => $newRole,
-            'position' => $request->position,
-            'specialization' => $request->specialization ?? null
-        ]),
-        'ip_address' => $request->ip(),
-        'user_agent' => $request->userAgent(),
-        'status' => 'success'
-    ]);
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
 
-    // Load profile for response
-    $user->load('profile');
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'username' => 'required|string|regex:/^[a-zA-Z0-9_-]+$/|unique:users,username,' . $id,
+            'role' => 'required|in:admin,staff,applicant',
+            'position' => 'required_if:role,staff|nullable|in:engineer,architect,BFP,cpdo,administrative_aide,treasurer,assessor,mayor,monitoring',
+            'specialization' => 'required_if:position,engineer|nullable|in:civil_engineer,electrical_engineer,chemical_engineer,mechanical_engineer'
+        ]);
 
-    return response()->json([
-        'message' => 'User updated successfully',
-        'user' => $user
-    ]);
-}
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
+        $oldRole = $user->role;
+        $newRole = $request->role;
+
+        $updateData = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'middle_name' => $request->middle_name,
+            'suffix' => $request->suffix,
+            'email' => $request->email,
+            'username' => $request->username,
+            'role' => $newRole,
+        ];
+
+        // If role changed from applicant to admin/staff, auto-approve
+        if ($oldRole === 'applicant' && in_array($newRole, ['admin', 'staff'])) {
+            $updateData['approval_status'] = 'approved';
+            $updateData['approved_at'] = now();
+            $updateData['approved_by'] = auth()->id();
+            $updateData['email_verified_at'] = now();
+        }
+
+        // If role changed to applicant, set approval to pending
+        if ($newRole === 'applicant' && $oldRole !== 'applicant') {
+            $updateData['approval_status'] = 'pending';
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+        }
+
+        $user->update($updateData);
+
+        // Handle position and specialization for staff
+        if ($newRole === 'staff') {
+            if ($request->filled('position')) {
+                $normalizedPosition = $this->normalizePosition($request->position);
+                $profileData = ['position' => $normalizedPosition];
+                
+                // Add specialization if position is engineer
+                if ($request->position === 'engineer' && $request->filled('specialization')) {
+                    $profileData['specialization'] = $request->specialization;
+                } else {
+                    $profileData['specialization'] = null;
+                }
+                
+                UserProfile::updateOrCreate(
+                    ['user_id' => $user->id],
+                    $profileData
+                );
+            }
+        } else {
+            // If user is no longer staff, remove profile data
+            if ($user->profile) {
+                $user->profile->delete();
+            }
+        }
+
+        // Log the update
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'update_user',
+            'description' => "Updated user: {$user->first_name} {$user->last_name}",
+            'metadata' => json_encode([
+                'user_id' => $user->id, 
+                'changes' => array_keys($request->all()),
+                'old_role' => $oldRole,
+                'new_role' => $newRole,
+                'position' => $request->position,
+                'specialization' => $request->specialization ?? null
+            ]),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'success'
+        ]);
+
+        // Load profile for response
+        $user->load('profile');
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user
+        ]);
+    }
 
     public function destroy($id)
     {
@@ -508,173 +508,172 @@ class UserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function getUsers(Request $request)
-{
-    try {
-        $query = User::with('profile')
-            ->select(
-                'id', 
-                'first_name', 
-                'last_name', 
-                'middle_name', 
-                'suffix', 
-                'email', 
-                'username',
-                'role', 
-                'email_verified_at', 
-                'created_at', 
-                'approval_status', 
-                'rejection_reason', 
-                'approved_at'
-            )
-            ->orderBy('created_at', 'desc');
-        
-        // Apply filters
-        if ($request->has('role') && $request->role !== 'all') {
-            $query->where('role', $request->role);
-        }
-        
-        if ($request->has('approval_status') && $request->approval_status !== 'all') {
-            $query->where('approval_status', $request->approval_status);
-        }
-        
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
-            });
-        }
-        
-        $users = $query->get()->map(function ($user) {
-            // Get full name
-            $fullName = trim($user->first_name . ' ' . ($user->middle_name ?? '') . ' ' . $user->last_name . ' ' . ($user->suffix ?? ''));
-            if (empty($fullName)) {
-                $fullName = $user->email;
+    {
+        try {
+            $query = User::with('profile')
+                ->select(
+                    'id', 
+                    'first_name', 
+                    'last_name', 
+                    'middle_name', 
+                    'suffix', 
+                    'email', 
+                    'username',
+                    'role', 
+                    'email_verified_at', 
+                    'created_at', 
+                    'approval_status', 
+                    'rejection_reason', 
+                    'approved_at'
+                )
+                ->orderBy('created_at', 'desc');
+            
+            // Apply filters
+            if ($request->has('role') && $request->role !== 'all') {
+                $query->where('role', $request->role);
             }
             
-            // Get initials
-            $firstInitial = !empty($user->first_name) ? strtoupper(substr($user->first_name, 0, 1)) : '';
-            $lastInitial = !empty($user->last_name) ? strtoupper(substr($user->last_name, 0, 1)) : '';
-            $initials = $firstInitial . $lastInitial;
-            if (empty(trim($initials))) {
-                $initials = 'U';
+            if ($request->has('approval_status') && $request->approval_status !== 'all') {
+                $query->where('approval_status', $request->approval_status);
             }
             
-            // Get position and specialization from profile (for staff users)
-            $position = null;
-            $specialization = null;
-            if ($user->role === 'staff' && $user->profile) {
-                $position = $user->profile->position;
-                $specialization = $user->profile->specialization;
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('username', 'like', "%{$search}%");
+                });
             }
             
-            // Get the latest activity for this user from activity_logs table
-            $latestActivity = ActivityLog::where('user_id', $user->id)
-                ->where('status', 'success')
-                ->orderBy('created_at', 'desc')
-                ->first();
-            
-            // Determine last active time
-            if ($latestActivity) {
-                $lastActive = $latestActivity->created_at->diffForHumans();
-            } else {
-                $lastActive = 'Never';
-            }
-            
-            // Determine role badge colors
-            $roleBadge = match($user->role) {
-                'admin' => 'purple',
-                'staff' => 'blue',
-                'applicant' => 'gray',
-                default => 'gray'
-            };
-            
-            // Determine status (for non-applicants, status is based on email verification)
-            if (!$user->isApplicant()) {
-                $status = $user->email_verified_at ? 'active' : 'inactive';
-                $statusBadge = $user->email_verified_at ? 'green' : 'yellow';
-            } else {
-                // For applicants, status is based on approval_status
-                $status = $user->approval_status;
-                $statusBadge = match($user->approval_status) {
-                    'approved' => 'green',
-                    'pending' => 'yellow',
-                    'rejected' => 'red',
+            $users = $query->get()->map(function ($user) {
+                // Get full name
+                $fullName = trim($user->first_name . ' ' . ($user->middle_name ?? '') . ' ' . $user->last_name . ' ' . ($user->suffix ?? ''));
+                if (empty($fullName)) {
+                    $fullName = $user->email;
+                }
+                
+                // Get initials
+                $firstInitial = !empty($user->first_name) ? strtoupper(substr($user->first_name, 0, 1)) : '';
+                $lastInitial = !empty($user->last_name) ? strtoupper(substr($user->last_name, 0, 1)) : '';
+                $initials = $firstInitial . $lastInitial;
+                if (empty(trim($initials))) {
+                    $initials = 'U';
+                }
+                
+                // Get position and specialization from profile (for staff users)
+                $position = null;
+                $specialization = null;
+                if ($user->role === 'staff' && $user->profile) {
+                    $position = $user->profile->position;
+                    $specialization = $user->profile->specialization;
+                }
+                
+                // Get the latest activity for this user from activity_logs table
+                $latestActivity = ActivityLog::where('user_id', $user->id)
+                    ->where('status', 'success')
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                
+                // Determine last active time
+                if ($latestActivity) {
+                    $lastActive = $latestActivity->created_at->diffForHumans();
+                } else {
+                    $lastActive = 'Never';
+                }
+                
+                // Determine role badge colors
+                $roleBadge = match($user->role) {
+                    'admin' => 'purple',
+                    'staff' => 'blue',
+                    'applicant' => 'gray',
                     default => 'gray'
                 };
-            }
+                
+                // Determine status (for non-applicants, status is based on email verification)
+                if (!$user->isApplicant()) {
+                    $status = $user->email_verified_at ? 'active' : 'inactive';
+                    $statusBadge = $user->email_verified_at ? 'green' : 'yellow';
+                } else {
+                    // For applicants, status is based on approval_status
+                    $status = $user->approval_status;
+                    $statusBadge = match($user->approval_status) {
+                        'approved' => 'green',
+                        'pending' => 'yellow',
+                        'rejected' => 'red',
+                        default => 'gray'
+                    };
+                }
+                
+                // Get display position (include specialization for engineers)
+                $positionDisplay = $this->getPositionDisplay($position, $user->role);
+                if ($position === 'engineer' && $specialization) {
+                    $positionDisplay = $this->getSpecializationDisplay($specialization);
+                }
+                
+                return [
+                    'id' => $user->id,
+                    'name' => $fullName,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'username' => $user->username,
+                    'initials' => $initials,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'role_badge' => $roleBadge,
+                    'position' => $position,
+                    'specialization' => $specialization,
+                    'position_display' => $positionDisplay,
+                    'status' => $status,
+                    'status_badge' => $statusBadge,
+                    'last_active' => $lastActive,
+                    'created_at' => $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : null,
+                    'approval_status' => $user->approval_status,
+                    'rejection_reason' => $user->rejection_reason,
+                    'approved_at' => $user->approved_at,
+                    'email_verified_at' => $user->email_verified_at,
+                ];
+            });
             
-            // Get display position (include specialization for engineers)
-            $positionDisplay = $this->getPositionDisplay($position, $user->role);
-            if ($position === 'engineer' && $specialization) {
-                $positionDisplay = $this->getSpecializationDisplay($specialization);
-            }
-            
-            return [
-                'id' => $user->id,
-                'name' => $fullName,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'username' => $user->username,
-                'initials' => $initials,
-                'email' => $user->email,
-                'role' => $user->role,
-                'role_badge' => $roleBadge,
-                'position' => $position,
-                'specialization' => $specialization,
-                'position_display' => $positionDisplay,
-                'status' => $status,
-                'status_badge' => $statusBadge,
-                'last_active' => $lastActive,
-                'created_at' => $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : null,
-                'approval_status' => $user->approval_status,
-                'rejection_reason' => $user->rejection_reason,
-                'approved_at' => $user->approved_at,
-                'email_verified_at' => $user->email_verified_at,
+            // Calculate statistics with approval stats
+            $stats = [
+                'total' => User::count(),
+                'admins' => User::where('role', 'admin')->count(),
+                'staff' => User::where('role', 'staff')->count(),
+                'applicants' => User::where('role', 'applicant')->count(),
+                'active' => User::whereNotNull('email_verified_at')->count(),
+                'pending_applicants' => User::where('role', 'applicant')->where('approval_status', 'pending')->count(),
+                'approved_applicants' => User::where('role', 'applicant')->where('approval_status', 'approved')->count(),
+                'rejected_applicants' => User::where('role', 'applicant')->where('approval_status', 'rejected')->count(),
             ];
-        });
-        
-        // Calculate statistics with approval stats
-        $stats = [
-            'total' => User::count(),
-            'admins' => User::where('role', 'admin')->count(),
-            'staff' => User::where('role', 'staff')->count(),
-            'applicants' => User::where('role', 'applicant')->count(),
-            'active' => User::whereNotNull('email_verified_at')->count(),
-            'pending_applicants' => User::where('role', 'applicant')->where('approval_status', 'pending')->count(),
-            'approved_applicants' => User::where('role', 'applicant')->where('approval_status', 'approved')->count(),
-            'rejected_applicants' => User::where('role', 'applicant')->where('approval_status', 'rejected')->count(),
+            
+            return response()->json([
+                'users' => $users,
+                'stats' => $stats
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getUsers: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'error' => 'Failed to load users: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Helper method for specialization display
+    private function getSpecializationDisplay($specialization): string
+    {
+        $specializations = [
+            'civil_engineer' => 'Civil Engineer',
+            'electrical_engineer' => 'Electrical Engineer',
+            'chemical_engineer' => 'Chemical Engineer',
+            'mechanical_engineer' => 'Mechanical Engineer',
         ];
         
-        return response()->json([
-            'users' => $users,
-            'stats' => $stats
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error in getUsers: ' . $e->getMessage());
-        Log::error($e->getTraceAsString());
-        
-        return response()->json([
-            'error' => 'Failed to load users: ' . $e->getMessage()
-        ], 500);
+        return $specializations[$specialization] ?? ucfirst(str_replace('_', ' ', $specialization ?? ''));
     }
-}
-
-// Add a new helper method for specialization display:
-
-private function getSpecializationDisplay($specialization): string
-{
-    $specializations = [
-        'civil_engineer' => 'Civil Engineer',
-        'electrical_engineer' => 'Electrical Engineer',
-        'chemical_engineer' => 'Chemical Engineer',
-        'mechanical_engineer' => 'Mechanical Engineer',
-    ];
-    
-    return $specializations[$specialization] ?? ucfirst(str_replace('_', ' ', $specialization ?? ''));
-}
 
     /**
      * Get a single user by ID
@@ -683,44 +682,45 @@ private function getSpecializationDisplay($specialization): string
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-  public function getUser($id)
-{
-    try {
-        $user = User::with('profile')->findOrFail($id);
-        
-        // Get position and specialization from profile
-        $position = null;
-        $specialization = null;
-        if ($user->profile) {
-            $position = $user->profile->position;
-            $specialization = $user->profile->specialization;
+    public function getUser($id)
+    {
+        try {
+            $user = User::with('profile')->findOrFail($id);
+            
+            // Get position and specialization from profile
+            $position = null;
+            $specialization = null;
+            if ($user->profile) {
+                $position = $user->profile->position;
+                $specialization = $user->profile->specialization;
+            }
+            
+            return response()->json([
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'middle_name' => $user->middle_name,
+                'suffix' => $user->suffix,
+                'email' => $user->email,
+                'username' => $user->username,
+                'role' => $user->role,
+                'position' => $position,
+                'specialization' => $specialization,
+                'approval_status' => $user->approval_status,
+                'rejection_reason' => $user->rejection_reason,
+                'approved_at' => $user->approved_at,
+                'approved_by' => $user->approved_by,
+                'email_verified_at' => $user->email_verified_at,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getUser: ' . $e->getMessage());
+            
+            return response()->json([
+                'error' => 'Failed to load user: ' . $e->getMessage()
+            ], 500);
         }
-        
-        return response()->json([
-            'id' => $user->id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'middle_name' => $user->middle_name,
-            'suffix' => $user->suffix,
-            'email' => $user->email,
-            'username' => $user->username,
-            'role' => $user->role,
-            'position' => $position,
-            'specialization' => $specialization,
-            'approval_status' => $user->approval_status,
-            'rejection_reason' => $user->rejection_reason,
-            'approved_at' => $user->approved_at,
-            'approved_by' => $user->approved_by,
-            'email_verified_at' => $user->email_verified_at,
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error in getUser: ' . $e->getMessage());
-        
-        return response()->json([
-            'error' => 'Failed to load user: ' . $e->getMessage()
-        ], 500);
     }
-}
+
     /**
      * Approve a user account (for applicants)
      * 
@@ -881,7 +881,7 @@ private function getSpecializationDisplay($specialization): string
         }
     }
 
-      /**
+    /**
      * Export users with multiple format options
      */
     public function exportUsers(Request $request)
@@ -1466,23 +1466,28 @@ private function getSpecializationDisplay($specialization): string
 
     /**
      * Get position display text
+     * 
+     * @param string|null $position
+     * @param string $role
+     * @return string
      */
     private function getPositionDisplay($position, $role)
-{
-    if ($role !== 'staff' || !$position) return '—';
-    
-    $positionMap = [
-        'engineer' => 'Engineer',
-        'architect' => 'Architect',
-        'BFP' => 'BFP',
-        'bfp' => 'BFP',
-        'cpdo' => 'CPDO',
-        'administrative_aide' => 'Admin Aide',
-        'treasurer' => 'Treasurer',
-        'assessor' => 'Assessor',
-        'mayor' => 'Mayor'
-    ];
-    
-    return $positionMap[$position] ?? ucfirst($position);
-}
+    {
+        if ($role !== 'staff' || !$position) return '—';
+        
+        $positionMap = [
+            'engineer' => 'Engineer',
+            'architect' => 'Architect',
+            'BFP' => 'BFP',
+            'bfp' => 'BFP',
+            'cpdo' => 'CPDO',
+            'administrative_aide' => 'Admin Aide',
+            'treasurer' => 'Treasurer',
+            'assessor' => 'Assessor',
+            'mayor' => 'Mayor',
+            'monitoring' => 'Monitoring'  // ADDED MONITORING HERE
+        ];
+        
+        return $positionMap[$position] ?? ucfirst($position);
+    }
 }

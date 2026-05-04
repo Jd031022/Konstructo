@@ -70,6 +70,7 @@
                                             'treasurer' => 'Treasurer',
                                             'assessor' => 'Assessor',
                                             'mayor' => 'Mayor',
+                                            'monitoring' => 'Monitoring',
                                             default => ucfirst(str_replace('_', ' ', $position))
                                         };
                                         echo $positionDisplay;
@@ -175,6 +176,9 @@ function updateHeaderPosition(position, specialization = null) {
                     break;
                 case 'mayor':
                     displayText = 'Mayor';
+                    break;
+                case 'monitoring':
+                    displayText = 'Monitoring';
                     break;
                 default:
                     displayText = position?.replace('_', ' ')?.replace('bfp', 'BFP')?.toLowerCase()?.replace(/\b\w/g, l => l.toUpperCase()) || '';
