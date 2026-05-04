@@ -1811,7 +1811,201 @@ public function updateStatus(Request $request, $id)
         ], 500);
     }
 }
-
+/**
+ * Notify all staff members about application status change
+ * 
+ * @param int $id
+ * @param Request $request
+ * @return \Illuminate\Http\JsonResponse
+ */
+public function notifyStaffStatusChange($id, Request $request)
+{
+    \Illuminate\Support\Facades\Log::info('========== NOTIFY STAFF STATUS CHANGE START ==========');
+    \Illuminate\Support\Facades\Log::info('Application ID: ' . $id);
+    \Illuminate\Support\Facades\Log::info('Request data: ' . json_encode($request->all()));
+    
+    try {
+        $application = ApplicationDocument::with('user')->findOrFail($id);
+        $status = $request->input('status');
+        $statusDisplay = $request->input('status_display');
+        $remarks = $request->input('remarks');
+        
+        // Get the authenticated user (who made the update) - this is more reliable
+        $authUser = auth()->user();
+        $updatedBy = $authUser->first_name . ' ' . $authUser->last_name;
+        $updatedByPosition = $authUser->profile ? $authUser->profile->position : ($authUser->role ?? 'Staff');
+        
+        \Illuminate\Support\Facades\Log::info('Authenticated user:', [
+            'id' => $authUser->id,
+            'name' => $updatedBy,
+            'position' => $updatedByPosition
+        ]);
+        
+        \Illuminate\Support\Facades\Log::info('Application found:', [
+            'id' => $application->id,
+            'number' => $application->application_number,
+            'status' => $status
+        ]);
+        
+        // Get all staff and admin users (excluding the one who made the update)
+        $users = User::whereIn('role', ['staff', 'admin'])
+            ->where('id', '!=', $authUser->id)
+            ->get();
+        
+        \Illuminate\Support\Facades\Log::info('Users to notify: ' . $users->count());
+        
+        $notifiedCount = 0;
+        $emailSentCount = 0;
+        
+        $gmailService = new \App\Services\GmailService();
+        
+        foreach ($users as $user) {
+            try {
+                // Check if notification already sent for this status change (prevent duplicate)
+                $existingNotification = DB::table('notifications')
+                    ->where('notifiable_id', $user->id)
+                    ->where('notifiable_type', get_class($user))
+                    ->where('data', 'like', '%' . $application->id . '%')
+                    ->where('data', 'like', '%' . $status . '%')
+                    ->where('created_at', '>', now()->subMinutes(5))
+                    ->first();
+                
+                if (!$existingNotification) {
+                    // Create database notification
+                    $notification = new \App\Notifications\StaffApplicationStatusChangeNotification(
+                        $application,
+                        $status,
+                        $statusDisplay,
+                        $remarks,
+                        $updatedBy,
+                        $updatedByPosition
+                    );
+                    
+                    $user->notify($notification);
+                    $notifiedCount++;
+                    \Illuminate\Support\Facades\Log::info('✅ Database notification sent to: ' . $user->email);
+                } else {
+                    \Illuminate\Support\Facades\Log::info('⏭️ Skipping duplicate notification for: ' . $user->email);
+                }
+                
+                // Send email notification
+                try {
+                    $emailSent = $this->sendStaffStatusChangeEmail($user, $application, $statusDisplay, $remarks, $updatedBy, $updatedByPosition, $gmailService);
+                    if ($emailSent) {
+                        $emailSentCount++;
+                        \Illuminate\Support\Facades\Log::info('✅ Email sent to: ' . $user->email);
+                    }
+                } catch (\Exception $emailEx) {
+                    \Illuminate\Support\Facades\Log::error('❌ Failed to send email to ' . $user->email . ': ' . $emailEx->getMessage());
+                }
+                
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('❌ Failed to send notification to ' . $user->email . ': ' . $e->getMessage());
+            }
+        }
+        
+        \Illuminate\Support\Facades\Log::info('========== NOTIFY STAFF STATUS CHANGE END ==========');
+        
+        return response()->json([
+            'success' => true,
+            'notified_count' => $notifiedCount,
+            'email_sent_count' => $emailSentCount,
+            'updated_by' => $updatedBy,
+            'updated_by_position' => $updatedByPosition,
+            'message' => "Notified {$notifiedCount} staff members, {$emailSentCount} emails sent"
+        ]);
+        
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Error in notifyStaffStatusChange: ' . $e->getMessage());
+        \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to send notifications: ' . $e->getMessage()
+        ], 500);
+    }
+}
+/**
+ * Send email to staff about status change
+ */
+private function sendStaffStatusChangeEmail($staff, $application, $statusDisplay, $remarks, $updatedBy, $updatedByPosition, $gmailService)
+{
+    $applicantName = $application->user ? $application->user->first_name . ' ' . $application->user->last_name : 'N/A';
+    
+    $formattedNumber = $application->application_number;
+    if (strlen($formattedNumber) === 10) {
+        $formattedNumber = substr($formattedNumber, 0, 2) . '-' . 
+                          substr($formattedNumber, 2, 4) . '-' . 
+                          substr($formattedNumber, 6, 4);
+    }
+    
+    $subject = "Application Status Update - {$formattedNumber}";
+    
+    $statusClass = 'status-' . str_replace('_', '-', $statusDisplay);
+    $statusClass = strtolower(str_replace(' ', '-', $statusClass));
+    
+    $htmlContent = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #155386 0%, #40798C 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .content { padding: 30px; }
+            .greeting { font-size: 18px; color: #155386; font-weight: 500; margin-bottom: 20px; }
+            .status-badge { display: inline-block; padding: 8px 20px; border-radius: 30px; font-weight: bold; margin: 15px 0; font-size: 14px; }
+            .status-under-review { background: #e9d5ff; color: #6b21a5; }
+            .status-document-verification { background: #dbeafe; color: #1e40af; }
+            .status-for-assessment { background: #fef3c7; color: #92400e; }
+            .status-approved { background: #d1fae5; color: #065f46; }
+            .status-rejected { background: #fee2e2; color: #991b1b; }
+            .status-for-release { background: #dbeafe; color: #1e40af; }
+            .info-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #155386; }
+            .button { background: #155386; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 15px; font-weight: 600; }
+            .button:hover { background: #40798C; }
+            .footer { text-align: center; padding: 20px; background: #f8f9fa; font-size: 12px; color: #666; border-top: 1px solid #e9ecef; }
+            .brand-name { font-weight: 600; color: #155386; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>Application Status Update</h1>
+            </div>
+            <div class='content'>
+                <div class='greeting'>Dear {$staff->first_name},</div>
+                
+                <p>The status of application <strong>{$formattedNumber}</strong> has been updated.</p>
+                
+                <div style='text-align: center;'>
+                    <span class='status-badge {$statusClass}'>Status: {$statusDisplay}</span>
+                </div>
+                
+                <div class='info-box'>
+                    <p><strong>📋 Application Number:</strong> {$formattedNumber}</p>
+                    <p><strong>👤 Applicant:</strong> " . htmlspecialchars($applicantName) . "</p>
+                    <p><strong>✏️ Updated By:</strong> {$updatedBy} ({$updatedByPosition})</p>
+                    " . ($remarks ? "<p><strong>📝 Remarks:</strong> " . nl2br(htmlspecialchars($remarks)) . "</p>" : "") . "
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='" . env('APP_URL') . "/staff/application-details/{$application->id}' class='button'>View Application Details</a>
+                </div>
+            </div>
+            <div class='footer'>
+                <p class='brand-name'>Konstructo — Smart Infrastructure Oversight</p>
+                <p>This is an automated notification from Konstructo.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    $gmailService->sendEmail($staff->email, $subject, $htmlContent);
+}
    /**
  * Add note to application without changing status
  * Also handles document verification and reset logging

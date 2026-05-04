@@ -62,7 +62,8 @@ Route::post('/staff/applications/{id}/ownership-remark', [App\Http\Controllers\S
     
 // Staff UI and API Routes - ORDER MATTERS! Put specific routes FIRST
 Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () {
-    
+     Route::post('/applications/{id}/notify-staff-status-change', [App\Http\Controllers\Staff\ApplicationController::class, 'notifyStaffStatusChange'])
+        ->name('applications.notify-staff-status-change');
    // ========== SPECIFIC API ROUTES FIRST (before wildcard routes) ==========
     Route::get('/applications/data', [App\Http\Controllers\Staff\ApplicationController::class, 'index'])->name('applications.data');
     Route::get('/applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'export'])->name('applications.export');
@@ -74,6 +75,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
     Route::get('/applications/upcoming-deadlines', [App\Http\Controllers\Staff\DashboardController::class, 'getUpcomingDeadlines'])->name('applications.upcoming-deadlines');
     Route::post('/applications/restore-multiple', [App\Http\Controllers\Staff\ApplicationController::class, 'restoreMultiple'])->name('applications.restore-multiple');
     Route::get('/position/check', [App\Http\Controllers\Staff\DashboardController::class, 'checkPosition'])->name('position.check');
+
 
     // =========Route::get('/position/check', [App\Http\Controllers\Staff\DashboardController::class, 'checkPosition'])->name('position.check');= OWNERSHIP VERIFICATIONS DASHBOARD ROUTE ==========
     Route::get('/ownership-verifications/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'getOwnershipVerificationsForDashboard']);

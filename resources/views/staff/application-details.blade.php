@@ -3,6 +3,7 @@
 @section('title', 'Application Details - Staff View')
 
 @section('content')
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Back Button -->
@@ -1617,6 +1618,7 @@
         </div>
     </div>
 </div>
+
 <script>
     let applicationId = window.location.pathname.split('/').pop();
     let currentApplication = null;
@@ -1673,10 +1675,27 @@
         };
     }
 
-    function getCurrentUserInfo() {
-        return currentUserInfo;
+   function getCurrentUserInfo() {
+    // Try to get from global variable set in layout
+    if (window.KonstructoUser && window.KonstructoUser.id) {
+        return window.KonstructoUser;
     }
-
+    
+    // Fallback to reading from header
+    const headerUserName = document.querySelector('.text-white-500.text-sm')?.textContent || 'Staff';
+    const headerWelcome = document.querySelector('h1')?.textContent || '';
+    let firstName = '';
+    if (headerWelcome.includes('Welcome,')) {
+        firstName = headerWelcome.replace('Welcome,', '').replace('!', '').trim();
+    }
+    
+    return {
+        id: null,
+        name: firstName || 'Staff User',
+        position: headerUserName || currentUserPosition || 'staff',
+        email: null
+    };
+}
     // ========== ACTIVITY LOG REFRESH FUNCTION (MOVED UP) ==========
     async function refreshActivityLog() {
         try {
@@ -2693,31 +2712,129 @@
         return true;
     }
     
-    async function processStatusUpdate(status, additionalData = {}) {
-        const btn = document.getElementById('update-status-btn');
-        const original = btn.innerHTML;
-        btn.innerHTML = 'Updating...';
-        btn.disabled = true;
-        const remarks = document.getElementById('status-remarks').value;
-        showSubmittingModal('Updating application status...');
+async function processStatusUpdate(status, additionalData = {}) {
+    const btn = document.getElementById('update-status-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Updating...';
+    btn.disabled = true;
+    const remarks = document.getElementById('status-remarks').value;
+    showSubmittingModal('Updating application status...');
+    
+    try {
+        const csrfToken = getCsrfToken();
+        const payload = { 
+            status: status, 
+            remarks: remarks, 
+            hardcopy_received: document.getElementById('hardcopy-checkbox').checked, 
+            ...additionalData 
+        };
         
-        try {
-            const csrfToken = getCsrfToken();
-            const payload = { status: status, remarks: remarks, hardcopy_received: document.getElementById('hardcopy-checkbox').checked, ...additionalData };
-            const response = await fetch(`/staff/applications/${applicationId}/status`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            closeSubmittingModal();
-            if (data.success) {
-                let successMessage = 'Application status has been updated successfully.';
-                if (additionalData.building_permit_number) successMessage = `Building Permit #${additionalData.building_permit_number} has been issued successfully.`;
-                showSuccessModal('Status Updated', successMessage);
-                setTimeout(() => location.reload(), 1500);
-            } else { showErrorModal('Update Failed', data.message || 'Failed to update status'); }
-        } catch(error) { closeSubmittingModal(); console.error('Error:', error); showErrorModal('Error', 'Error updating status'); }
-        finally { btn.innerHTML = original; btn.disabled = false; }
+        console.log('Updating status with payload:', payload);
+        
+        const response = await fetch(`/staff/applications/${applicationId}/status`, {
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        console.log('Status update response:', data);
+        
+        closeSubmittingModal();
+        
+        if (data.success) {
+            let successMessage = 'Application status has been updated successfully.';
+            if (additionalData.building_permit_number) successMessage = `Building Permit #${additionalData.building_permit_number} has been issued successfully.`;
+            showSuccessModal('Status Updated', successMessage);
+            
+            // Call notification function after successful status update
+            console.log('Calling notifyStaffOfStatusChange...');
+            await notifyStaffOfStatusChange(status, remarks);
+            console.log('notifyStaffOfStatusChange completed');
+            
+            setTimeout(() => location.reload(), 1500);
+        } else { 
+            showErrorModal('Update Failed', data.message || 'Failed to update status'); 
+        }
+    } catch(error) { 
+        closeSubmittingModal(); 
+        console.error('Error:', error); 
+        showErrorModal('Error', 'Error updating status'); 
     }
+    finally { 
+        btn.innerHTML = original; 
+        btn.disabled = false; 
+    }
+}
+
+async function notifyStaffOfStatusChange(newStatus, remarks) {
+    console.log('notifyStaffOfStatusChange called with:', { newStatus, remarks });
+    
+    try {
+        const csrfToken = getCsrfToken();
+        
+        // Get current user info from the page or from a data attribute
+        let currentUserName = '';
+        let currentUserPositionText = '';
+        
+        // Try to get from the header
+        const welcomeText = document.querySelector('h1')?.textContent || '';
+        if (welcomeText.includes('Welcome,')) {
+            currentUserName = welcomeText.replace('Welcome,', '').replace('!', '').trim();
+        }
+        
+        // Get position from header
+        const positionElement = document.querySelector('.text-white-500.text-sm');
+        if (positionElement) {
+            currentUserPositionText = positionElement.textContent.trim();
+        }
+        
+        // Fallback
+        if (!currentUserName) currentUserName = 'Staff User';
+        if (!currentUserPositionText) currentUserPositionText = currentUserPosition || 'staff';
+        
+        const statusDisplay = {
+            'under-review': 'Under Review',
+            'document-verification': 'Document Verification',
+            'for-assessment': 'For Assessment',
+            'approved': 'Approved',
+            'rejected': 'Rejected',
+            'for-release': 'For Release',
+            'verified': 'Completed'
+        }[newStatus] || newStatus.replace('-', ' ');
+        
+        const payload = {
+            status: newStatus,
+            status_display: statusDisplay,
+            remarks: remarks,
+            updated_by: currentUserName,
+            updated_by_position: currentUserPositionText,
+            application_number: currentApplication?.application_number
+        };
+        
+        console.log('Sending notification payload:', payload);
+        
+        const response = await fetch(`/staff/applications/${applicationId}/notify-staff-status-change`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        console.log('Notification response:', data);
+        
+        if (data.success) {
+            console.log('✅ Staff notifications sent:', data.notified_count, 'staff members');
+        } else {
+            console.error('❌ Failed to send notifications:', data.message);
+        }
+    } catch (error) {
+        console.error('❌ Error notifying staff:', error);
+    }
+}
     
     async function updateStatus() {
         const selected = document.querySelector('input[name="status"]:checked');
