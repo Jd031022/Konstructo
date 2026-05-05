@@ -2096,25 +2096,7 @@ private function getStatusEmailContent($status, $applicationNumber, $applicantNa
         ";
     }
 
-    /**
-     * Test connection to Gmail API
-     */
-    public function testConnection()
-    {
-        if (!$this->isConfigured) {
-            return "Gmail service is not configured. Using mail fallback.";
-        }
-        
-        try {
-            if ($this->client->isAccessTokenExpired()) {
-                $this->client->fetchAccessTokenWithRefreshToken();
-            }
-            $profile = $this->service->users->getProfile('me');
-            return "Connected as: " . $profile->getEmailAddress();
-        } catch (\Exception $e) {
-            return "Connection failed: " . $e->getMessage();
-        }
-    }
+    
     /**
  * Send email to treasurer when both assessments are ready for payment order creation
  */

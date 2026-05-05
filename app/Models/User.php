@@ -136,6 +136,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class);
     }
+    // app/Models/User.php
+public function logLoginAttempt($username, $success)
+{
+    // Implement or leave empty if not needed
+}
 // Add to User model
 public function paymentProofs()
 {
