@@ -397,4 +397,67 @@ class FastLoadController extends Controller
         
         return $actionMap[$action] ?? ucfirst(str_replace('_', ' ', $action));
     }
+    /**
+ * Clear application cache for all users (staff only)
+ * This ensures everyone sees the updated status after CPDO decision
+ */
+public function clearApplicationCache($id)
+{
+    try {
+        // Only staff and admin can clear cache
+        if (!in_array(auth()->user()->role, ['staff', 'admin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        
+        $count = 0;
+        
+        // Get all staff and admin users
+        $staffUsers = User::whereIn('role', ['staff', 'admin'])->get();
+        
+        foreach ($staffUsers as $user) {
+            $cacheKey = "fast_load_app_{$id}_user_{$user->id}";
+            if (Cache::has($cacheKey)) {
+                Cache::forget($cacheKey);
+                $count++;
+            }
+        }
+        
+        // Also clear for the current user (redundant but safe)
+        $currentCacheKey = "fast_load_app_{$id}_user_" . auth()->id();
+        if (Cache::has($currentCacheKey)) {
+            Cache::forget($currentCacheKey);
+        }
+        
+        // Also clear for the applicant if they have a staff role
+        $application = ApplicationDocument::find($id);
+        if ($application && $application->user_id) {
+            $applicantCacheKey = "fast_load_app_{$id}_user_{$application->user_id}";
+            if (Cache::has($applicantCacheKey)) {
+                Cache::forget($applicantCacheKey);
+                $count++;
+            }
+        }
+        
+        Log::info('Application cache cleared', [
+            'application_id' => $id,
+            'cleared_by' => auth()->id(),
+            'entries_cleared' => $count
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Cleared {$count} cache entries for application {$id}"
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Failed to clear application cache: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to clear cache: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

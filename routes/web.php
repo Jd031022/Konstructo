@@ -66,6 +66,8 @@ Route::prefix('staff')->name('staff.')->middleware(['auth'])->group(function () 
         ->name('fast-load.application');
     Route::post('/fast-load/clear-cache/{id}', [App\Http\Controllers\API\FastLoadController::class, 'clearCache'])
         ->name('fast-load.clear-cache');
+    Route::post('/fast-load/clear-application-cache/{id}', [App\Http\Controllers\API\FastLoadController::class, 'clearApplicationCache'])
+        ->name('fast-load.clear-application-cache');
      Route::post('/applications/{id}/notify-staff-status-change', [App\Http\Controllers\Staff\ApplicationController::class, 'notifyStaffStatusChange'])
         ->name('applications.notify-staff-status-change');
    // ========== SPECIFIC API ROUTES FIRST (before wildcard routes) ==========

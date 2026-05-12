@@ -114,20 +114,19 @@
         </div>
 
         <!-- CPDO Rejected Notice -->
-        <div id="cpdo-rejected-notice" class="mb-6 p-4 bg-red-100 border-l-4 border-red-600 rounded-r-lg hidden animate-slide-down">
-            <div class="flex items-start gap-3">
-                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-800">CPDO Rejected</h4>
-                    <p id="cpdo-rejection-reason" class="text-sm text-gray-700 mt-1">This application has been rejected by CPDO.</p>
-                </div>
-            </div>
+       <div id="cpdo-rejected-notice" class="mb-6 p-4 bg-red-100 border-l-4 border-red-600 rounded-r-lg hidden animate-slide-down">
+    <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
         </div>
-
+        <div>
+            <h4 class="font-semibold text-gray-800">CPDO Rejected</h4>
+            <p id="cpdo-rejection-reason" class="text-sm text-gray-700 mt-1">This application has been rejected by CPDO.</p>
+        </div>
+    </div>
+</div>
         <!-- Ownership Status Card -->
         <div id="ownership-status-card" class="mb-6 p-4 bg-teal-50 border-l-4 border-teal-600 rounded-r-lg hidden animate-slide-down">
             <div class="flex items-start gap-3">
@@ -2087,34 +2086,101 @@ function updateCPDOUI() {
     const remarksDisplay = document.getElementById('cpdo-remarks-display');
     const remarksText = document.getElementById('cpdo-remarks-text');
     const approvedInfo = document.getElementById('cpdo-approved-info');
+    const approvedByNameSpan = document.getElementById('cpdo-approved-by');
+    const approvedAtSpan = document.getElementById('cpdo-approved-at');
+    const cpdoRejectionReasonSpan = document.getElementById('cpdo-rejection-reason');
+    
+    console.log('updateCPDOUI called with cpdoStatus:', cpdoStatus);
     
     if (cpdoStatus === 'approved') {
-        if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700'; statusBadge.textContent = 'Approved'; }
-        if (remarksDisplay && cpdoRemarks) { remarksDisplay.classList.remove('hidden'); if (remarksText) remarksText.textContent = cpdoRemarks; }
-        if (approvedInfo && cpdoApprovedBy) approvedInfo.classList.remove('hidden');
+        // Approved state
+        if (statusBadge) { 
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-green-100 text-green-700'; 
+            statusBadge.textContent = 'Approved'; 
+        }
+        if (remarksDisplay && cpdoRemarks) { 
+            remarksDisplay.classList.remove('hidden'); 
+            if (remarksText) remarksText.textContent = cpdoRemarks; 
+        } else if (remarksDisplay) {
+            remarksDisplay.classList.add('hidden');
+        }
+        if (approvedInfo && cpdoApprovedBy) {
+            approvedInfo.classList.remove('hidden');
+            if (approvedByNameSpan) approvedByNameSpan.textContent = cpdoApprovedBy;
+            if (approvedAtSpan && cpdoApprovedAt) approvedAtSpan.textContent = new Date(cpdoApprovedAt).toLocaleString();
+        } else if (approvedInfo) {
+            approvedInfo.classList.add('hidden');
+        }
         if (cpdoForm) cpdoForm.classList.add('hidden');
         if (pendingMessage) pendingMessage.classList.add('hidden');
         if (rejectedMessage) rejectedMessage.classList.add('hidden');
         if (approvedMessage) approvedMessage.classList.remove('hidden');
-        if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50');
+        if (statusUpdateCard) statusUpdateCard.classList.remove('opacity-50', 'pointer-events-none');
+        
     } else if (cpdoStatus === 'rejected') {
-        if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700'; statusBadge.textContent = 'Rejected'; }
-        if (remarksDisplay && cpdoRemarks) { remarksDisplay.classList.remove('hidden'); if (remarksText) remarksText.textContent = cpdoRemarks; }
+        // Rejected state - FIXED
+        if (statusBadge) { 
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-700'; 
+            statusBadge.textContent = 'Rejected'; 
+        }
+        if (remarksDisplay && cpdoRemarks) { 
+            remarksDisplay.classList.remove('hidden'); 
+            if (remarksText) remarksText.textContent = cpdoRemarks; 
+            if (cpdoRejectionReasonSpan) cpdoRejectionReasonSpan.textContent = cpdoRemarks;
+        } else if (remarksDisplay) {
+            remarksDisplay.classList.add('hidden');
+        }
+        if (approvedInfo) approvedInfo.classList.add('hidden');
+        
+        // IMPORTANT: Hide the form and show the rejected message
         if (cpdoForm) cpdoForm.classList.add('hidden');
         if (pendingMessage) pendingMessage.classList.add('hidden');
         if (rejectedMessage) rejectedMessage.classList.remove('hidden');
         if (approvedMessage) approvedMessage.classList.add('hidden');
-        if (statusUpdateCard) statusUpdateCard.classList.add('opacity-50');
+        
+        // Disable status update card when rejected
+        if (statusUpdateCard) {
+            statusUpdateCard.classList.add('opacity-50', 'pointer-events-none');
+        }
+        
+        // Disable all verification buttons as well
+        const verifyBtns = document.querySelectorAll('[onclick*="openVerifyDocModal"]');
+        verifyBtns.forEach(btn => {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+        
+        // Disable ownership verification checkboxes
+        const ownershipCheckboxes = document.querySelectorAll('.ownership-verify-checkbox');
+        ownershipCheckboxes.forEach(cb => {
+            cb.disabled = true;
+            cb.closest('label')?.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+        
     } else {
-        if (statusBadge) { statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700'; statusBadge.textContent = 'Pending'; }
+        // Pending state
+        if (statusBadge) { 
+            statusBadge.className = 'px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700'; 
+            statusBadge.textContent = 'Pending'; 
+        }
         if (remarksDisplay) remarksDisplay.classList.add('hidden');
         if (approvedInfo) approvedInfo.classList.add('hidden');
         if (rejectedMessage) rejectedMessage.classList.add('hidden');
         if (approvedMessage) approvedMessage.classList.add('hidden');
-        if (pendingMessage) pendingMessage.classList.remove('hidden');
-        if (isCPDO && cpdoForm) { cpdoForm.classList.remove('hidden'); if (pendingMessage) pendingMessage.classList.add('hidden'); }
-        else if (cpdoForm) cpdoForm.classList.add('hidden');
-        if (statusUpdateCard && !isCPDO) statusUpdateCard.classList.add('opacity-50');
+        
+        if (isCPDO && cpdoForm) { 
+            cpdoForm.classList.remove('hidden'); 
+            if (pendingMessage) pendingMessage.classList.add('hidden'); 
+        } else if (cpdoForm) {
+            cpdoForm.classList.add('hidden');
+            if (pendingMessage) pendingMessage.classList.remove('hidden');
+        }
+        
+        if (statusUpdateCard && !isCPDO) {
+            statusUpdateCard.classList.add('opacity-50', 'pointer-events-none');
+        } else if (statusUpdateCard && isCPDO) {
+            statusUpdateCard.classList.remove('opacity-50', 'pointer-events-none');
+        }
     }
 }
 
@@ -3163,24 +3229,29 @@ async function confirmCPDODecision() {
         });
         const data = await response.json();
         closeSubmittingModal();
+        
         if (data.success) {
-            cpdoStatus = decision;
-            cpdoRemarks = remarks;
+            // CRITICAL FIX: Force a full page reload to show the updated state
             showSuccessModal('Decision Submitted', data.message);
-            setTimeout(() => location.reload(), 1500);
+            
+            // Force reload after 1.5 seconds to show the updated UI
+            setTimeout(() => {
+                window.location.reload(true); // true forces reload from server, not cache
+            }, 1500);
         } else {
             showErrorModal('Submission Failed', data.message || 'Failed to submit decision');
+            if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
         }
     } catch(error) {
         closeSubmittingModal();
-        showErrorModal('Error', 'Error submitting decision');
-    } finally {
+        console.error('Error submitting CPDO decision:', error);
+        showErrorModal('Error', 'Error submitting decision: ' + (error.message || 'Please try again.'));
         if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+    } finally {
         pendingCPDODecision = null;
         pendingCPDORemarks = null;
     }
 }
-
 async function submitOwnershipRemark() {
     const remarkText = document.getElementById('ownership-remark-text')?.value.trim();
     const docKey = window.currentRemarkDocumentKey;
@@ -4190,6 +4261,9 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 1;
         transform: translateY(0);
     }
+}
+.pointer-events-none {
+    pointer-events: none;
 }
 
 .rotate-180 { transform: rotate(180deg); }
