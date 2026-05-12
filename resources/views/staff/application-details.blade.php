@@ -4057,6 +4057,12 @@ function renderAllData() {
     console.log('currentUserPosition:', currentUserPosition);
     console.log('isCPDOUser() result:', isCPDOUser());
     
+    // Hide archive button for non-engineers
+    const archiveBtn = document.querySelector('button[onclick="openArchiveModal()"]');
+    if (archiveBtn && currentUserPosition !== 'engineer') {
+        archiveBtn.style.display = 'none';
+    }
+    
     loadPaymentProof();
     
     if (currentApplication) {

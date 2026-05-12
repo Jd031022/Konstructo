@@ -59,16 +59,6 @@
                 <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Archive</span>
             </a>
 
-            <!-- System Settings (Admin only) -->
-            <a href="/admin/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
-            </a>
-
 <!-- STAFF ROUTES -->
 @elseif(auth()->user()->role === 'staff')
 
@@ -93,17 +83,7 @@
         <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Applications</span>
     </a>
 
-    <!-- System Settings - MAYOR ONLY -->
-    @if($isMayor)
-    <a href="/staff/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
-    </a>
-    @endif
+
 
     <!-- Payment Assessments - TREASURER ONLY -->
     @if($isTreasurer)
@@ -147,6 +127,7 @@
         <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Surveys</span>
     </a>
 
+
         <!-- APPLICANT ROUTES -->
         @elseif(auth()->user()->role === 'applicant')
             <!-- My Applications -->
@@ -185,6 +166,59 @@
             </svg>
             <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">Profile</span>
         </a>
+
+        <!-- ADMIN SYSTEM SETTINGS AND USER MANUAL -->
+        @if(auth()->user()->role === 'admin')
+            <!-- System Settings (Admin only) -->
+            <a href="/admin/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
+            </a>
+
+            <!-- User Manual (Admin only) -->
+            <a href="/admin/user-manual" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('admin/user-manual*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">User Manual</span>
+            </a>
+        @endif
+
+        <!-- STAFF SYSTEM SETTINGS AND USER MANUAL -->
+        @if(auth()->user()->role === 'staff')
+            @php
+                $user = Auth::user();
+                $user->load('profile');
+                $position = $user->profile ? $user->profile->position : null;
+                $isMayor = ($position === 'mayor');
+            @endphp
+            
+            <!-- System Settings (Staff - MAYOR ONLY) -->
+            @if($isMayor)
+            <a href="/staff/settings" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/settings*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">System Settings</span>
+            </a>
+            @endif
+            
+            <!-- User Manual (Staff only) -->
+            <a href="/staff/user-manual" class="w-full flex items-center gap-4 p-2 rounded-xl {{ request()->is('staff/user-manual*') ? 'bg-[#155386] text-white' : 'text-gray-500 hover:bg-gray-100' }} transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 min-w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <span class="text-sm font-medium whitespace-nowrap sidebar-text transition-opacity duration-300">User Manual</span>
+            </a>
+        @endif
 
     </nav>
 

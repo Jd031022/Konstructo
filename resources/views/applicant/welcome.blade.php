@@ -451,6 +451,7 @@
             <p class="text-sm text-gray-400 leading-relaxed">
                 Smart infrastructure oversight for modern cities. Building better communities through technology and collaboration.
             </p>
+                        <p class="text-xs text-gray-500 mt-2">Created by Jethro J. Manzanillo & Juliane Rebecca S. Dayandante</p>
         </div>
 
         <!-- Quick Links -->

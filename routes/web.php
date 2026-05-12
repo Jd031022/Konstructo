@@ -209,6 +209,11 @@ Route::get('/payment-assessments', function () {
     Route::get('/archived-applications/export', [App\Http\Controllers\Staff\ApplicationController::class, 'exportArchived'])->name('archived-applications.export');
     
     Route::get('/dashboard/export', [App\Http\Controllers\Staff\DashboardController::class, 'exportDashboard'])->name('dashboard.export');
+
+    // ========== USER MANUAL ROUTE ==========
+    Route::get('/user-manual', function () {
+        return view('user-manual.index');
+    })->name('user-manual');
 });
 
 // Applicant UI Routes
@@ -399,6 +404,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/applications/{id}/archive', [App\Http\Controllers\Admin\ApplicationController::class, 'archive'])->name('applications.archive');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/logs/export', [SettingsController::class, 'exportLogs'])->name('logs.export');
+
+    // ========== USER MANUAL ROUTE ==========
+    Route::get('/user-manual', function () {
+        return view('user-manual.index');
+    })->name('user-manual');
 });
 
 // Dashboard route with role-based redirect

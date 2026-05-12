@@ -3306,6 +3306,7 @@
     window.setCPDORating = setCPDORating;
     window.submitCPDORating = submitCPDORating;
     window.closeCPDORatingModal = closeCPDORatingModal;
+    window.checkCPDORatingNeeded = checkCPDORatingNeeded;
     window.showPaymentProofForm = showPaymentProofForm;
     window.uploadPaymentProof = uploadPaymentProof;
     window.toggleReviewersSection = toggleReviewersSection;
