@@ -11,6 +11,14 @@
                 <h1 class="text-3xl font-bold text-gray-800">User Manual</h1>
                 <p class="text-gray-600 mt-2">Comprehensive step-by-step guide for staff and administrators</p>
             </div>
+            <div class="flex gap-3">
+                <a href="{{ asset('downloads/konstructo-manual.pdf') }}" target="_blank" download class="inline-flex items-center gap-2 px-4 py-2 bg-[#155386] text-white rounded-lg hover:bg-[#0d3d5f] transition shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-medium">Download PDF</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -93,7 +101,7 @@
                     @elseif($position === 'mayor')
                         You are a <strong class="text-[#155386]">Mayor's Office Staff</strong>. You can view applications and view CPDO ratings.
                     @elseif($position === 'monitoring')
-                        You are a <strong class="text-[#155386]">Monitoring Staff</strong>. You have read-only access to view application statuses.
+                        You are a <strong class="text-[#155386]">Monitoring Staff</strong>. You can update application statuses but cannot verify documents.
                     @elseif($position === 'administrative_aide')
                         You are an <strong class="text-[#155386]">Administrative Aide</strong>. You have basic view access to applications.
                     @else
@@ -290,12 +298,7 @@
             </div>
         </div>
 
-        <!-- Screenshot for Application Process -->
-        <div class="mb-8">
-            <p class="text-xs text-gray-500 mb-2 text-center">[Multi-Step Application Form Screenshot]</p>
-            <img src="{{ asset('images/applications-step-indicator.png') }}" alt="Application Process Steps" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-            <p class="text-xs text-gray-400 text-center mt-2">Figure: 5-step application progress indicator showing current step.</p>
-        </div>
+
 
         <!-- Two-Step Verification Section -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
@@ -362,12 +365,7 @@
             </div>
         </div>
 
-        <!-- Screenshot for Two-Step Verification -->
-        <div class="mt-6">
-            <p class="text-xs text-gray-500 mb-2 text-center">[Two-Step Verification Interface Screenshot]</p>
-            <img src="{{ asset('images/getting-started-verification.png') }}" alt="Two-Step Verification Process" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-            <p class="text-xs text-gray-400 text-center mt-2">Figure: Two-step verification interface showing Step 1 and Step 2 sections with role-based permissions.</p>
-        </div>
+
 
         <!-- Account Status & Login Guide -->
         <div class="mt-8 bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6">
@@ -539,12 +537,7 @@
             </div>
         </div>
 
-        <!-- Screenshot for Registration Form -->
-        <div class="mb-6">
-            <p class="text-xs text-gray-500 mb-2 text-center">[Registration Form Screenshot]</p>
-            <img src="{{ asset('images/registration-form.png') }}" alt="Registration Form" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-            <p class="text-xs text-gray-400 text-center mt-2">Figure: Multi-step registration form with progress indicator.</p>
-        </div>
+
 
         <!-- Step 2: Email Verification -->
         <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition mb-6">
@@ -577,30 +570,7 @@
                     </div>
                 </div>
 
-                <!-- Verification Modal Preview -->
-                <div class="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-500 mb-2 text-center">[Email Verification Modal]</p>
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 max-w-sm mx-auto">
-                        <div class="text-center">
-                            <div class="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-sm font-medium text-gray-800">Verify Your Email</p>
-                            <p class="text-xs text-gray-500 mt-1">Enter 6-digit code sent to your email</p>
-                            <div class="flex justify-center gap-2 mt-3">
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">_</div>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-400 text-center mt-2">Figure: 6-digit verification code input modal.</p>
-                </div>
+
             </div>
         </div>
 
@@ -633,20 +603,7 @@
                     </div>
                 </div>
 
-                <!-- Account Status Card Preview -->
-                <div class="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-500 mb-2 text-center">[Account Status Page Preview]</p>
-                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-4 text-center text-white">
-                        <div class="inline-flex w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-2">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-bold">Pending Approval</h4>
-                        <p class="text-sm opacity-90">Your account is currently pending approval from the administrator.</p>
-                    </div>
-                    <p class="text-xs text-gray-400 text-center mt-2">Figure: Account status page showing pending approval state.</p>
-                </div>
+
             </div>
         </div>
 
@@ -675,22 +632,7 @@
                     </div>
                 </div>
 
-                <!-- Login Card Preview -->
-                <div class="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-500 mb-2 text-center">[Login Form Preview]</p>
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 max-w-sm mx-auto">
-                        <div class="mb-3">
-                            <label class="block text-xs text-gray-600 mb-1">Email or Username</label>
-                            <div class="bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-400">your_email@example.com</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="block text-xs text-gray-600 mb-1">Password</label>
-                            <div class="bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-400">••••••••</div>
-                        </div>
-                        <div class="bg-[#155386] rounded-lg py-2 text-center text-white text-sm">Login</div>
-                    </div>
-                    <p class="text-xs text-gray-400 text-center mt-2">Figure: Login form for accessing your account.</p>
-                </div>
+
             </div>
         </div>
 
@@ -767,12 +709,7 @@
                         <p class="text-sm text-yellow-800"><strong>Tip:</strong> Click the date picker to select Daily, Monthly, or Yearly views. The dashboard supports filtering by specific dates, months, or entire years.</p>
                     </div>
 
-                    <!-- Screenshot for Section 1 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Dashboard Header & Controls Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview.png') }}" alt="Dashboard Header and Controls" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 1.1: Dashboard header showing date picker, export button, and position badge.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -819,12 +756,7 @@
                         <p class="text-sm text-blue-800"><strong>Reading the Cards:</strong> Each card shows a metric with a trend indicator (up arrow green for increase, down arrow red for decrease). Yellow-border cards indicate pending items requiring attention.</p>
                     </div>
 
-                    <!-- Screenshot for Section 2 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Statistics Cards Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview.png') }}" alt="Statistics Cards" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 1.2: Statistics cards showing total applications, pending review, completed, and for release metrics.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -864,12 +796,7 @@
                         <p class="text-sm text-green-800"><strong>Chart Navigation:</strong> Hover over data points to see exact values. Charts include summary statistics: Total, Average, Peak, and Growth percentage.</p>
                     </div>
 
-                    <!-- Screenshot for Section 3 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Trend Charts Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview.png') }}" alt="Trend Charts" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 1.3: Trend charts showing application volume and performance over time.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -905,12 +832,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Section 4 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Application Status Distribution Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview.png') }}" alt="Application Status Distribution" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 1.4: Donut chart showing application status breakdown with percentage distribution.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -957,12 +879,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Section 5 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Recent Activities Feed Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview2.png') }}" alt="Recent Activities Feed" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 2.1: Recent activities timeline showing document verifications and status changes.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -994,12 +911,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Section 6 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Citizen Satisfaction Dashboard Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview2.png') }}" alt="Citizen Satisfaction Dashboard" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 2.2: Citizen satisfaction dashboard showing rating, star breakdown, and survey response metrics.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1037,12 +949,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Section 7 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Staff Performance & Verification Queue Screenshot]</p>
-                        <img src="{{ asset('images/system-dashboard-overview3.png') }}" alt="Staff Performance and Verification Queue" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure 3: Staff performance metrics and document verification queue status.</p>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -1097,12 +1004,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Step 1 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Applications Sidebar Navigation Screenshot]</p>
-                        <img src="{{ asset('images/applications-step1.png') }}" alt="Applications Sidebar Navigation" class="rounded-lg border border-gray-200 shadow-md w-full max-w-2xl mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Left sidebar navigation with Applications menu highlighted, showing pending badge indicator.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1164,12 +1066,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Step 2 -->
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Search and Filter Controls Screenshot]</p>
-                        <img src="{{ asset('images/applications-step2.png') }}" alt="Search and Filter Controls" class="rounded-lg border border-gray-200 shadow-md w-full max-w-2xl mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Search bar, status filter, aging filter, and filter buttons with aging legend.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1273,12 +1170,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Step 4 -->
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Activity History Timeline Screenshot]</p>
-                        <img src="{{ asset('images/applications-step4.png') }}" alt="Activity History Timeline" class="rounded-lg border border-gray-200 shadow-md w-full max-w-2xl mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Full activity history page with filtering options, pagination, and detailed action logs.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1344,12 +1236,7 @@
                         </p>
                     </div>
 
-                    <!-- Screenshot for Step 5 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Status Dropdown Screenshot]</p>
-                        <img src="{{ asset('images/applications-step5.png') }}" alt="Application Status Dropdown" class="rounded-lg border border-gray-200 shadow-md w-full max-w-md mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Status update dropdown showing role-based available options.</p>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -1424,12 +1311,7 @@
                         </ul>
                     </div>
 
-                    <!-- Screenshot for Task 1 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Ownership Documents Verification Screenshot]</p>
-                        <img src="{{ asset('images/staff-task1.png') }}" alt="Ownership Documents Verification" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Step 1 ownership documents section with verification checkboxes and remark buttons.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1453,7 +1335,7 @@
                             </div>
                             <div class="bg-gray-100 rounded-lg p-3 border-l-4 border-gray-500">
                                 <p class="font-medium text-gray-700">Other Roles</p>
-                                <p class="text-sm text-gray-600">CPDO, Assessor, Treasurer, BFP, Mayor, Monitoring - View-only access</p>
+                                <p class="text-sm text-gray-600">CPDO, Assessor, Treasurer, BFP, Mayor - View-only access</p>
                             </div>
                         </div>
                         <ol class="list-decimal list-inside space-y-3 text-gray-700">
@@ -1483,12 +1365,7 @@
                         </ul>
                     </div>
 
-                    <!-- Screenshot for Task 2 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Project Document Verification Screenshot]</p>
-                        <img src="{{ asset('images/staff-task2.png') }}" alt="Project Document Verification" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Step 2 project documents section with view, verify, and request missing documents buttons.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1513,12 +1390,7 @@
                         </ol>
                     </div>
 
-                    <!-- Screenshot for Task 3 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Hard Copy Receiving Screenshot]</p>
-                        <img src="{{ asset('images/staff-task3.png') }}" alt="Hard Copy Receiving" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Status update card with Hard Copy Received checkbox.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1563,12 +1435,7 @@
                         </ul>
                     </div>
 
-                    <!-- Screenshot for Task 4 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Payment Assessment Screenshot]</p>
-                        <img src="{{ asset('images/staff-task4.png') }}" alt="Payment Assessment" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Payment assessments table with Add Order Number and View OR buttons.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1596,12 +1463,7 @@
                         </ol>
                     </div>
 
-                    <!-- Screenshot for Task 5 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[BFP Assessment Screenshot]</p>
-                        <img src="{{ asset('images/staff-task5.png') }}" alt="BFP Fire Safety Assessment" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: BFP section with FSEC upload and comments field.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1649,12 +1511,7 @@
                         <p class="text-sm text-red-800"><strong>Critical:</strong> CPDO decisions are final and cannot be reversed. Double-check all documents and assessments before submitting.</p>
                     </div>
 
-                    <!-- Screenshot for Task 6 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[CPDO Assessment Screenshot]</p>
-                        <img src="{{ asset('images/staff-task6.png') }}" alt="CPDO Assessment and Decision" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: CPDO assessment card with fee inputs and approve/reject buttons.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1690,12 +1547,7 @@
                         </ol>
                     </div>
 
-                    <!-- Screenshot for Task 7 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Engineer Assessment Screenshot]</p>
-                        <img src="{{ asset('images/staff-task7.png') }}" alt="Engineer Assessment" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Engineer assessment card with fee inputs and status update options.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1727,12 +1579,7 @@
                         </ol>
                     </div>
 
-                    <!-- Screenshot for Task 8 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Survey Management Screenshot]</p>
-                        <img src="{{ asset('images/staff-task8.png') }}" alt="Survey Management" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Surveys section with statistics cards, charts, and survey list.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1758,12 +1605,7 @@
                         </ol>
                     </div>
 
-                    <!-- Screenshot for Task 9 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Archive Applications Screenshot]</p>
-                        <img src="{{ asset('images/staff-task9.png') }}" alt="Archive Applications" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Archive Application button and confirmation modal.</p>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -1830,17 +1672,12 @@
                             <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-purple-500 mt-1.5"></span><span><span class="font-medium">Assessor:</span> Tax Declaration verification</span></div>
                             <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-orange-500 mt-1.5"></span><span><span class="font-medium">Treasurer:</span> Tax Receipt verification, payment orders</span></div>
                             <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-red-500 mt-1.5"></span><span><span class="font-medium">BFP:</span> FSEC upload, fire safety comments</span></div>
-                            <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-gray-500 mt-1.5"></span><span><span class="font-medium">Monitoring:</span> Read-only access</span></div>
+                            <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-gray-500 mt-1.5"></span><span><span class="font-medium">Monitoring:</span> Can update status, cannot verify documents</span></div>
                             <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-teal-500 mt-1.5"></span><span><span class="font-medium">Mayor/Admin Aide:</span> View applications, surveys</span></div>
                         </div>
                     </div>
 
-                    <!-- Screenshot for Task 1 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[User Management Screenshot]</p>
-                        <img src="{{ asset('images/admin-task1.png') }}" alt="User Management" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: User management interface with New User button and user list table.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1884,12 +1721,7 @@
                         </div>
                     </div>
 
-                    <!-- Screenshot for Task 2 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[System Settings Screenshot]</p>
-                        <img src="{{ asset('images/admin-task2.png') }}" alt="System Settings" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: System settings page with logs and general settings sections.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1933,12 +1765,7 @@
                         <p class="text-xs text-gray-500 mt-3">All reports can be exported as PDF, Excel, or CSV formats.</p>
                     </div>
 
-                    <!-- Screenshot for Task 3 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Reports & Analytics Screenshot]</p>
-                        <img src="{{ asset('images/admin-task3.png') }}" alt="Reports and Analytics" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Reports dashboard with available report types and export options.</p>
-                    </div>
+
                 </div>
             </div>
 
@@ -1967,12 +1794,7 @@
                         <p class="text-xs text-gray-500 mt-3">Exported files include current filters and pagination settings.</p>
                     </div>
 
-                    <!-- Screenshot for Task 4 -->
-                    <div class="mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-gray-500 mb-2 text-center">[Export Data Screenshot]</p>
-                        <img src="{{ asset('images/admin-task4.png') }}" alt="Export Data" class="rounded-lg border border-gray-200 shadow-md w-full mx-auto" onerror="this.style.display='none'">
-                        <p class="text-xs text-gray-400 text-center mt-2">Figure: Export dropdown options showing available formats and export locations.</p>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -2015,22 +1837,7 @@
                         </div>
                         <span class="transform transition-transform group-open:rotate-180 text-gray-400">▼</span>
                     </summary>
-                    <p class="text-gray-700 mt-3 pl-6">Go to the Applications section, use the search box at the top to search by application number (e.g., "APP-2026-001") or applicant name. You can also use the Status filter dropdown and Aging filter to refine results. The table auto-refreshes when you type.</p>
-                </details>
-            </div>
-
-            <div class="faq-item" data-category="applications">
-                <details class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition group">
-                    <summary class="font-semibold text-gray-800 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-[#155386]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                            <span>Can I archive completed applications?</span>
-                        </div>
-                        <span class="transform transition-transform group-open:rotate-180 text-gray-400">▼</span>
-                    </summary>
-                    <p class="text-gray-700 mt-3 pl-6">Yes. Open a completed application, click the "Archive Application" button in the top right (yellow button), optionally enter a reason, and confirm. The application will move to the "Archived Applications" section in the sidebar. You can restore archived applications individually or in batches from that section.</p>
+                    <p class="text-gray-700 mt-3 pl-6">Go to the Applications section, use the search box at the top to search by application number or applicant name. You can also use the Status filter dropdown and Aging filter to refine results. The table auto-refreshes when you type.</p>
                 </details>
             </div>
 
@@ -2124,7 +1931,7 @@
                         <ul class="list-disc list-inside mt-2 ml-4 space-y-1">
                             <li><strong class="text-blue-600">Engineers</strong> can update to For Assessment, Approved, Rejected, For Release, Completed</li>
                             <li><strong class="text-gray-600">Other staff</strong> can update to Under Review and Document Verification</li>
-                            <li><strong class="text-gray-400">Monitoring role</strong> has view-only access</li>
+                            <li><strong class="text-gray-600">Monitoring role</strong> can update to Under Review and Document Verification</li>
                         </ul>
                         <p class="mt-2">Click the radio button for the new status, add remarks/notes, and click "Update Status". The applicant will be automatically notified of status changes.</p>
                     </div>
