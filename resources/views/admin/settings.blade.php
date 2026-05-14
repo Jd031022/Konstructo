@@ -4,7 +4,7 @@
 @section('content')
 @php
     // Set default value for currentTab if not set
-    $currentTab = $currentTab ?? 'system-logs';
+    $currentTab = request()->query('tab', 'general');
 @endphp
 <div class="p-4 md:p-6 bg-gray-50 min-h-screen max-w-7xl mx-auto">
 
@@ -84,66 +84,70 @@ document.addEventListener('click', function(event) {
     </div>
 
     <!-- General Settings Tab -->
-    @if($currentTab == 'general')
-        <div class="space-y-6">
-            <!-- System Information Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+@if($currentTab == 'general')
+    <div class="space-y-6">
+        <!-- System Information Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-[#155386] to-[#40798C] text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">System Information</h2>
+                    <h2 class="text-lg font-semibold">System Information</h2>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 rounded-lg p-6">
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Application Name</label>
-                        <p class="text-lg font-semibold text-gray-800 mt-2">Konstructo Building Permit System</p>
+                        <label class="block text-xs text-gray-400 mb-1">Application Name</label>
+                        <p class="text-sm font-medium text-gray-800">Konstructo Building Permit System</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Version</label>
-                        <p class="text-lg font-semibold text-gray-800 mt-2">v1.0.0</p>
+                        <label class="block text-xs text-gray-400 mb-1">Version</label>
+                        <p class="text-sm font-medium text-gray-800">v1.0.0</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</label>
-                        <p class="text-lg font-semibold text-gray-800 mt-2">{{ now()->format('F j, Y') }}</p>
+                        <label class="block text-xs text-gray-400 mb-1">Last Updated</label>
+                        <p class="text-sm font-medium text-gray-800">{{ now()->format('F j, Y') }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</label>
-                        <p class="text-lg font-semibold text-green-600 mt-2 flex items-center gap-2">
+                        <label class="block text-xs text-gray-400 mb-1">Status</label>
+                        <p class="text-sm font-medium text-green-600 flex items-center gap-2">
                             <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                             Operational
                         </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Email Configuration Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Email Configuration Card (Purple Theme) -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-700 to-purple-500 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Email Settings</h2>
+                    <h2 class="text-lg font-semibold">Email Settings</h2>
                 </div>
-
+            </div>
+            <div class="p-6">
                 <form action="#" method="POST" class="space-y-4">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">From Email Address</label>
-                            <input type="email" value="noreply@konstructo.gov.ph" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="sender@example.com" disabled>
+                            <input type="email" value="noreply@konstructo.gov.ph" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" disabled>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">From Name</label>
-                            <input type="text" value="Konstructo" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Sender Name" disabled>
+                            <input type="text" value="Konstructo" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" disabled>
                         </div>
                     </div>
-
                     <div>
                         <label class="flex items-center gap-3 p-3 bg-purple-50 rounded-lg cursor-pointer">
                             <input type="checkbox" checked class="w-4 h-4 rounded border-gray-300 text-purple-600">
@@ -153,38 +157,38 @@ document.addEventListener('click', function(event) {
                             </div>
                         </label>
                     </div>
-
                     <div class="flex gap-3 pt-4">
                         <button type="button" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium text-sm">Save Changes</button>
                         <button type="button" class="px-6 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">Cancel</button>
                     </div>
                 </form>
             </div>
+        </div>
 
-            <!-- Application Settings Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Application Settings Card (Green Theme) -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-700 to-green-500 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Application Settings</h2>
+                    <h2 class="text-lg font-semibold">Application Settings</h2>
                 </div>
-
+            </div>
+            <div class="p-6">
                 <form action="#" method="POST" class="space-y-4">
                     @csrf
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Application Title</label>
                         <input type="text" value="Building Permit Application System" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Application Description</label>
-                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter application description...">Building Permit Application System - Streamlined processing of building permits and related documentation.</textarea>
+                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">Building Permit Application System - Streamlined processing of building permits and related documentation.</textarea>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="flex items-center gap-3 p-3 bg-green-50 rounded-lg cursor-pointer">
@@ -199,32 +203,33 @@ document.addEventListener('click', function(event) {
                             </label>
                         </div>
                     </div>
-
                     <div class="flex gap-3 pt-4">
                         <button type="button" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">Save Changes</button>
                         <button type="button" class="px-6 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">Cancel</button>
                     </div>
                 </form>
             </div>
+        </div>
 
-            <!-- Maintenance Mode Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Maintenance Mode Card (Orange Theme) -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-orange-700 to-orange-500 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M6.34 9l1.42-1.42m2.83 2.83l1.42-1.42m2.83 2.83l1.42-1.42M18.66 9l1.42 1.42M9.76 18.66l1.42 1.42m2.83-2.83l1.42 1.42m2.83-2.83l1.42 1.42" />
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Maintenance Mode</h2>
+                    <h2 class="text-lg font-semibold">Maintenance Mode</h2>
                 </div>
-
+            </div>
+            <div class="p-6">
                 <div class="space-y-4">
                     <div class="p-4 bg-orange-50 rounded-lg border border-orange-200">
                         <p class="text-sm text-orange-800">
                             <strong>Maintenance mode is currently disabled.</strong> When enabled, only administrators can access the system.
                         </p>
                     </div>
-
                     <div>
                         <label class="flex items-center gap-3 p-3 bg-orange-50 rounded-lg cursor-pointer">
                             <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-orange-600">
@@ -234,7 +239,6 @@ document.addEventListener('click', function(event) {
                             </div>
                         </label>
                     </div>
-
                     <div class="flex gap-3 pt-4">
                         <button type="button" class="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium text-sm">Update</button>
                         <button type="button" class="px-6 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm">Cancel</button>
@@ -242,7 +246,8 @@ document.addEventListener('click', function(event) {
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+@endif
 
     <!-- System Logs Tab -->
     @if($currentTab == 'system-logs')

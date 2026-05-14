@@ -154,16 +154,27 @@ class DashboardController extends Controller
         $values = [];
 
         $now = now();
-        if ($filter === 'monthly') {
-            if ($period === 'last_month' && $year == $now->year && $month == $now->month) {
-                $lastMonth = $now->copy()->subMonth();
-                $year = $lastMonth->year;
-                $month = $lastMonth->month;
-            }
-        } elseif ($filter === 'yearly') {
-            if ($period === 'last_year' && $year == $now->year) {
-                $year = $now->copy()->subYear()->year;
-            }
+        
+        // Adjust dates based on period parameter
+        if ($period === 'this_week') {
+            $startDate = $now->copy()->startOfWeek();
+            $endDate = $now->copy()->endOfWeek();
+        } elseif ($period === 'last_week') {
+            $startDate = $now->copy()->subWeek()->startOfWeek();
+            $endDate = $now->copy()->subWeek()->endOfWeek();
+        } elseif ($period === 'last_month') {
+            $lastMonth = $now->copy()->subMonth();
+            $year = $lastMonth->year;
+            $month = $lastMonth->month;
+            $startDate = $lastMonth->copy()->startOfMonth();
+            $endDate = $lastMonth->copy()->endOfMonth();
+        } elseif ($period === 'this_year') {
+            $year = $now->year;
+            $startDate = $now->copy()->startOfYear();
+            $endDate = $now->copy()->endOfYear();
+        } else { // this_month (default)
+            $startDate = $now->copy()->startOfMonth();
+            $endDate = $now->copy()->endOfMonth();
         }
 
         
@@ -190,18 +201,18 @@ class DashboardController extends Controller
             }
             
         } elseif ($filter === 'monthly') {
-            // For monthly view
-            $startDate = sprintf("%d-%02d-01", $year, $month);
-            $daysInMonth = date('t', strtotime($startDate));
+            // For monthly view - show daily breakdown
+            $startDate = $startDate ?? $now->copy()->startOfMonth();
+            $endDate = $endDate ?? $now->copy()->endOfMonth();
+            $daysInMonth = $startDate->daysInMonth;
             
-            Log::info('Monthly filter - year: ' . $year . ', month: ' . $month . ', days: ' . $daysInMonth);
+            Log::info('Monthly filter - start: ' . $startDate->format('Y-m-d') . ', end: ' . $endDate->format('Y-m-d'));
             
             $dailyData = ApplicationDocument::submitted()->select(
                 DB::raw('EXTRACT(DAY FROM created_at) as day'),
                 DB::raw('COUNT(*) as count')
             )
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->groupBy('day')
             ->orderBy('day')
             ->get()

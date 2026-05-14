@@ -973,8 +973,8 @@
             const label = labels[index] || `Item ${index + 1}`;
             
             barsHtml += `
-                <div class="group relative flex flex-col items-center justify-end h-full flex-1 min-w-[60px]">
-                    <div class="relative w-full max-w-[60px] mx-auto">
+                <div class="group relative flex flex-col justify-end h-full flex-1 min-w-[60px]">
+                    <div class="relative w-full max-w-[60px] mx-auto flex flex-col justify-end h-full">
                         <div class="w-full bg-gradient-to-t ${gradientColors[colorIndex]} rounded-t-lg transition-all duration-300 hover:brightness-110 hover:scale-105 cursor-pointer"
                              style="height: ${percentage}%; min-height: 30px;">
                             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-20">
