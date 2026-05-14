@@ -779,6 +779,73 @@ document.addEventListener('click', function(event) {
 
     <!-- User Approval Management -->
     @if($currentTab == 'roles')
+    <!-- User Approval Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Applicants Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-blue-500 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total Applicants</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="total-applicants-count">0</p>
+                    <p class="text-xs text-gray-500 mt-2">All applicants</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Approval Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-yellow-500 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Pending Approval</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="pending-applicants-count">0</p>
+                    <p class="text-xs text-yellow-600 mt-2">Awaiting review</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approved Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-green-500 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Approved</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="approved-applicants-count">0</p>
+                    <p class="text-xs text-green-600 mt-2">Successfully approved</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejected Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200 border-l-4 border-red-500 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Rejected</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" id="rejected-applicants-count">0</p>
+                    <p class="text-xs text-red-600 mt-2">Not approved</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-[#155386] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="space-y-6">
         <!-- Filters -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -944,6 +1011,9 @@ document.addEventListener('click', function(event) {
                 if (response.ok && data.users) {
                     // Filter only applicants
                     applicants = data.users.filter(user => user.role === 'applicant');
+                    
+                    // Update summary cards
+                    updateSummaryCards();
                     filterUsers();
                 } else {
                     console.error('Failed to load applicants:', data);
@@ -953,6 +1023,18 @@ document.addEventListener('click', function(event) {
                 console.error('Error loading applicants:', error);
                 showToast('Error loading applicants', 'error');
             }
+        }
+        
+        function updateSummaryCards() {
+            const totalCount = applicants.length;
+            const pendingCount = applicants.filter(u => u.approval_status === 'pending').length;
+            const approvedCount = applicants.filter(u => u.approval_status === 'approved').length;
+            const rejectedCount = applicants.filter(u => u.approval_status === 'rejected').length;
+            
+            document.getElementById('total-applicants-count').textContent = totalCount;
+            document.getElementById('pending-applicants-count').textContent = pendingCount;
+            document.getElementById('approved-applicants-count').textContent = approvedCount;
+            document.getElementById('rejected-applicants-count').textContent = rejectedCount;
         }
         
         function filterUsers() {
