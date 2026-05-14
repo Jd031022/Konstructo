@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use App\Models\OwnershipVerification;
-use App\Models\CPDORating; 
+use App\Models\CPDORating;
+use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
@@ -26,93 +27,103 @@ class ApplicationController extends Controller
     {
         $this->notificationService = $notificationService;
     }
-/**
- * Display a listing of the user's applications (for API)
- */
-public function index()
-{
-    try {
-        $user = Auth::user();
 
-        if (!$user) {
+    /**
+     * Display a listing of the user's applications (for API)
+     */
+    public function index()
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated',
+                    'applications' => []
+                ], 401);
+            }
+
+            if (!Schema::hasTable('application_documents')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Database table not found',
+                    'applications' => []
+                ], 500);
+            }
+
+            $applications = ApplicationDocument::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            $formattedApplications = [];
+            foreach ($applications as $app) {
+                try {
+                    // Get project title
+                    $projectTitle = $app->project_title ?? null;
+                    if (!$projectTitle && $app->data && is_array($app->data)) {
+                        $projectTitle = $app->data['project_title'] ?? null;
+                    }
+                    
+                    // Calculate aging days ONLY if the application has been submitted (not draft)
+                    // Aging countdown starts from submitted_at, not created_at
+                    $agingDays = null;
+                    if ($app->submitted_at && $app->status !== 'draft') {
+                        $agingDays = $this->calculateWorkingDays($app->submitted_at);
+                    }
+                    
+                    $formattedApplications[] = [
+                        'id' => $app->id,
+                        'application_number' => $app->application_number ?? 'Pending',
+                        'building_permit_number' => $app->building_permit_number ?? null,
+                        'has_application_number' => !is_null($app->application_number),
+                        'has_building_permit_number' => !is_null($app->building_permit_number),
+                        'google_drive_link' => $app->google_drive_link,
+                        'document_links' => $app->document_links,
+                        'status' => $app->status,
+                        'status_display' => $this->formatStatus($app->status),
+                        'rejection_reason' => $app->rejection_reason,
+                        'admin_notes' => $app->admin_notes,
+                        'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
+                        'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
+                        'submitted_at' => $app->submitted_at ? $app->submitted_at->format('Y-m-d H:i:s') : null,
+                       'submission_date' => $app->submission_date ?? null,
+                        'hard_copy_received' => $app->hard_copy_received ?? false,
+                        'hard_copy_received_at' => $app->hard_copy_received_at ? $app->hard_copy_received_at->format('Y-m-d H:i:s') : null,
+                        'last_updated_by' => $app->last_updated_by,
+                        'project_title' => $projectTitle ?? 'Untitled Project',
+                        'progress' => $this->calculateProgress($app->status),
+                        'aging_days' => $agingDays, // NEW: Send computed aging days from server
+                        'architect_name' => $app->architect_name ?? null,
+                        'engineer_name' => $app->engineer_name ?? null,
+                        'electrical_engineer_name' => $app->electrical_engineer_name ?? null,
+                        'sanitary_engineer_name' => $app->sanitary_engineer_name ?? null
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Error formatting application', [
+                        'application_id' => $app->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    continue;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'applications' => $formattedApplications,
+                'total' => count($formattedApplications)
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in ApplicationController@index: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated',
-                'applications' => []
-            ], 401);
-        }
-
-        if (!Schema::hasTable('application_documents')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database table not found',
+                'message' => 'Error loading applications: ' . $e->getMessage(),
                 'applications' => []
             ], 500);
         }
-
-        $applications = ApplicationDocument::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        $formattedApplications = [];
-        foreach ($applications as $app) {
-            try {
-                // Get project title
-                $projectTitle = $app->project_title ?? null;
-                if (!$projectTitle && $app->data && is_array($app->data)) {
-                    $projectTitle = $app->data['project_title'] ?? null;
-                }
-                
-                $formattedApplications[] = [
-                    'id' => $app->id,
-                    'application_number' => $app->application_number ?? 'Pending',
-                    'building_permit_number' => $app->building_permit_number ?? null, // ADD THIS
-                    'has_application_number' => !is_null($app->application_number),
-                    'has_building_permit_number' => !is_null($app->building_permit_number), // ADD THIS
-                    'google_drive_link' => $app->google_drive_link,
-                    'document_links' => $app->document_links,
-                    'status' => $app->status,
-                    'status_display' => $this->formatStatus($app->status),
-                    'rejection_reason' => $app->rejection_reason,
-                    'admin_notes' => $app->admin_notes,
-                    'created_at' => $app->created_at ? $app->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $app->updated_at ? $app->updated_at->format('Y-m-d H:i:s') : null,
-                    'submitted_at' => $app->submitted_at ? $app->submitted_at->format('Y-m-d H:i:s') : null,
-                    'hard_copy_received' => $app->hard_copy_received ?? false,
-                    'hard_copy_received_at' => $app->hard_copy_received_at ? $app->hard_copy_received_at->format('Y-m-d H:i:s') : null,
-                    'last_updated_by' => $app->last_updated_by,
-                    'project_title' => $projectTitle ?? 'Untitled Project',
-                    'progress' => $this->calculateProgress($app->status),
-                    'architect_name' => $app->architect_name ?? null,
-                    'engineer_name' => $app->engineer_name ?? null,
-                    'electrical_engineer_name' => $app->electrical_engineer_name ?? null,
-                    'sanitary_engineer_name' => $app->sanitary_engineer_name ?? null
-                ];
-            } catch (\Exception $e) {
-                Log::error('Error formatting application', [
-                    'application_id' => $app->id,
-                    'error' => $e->getMessage()
-                ]);
-                continue;
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'applications' => $formattedApplications,
-            'total' => count($formattedApplications)
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error in ApplicationController@index: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading applications: ' . $e->getMessage(),
-            'applications' => []
-        ], 500);
     }
-}
 
     /**
      * Get application statistics
@@ -182,105 +193,112 @@ public function index()
     }
 
     /**
- * Get application details for a specific application
- */
-public function show($id)
-{
-    try {
-        $user = Auth::user();
+     * Get application details for a specific application
+     */
+    public function show($id)
+    {
+        try {
+            $user = Auth::user();
 
-        if (!$user) {
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $id)
+                ->first();
+
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $lastUpdatedBy = null;
+            if ($application->last_updated_by) {
+                $lastUpdatedBy = User::find($application->last_updated_by);
+            }
+
+            // Calculate aging days for submitted applications only
+            $agingDays = null;
+            if ($application->submitted_at && $application->status !== 'draft') {
+                $agingDays = $this->calculateWorkingDays($application->submitted_at);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'building_permit_number' => $application->building_permit_number,
+                    'permit_remarks' => $application->permit_remarks,
+                    'google_drive_link' => $application->google_drive_link,
+                    'document_links' => $application->document_links,
+                    'status' => $application->status,
+                    'status_display' => $this->formatStatus($application->status),
+                    'rejection_reason' => $application->rejection_reason,
+                    'admin_notes' => $application->admin_notes,
+                    'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
+                    'submitted_at' => $application->submitted_at ? $application->submitted_at->format('Y-m-d H:i:s') : null,
+                    'aging_days' => $agingDays, // NEW: Include aging days in details
+                    'hard_copy_received' => $application->hard_copy_received ?? false,
+                    'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
+                    'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
+                    'hard_copy_status' => $this->getHardCopyStatus($application),
+                    'progress' => $this->calculateProgress($application->status),
+                    'last_updated_by' => $application->last_updated_by,
+                    'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
+                    // Project information from direct columns
+                    'project_title' => $application->project_title ?? null,
+                    'project_location' => $application->project_location ?? null,
+                    'project_type' => $application->project_type ?? null,
+                    'lot_area' => $application->lot_area ?? null,
+                    'floor_area' => $application->floor_area ?? null,
+                    'num_floors' => $application->num_floors ?? null,
+                    'estimated_cost' => $application->estimated_cost ?? null,
+                    'project_description' => $application->project_description ?? null,
+                    'owner_name' => $application->owner_name ?? null,
+                    'owner_address' => $application->owner_address ?? null,
+                    'contact_number' => $application->contact_number ?? null,
+                    'owner_email' => $application->owner_email ?? null,
+                    // Professional Information
+                    'architect_name' => $application->architect_name ?? null,
+                    'architect_license' => $application->architect_license ?? null,
+                    'engineer_name' => $application->engineer_name ?? null,
+                    'engineer_license' => $application->engineer_license ?? null,
+                    'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
+                    'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
+                    'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
+                    'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
+                    // CPDO Status
+                    'cpdo_status' => $application->cpdo_status ?? 'pending',
+                    'cpdo_remarks' => $application->cpdo_remarks ?? null,
+                    'cpdo_approved_at' => $application->cpdo_approved_at ?? null,
+                    'cpdo_approved_by' => $application->cpdo_approved_by ?? null,
+                    // Step completions
+                    'step1_completed' => $application->step1_completed ?? false,
+                    'step2_completed' => $application->step2_completed ?? false,
+                    'step3_completed' => $application->step3_completed ?? false,
+                    'step1_completed_at' => $application->step1_completed_at ?? null,
+                    'step2_completed_at' => $application->step2_completed_at ?? null,
+                    'step3_completed_at' => $application->step3_completed_at ?? null
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in ApplicationController@show: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated'
-            ], 401);
+                'message' => 'Error loading application details: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $application = ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $id)
-            ->first();
-
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-
-        $lastUpdatedBy = null;
-        if ($application->last_updated_by) {
-            $lastUpdatedBy = User::find($application->last_updated_by);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $application->id,
-                'application_number' => $application->application_number,
-                'building_permit_number' => $application->building_permit_number, // ADD THIS
-                'permit_remarks' => $application->permit_remarks, // ADD THIS
-                'google_drive_link' => $application->google_drive_link,
-                'document_links' => $application->document_links,
-                'status' => $application->status,
-                'status_display' => $this->formatStatus($application->status),
-                'rejection_reason' => $application->rejection_reason,
-                'admin_notes' => $application->admin_notes,
-                'created_at' => $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : null,
-                'updated_at' => $application->updated_at ? $application->updated_at->format('Y-m-d H:i:s') : null,
-                'submitted_at' => $application->submitted_at ? $application->submitted_at->format('Y-m-d H:i:s') : null,
-                'hard_copy_received' => $application->hard_copy_received ?? false,
-                'hardcopy_submission_date' => $application->hardcopy_submission_date ?? null,
-                'hardcopy_instructions' => $application->hardcopy_instructions ?? null,
-                'hard_copy_status' => $this->getHardCopyStatus($application),
-                'progress' => $this->calculateProgress($application->status),
-                'last_updated_by' => $application->last_updated_by,
-                'last_updated_by_name' => $lastUpdatedBy ? $lastUpdatedBy->first_name . ' ' . $lastUpdatedBy->last_name : null,
-                // Project information from direct columns
-                'project_title' => $application->project_title ?? null,
-                'project_location' => $application->project_location ?? null,
-                'project_type' => $application->project_type ?? null,
-                'lot_area' => $application->lot_area ?? null,
-                'floor_area' => $application->floor_area ?? null,
-                'num_floors' => $application->num_floors ?? null,
-                'estimated_cost' => $application->estimated_cost ?? null,
-                'project_description' => $application->project_description ?? null,
-                'owner_name' => $application->owner_name ?? null,
-                'owner_address' => $application->owner_address ?? null,
-                'contact_number' => $application->contact_number ?? null,
-                'owner_email' => $application->owner_email ?? null,
-                // Professional Information
-                'architect_name' => $application->architect_name ?? null,
-                'architect_license' => $application->architect_license ?? null,
-                'engineer_name' => $application->engineer_name ?? null,
-                'engineer_license' => $application->engineer_license ?? null,
-                'electrical_engineer_name' => $application->electrical_engineer_name ?? null,
-                'electrical_engineer_license' => $application->electrical_engineer_license ?? null,
-                'sanitary_engineer_name' => $application->sanitary_engineer_name ?? null,
-                'sanitary_engineer_license' => $application->sanitary_engineer_license ?? null,
-                // CPDO Status
-                'cpdo_status' => $application->cpdo_status ?? 'pending',
-                'cpdo_remarks' => $application->cpdo_remarks ?? null,
-                'cpdo_approved_at' => $application->cpdo_approved_at ?? null,
-                'cpdo_approved_by' => $application->cpdo_approved_by ?? null,
-                // Step completions
-                'step1_completed' => $application->step1_completed ?? false,
-                'step2_completed' => $application->step2_completed ?? false,
-                'step3_completed' => $application->step3_completed ?? false,
-                'step1_completed_at' => $application->step1_completed_at ?? null,
-                'step2_completed_at' => $application->step2_completed_at ?? null,
-                'step3_completed_at' => $application->step3_completed_at ?? null
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error in ApplicationController@show: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading application details: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     /**
      * Check if application number exists
@@ -494,16 +512,18 @@ public function show($id)
     /**
      * Create draft application
      */
-   public function createDraft(Request $request)
+    public function createDraft(Request $request)
     {
         try {
             $user = Auth::user();
             
-            // Create new draft
+            // Create new draft - submitted_at remains NULL (aging won't count)
             $application = ApplicationDocument::create([
                 'user_id' => $user->id,
                 'status' => 'draft',
                 'application_number' => null,
+                'submitted_at' => null, // Explicitly null - no aging for drafts
+                'submission_date' => null, // Explicitly null - no aging for drafts
             ]);
             
             return response()->json([
@@ -607,7 +627,11 @@ public function show($id)
             ], 500);
         }
     }
- public function submitApplication(Request $request)
+
+    /**
+     * Submit application - THIS IS WHERE AGING STARTS
+     */
+    public function submitApplication(Request $request)
     {
         try {
             $user = Auth::user();
@@ -643,14 +667,14 @@ public function show($id)
                 ], 403);
             }
             
-            // Proceed with submission
-            $applicationNumber = $this->generateApplicationNumberInternal(); // Create internal method
+            // Proceed with submission - AGING COUNTDOWN STARTS HERE
+            $applicationNumber = $this->generateApplicationNumberInternal();
             
             $application->update([
                 'status' => 'pending',
                 'application_number' => $applicationNumber,
-                'submitted_at' => now(),
-                'submission_date' => today(),  // IMPORTANT: Set submission date for daily counting
+                'submitted_at' => now(),        // AGING STARTS FROM THIS TIMESTAMP
+                'submission_date' => today(),    // Used for daily counting
             ]);
             
             // Trigger notification
@@ -673,6 +697,7 @@ public function show($id)
             ], 500);
         }
     }
+
     /**
      * Get application limit info
      */
@@ -986,14 +1011,41 @@ public function show($id)
     }
 
     public function step1(Request $request)
-{
-    $user = Auth::user();
-    $applicationId = $request->get('id');
-    
-    if ($applicationId) {
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if ($applicationId) {
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $applicationId)
+                ->with('ownershipVerification')
+                ->first();
+                
+            if (!$application) {
+                return redirect()->route('applicant.applications')
+                    ->with('error', 'Application not found.');
+            }
+            
+            return view('applicant.application.step1', compact('application'));
+        } else {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+    }
+
+    public function step2(Request $request)
+    {
+        $user = Auth::user();
+        $applicationId = $request->get('id');
+        
+        if (!$applicationId) {
+            return redirect()->route('applicant.applications')
+                ->with('error', 'Application ID is required.');
+        }
+        
         $application = ApplicationDocument::where('user_id', $user->id)
             ->where('id', $applicationId)
-            ->with('ownershipVerification')  // Load existing ownership data
+            ->with('ownershipVerification')
             ->first();
             
         if (!$application) {
@@ -1001,52 +1053,22 @@ public function show($id)
                 ->with('error', 'Application not found.');
         }
         
-        return view('applicant.application.step1', compact('application'));
-    } else {
-        return redirect()->route('applicant.applications')
-            ->with('error', 'Application ID is required.');
-    }
-}
-   public function step2(Request $request)
-{
-    $user = Auth::user();
-    $applicationId = $request->get('id');
-    
-    if (!$applicationId) {
-        return redirect()->route('applicant.applications')
-            ->with('error', 'Application ID is required.');
-    }
-    
-    // Load application with ownership verification relationship
-    $application = ApplicationDocument::where('user_id', $user->id)
-        ->where('id', $applicationId)
-        ->with('ownershipVerification')  // IMPORTANT: Load the relationship
-        ->first();
+        $ownership = $application->ownershipVerification;
         
-    if (!$application) {
-        return redirect()->route('applicant.applications')
-            ->with('error', 'Application not found.');
+        if (!$ownership) {
+            return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+                ->with('error', 'Please complete ownership verification first.');
+        }
+        
+        if (empty($ownership->tct_link) || empty($ownership->tax_declaration_link) || empty($ownership->current_tax_receipt_link)) {
+            return redirect()->route('applicant.application.step1', ['id' => $applicationId])
+                ->with('error', 'Please complete all required ownership documents.');
+        }
+        
+        return view('applicant.application.step2', compact('application'));
     }
-    
-    // Check if ownership verification exists
-    $ownership = $application->ownershipVerification;
-    
-    // If no ownership record exists, redirect to step 1
-    if (!$ownership) {
-        return redirect()->route('applicant.application.step1', ['id' => $applicationId])
-            ->with('error', 'Please complete ownership verification first.');
-    }
-    
-    // Check if required documents are submitted
-    if (empty($ownership->tct_link) || empty($ownership->tax_declaration_link) || empty($ownership->current_tax_receipt_link)) {
-        return redirect()->route('applicant.application.step1', ['id' => $applicationId])
-            ->with('error', 'Please complete all required ownership documents.');
-    }
-    
-    return view('applicant.application.step2', compact('application'));
-}
 
-public function step3(Request $request)
+    public function step3(Request $request)
     {
         $user = Auth::user();
         $applicationId = $request->get('id');
@@ -1069,111 +1091,108 @@ public function step3(Request $request)
     }
 
     /**
- * Submit client satisfaction survey
- */
-public function submitSurvey(Request $request)
-{
-    try {
-        $user = Auth::user();
+     * Submit client satisfaction survey
+     */
+    public function submitSurvey(Request $request)
+    {
+        try {
+            $user = Auth::user();
 
-        if (!$user) {
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'application_id' => 'required|exists:application_documents,id',
+                'client_type' => 'required|in:citizen,business,government',
+                'survey_date' => 'required|date',
+                'sex' => 'required|in:male,female',
+                'age' => 'required|integer|min:1|max:120',
+                'cc1_awareness' => 'required|in:1,2,3,4',
+                'cc2_helpfulness' => 'nullable|in:1,2,3,4,5',
+                'cc3_help_level' => 'nullable|in:1,2,3,4',
+                'sqd0_satisfied' => 'required|in:1,2,3,4,5',
+                'sqd1_reasonable_time' => 'required|in:1,2,3,4,5',
+                'sqd2_requirements_followed' => 'required|in:1,2,3,4,5',
+                'sqd3_steps_easy' => 'required|in:1,2,3,4,5',
+                'sqd4_info_easy_find' => 'required|in:1,2,3,4,5',
+                'sqd5_reasonable_fees' => 'required|in:1,2,3,4,5',
+                'sqd6_fair_treatment' => 'required|in:1,2,3,4,5',
+                'sqd7_courteous_staff' => 'required|in:1,2,3,4,5',
+                'sqd8_got_what_needed' => 'required|in:1,2,3,4,5',
+                'suggestions' => 'nullable|string',
+                'email' => 'nullable|email'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $application = ApplicationDocument::findOrFail($request->application_id);
+
+            if ($application->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $existingSurvey = ClientSatisfactionSurvey::where('application_id', $request->application_id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($existingSurvey) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Survey already submitted for this application'
+                ], 409);
+            }
+
+            $survey = ClientSatisfactionSurvey::create([
+                'application_id' => $request->application_id,
+                'user_id' => $user->id,
+                'service_availed' => 'Building Permit Application',
+                'client_type' => $request->client_type,
+                'survey_date' => $request->survey_date,
+                'sex' => $request->sex,
+                'age' => $request->age,
+                'cc1_awareness' => $request->cc1_awareness,
+                'cc2_helpfulness' => $request->cc2_helpfulness,
+                'cc3_help_level' => $request->cc3_help_level,
+                'sqd0_satisfied' => $request->sqd0_satisfied,
+                'sqd1_reasonable_time' => $request->sqd1_reasonable_time,
+                'sqd2_requirements_followed' => $request->sqd2_requirements_followed,
+                'sqd3_steps_easy' => $request->sqd3_steps_easy,
+                'sqd4_info_easy_find' => $request->sqd4_info_easy_find,
+                'sqd5_reasonable_fees' => $request->sqd5_reasonable_fees,
+                'sqd6_fair_treatment' => $request->sqd6_fair_treatment,
+                'sqd7_courteous_staff' => $request->sqd7_courteous_staff,
+                'sqd8_got_what_needed' => $request->sqd8_got_what_needed,
+                'suggestions' => $request->suggestions,
+                'email' => $request->email
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for your feedback! Your survey has been submitted successfully.',
+                'data' => $survey
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error submitting survey: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated'
-            ], 401);
+                'message' => 'Failed to submit survey: ' . $e->getMessage()
+            ], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'application_id' => 'required|exists:application_documents,id',
-            'client_type' => 'required|in:citizen,business,government',
-            'survey_date' => 'required|date',
-            'sex' => 'required|in:male,female',
-            'age' => 'required|integer|min:1|max:120',
-            'cc1_awareness' => 'required|in:1,2,3,4',
-            'cc2_helpfulness' => 'nullable|in:1,2,3,4,5',
-            'cc3_help_level' => 'nullable|in:1,2,3,4',
-            'sqd0_satisfied' => 'required|in:1,2,3,4,5',
-            'sqd1_reasonable_time' => 'required|in:1,2,3,4,5',
-            'sqd2_requirements_followed' => 'required|in:1,2,3,4,5',
-            'sqd3_steps_easy' => 'required|in:1,2,3,4,5',
-            'sqd4_info_easy_find' => 'required|in:1,2,3,4,5',
-            'sqd5_reasonable_fees' => 'required|in:1,2,3,4,5',
-            'sqd6_fair_treatment' => 'required|in:1,2,3,4,5',
-            'sqd7_courteous_staff' => 'required|in:1,2,3,4,5',
-            'sqd8_got_what_needed' => 'required|in:1,2,3,4,5',
-            'suggestions' => 'nullable|string',
-            'email' => 'nullable|email'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $application = ApplicationDocument::findOrFail($request->application_id);
-
-        // Check if user owns this application
-        if ($application->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
-        // Check if survey already exists for this application
-        $existingSurvey = ClientSatisfactionSurvey::where('application_id', $request->application_id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        if ($existingSurvey) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Survey already submitted for this application'
-            ], 409);
-        }
-
-        // Create the survey - ADD service_availed field
-        $survey = ClientSatisfactionSurvey::create([
-            'application_id' => $request->application_id,
-            'user_id' => $user->id,
-            'service_availed' => 'Building Permit Application', // ADD THIS LINE - Provide a default service
-            'client_type' => $request->client_type,
-            'survey_date' => $request->survey_date,
-            'sex' => $request->sex,
-            'age' => $request->age,
-            'cc1_awareness' => $request->cc1_awareness,
-            'cc2_helpfulness' => $request->cc2_helpfulness,
-            'cc3_help_level' => $request->cc3_help_level,
-            'sqd0_satisfied' => $request->sqd0_satisfied,
-            'sqd1_reasonable_time' => $request->sqd1_reasonable_time,
-            'sqd2_requirements_followed' => $request->sqd2_requirements_followed,
-            'sqd3_steps_easy' => $request->sqd3_steps_easy,
-            'sqd4_info_easy_find' => $request->sqd4_info_easy_find,
-            'sqd5_reasonable_fees' => $request->sqd5_reasonable_fees,
-            'sqd6_fair_treatment' => $request->sqd6_fair_treatment,
-            'sqd7_courteous_staff' => $request->sqd7_courteous_staff,
-            'sqd8_got_what_needed' => $request->sqd8_got_what_needed,
-            'suggestions' => $request->suggestions,
-            'email' => $request->email
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Thank you for your feedback! Your survey has been submitted successfully.',
-            'data' => $survey
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Error submitting survey: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to submit survey: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     /**
      * Check if there's a pending survey for an application
@@ -1264,6 +1283,39 @@ public function submitSurvey(Request $request)
     }
 
     /**
+     * Calculate working days between submission date and now
+     * Only counts weekdays (Mon-Fri), excluding weekends
+     * Returns null if no submitted_at date (drafts)
+     */
+    private function calculateWorkingDays($submittedAt)
+    {
+        if (!$submittedAt) {
+            return null;
+        }
+
+        $start = Carbon::parse($submittedAt)->startOfDay();
+        $now = Carbon::now()->startOfDay();
+        
+        // If submitted in the future (shouldn't happen), return 0
+        if ($start->greaterThan($now)) {
+            return 0;
+        }
+        
+        $workingDays = 0;
+        $current = $start->copy();
+        
+        while ($current->lessThanOrEqualTo($now)) {
+            // Skip weekends (Saturday = 6, Sunday = 0 in Carbon)
+            if (!$current->isWeekend()) {
+                $workingDays++;
+            }
+            $current->addDay();
+        }
+        
+        return $workingDays;
+    }
+
+    /**
      * Calculate progress percentage based on status
      */
     private function calculateProgress($status)
@@ -1350,304 +1402,294 @@ public function submitSurvey(Request $request)
             default => ucfirst(str_replace('_', ' ', $action))
         };
     }
+
     /**
- * Get ownership document remarks for applicant
- */
-public function getOwnershipRemarks($id)
-{
-    try {
-        $application = ApplicationDocument::with('user')->find($id);
-        
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-        
-        // Check if the authenticated user owns this application
-        if ($application->user_id !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-        
-        // Get admin notes that contain ownership document remarks
-        $adminNotes = $application->admin_notes;
-        $remarks = [];
-        
-        if ($adminNotes) {
-            // Parse admin notes to extract remarks
-            $lines = explode("\n", $adminNotes);
-            $currentRemark = null;
+     * Get ownership document remarks for applicant
+     */
+    public function getOwnershipRemarks($id)
+    {
+        try {
+            $application = ApplicationDocument::with('user')->find($id);
             
-            foreach ($lines as $line) {
-                // Pattern: [2024-01-01 10:00] John Doe (Ownership Document Remark - TCT / Deed of Sale): remark text
-                if (preg_match('/\[(.*?)\]\s+(.*?)\s+\(Ownership Document Remark\s*-\s*(.*?)\):\s*(.*)/', $line, $matches)) {
-                    if ($currentRemark) {
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            if ($application->user_id !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $adminNotes = $application->admin_notes;
+            $remarks = [];
+            
+            if ($adminNotes) {
+                $lines = explode("\n", $adminNotes);
+                $currentRemark = null;
+                
+                foreach ($lines as $line) {
+                    if (preg_match('/\[(.*?)\]\s+(.*?)\s+\(Ownership Document Remark\s*-\s*(.*?)\):\s*(.*)/', $line, $matches)) {
+                        if ($currentRemark) {
+                            $remarks[] = $currentRemark;
+                        }
+                        $currentRemark = [
+                            'created_at' => $matches[1],
+                            'created_by' => $matches[2],
+                            'document_name' => trim($matches[3]),
+                            'remark' => trim($matches[4]),
+                            'status' => 'pending_response',
+                            'response' => null,
+                            'responded_at' => null
+                        ];
+                    } elseif ($currentRemark && preg_match('/Response:\s*(.*)/', $line, $responseMatch)) {
+                        $currentRemark['response'] = trim($responseMatch[1]);
+                        $currentRemark['status'] = 'resolved';
+                        $currentRemark['responded_at'] = now()->toISOString();
                         $remarks[] = $currentRemark;
+                        $currentRemark = null;
                     }
-                    $currentRemark = [
-                        'created_at' => $matches[1],
-                        'created_by' => $matches[2],
-                        'document_name' => trim($matches[3]),
-                        'remark' => trim($matches[4]),
-                        'status' => 'pending_response',
-                        'response' => null,
-                        'responded_at' => null
-                    ];
-                } elseif ($currentRemark && preg_match('/Response:\s*(.*)/', $line, $responseMatch)) {
-                    $currentRemark['response'] = trim($responseMatch[1]);
-                    $currentRemark['status'] = 'resolved';
-                    $currentRemark['responded_at'] = now()->toISOString();
+                }
+                
+                if ($currentRemark) {
                     $remarks[] = $currentRemark;
-                    $currentRemark = null;
                 }
             }
             
-            if ($currentRemark) {
-                $remarks[] = $currentRemark;
+            $groupedRemarks = [];
+            foreach ($remarks as $remark) {
+                $documentKey = $this->getDocumentKeyFromName($remark['document_name']);
+                if (!isset($groupedRemarks[$documentKey])) {
+                    $groupedRemarks[$documentKey] = [];
+                }
+                $groupedRemarks[$documentKey][] = $remark;
             }
-        }
-        
-        // Group remarks by document key (approximate matching)
-        $groupedRemarks = [];
-        foreach ($remarks as $remark) {
-            // Try to find matching document key based on document name
-            $documentKey = $this->getDocumentKeyFromName($remark['document_name']);
-            if (!isset($groupedRemarks[$documentKey])) {
-                $groupedRemarks[$documentKey] = [];
-            }
-            $groupedRemarks[$documentKey][] = $remark;
-        }
-        
-        return response()->json([
-            'success' => true,
-            'remarks' => $groupedRemarks
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error fetching ownership remarks: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching remarks'
-        ], 500);
-    }
-}
-
-/**
- * Get document key from document name
- */
-private function getDocumentKeyFromName($documentName)
-{
-    $mapping = [
-        'TCT / Deed of Sale' => 'tct_link',
-        'Tax Declaration' => 'tax_declaration_link',
-        'Current Tax Receipt' => 'current_tax_receipt_link',
-        'Special Power of Attorney (SPA)' => 'spa_link'
-    ];
-    
-    foreach ($mapping as $name => $key) {
-        if (strpos($documentName, $name) !== false) {
-            return $key;
-        }
-    }
-    
-    // Try to extract from the string
-    if (strpos($documentName, 'TCT') !== false) return 'tct_link';
-    if (strpos($documentName, 'Tax Declaration') !== false) return 'tax_declaration_link';
-    if (strpos($documentName, 'Tax Receipt') !== false) return 'current_tax_receipt_link';
-    if (strpos($documentName, 'SPA') !== false || strpos($documentName, 'Power of Attorney') !== false) return 'spa_link';
-    
-    return 'unknown';
-}
-    /**
- * Save ownership verification documents (New Step 1)
- */
-public function saveOwnership(Request $request)
-{
-    Log::info('saveOwnership called', $request->all());
-    
-    $validator = Validator::make($request->all(), [
-        'application_id' => 'required|exists:application_documents,id',
-        'is_owner' => 'required|in:0,1',
-        'tct_link' => 'required|url',
-        'tax_declaration_link' => 'required|url',
-        'current_tax_receipt_link' => 'required|url',
-        'spa_link' => 'nullable|url',
-    ]);
-
-    if ($validator->fails()) {
-        Log::error('Validation failed', $validator->errors()->toArray());
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed: ' . json_encode($validator->errors()->toArray()),
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        $application = ApplicationDocument::findOrFail($request->application_id);
-        
-        // Check authorization
-        if ($application->user_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-        
-        // Find or create ownership verification record
-        $ownership = \App\Models\OwnershipVerification::firstOrNew([
-            'application_id' => $application->id
-        ]);
-        
-        $ownership->is_owner = $request->is_owner == '1';
-        $ownership->tct_link = $request->tct_link;
-        $ownership->tax_declaration_link = $request->tax_declaration_link;
-        $ownership->current_tax_receipt_link = $request->current_tax_receipt_link;
-        
-        // Only set SPA if not owner
-        if ($request->is_owner == '0') {
-            $ownership->spa_link = $request->spa_link;
-        } else {
-            $ownership->spa_link = null;
-        }
-        
-        // Set initial statuses (pending) only for new records
-        if (!$ownership->exists) {
-            $ownership->assessor_status = 'pending';
-            $ownership->treasurer_status = 'pending';
-        }
-        
-        $ownership->save();
-        
-        // Update application step completion - Use step1_completed
-        $application->step1_completed = true;
-        $application->step1_completed_at = now();
-        $application->save();
-        
-        Log::info('Ownership verification saved successfully', [
-            'application_id' => $application->id,
-            'is_owner' => $ownership->is_owner,
-            'step1_completed' => $application->step1_completed
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Ownership documents saved successfully',
-            'data' => $ownership
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error saving ownership verification: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to save ownership documents: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Get ownership data for an application
- */
-public function getOwnershipData($id)
-{
-    try {
-        $user = Auth::user();
-        
-        $application = ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $id)
-            ->with('ownershipVerification')
-            ->first();
-        
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-        
-        $ownership = $application->ownershipVerification;
-        
-        if (!$ownership) {
+            
             return response()->json([
                 'success' => true,
-                'data' => null
+                'remarks' => $groupedRemarks
             ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching ownership remarks: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching remarks'
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'is_owner' => $ownership->is_owner,
-                'tct_link' => $ownership->tct_link,
-                'tax_declaration_link' => $ownership->tax_declaration_link,
-                'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
-                'spa_link' => $ownership->spa_link
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to load ownership data: ' . $e->getMessage()
-        ], 500);
     }
-}
-/**
- * Print CPDO Assessment (standalone printable page)
- */
-public function printCPDOAssessment($id)
-{
-    try {
-        $user = Auth::user();
-        
-        $application = ApplicationDocument::with('user')
-            ->where('user_id', $user->id)
-            ->where('id', $id)
-            ->first();
-        
-        if (!$application) {
-            abort(404, 'Application not found');
-        }
-        
-        // Get CPDO assessment data
-        $assessmentData = [
-            'assessment_date' => $application->cpdo_assessment_date,
-            'zonal_location_fee' => $application->cpdo_zonal_location_fee,
-            'palc_fee' => $application->cpdo_palc_fee,
-            'development_permit_fee' => $application->cpdo_development_permit_fee,
-            'alteration_permit_fee' => $application->cpdo_alteration_permit_fee,
-            'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee,
-            'total_cpdo_amount' => $application->cpdo_total_amount,
-            'cpdo_assessment_notes' => $application->cpdo_assessment_notes,
-            'cpdo_additional_fees' => json_decode($application->cpdo_additional_fees, true) ?? [],
-            'cpdo_assessed_by' => $application->cpdo_assessed_by ? 
-                (\App\Models\User::find($application->cpdo_assessed_by)?->first_name . ' ' . \App\Models\User::find($application->cpdo_assessed_by)?->last_name) : 
-                'CPDO Staff'
+
+    /**
+     * Get document key from document name
+     */
+    private function getDocumentKeyFromName($documentName)
+    {
+        $mapping = [
+            'TCT / Deed of Sale' => 'tct_link',
+            'Tax Declaration' => 'tax_declaration_link',
+            'Current Tax Receipt' => 'current_tax_receipt_link',
+            'Special Power of Attorney (SPA)' => 'spa_link'
         ];
         
-        $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+        foreach ($mapping as $name => $key) {
+            if (strpos($documentName, $name) !== false) {
+                return $key;
+            }
+        }
         
-        $formatAmount = function($amount) {
-            if (!$amount || $amount == 0) return '₱0.00';
-            return '₱' . number_format($amount, 2);
-        };
+        if (strpos($documentName, 'TCT') !== false) return 'tct_link';
+        if (strpos($documentName, 'Tax Declaration') !== false) return 'tax_declaration_link';
+        if (strpos($documentName, 'Tax Receipt') !== false) return 'current_tax_receipt_link';
+        if (strpos($documentName, 'SPA') !== false || strpos($documentName, 'Power of Attorney') !== false) return 'spa_link';
         
-        return view('applicant.print-cpdo-receipt', [
-            'application' => $application,
-            'applicantName' => $applicantName,
-            'assessmentData' => $assessmentData,
-            'formatAmount' => $formatAmount
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error printing CPDO assessment: ' . $e->getMessage());
-        abort(500, 'Unable to print assessment');
+        return 'unknown';
     }
-}
+
+    /**
+     * Save ownership verification documents (New Step 1)
+     */
+    public function saveOwnership(Request $request)
+    {
+        Log::info('saveOwnership called', $request->all());
+        
+        $validator = Validator::make($request->all(), [
+            'application_id' => 'required|exists:application_documents,id',
+            'is_owner' => 'required|in:0,1',
+            'tct_link' => 'required|url',
+            'tax_declaration_link' => 'required|url',
+            'current_tax_receipt_link' => 'required|url',
+            'spa_link' => 'nullable|url',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Validation failed', $validator->errors()->toArray());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . json_encode($validator->errors()->toArray()),
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $ownership = \App\Models\OwnershipVerification::firstOrNew([
+                'application_id' => $application->id
+            ]);
+            
+            $ownership->is_owner = $request->is_owner == '1';
+            $ownership->tct_link = $request->tct_link;
+            $ownership->tax_declaration_link = $request->tax_declaration_link;
+            $ownership->current_tax_receipt_link = $request->current_tax_receipt_link;
+            
+            if ($request->is_owner == '0') {
+                $ownership->spa_link = $request->spa_link;
+            } else {
+                $ownership->spa_link = null;
+            }
+            
+            if (!$ownership->exists) {
+                $ownership->assessor_status = 'pending';
+                $ownership->treasurer_status = 'pending';
+            }
+            
+            $ownership->save();
+            
+            $application->step1_completed = true;
+            $application->step1_completed_at = now();
+            $application->save();
+            
+            Log::info('Ownership verification saved successfully', [
+                'application_id' => $application->id,
+                'is_owner' => $ownership->is_owner,
+                'step1_completed' => $application->step1_completed
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Ownership documents saved successfully',
+                'data' => $ownership
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saving ownership verification: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save ownership documents: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get ownership data for an application
+     */
+    public function getOwnershipData($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $id)
+                ->with('ownershipVerification')
+                ->first();
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $ownership = $application->ownershipVerification;
+            
+            if (!$ownership) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'is_owner' => $ownership->is_owner,
+                    'tct_link' => $ownership->tct_link,
+                    'tax_declaration_link' => $ownership->tax_declaration_link,
+                    'current_tax_receipt_link' => $ownership->current_tax_receipt_link,
+                    'spa_link' => $ownership->spa_link
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load ownership data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Print CPDO Assessment (standalone printable page)
+     */
+    public function printCPDOAssessment($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            $application = ApplicationDocument::with('user')
+                ->where('user_id', $user->id)
+                ->where('id', $id)
+                ->first();
+            
+            if (!$application) {
+                abort(404, 'Application not found');
+            }
+            
+            $assessmentData = [
+                'assessment_date' => $application->cpdo_assessment_date,
+                'zonal_location_fee' => $application->cpdo_zonal_location_fee,
+                'palc_fee' => $application->cpdo_palc_fee,
+                'development_permit_fee' => $application->cpdo_development_permit_fee,
+                'alteration_permit_fee' => $application->cpdo_alteration_permit_fee,
+                'site_zoning_certificate_fee' => $application->cpdo_site_zoning_certificate_fee,
+                'total_cpdo_amount' => $application->cpdo_total_amount,
+                'cpdo_assessment_notes' => $application->cpdo_assessment_notes,
+                'cpdo_additional_fees' => json_decode($application->cpdo_additional_fees, true) ?? [],
+                'cpdo_assessed_by' => $application->cpdo_assessed_by ? 
+                    (\App\Models\User::find($application->cpdo_assessed_by)?->first_name . ' ' . \App\Models\User::find($application->cpdo_assessed_by)?->last_name) : 
+                    'CPDO Staff'
+            ];
+            
+            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            
+            $formatAmount = function($amount) {
+                if (!$amount || $amount == 0) return '₱0.00';
+                return '₱' . number_format($amount, 2);
+            };
+            
+            return view('applicant.print-cpdo-receipt', [
+                'application' => $application,
+                'applicantName' => $applicantName,
+                'assessmentData' => $assessmentData,
+                'formatAmount' => $formatAmount
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error printing CPDO assessment: ' . $e->getMessage());
+            abort(500, 'Unable to print assessment');
+        }
+    }
 
     /**
      * Get all pending surveys for the user
@@ -1664,18 +1706,16 @@ public function printCPDOAssessment($id)
                 ], 401);
             }
 
-            // Find applications that are completed (verified) but don't have a survey yet
-            // Find applications that are for release but don't have a survey yet
-$pendingSurveys = ApplicationDocument::where('user_id', $user->id)
-    ->where('status', 'for-release')
-    ->whereDoesntHave('clientSatisfactionSurveys')
+            $pendingSurveys = ApplicationDocument::where('user_id', $user->id)
+                ->where('status', 'for-release')
+                ->whereDoesntHave('clientSatisfactionSurveys')
                 ->with(['user'])
                 ->get()
                 ->map(function ($application) {
                     return [
                         'id' => $application->id,
                         'application_number' => $application->application_number,
-                        'service_availed' => 'Building Permit Application', // Default service
+                        'service_availed' => 'Building Permit Application',
                         'completed_at' => $application->updated_at
                     ];
                 });
@@ -1695,218 +1735,220 @@ $pendingSurveys = ApplicationDocument::where('user_id', $user->id)
     }
 
     /**
- * Submit CPDO Experience Rating
- */
-public function submitCPDORating(Request $request)
-{
-    try {
-        $user = Auth::user();
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated'
-            ], 401);
-        }
-        
-        $validator = Validator::make($request->all(), [
-            'application_id' => 'required|exists:application_documents,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'processing_time' => 'nullable|string',
-            'responsiveness' => 'nullable|string',
-            'clarity' => 'nullable|string',
-            'fairness' => 'nullable|string',
-            'overall_satisfaction' => 'nullable|string',
-            'comments' => 'nullable|string'
-        ]);
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-        
-        $application = ApplicationDocument::findOrFail($request->application_id);
-        
-        if ($application->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-        
-        // Check if rating already exists
-        $existingRating = CPDORating::where('application_id', $request->application_id)
-            ->where('user_id', $user->id)
-            ->first();
+     * Submit CPDO Experience Rating
+     */
+    public function submitCPDORating(Request $request)
+    {
+        try {
+            $user = Auth::user();
             
-        if ($existingRating) {
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            $validator = Validator::make($request->all(), [
+                'application_id' => 'required|exists:application_documents,id',
+                'rating' => 'required|integer|min:1|max:5',
+                'processing_time' => 'nullable|string',
+                'responsiveness' => 'nullable|string',
+                'clarity' => 'nullable|string',
+                'fairness' => 'nullable|string',
+                'overall_satisfaction' => 'nullable|string',
+                'comments' => 'nullable|string'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            
+            $application = ApplicationDocument::findOrFail($request->application_id);
+            
+            if ($application->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+            
+            $existingRating = CPDORating::where('application_id', $request->application_id)
+                ->where('user_id', $user->id)
+                ->first();
+                
+            if ($existingRating) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already rated this application'
+                ], 409);
+            }
+            
+            $rating = CPDORating::create([
+                'application_id' => $request->application_id,
+                'user_id' => $user->id,
+                'rating' => $request->rating,
+                'processing_time' => $request->processing_time,
+                'responsiveness' => $request->responsiveness,
+                'clarity' => $request->clarity,
+                'fairness' => $request->fairness,
+                'overall_satisfaction' => $request->overall_satisfaction,
+                'comments' => $request->comments
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for your feedback!',
+                'data' => $rating
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error submitting CPDO rating: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'You have already rated this application'
-            ], 409);
+                'message' => 'Failed to submit rating: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $rating = CPDORating::create([
-            'application_id' => $request->application_id,
-            'user_id' => $user->id,
-            'rating' => $request->rating,
-            'processing_time' => $request->processing_time,
-            'responsiveness' => $request->responsiveness,
-            'clarity' => $request->clarity,
-            'fairness' => $request->fairness,
-            'overall_satisfaction' => $request->overall_satisfaction,
-            'comments' => $request->comments
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Thank you for your feedback!',
-            'data' => $rating
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error submitting CPDO rating: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to submit rating: ' . $e->getMessage()
-        ], 500);
     }
-}
 
-/**
- * Check if user has already rated the CPDO for this application
- */
-public function checkCPDORating($id)
-{
-    try {
-        $user = Auth::user();
-        
-        if (!$user) {
+    /**
+     * Check if user has already rated the CPDO for this application
+     */
+    public function checkCPDORating($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'has_rated' => false
+                ]);
+            }
+            
+            $hasRated = CPDORating::where('application_id', $id)
+                ->where('user_id', $user->id)
+                ->exists();
+                
+            return response()->json([
+                'success' => true,
+                'has_rated' => $hasRated
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error checking CPDO rating: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'has_rated' => false
             ]);
         }
-        
-        $hasRated = CPDORating::where('application_id', $id)
-            ->where('user_id', $user->id)
-            ->exists();
-            
-        return response()->json([
-            'success' => true,
-            'has_rated' => $hasRated
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error checking CPDO rating: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'has_rated' => false
-        ]);
     }
-}
-/**
- * Get certificates for applicant view
- */
-public function getCertificates($id)
-{
-    try {
-        $user = Auth::user();
-        
-        $application = ApplicationDocument::where('user_id', $user->id)
-            ->where('id', $id)
-            ->first();
-        
-        if (!$application) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Application not found'
-            ], 404);
-        }
-        
-        // Get payment proof record which contains the certificates
-        $paymentProof = \App\Models\PaymentProof::where('application_id', $id)->first();
-        
-        if (!$paymentProof) {
+
+    /**
+     * Get certificates for applicant view
+     */
+    public function getCertificates($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            $application = ApplicationDocument::where('user_id', $user->id)
+                ->where('id', $id)
+                ->first();
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $paymentProof = \App\Models\PaymentProof::where('application_id', $id)->first();
+            
+            if (!$paymentProof) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null
+                ]);
+            }
+            
             return response()->json([
                 'success' => true,
-                'data' => null
+                'data' => [
+                    'zoning_cert_link' => $paymentProof->zoning_cert_link ?? null,
+                    'zoning_cert_uploaded_at' => $paymentProof->zoning_cert_uploaded_at ?? null,
+                    'locational_clearance_link' => $paymentProof->locational_clearance_link ?? null,
+                    'locational_clearance_uploaded_at' => $paymentProof->locational_clearance_uploaded_at ?? null,
+                ]
             ]);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'zoning_cert_link' => $paymentProof->zoning_cert_link ?? null,
-                'zoning_cert_uploaded_at' => $paymentProof->zoning_cert_uploaded_at ?? null,
-                'locational_clearance_link' => $paymentProof->locational_clearance_link ?? null,
-                'locational_clearance_uploaded_at' => $paymentProof->locational_clearance_uploaded_at ?? null,
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error getting certificates: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error loading certificates'
-        ], 500);
-    }
-}
-/**
- * Get payment orders for an application (for applicant view)
- */
-public function getPaymentOrders($applicationId)
-{
-    try {
-        $user = auth()->user();
-        
-        // Verify the application belongs to the user
-        $application = ApplicationDocument::where('id', $applicationId)
-            ->where('user_id', $user->id)
-            ->first();
-        
-        if (!$application) {
+            
+        } catch (\Exception $e) {
+            Log::error('Error getting certificates: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Application not found'
-            ], 404);
+                'message' => 'Error loading certificates'
+            ], 500);
         }
-        
-        // Get payment orders from the payment_orders table
-        $paymentOrders = \App\Models\PaymentOrder::where('application_id', $applicationId)
-            ->with('creator')
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        $formattedOrders = $paymentOrders->map(function($order) {
-            return [
-                'id' => $order->id,
-                'order_number' => $order->order_number,
-                'payment_date' => $order->payment_date ? date('Y-m-d', strtotime($order->payment_date)) : null,
-                'created_at' => $order->created_at ? $order->created_at->format('Y-m-d H:i:s') : null,
-                'created_by' => $order->creator ? $order->creator->first_name . ' ' . $order->creator->last_name : 'System'
-            ];
-        });
-        
-        return response()->json([
-            'success' => true,
-            'payment_orders' => $formattedOrders,
-            'has_order' => $paymentOrders->count() > 0,
-            'latest_order' => $formattedOrders->first()
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error fetching payment orders for applicant: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching payment orders'
-        ], 500);
     }
-}
- private function generateApplicationNumberInternal()
+
+    /**
+     * Get payment orders for an application (for applicant view)
+     */
+    public function getPaymentOrders($applicationId)
+    {
+        try {
+            $user = auth()->user();
+            
+            $application = ApplicationDocument::where('id', $applicationId)
+                ->where('user_id', $user->id)
+                ->first();
+            
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+            
+            $paymentOrders = \App\Models\PaymentOrder::where('application_id', $applicationId)
+                ->with('creator')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            $formattedOrders = $paymentOrders->map(function($order) {
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'payment_date' => $order->payment_date ? date('Y-m-d', strtotime($order->payment_date)) : null,
+                    'created_at' => $order->created_at ? $order->created_at->format('Y-m-d H:i:s') : null,
+                    'created_by' => $order->creator ? $order->creator->first_name . ' ' . $order->creator->last_name : 'System'
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'payment_orders' => $formattedOrders,
+                'has_order' => $paymentOrders->count() > 0,
+                'latest_order' => $formattedOrders->first()
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching payment orders for applicant: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching payment orders'
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate application number internally (for submitApplication)
+     */
+    private function generateApplicationNumberInternal()
     {
         $year = date('Y');
         $lastApplication = ApplicationDocument::whereYear('created_at', $year)
@@ -1931,5 +1973,4 @@ public function getPaymentOrders($applicationId)
         
         return $applicationNumber;
     }
-
 }

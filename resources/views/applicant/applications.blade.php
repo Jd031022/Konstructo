@@ -497,34 +497,44 @@ function updateProgressBar(todaySubmitted) {
 }
 
     async function loadApplications() {
-        try {
-            const response = await fetch('/applicant/applications/data', {
-                headers: { 
-                    'Accept': 'application/json', 
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': getCsrfToken()
+    try {
+        const response = await fetch('/applicant/applications/data', {
+            headers: { 
+                'Accept': 'application/json', 
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': getCsrfToken()
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            applications = data.applications;
+            
+            // Use server-computed aging_days instead of calculating on frontend
+            // Aging is now calculated server-side using calculateWorkingDays()
+            // which only counts from submitted_at (not created_at)
+            // Drafts will have aging_days: null
+            applications = applications.map(app => {
+                // Use the aging_days value from the API response
+                if (app.aging_days !== null && app.aging_days !== undefined) {
+                    app.aging_status = getAgingStatus(app.aging_days);
+                } else {
+                    app.aging_days = null;
+                    app.aging_status = null;
                 }
+                return app;
             });
-            const data = await response.json();
-            if (data.success) {
-                applications = data.applications;
-                applications = applications.map(app => {
-                    if (app.submitted_at && app.status !== 'draft') {
-                        const days = calculateAgingDays(app.submitted_at);
-                        app.aging_days = days;
-                        app.aging_status = getAgingStatus(days);
-                    } else {
-                        app.aging_days = null;
-                        app.aging_status = null;
-                    }
-                    return app;
-                });
-                applyFilters();
-            } else { showErrorModal(data.message || 'Failed to load applications'); }
-        } catch (error) { console.error('Error loading applications:', error); showErrorModal('Failed to load applications'); }
-        finally { document.getElementById('loading-state').classList.add('hidden'); }
+            
+            applyFilters();
+        } else { 
+            showErrorModal(data.message || 'Failed to load applications'); 
+        }
+    } catch (error) { 
+        console.error('Error loading applications:', error); 
+        showErrorModal('Failed to load applications'); 
+    } finally { 
+        document.getElementById('loading-state').classList.add('hidden'); 
     }
-
+}
     async function loadStats() {
         try { 
             await fetch('/applicant/applications/stats', {
